@@ -1,12 +1,22 @@
 {
   "name": "sd-happy-hours",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "SD Happy Hours - real-time San Diego happy hour directory, blog, and venue pages.",
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/vercel": "^11.0.3",
+    "@octokit/rest": "^21.0.2",
+    "astro": "^7.1.3"
+  }
 }

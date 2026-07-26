@@ -1,0 +1,36 @@
+# Sveltia CMS config — see README-BLOG-SETUP.md for the one-time setup this depends on
+# (GitHub OAuth App + the sveltia-cms-auth Cloudflare Worker).
+
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/sd-happy-hour   # TODO: replace with the real owner/repo
+  branch: main
+  base_url: https://REPLACE-WITH-YOUR-WORKER.workers.dev   # TODO: your deployed sveltia-cms-auth worker
+
+media_folder: "public/images/blog"
+public_folder: "/images/blog"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Publish Date", name: "pubDate", widget: "datetime" }
+      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false }
+      - { label: "Author", name: "author", widget: "string", default: "SD Happy Hours" }
+      - { label: "Draft (uncheck to publish)", name: "draft", widget: "boolean", default: true }
+      - { label: "AI Generated", name: "aiGenerated", widget: "boolean", default: false }
+      - label: "Related Venue Slugs"
+        name: "venues"
+        widget: "list"
+        default: []
+        required: false
+        hint: "e.g. ironside-fish-oyster — must match the slug used on /venues/<slug>/"
+      - { label: "Hero Image", name: "heroImage", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }

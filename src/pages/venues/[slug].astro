@@ -1,0 +1,179 @@
+---
+export const prerender = true;
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { getVenues, slugify, formatTime } from '../../lib/venues';
+
+export async function getStaticPaths() {
+  const venues = getVenues();
+  return venues.map((venue) => ({
+    params: { slug: slugify(venue.name) },
+    props: { venue },
+  }));
+}
+
+const { venue } = Astro.props;
+
+const posts = await getCollection('blog', ({ data }) => !data.draft && data.venues.includes(slugify(venue.name)));
+
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venue.deals.slice(0, 2).join(', ')}. ${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
+---
+<Layout title={`${venue.name} Happy Hour — ${venue.neighborhood} | SD Happy Hours`} description={description}>
+  <style>
+    .venue-header {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px 8px;
+    }
+    .venue-header .tag {
+      display: inline-block;
+      background: var(--sand-warm);
+      color: var(--ocean);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .venue-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      margin-bottom: 8px;
+    }
+    .venue-header .vibe { color: var(--night-soft); }
+
+    .venue-details {
+      max-width: 800px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 640px) { .venue-details { grid-template-columns: 1fr; } }
+
+    .venue-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .venue-card h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--night-soft);
+      margin-bottom: 12px;
+    }
+    .deal-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .deal {
+      background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%);
+      color: var(--night);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+    }
+    .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .day-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 100px;
+      background: var(--sand-warm);
+      color: var(--night-soft);
+    }
+    .day-pill.active { background: var(--sunset-start); color: white; }
+
+    .venue-actions {
+      max-width: 800px;
+      margin: 0 auto 24px;
+      padding: 0 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .venue-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .btn-primary { background: var(--night); color: white; }
+    .btn-primary:hover { background: var(--sunset-start); }
+    .btn-secondary { background: var(--sand-warm); color: var(--night); }
+
+    .related-posts {
+      max-width: 800px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+    .related-posts h3 { font-family: var(--font-display); margin-bottom: 12px; }
+    .related-posts a {
+      display: block;
+      padding: 16px 20px;
+      background: white;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .back-link {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 24px 0;
+      display: block;
+      font-size: 0.85rem;
+      color: var(--night-soft);
+      text-decoration: none;
+    }
+  </style>
+
+  <a class="back-link" href="/">← Back to all happy hours</a>
+
+  <div class="venue-header">
+    <span class="tag">{venue.neighborhood}</span>
+    <h1>{venue.name}</h1>
+    <p class="vibe">{venue.vibe}</p>
+  </div>
+
+  <div class="venue-actions">
+    <a class="btn-primary" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
+    <a class="btn-secondary" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
+  </div>
+
+  <div class="venue-details">
+    <div class="venue-card">
+      <h3>Happy Hour Times</h3>
+      <p><strong>{formatTime(venue.startTime)} – {formatTime(venue.endTime)}</strong></p>
+      <div class="day-row" style="margin-top: 12px;">
+        {dayNames.map((day) => (
+          <span class={`day-pill ${venue.days.includes(day) ? 'active' : ''}`}>{day.slice(0, 3)}</span>
+        ))}
+      </div>
+    </div>
+    <div class="venue-card">
+      <h3>Deals</h3>
+      <div class="deal-grid">
+        {venue.deals.map((deal) => <span class="deal">{deal}</span>)}
+      </div>
+      <p style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
+    </div>
+  </div>
+
+  {posts.length > 0 && (
+    <div class="related-posts">
+      <h3>Mentioned in the blog</h3>
+      {posts.map((post) => (
+        <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+      ))}
+    </div>
+  )}
+</Layout>

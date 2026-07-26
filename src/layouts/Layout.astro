@@ -1,0 +1,129 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const {
+  title,
+  description,
+  image = '/og-default.jpg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={new URL(image, Astro.site)} />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <style is:global>
+    :root {
+      --sunset-start: #FF6B35;
+      --sunset-mid: #F7931E;
+      --sunset-end: #FFD23F;
+      --ocean: #0891B2;
+      --ocean-deep: #164E63;
+      --palm: #22C55E;
+      --night: #0F172A;
+      --night-soft: #1E293B;
+      --sand: #FFFBF5;
+      --sand-warm: #FEF3E2;
+      --coral: #FF6B6B;
+      --violet: #8B5CF6;
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+
+      --radius: 24px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--sand);
+      color: var(--night);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 24px;
+    }
+
+    .site-nav .brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+    }
+
+    .site-nav .links {
+      display: flex;
+      gap: 24px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .site-nav .links a {
+      text-decoration: none;
+      opacity: 0.75;
+    }
+
+    .site-nav .links a:hover { opacity: 1; }
+
+    footer.site-footer {
+      background: var(--night);
+      color: white;
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    footer.site-footer p { opacity: 0.7; font-size: 0.9rem; }
+    footer.site-footer a { color: var(--sunset-end); text-decoration: none; font-weight: 600; }
+    footer.site-footer a:hover { text-decoration: underline; }
+    footer.site-footer .disclaimer { margin-top: 16px; font-size: 0.8rem; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand" href="/">SD Happy Hours</a>
+    <div class="links">
+      <a href="/">Find Happy Hours</a>
+      <a href="/blog/">Blog</a>
+    </div>
+  </nav>
+
+  <slot />
+
+  <footer class="site-footer">
+    <p>Built by Shane & John in San Diego | <a href="mailto:hello@sdhappyhours.com">Submit a spot</a></p>
+    <p class="disclaimer">Happy hour details are community-sourced. Always verify with the venue before visiting.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Generate AI Draft — SD Happy Hours</title>
+<style>
+  :root { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  body { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; background: #FFFBF5; color: #0F172A; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  p.sub { color: #475569; margin-bottom: 28px; }
+  label { display: block; font-weight: 600; font-size: 0.9rem; margin: 20px 0 6px; }
+  textarea, input { width: 100%; padding: 12px 14px; border: 1px solid #E2E8F0; border-radius: 10px; font-family: inherit; font-size: 0.95rem; }
+  textarea { min-height: 110px; resize: vertical; }
+  .hint { font-size: 0.8rem; color: #64748B; margin-top: 4px; }
+  button { margin-top: 24px; background: #0F172A; color: white; border: none; padding: 14px 26px; border-radius: 100px; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+  button:hover { background: #FF6B35; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #result { margin-top: 24px; padding: 18px 20px; border-radius: 12px; display: none; }
+  #result.ok { background: #D9F2E3; display: block; }
+  #result.err { background: #FDE2E2; display: block; }
+  #result a { font-weight: 700; color: #0F172A; }
+  nav { margin-bottom: 24px; font-size: 0.85rem; }
+  nav a { color: #64748B; text-decoration: none; }
+</style>
+</head>
+<body>
+  <nav><a href="/admin/">← Back to all posts</a></nav>
+  <h1>Generate a new AI draft</h1>
+  <p class="sub">Drop in your idea, any source material, and the venues it's about. Claude drafts it, then you review and edit before it publishes.</p>
+
+  <label for="token">Admin token</label>
+  <input id="token" type="password" placeholder="Saved locally in this browser only" />
+  <p class="hint">Ask John for this if you don't have it — set once, remembered after that.</p>
+
+  <label for="angle">Your idea / angle *</label>
+  <textarea id="angle" placeholder="e.g. Round up the best patio happy hours for a warm Friday, tie it to the upcoming holiday weekend, keep it upbeat and San Diego-specific."></textarea>
+
+  <label for="source">Source material (optional)</label>
+  <textarea id="source" placeholder="Paste anything from a Google Alert, a scraper, an article, or your own notes. Claude treats this as inspiration, not verified fact."></textarea>
+
+  <label for="venues">Related venue slugs (optional, comma-separated)</label>
+  <input id="venues" placeholder="ironside-fish-oyster, craft-commerce" />
+  <p class="hint">Must match the slug in the venue's URL — these get pulled in as verified, ground-truth data so Claude never has to guess at hours or deals.</p>
+
+  <button id="go">Generate Draft</button>
+
+  <div id="result"></div>
+
+  <script>
+    const tokenEl = document.getElementById('token');
+    tokenEl.value = localStorage.getItem('sdhh_admin_token') || '';
+    tokenEl.addEventListener('input', () => localStorage.setItem('sdhh_admin_token', tokenEl.value));
+
+    document.getElementById('go').addEventListener('click', async () => {
+      const btn = document.getElementById('go');
+      const resultEl = document.getElementById('result');
+      const angle = document.getElementById('angle').value.trim();
+      const source = document.getElementById('source').value.trim();
+      const venues = document.getElementById('venues').value
+        .split(',').map((s) => s.trim()).filter(Boolean);
+
+      if (!angle) {
+        resultEl.className = 'err';
+        resultEl.textContent = 'Add your idea/angle first.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Generating…';
+      resultEl.className = '';
+      resultEl.textContent = '';
+
+      try {
+        const res = await fetch('/api/generate-draft', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${tokenEl.value}`,
+          },
+          body: JSON.stringify({ angle, sourceMaterial: source, venues }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          resultEl.className = 'err';
+          resultEl.textContent = data.error || 'Something went wrong.';
+        } else {
+          resultEl.className = 'ok';
+          resultEl.innerHTML = `Draft created. <a href="${data.editUrl}">Open it in the editor to review →</a>`;
+        }
+      } catch (e) {
+        resultEl.className = 'err';
+        resultEl.textContent = 'Network error — is the site deployed with the API route live?';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate Draft';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+---
+import Layout from './Layout.astro';
+import { getVenueBySlug, formatTime } from '../lib/venues';
+
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author: string;
+  heroImage?: string;
+  venues?: string[];
+}
+
+const { title, description, pubDate, updatedDate, author, heroImage, venues = [] } = Astro.props;
+
+const relatedVenues = venues
+  .map((slug) => getVenueBySlug(slug))
+  .filter((v): v is NonNullable<typeof v> => Boolean(v));
+
+const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Layout title={`${title} | SD Happy Hours Blog`} description={description} image={heroImage}>
+  <style>
+    .post-header {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 24px;
+    }
+    .post-header .meta {
+      font-size: 0.85rem;
+      color: var(--night-soft);
+      margin-bottom: 12px;
+    }
+    .post-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .post-header .description {
+      font-size: 1.1rem;
+      color: var(--night-soft);
+    }
+    .post-hero {
+      max-width: 900px;
+      margin: 0 auto 32px;
+      padding: 0 24px;
+    }
+    .post-hero img {
+      width: 100%;
+      border-radius: var(--radius);
+    }
+    .post-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+    }
+    .post-body h2 { font-family: var(--font-display); margin: 32px 0 12px; }
+    .post-body h3 { margin: 24px 0 8px; }
+    .post-body p { margin-bottom: 16px; }
+    .post-body a { color: var(--ocean); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; }
+
+    .related-venues {
+      max-width: 760px;
+      margin: 32px auto 64px;
+      padding: 24px;
+      background: var(--sand-warm);
+      border-radius: var(--radius);
+    }
+    .related-venues h3 {
+      font-family: var(--font-display);
+      margin-bottom: 12px;
+    }
+    .related-venues ul { list-style: none; margin: 0; }
+    .related-venues li { margin-bottom: 8px; }
+    .related-venues a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--night);
+    }
+    .related-venues a:hover { color: var(--sunset-start); }
+    .related-venues .time { font-weight: 400; color: var(--night-soft); font-size: 0.9rem; }
+  </style>
+
+  <div class="post-header">
+    <div class="meta">By {author} · {dateStr}{updatedDate && ` (updated ${updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`}</div>
+    <h1>{title}</h1>
+    <p class="description">{description}</p>
+  </div>
+
+  {heroImage && (
+    <div class="post-hero">
+      <img src={heroImage} alt={title} />
+    </div>
+  )}
+
+  <div class="post-body">
+    <slot />
+  </div>
+
+  {relatedVenues.length > 0 && (
+    <div class="related-venues">
+      <h3>Mentioned in this post</h3>
+      <ul>
+        {relatedVenues.map((v) => (
+          <li>
+            <a href={`/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/`}>
+              {v.name} <span class="time">— {formatTime(v.startTime)}–{formatTime(v.endTime)}, {v.neighborhood}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</Layout>
