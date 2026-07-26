@@ -5,8 +5,9 @@ import Layout from '../layouts/Layout.astro';
 <Layout
   title="SD Happy Hours — Where San Diego Drinks"
   description="Find happy hours happening right now in San Diego. Real-time deals from Little Italy to Pacific Beach."
+  transparentNav={true}
 >
-  <style>
+  <style is:global>
     /* ===== HERO ===== */
     .hero {
       position: relative;
@@ -16,7 +17,7 @@ import Layout from '../layouts/Layout.astro';
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 40px 24px 100px;
+      padding: 110px 24px 100px;
       overflow: hidden;
       background: linear-gradient(to bottom, #1A0A2E 0%, #2D1B4E 30%, #8B4B6B 55%, #E8956B 75%, #F4C05C 90%, #FFE4A0 100%);
     }
@@ -58,10 +59,11 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .cocktail-icon {
-      position: absolute;
-      top: 20px; right: 10%;
-      z-index: 4;
-      opacity: 0.85;
+      display: inline-block;
+      width: clamp(36px, 7vw, 64px);
+      height: auto;
+      flex-shrink: 0;
+      opacity: 0.9;
       animation: float 4s ease-in-out infinite;
     }
 
@@ -110,7 +112,7 @@ import Layout from '../layouts/Layout.astro';
       text-shadow: 0 4px 40px rgba(0,0,0,0.3);
     }
 
-    .hero h1 span {
+    .hero h1 .eyebrow {
       display: block;
       font-family: var(--font-body);
       font-size: clamp(0.9rem, 2.5vw, 1.25rem);
@@ -120,6 +122,13 @@ import Layout from '../layouts/Layout.astro';
       opacity: 0.9;
       margin-bottom: 8px;
       color: #FFE4A0;
+    }
+
+    .hero h1 .title-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 2vw, 20px);
     }
 
     .hero-tagline {
@@ -172,6 +181,21 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .search-input {
+      appearance: none;
+      background: white;
+      border: 2px solid var(--sand-warm);
+      color: var(--night);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 100px;
+      min-width: min(240px, 100%);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12); outline: none; }
 
     .filter-btn, .view-btn, .location-btn {
       appearance: none;
@@ -243,16 +267,34 @@ import Layout from '../layouts/Layout.astro';
       box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
     }
     .card-image .live-badge .dot { width: 5px; height: 5px; background: white; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; }
-    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
-    .card-image .distance-tag { position: absolute; top: 12px; right: 12px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 52px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .distance-tag { position: absolute; top: 12px; right: 52px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
     .card-image .time-overlay { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
     .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
     .card-image .time-badge { background: white; color: var(--night); font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: var(--radius-sm); white-space: nowrap; }
 
     .card-body { padding: 20px; }
-    .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .card-vibe { font-size: 0.75rem; font-weight: 600; color: var(--ocean); background: rgba(8, 145, 178, 0.1); padding: 4px 10px; border-radius: 100px; }
     .card-distance { font-size: 0.75rem; font-weight: 600; color: var(--sunset-start); }
+
+    .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; }
+    .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 14px; }
+    .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
+
+    .trust-row { display: flex; justify-content: space-between; gap: 12px; margin: -4px 0 14px; color: var(--night-soft); font-size: 0.75rem; font-weight: 500; }
+    .trust-row a { color: var(--ocean); font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .trust-row a:hover { text-decoration: underline; }
+
+    .save-panel { background: var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 8px; margin: 0 0 14px; padding: 10px; }
+    .save-panel.compact { align-items: center; display: flex; justify-content: space-between; gap: 10px; }
+    .save-panel select, .save-panel input { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
+    .save-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .save-action { border: 0; border-radius: 100px; background: var(--night); color: white; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px 12px; }
+    .save-action:hover { background: var(--sunset-start); }
+    .save-action.secondary { background: white; color: var(--night); }
 
     .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
     .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
@@ -282,9 +324,10 @@ import Layout from '../layouts/Layout.astro';
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .hero { min-height: 70vh; padding: 40px 20px 80px; }
+      .hero { min-height: 70vh; padding: 100px 20px 80px; }
       .filters-container { flex-direction: column; align-items: stretch; }
       .filters { flex-wrap: wrap; }
+      .search-input { width: 100%; }
       .filter-btn { flex: 1; min-width: 100px; }
       .grid { grid-template-columns: 1fr; }
       .map-container { height: 400px; border-radius: var(--radius-sm); }
@@ -301,19 +344,6 @@ import Layout from '../layouts/Layout.astro';
     <div class="sun"></div>
     <div class="ocean"></div>
 
-    <div class="cocktail-icon">
-      <svg width="70" height="90" viewBox="0 0 70 90" fill="none">
-        <path d="M10 10 L35 50 L60 10 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-        <line x1="35" y1="50" x2="35" y2="75" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-        <ellipse cx="35" cy="78" rx="15" ry="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-        <path d="M18 20 L35 42 L52 20 Z" fill="#FF6B6B" opacity="0.8"/>
-        <circle cx="28" cy="18" r="6" fill="#4ADE80" opacity="0.9"/>
-        <path d="M25 18 Q28 15 31 18" stroke="#22C55E" stroke-width="1.5" fill="none"/>
-        <path d="M42 8 Q50 5 55 15 L42 12 Z" fill="#FFD23F"/>
-        <line x1="42" y1="8" x2="42" y2="25" stroke="#8B4513" stroke-width="1.5"/>
-      </svg>
-    </div>
-
     <div class="hero-content">
       <div class="hero-badge">
         <span class="pulse"></span>
@@ -321,8 +351,20 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <h1>
-        <span>Where San Diego Drinks</span>
-        Happy Hour
+        <span class="eyebrow">Where San Diego Drinks</span>
+        <span class="title-row">
+          Happy Hour
+          <svg class="cocktail-icon" viewBox="0 0 70 90" fill="none">
+            <path d="M10 10 L35 50 L60 10 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <line x1="35" y1="50" x2="35" y2="75" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <ellipse cx="35" cy="78" rx="15" ry="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <path d="M18 20 L35 42 L52 20 Z" fill="#FF6B6B" opacity="0.8"/>
+            <circle cx="28" cy="18" r="6" fill="#4ADE80" opacity="0.9"/>
+            <path d="M25 18 Q28 15 31 18" stroke="#22C55E" stroke-width="1.5" fill="none"/>
+            <path d="M42 8 Q50 5 55 15 L42 12 Z" fill="#FFD23F"/>
+            <line x1="42" y1="8" x2="42" y2="25" stroke="#8B4513" stroke-width="1.5"/>
+          </svg>
+        </span>
       </h1>
 
       <p class="hero-tagline">The best deals happening right now, from Little Italy to PB</p>
@@ -341,6 +383,8 @@ import Layout from '../layouts/Layout.astro';
   <section class="filters-section">
     <div class="filters-container">
       <div class="filters">
+        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" />
+
         <select class="filter-btn" id="day-filter">
           <option value="">All days</option>
           <option value="Monday">Monday</option>
@@ -356,9 +400,23 @@ import Layout from '../layouts/Layout.astro';
           <option value="">All neighborhoods</option>
         </select>
 
+        <select class="filter-btn" id="deal-filter">
+          <option value="">All deals</option>
+        </select>
+
+        <select class="filter-btn" id="feature-filter">
+          <option value="">All vibes</option>
+        </select>
+
         <select class="filter-btn" id="status-filter">
           <option value="">All spots</option>
           <option value="now">Live now</option>
+        </select>
+
+        <select class="filter-btn" id="trust-filter">
+          <option value="">Any trust status</option>
+          <option value="verified">Verified only</option>
+          <option value="unverified">Needs verification</option>
         </select>
 
         <button class="location-btn" id="location-btn">
@@ -400,39 +458,30 @@ import Layout from '../layouts/Layout.astro';
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
+    import { getVenueImage } from '../lib/venues';
+
     let happyHours: any[] = [];
     let userLocation: { lat: number; lng: number } | null = null;
     let map: any = null;
     let markers: any[] = [];
+    let isSignedIn = false;
+    let savedSpotIds = new Set<number>();
+    let accountUser: any = null;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function labelize(value: string) {
+      return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayAbbrev = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     const today = dayNames[new Date().getDay()];
     const todayIndex = new Date().getDay();
-
-    const vibeImages: Record<string, string> = {
-      'Upscale casual': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80',
-      'Speakeasy': 'https://images.unsplash.com/photo-1527761939622-933f3c8e0a94?w=800&q=80',
-      'Trendy gastropub': 'https://images.unsplash.com/photo-1538488881038-e252a119ace7?w=800&q=80',
-      'Seafood spot': 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80',
-      'Rooftop vibes': 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
-      'Modern Mexican': 'https://images.unsplash.com/photo-1582169296194-e4d644c48063?w=800&q=80',
-      'Tiki bar': 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=800&q=80',
-      'Chef-driven': 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=800&q=80',
-      'Wine bar': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
-      'Upscale Mediterranean': 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=800&q=80',
-      'Neighborhood gastropub': 'https://images.unsplash.com/photo-1575037614876-c38a4d44f5b8?w=800&q=80',
-      'Craft cocktails': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80',
-      'Dog-friendly patio': 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&q=80',
-      'Casual chicken joint': 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=800&q=80',
-      'Waterfront Mexican': 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=80',
-      'Arcade bar': 'https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&q=80',
-      'All-day cafe': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
-      'Italian gastropub': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-      'Vegan metal bar': 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&q=80',
-      'Beach brewery': 'https://images.unsplash.com/photo-1559526324-593bc073d938?w=800&q=80',
-      'default': 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80'
-    };
 
     function slugify(name: string) {
       return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -563,10 +612,10 @@ import Layout from '../layouts/Layout.astro';
         const marker = L.marker([h.lat, h.lng], { icon })
           .bindPopup(`
             <div class="map-popup">
-              <h3>${h.name}</h3>
-              <div class="vibe">${h.vibe}</div>
+              <h3>${escapeHTML(h.name)}</h3>
+              <div class="vibe">${escapeHTML(h.vibe)} · ${h.verified ? 'Verified' : 'Needs verification'}</div>
               <div class="time">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</div>
-              <div class="deals">${h.deals.slice(0, 2).join(' • ')}</div>
+              <div class="deals">${h.deals.slice(0, 2).map(escapeHTML).join(' • ')}</div>
               <a href="/venues/${slugify(h.name)}/">View details</a>
             </div>
           `)
@@ -576,19 +625,45 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    async function loadAccount() {
+      try {
+        const res = await fetch('/api/account/me');
+        const session = await res.json();
+        accountUser = session.authenticated ? session.user : null;
+        isSignedIn = Boolean(accountUser);
+        savedSpotIds = new Set((accountUser?.savedSpots || []).map((s: any) => s.spotId));
+      } catch {
+        accountUser = null;
+        isSignedIn = false;
+        savedSpotIds = new Set();
+      }
+
+      render();
+    }
+
+    function getSavedSpot(spotId: number) {
+      return accountUser?.savedSpots?.find((item: any) => item.spotId === spotId);
+    }
+
+    function populateSelect(id: string, values: string[], formatter: (v: string) => string = (v) => v) {
+      const select = document.getElementById(id) as HTMLSelectElement;
+      values.forEach((n) => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = formatter(n);
+        select.appendChild(opt);
+      });
+    }
+
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
       happyHours = await res.json();
 
-      const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood))].sort();
-      const select = document.getElementById('neighborhood-filter') as HTMLSelectElement;
-      neighborhoods.forEach((n) => {
-        const opt = document.createElement('option');
-        opt.value = n;
-        opt.textContent = n;
-        select.appendChild(opt);
-      });
+      populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
+      populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
+      populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
 
+      await loadAccount();
       render();
     }
 
@@ -609,19 +684,44 @@ import Layout from '../layouts/Layout.astro';
     }
 
     function getImage(vibe: string) {
-      return vibeImages[vibe] || vibeImages['default'];
+      return getVenueImage(vibe, 'card');
+    }
+
+    function getTrustLabel(h: any) {
+      if (h.verified && h.lastVerifiedAt) {
+        return `Verified ${new Date(h.lastVerifiedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+      }
+      if (h.verified) return 'Verified';
+      return 'Needs verification';
+    }
+
+    function matchesSearch(h: any, query: string) {
+      if (!query) return true;
+      const haystack = [h.name, h.neighborhood, h.address, h.vibe, ...(h.deals || []), ...(h.dealTypes || []), ...(h.features || [])]
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(query);
     }
 
     function getFilteredData() {
+      const searchQuery = (document.getElementById('search-input') as HTMLInputElement).value.trim().toLowerCase();
       const dayFilter = (document.getElementById('day-filter') as HTMLSelectElement).value;
       const neighborhoodFilter = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
+      const dealFilter = (document.getElementById('deal-filter') as HTMLSelectElement).value;
+      const featureFilter = (document.getElementById('feature-filter') as HTMLSelectElement).value;
       const statusFilter = (document.getElementById('status-filter') as HTMLSelectElement).value;
+      const trustFilter = (document.getElementById('trust-filter') as HTMLSelectElement).value;
 
       let filtered = [...happyHours];
 
+      if (searchQuery) filtered = filtered.filter((h) => matchesSearch(h, searchQuery));
       if (dayFilter) filtered = filtered.filter((h) => h.days.includes(dayFilter));
       if (neighborhoodFilter) filtered = filtered.filter((h) => h.neighborhood === neighborhoodFilter);
+      if (dealFilter) filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
+      if (featureFilter) filtered = filtered.filter((h) => (h.features || []).includes(featureFilter));
       if (statusFilter === 'now') filtered = filtered.filter((h) => isHappeningNow(h));
+      if (trustFilter === 'verified') filtered = filtered.filter((h) => h.verified);
+      if (trustFilter === 'unverified') filtered = filtered.filter((h) => !h.verified);
 
       if (userLocation) {
         filtered = filtered.map((h) => ({
@@ -678,19 +778,24 @@ import Layout from '../layouts/Layout.astro';
           return `<span class="${cls}">${dayAbbrev[i]}</span>`;
         }).join('');
 
+        const trustClass = h.verified ? '' : ' unverified';
+        const featureTags = (h.features || []).slice(0, 3)
+          .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
+          .join('');
+
         return `
           <article class="card ${isLive ? 'is-live' : ''}">
             <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
               <div class="card-image">
-                <img src="${img}" alt="${h.name}" loading="lazy">
+                <img src="${img}" alt="${escapeHTML(h.name)}" loading="lazy">
                 <div class="overlay"></div>
                 ${isLive ? '<div class="live-badge"><span class="dot"></span> Live Now</div>' : ''}
                 ${hasDistance
                   ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
-                  : `<span class="neighborhood-tag">${h.neighborhood}</span>`
+                  : `<span class="neighborhood-tag">${escapeHTML(h.neighborhood)}</span>`
                 }
                 <div class="time-overlay">
-                  <span class="venue-name">${h.name}</span>
+                  <span class="venue-name">${escapeHTML(h.name)}</span>
                   <span class="time-badge">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</span>
                 </div>
               </div>
@@ -698,16 +803,26 @@ import Layout from '../layouts/Layout.astro';
 
             <div class="card-body">
               <div class="card-meta">
-                <span class="card-vibe">${h.vibe}</span>
-                ${hasDistance ? `<span class="card-distance">${h.neighborhood}</span>` : ''}
+                <span class="card-vibe">${escapeHTML(h.vibe)}</span>
+                <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
+                ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
               </div>
+
+              <div class="tag-row">${featureTags}</div>
+
+              <div class="trust-row">
+                <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
+                <a href="/submit/">Report update</a>
+              </div>
+
+              ${renderSavePanel(h)}
 
               <div class="week-row">${weekDots}</div>
 
               <div class="card-deals">
                 <h3>Deals</h3>
                 <div class="deal-grid">
-                  ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${d}</span>`).join('')}
+                  ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
                 </div>
               </div>
 
@@ -717,7 +832,7 @@ import Layout from '../layouts/Layout.astro';
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
-                  <span>${h.address}</span>
+                  <span>${escapeHTML(h.address)}</span>
                 </a>
                 <a class="card-cta" href="/venues/${slug}/">
                   Details
@@ -736,9 +851,81 @@ import Layout from '../layouts/Layout.astro';
       }
     }
 
+    function renderSavePanel(h: any) {
+      if (!accountUser) {
+        return `
+          <div class="save-panel compact">
+            <span>Save notes and lists</span>
+            <button class="save-action" data-save-login>Log in</button>
+          </div>
+        `;
+      }
+
+      const saved = getSavedSpot(h.id);
+      if (!saved) {
+        return `
+          <div class="save-panel compact">
+            <span>Add to your happy hour list</span>
+            <button class="save-action" data-save-spot="${h.id}">Save</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="save-panel" data-saved-spot="${h.id}">
+          <select data-save-status>
+            <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
+            <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
+            <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
+          </select>
+          <input data-save-note value="${escapeHTML(saved.note)}" placeholder="Private note or shareable tip" />
+          <div class="save-actions">
+            <button class="save-action" data-update-spot="${h.id}">Update</button>
+            <button class="save-action secondary" data-remove-spot="${h.id}">Remove</button>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('search-input')!.addEventListener('input', render);
     document.getElementById('day-filter')!.addEventListener('change', render);
     document.getElementById('neighborhood-filter')!.addEventListener('change', render);
+    document.getElementById('deal-filter')!.addEventListener('change', render);
+    document.getElementById('feature-filter')!.addEventListener('change', render);
     document.getElementById('status-filter')!.addEventListener('change', render);
+    document.getElementById('trust-filter')!.addEventListener('change', render);
+
+    document.getElementById('grid')!.addEventListener('click', async (event) => {
+      const target = event.target as HTMLElement;
+
+      if (target.closest('[data-save-login]')) {
+        window.location.href = '/account/';
+        return;
+      }
+
+      const saveButton = target.closest('[data-save-spot]') as HTMLElement | null;
+      const updateButton = target.closest('[data-update-spot]') as HTMLElement | null;
+      const removeButton = target.closest('[data-remove-spot]') as HTMLElement | null;
+      const spotId = saveButton?.dataset.saveSpot || updateButton?.dataset.updateSpot || removeButton?.dataset.removeSpot;
+      if (!spotId) return;
+
+      event.preventDefault();
+
+      if (removeButton) {
+        await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
+      } else {
+        const panel = target.closest('.save-panel');
+        await fetch(`/api/account/spots/${spotId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            status: (panel?.querySelector('[data-save-status]') as HTMLSelectElement | null)?.value || 'favorite',
+            note: (panel?.querySelector('[data-save-note]') as HTMLInputElement | null)?.value || '',
+          }),
+        });
+      }
+      await loadAccount();
+    });
 
     loadData();
   </script>

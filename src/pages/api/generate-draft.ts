@@ -43,7 +43,7 @@ function findVenueData(venueSlugs: string[]) {
 
 export const POST: APIRoute = async ({ request }) => {
   const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  if (!process.env.DRAFT_API_TOKEN || token !== process.env.DRAFT_API_TOKEN) {
+  if (!import.meta.env.DRAFT_API_TOKEN || token !== import.meta.env.DRAFT_API_TOKEN) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
@@ -70,11 +70,11 @@ Write the blog post now, following all rules in your instructions. Respond with 
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+      'x-api-key': import.meta.env.ANTHROPIC_API_KEY || '',
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
+      model: import.meta.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
       max_tokens: 4000,
       system: CONTENT_BRIEF,
       messages: [{ role: 'user', content: userPrompt }],
@@ -115,18 +115,18 @@ Write the blog post now, following all rules in your instructions. Respond with 
   const fileContent = frontmatter + parsed.body + '\n';
   const filePath = `src/content/blog/${slug}.md`;
 
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_BRANCH || 'main';
+  const owner = import.meta.env.GITHUB_OWNER;
+  const repo = import.meta.env.GITHUB_REPO;
+  const branch = import.meta.env.GITHUB_BRANCH || 'main';
 
-  if (!owner || !repo || !process.env.GITHUB_TOKEN) {
+  if (!owner || !repo || !import.meta.env.GITHUB_TOKEN) {
     return new Response(
       JSON.stringify({ error: 'Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.' }),
       { status: 500 }
     );
   }
 
-  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  const octokit = new Octokit({ auth: import.meta.env.GITHUB_TOKEN });
 
   let sha: string | undefined;
   try {

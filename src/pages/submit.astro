@@ -1,0 +1,256 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Submit a Happy Hour | SD Happy Hours"
+  description="Submit a San Diego restaurant happy hour for review by SD Happy Hours."
+>
+  <style>
+    .submit-header {
+      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
+      color: white;
+      padding: 56px 24px 44px;
+    }
+    .submit-header .inner { max-width: 900px; margin: 0 auto; }
+    .submit-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 6vw, 3.5rem);
+      margin-bottom: 12px;
+    }
+    .submit-header p { color: rgba(255,255,255,0.88); font-size: 1.05rem; max-width: 640px; line-height: 1.6; }
+
+    .submit-main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    .submit-form {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label {
+      color: var(--night-soft);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 2px solid var(--sand-warm);
+      border-radius: var(--radius-sm);
+      color: var(--night);
+      font: inherit;
+      padding: 11px 14px;
+      background: white;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--sunset-start);
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
+      outline: none;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+
+    .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .checkbox-grid label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sand-warm);
+      border-radius: var(--radius-sm);
+      color: var(--night);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    .submit-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 14px; grid-column: 1 / -1; }
+    .submit-actions button {
+      border: 0;
+      background: var(--night);
+      color: white;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      padding: 13px 24px;
+      border-radius: 100px;
+    }
+    .submit-actions button:hover { background: var(--sunset-start); }
+    .submit-actions button:disabled { cursor: not-allowed; opacity: 0.6; }
+
+    .form-status { color: var(--night-soft); font-weight: 600; }
+    .form-status.error { color: #B91C1C; }
+
+    .submit-footnote { color: var(--night-soft); font-size: 0.85rem; margin-top: 16px; }
+
+    @media (max-width: 720px) {
+      .submit-form { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="submit-header">
+    <div class="inner">
+      <h1>Submit a Happy Hour</h1>
+      <p>Own or manage a San Diego spot? Send us your happy hour details and our team will review and verify it before it goes live.</p>
+    </div>
+  </div>
+
+  <main class="submit-main">
+    <form class="submit-form" id="submit-form">
+      <div class="form-field">
+        <label for="contact-name">Your name</label>
+        <input id="contact-name" name="contactName" required>
+      </div>
+      <div class="form-field">
+        <label for="contact-email">Your email</label>
+        <input id="contact-email" name="contactEmail" type="email" required>
+      </div>
+
+      <div class="form-field">
+        <label for="submit-name">Restaurant</label>
+        <input id="submit-name" name="name" required>
+      </div>
+      <div class="form-field">
+        <label for="submit-neighborhood">Neighborhood</label>
+        <input id="submit-neighborhood" name="neighborhood" placeholder="Little Italy" required>
+      </div>
+
+      <div class="form-field full">
+        <label for="submit-address">Address</label>
+        <input id="submit-address" name="address" placeholder="123 Main St, San Diego, CA" required>
+      </div>
+
+      <div class="form-field">
+        <label for="submit-website">Website</label>
+        <input id="submit-website" name="website" type="url" placeholder="https://..." required>
+      </div>
+      <div class="form-field">
+        <label for="submit-source">Source URL (menu, press, etc.)</label>
+        <input id="submit-source" name="sourceUrl" type="url" placeholder="https://...">
+      </div>
+
+      <div class="form-field">
+        <label for="submit-start">Start time</label>
+        <input id="submit-start" name="startTime" type="time" required>
+      </div>
+      <div class="form-field">
+        <label for="submit-end">End time</label>
+        <input id="submit-end" name="endTime" type="time" required>
+      </div>
+
+      <div class="form-field full">
+        <label>Days</label>
+        <div class="checkbox-grid">
+          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+            <label><input type="checkbox" name="days" value={day} /> {day}</label>
+          ))}
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label for="submit-deals">Deals (one per line)</label>
+        <textarea id="submit-deals" name="deals" placeholder={'$8 margaritas\n$5 tacos'} required></textarea>
+      </div>
+
+      <div class="form-field">
+        <label for="submit-vibe">Vibe</label>
+        <input id="submit-vibe" name="vibe" placeholder="Rooftop, wine bar, patio..." required>
+      </div>
+      <div class="form-field">
+        <label for="submit-notes">Notes for our team</label>
+        <input id="submit-notes" name="notes" placeholder="Anything we should know">
+      </div>
+
+      <div class="form-field full">
+        <label>Deal types (optional)</label>
+        <div class="checkbox-grid">
+          {['beer', 'cocktails', 'wine', 'food', 'oysters', 'entertainment'].map((type) => (
+            <label><input type="checkbox" name="dealTypes" value={type} /> {type[0].toUpperCase() + type.slice(1)}</label>
+          ))}
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label>Features (optional)</label>
+        <div class="checkbox-grid">
+          {['patio', 'dog friendly', 'date night', 'group friendly', 'waterfront', 'rooftop', 'casual', 'upscale'].map((f) => (
+            <label><input type="checkbox" name="features" value={f} /> {f[0].toUpperCase() + f.slice(1)}</label>
+          ))}
+        </div>
+      </div>
+
+      <div class="submit-actions">
+        <button type="submit">Submit for review</button>
+        <span class="form-status" id="submit-status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <p class="submit-footnote">Submissions enter our review queue and won't appear on the site until an admin verifies and approves them.</p>
+  </main>
+
+  <script>
+    function getCheckedValues(form: HTMLFormElement, name: string) {
+      return [...form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map((input) => input.value);
+    }
+
+    function getSubmissionPayload(form: HTMLFormElement) {
+      const formData = new FormData(form);
+      const website = String(formData.get('website') || '').trim();
+      const sourceUrl = String(formData.get('sourceUrl') || '').trim();
+      return {
+        contactName: formData.get('contactName'),
+        contactEmail: formData.get('contactEmail'),
+        name: formData.get('name'),
+        neighborhood: formData.get('neighborhood'),
+        address: formData.get('address'),
+        website,
+        sourceUrl: sourceUrl || website,
+        startTime: formData.get('startTime'),
+        endTime: formData.get('endTime'),
+        days: getCheckedValues(form, 'days'),
+        deals: String(formData.get('deals') || '').split('\n').map((item) => item.trim()).filter(Boolean),
+        vibe: formData.get('vibe'),
+        notes: formData.get('notes'),
+        dealTypes: getCheckedValues(form, 'dealTypes'),
+        features: getCheckedValues(form, 'features'),
+      };
+    }
+
+    const form = document.getElementById('submit-form') as HTMLFormElement;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const status = document.getElementById('submit-status')!;
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      status.classList.remove('error');
+      status.textContent = 'Submitting...';
+      submitButton.disabled = true;
+
+      try {
+        const res = await fetch('/api/submissions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getSubmissionPayload(form)),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Submission failed.']).join(' '));
+        form.reset();
+        status.textContent = "Submitted — thanks! We'll review it and reach out if we have questions.";
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</Layout>

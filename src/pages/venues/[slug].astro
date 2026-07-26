@@ -2,7 +2,7 @@
 export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import { getVenues, slugify, formatTime } from '../../lib/venues';
+import { getVenues, slugify, formatTime, getVenueImage } from '../../lib/venues';
 
 export async function getStaticPaths() {
   const venues = getVenues();
@@ -18,30 +18,62 @@ const posts = await getCollection('blog', ({ data }) => !data.draft && data.venu
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venue.deals.slice(0, 2).join(', ')}. ${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
+const heroImage = getVenueImage(venue.vibe, 'hero');
 ---
-<Layout title={`${venue.name} Happy Hour — ${venue.neighborhood} | SD Happy Hours`} description={description}>
+<Layout title={`${venue.name} Happy Hour — ${venue.neighborhood} | SD Happy Hours`} description={description} image={heroImage}>
   <style>
-    .venue-header {
+    .venue-hero {
+      position: relative;
       max-width: 800px;
-      margin: 0 auto;
-      padding: 48px 24px 8px;
+      margin: 24px auto 20px;
+      padding: 0 24px;
     }
-    .venue-header .tag {
-      display: inline-block;
-      background: var(--sand-warm);
-      color: var(--ocean);
+    .venue-hero .hero-frame {
+      position: relative;
+      height: clamp(260px, 40vw, 380px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .venue-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .venue-hero .scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 45%, transparent 70%);
+    }
+    .venue-hero .tag {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      color: var(--night);
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 4px 12px;
+      padding: 6px 14px;
       border-radius: 100px;
-      margin-bottom: 12px;
     }
-    .venue-header h1 {
+    .venue-hero .hero-text {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 24px 28px;
+    }
+    .venue-hero h1 {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 2.75rem);
-      margin-bottom: 8px;
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      color: white;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      margin-bottom: 6px;
+      line-height: 1.1;
     }
-    .venue-header .vibe { color: var(--night-soft); }
+    .venue-hero .vibe {
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+      font-size: 0.95rem;
+    }
 
     .venue-details {
       max-width: 800px;
@@ -107,6 +139,17 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venu
     .btn-primary { background: var(--night); color: white; }
     .btn-primary:hover { background: var(--sunset-start); }
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
+    .btn-save {
+      background: var(--sand-warm); color: var(--night); border: 0; cursor: pointer;
+      font: inherit;
+    }
+    .btn-save.saved { background: var(--sunset-start); color: white; }
+    .btn-save svg { width: 16px; height: 16px; }
+
+    .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
+    .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
 
     .related-posts {
       max-width: 800px;
@@ -138,15 +181,36 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venu
 
   <a class="back-link" href="/">← Back to all happy hours</a>
 
-  <div class="venue-header">
-    <span class="tag">{venue.neighborhood}</span>
-    <h1>{venue.name}</h1>
-    <p class="vibe">{venue.vibe}</p>
+  <div class="venue-hero">
+    <div class="hero-frame">
+      <img
+        src={heroImage}
+        alt={`${venue.name}, a ${venue.vibe.toLowerCase()} in ${venue.neighborhood}`}
+        width="1600"
+        height="1000"
+        fetchpriority="high"
+      />
+      <div class="scrim"></div>
+      <span class="tag">{venue.neighborhood}</span>
+      <span class={`tag trust-badge ${venue.verified ? '' : 'unverified'}`} style="top: 52px;">
+        {venue.verified ? 'Verified' : 'Needs verification'}
+      </span>
+      <div class="hero-text">
+        <h1>{venue.name}</h1>
+        <p class="vibe">{venue.vibe}</p>
+      </div>
+    </div>
   </div>
 
   <div class="venue-actions">
     <a class="btn-primary" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
     <a class="btn-secondary" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
+    <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+      </svg>
+      <span id="save-label">Save</span>
+    </button>
   </div>
 
   <div class="venue-details">
@@ -164,6 +228,11 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venu
       <div class="deal-grid">
         {venue.deals.map((deal) => <span class="deal">{deal}</span>)}
       </div>
+      {venue.features && venue.features.length > 0 && (
+        <div class="tag-row">
+          {venue.features.map((f) => <span class="feature-tag">{f}</span>)}
+        </div>
+      )}
       <p style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
     </div>
   </div>
@@ -176,4 +245,50 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venu
       ))}
     </div>
   )}
+
+  <script>
+    const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+    const saveLabel = document.getElementById('save-label')!;
+    const venueId = Number(saveBtn.dataset.venueId);
+    let isSignedIn = false;
+    let isSaved = false;
+
+    function renderSaveState() {
+      saveBtn.classList.toggle('saved', isSaved);
+      saveLabel.textContent = isSaved ? 'Saved' : 'Save';
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('/api/account/me');
+        const session = await res.json();
+        isSignedIn = Boolean(session.authenticated);
+        isSaved = Boolean(session.user?.savedSpots?.some((s: any) => s.spotId === venueId));
+        renderSaveState();
+      } catch {
+        // leave defaults
+      }
+    }
+
+    saveBtn.addEventListener('click', async () => {
+      if (!isSignedIn) {
+        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      if (isSaved) {
+        await fetch(`/api/account/spots/${venueId}`, { method: 'DELETE' });
+        isSaved = false;
+      } else {
+        await fetch(`/api/account/spots/${venueId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'favorite', note: '' }),
+        });
+        isSaved = true;
+      }
+      renderSaveState();
+    });
+
+    init();
+  </script>
 </Layout>
