@@ -291,10 +291,11 @@ import Layout from '../layouts/Layout.astro';
     .save-panel { background: var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 8px; margin: 0 0 14px; padding: 10px; }
     .save-panel.compact { align-items: center; display: flex; justify-content: space-between; gap: 10px; }
     .save-panel select, .save-panel input { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
-    .save-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .save-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .save-action { border: 0; border-radius: 100px; background: var(--night); color: white; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px 12px; }
     .save-action:hover { background: var(--sunset-start); }
     .save-action.secondary { background: white; color: var(--night); }
+    .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.78rem; font-weight: 700; gap: 4px; }
 
     .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
     .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
@@ -467,6 +468,7 @@ import Layout from '../layouts/Layout.astro';
     let isSignedIn = false;
     let savedSpotIds = new Set<number>();
     let accountUser: any = null;
+    let saveConfirmation: { spotId: number; text: string } | null = null;
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -871,6 +873,10 @@ import Layout from '../layouts/Layout.astro';
         `;
       }
 
+      const confirm = saveConfirmation && saveConfirmation.spotId === h.id
+        ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
+        : '';
+
       return `
         <div class="save-panel" data-saved-spot="${h.id}">
           <select data-save-status>
@@ -882,6 +888,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="save-actions">
             <button class="save-action" data-update-spot="${h.id}">Update</button>
             <button class="save-action secondary" data-remove-spot="${h.id}">Remove</button>
+            ${confirm}
           </div>
         </div>
       `;
@@ -912,6 +919,7 @@ import Layout from '../layouts/Layout.astro';
       event.preventDefault();
 
       if (removeButton) {
+        saveConfirmation = null;
         await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
       } else {
         const panel = target.closest('.save-panel');
@@ -923,8 +931,19 @@ import Layout from '../layouts/Layout.astro';
             note: (panel?.querySelector('[data-save-note]') as HTMLInputElement | null)?.value || '',
           }),
         });
+        saveConfirmation = { spotId: Number(spotId), text: updateButton ? 'Updated' : 'Saved' };
       }
       await loadAccount();
+
+      if (saveConfirmation) {
+        const confirmedId = saveConfirmation.spotId;
+        setTimeout(() => {
+          if (saveConfirmation && saveConfirmation.spotId === confirmedId) {
+            saveConfirmation = null;
+            render();
+          }
+        }, 2000);
+      }
     });
 
     loadData();

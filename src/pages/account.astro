@@ -53,6 +53,7 @@ import Layout from '../layouts/Layout.astro';
     .saved-edit { display: grid; grid-template-columns: 170px 1fr auto auto; gap: 10px; align-items: start; }
     .saved-edit select, .saved-edit textarea { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; }
     .saved-edit textarea { min-height: 44px; resize: vertical; }
+    .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; grid-column: 1 / -1; }
 
     .empty { color: var(--night-soft); padding: 18px 0; }
     .hidden { display: none; }
@@ -122,6 +123,7 @@ import Layout from '../layouts/Layout.astro';
   <script>
     let currentUser: any = null;
     let happyHours: any[] = [];
+    let saveConfirmation: { spotId: number; text: string } | null = null;
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -225,6 +227,9 @@ import Layout from '../layouts/Layout.astro';
       savedGrid.innerHTML = currentUser.savedSpots.map((saved: any) => {
         const spot = happyHours.find((item) => item.id === saved.spotId);
         if (!spot) return '';
+        const confirm = saveConfirmation && saveConfirmation.spotId === saved.spotId
+          ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
+          : '';
         return `
           <article class="saved-card" data-id="${saved.spotId}">
             <div>
@@ -240,6 +245,7 @@ import Layout from '../layouts/Layout.astro';
               <textarea data-field="note" placeholder="Add a note for friends or future you...">${escapeHTML(saved.note)}</textarea>
               <button data-action="save">Save</button>
               <button class="secondary" data-action="remove">Remove</button>
+              ${confirm}
             </div>
           </article>
         `;
@@ -283,6 +289,7 @@ import Layout from '../layouts/Layout.astro';
       const card = button.closest('.saved-card') as HTMLElement;
       const spotId = card.dataset.id;
       if (button.dataset.action === 'remove') {
+        saveConfirmation = null;
         await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
       } else {
         await fetch(`/api/account/spots/${spotId}`, {
@@ -293,8 +300,19 @@ import Layout from '../layouts/Layout.astro';
             note: (card.querySelector('[data-field="note"]') as HTMLTextAreaElement).value,
           }),
         });
+        saveConfirmation = { spotId: Number(spotId), text: 'Updated' };
       }
       await loadAccount();
+
+      if (saveConfirmation) {
+        const confirmedId = saveConfirmation.spotId;
+        setTimeout(() => {
+          if (saveConfirmation && saveConfirmation.spotId === confirmedId) {
+            saveConfirmation = null;
+            render();
+          }
+        }, 2000);
+      }
     });
 
     document.getElementById('copy-share')!.addEventListener('click', async () => {
