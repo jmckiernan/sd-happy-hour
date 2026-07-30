@@ -126,7 +126,7 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       gap: 12px;
       flex-wrap: wrap;
     }
-    .venue-actions a {
+    .venue-actions a, .venue-actions button {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -135,14 +135,13 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9rem;
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
     }
     .btn-primary { background: var(--night); color: white; }
     .btn-primary:hover { background: var(--sunset-start); }
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
-    .btn-save {
-      background: var(--sand-warm); color: var(--night); border: 0; cursor: pointer;
-      font: inherit;
-    }
     .btn-save.saved { background: var(--sunset-start); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
 

@@ -3,7 +3,7 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="My Happy Hours | SD Happy Hours" description="Save favorite happy hour spots and share your list with friends.">
-  <style>
+  <style is:global>
     .account-header {
       background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
       color: white;
@@ -24,10 +24,12 @@ import Layout from '../layouts/Layout.astro';
     }
     .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
 
-    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-    .auth-grid.password-hidden { grid-template-columns: minmax(0, 480px); }
+    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; }
+    .auth-grid.password-hidden { grid-template-columns: minmax(0, 420px); }
+    .auth-grid .panel { padding: 32px 28px; }
+    .auth-grid .panel h2 { font-size: 1.3rem; text-align: center; }
 
-    .google-box { display: grid; gap: 12px; justify-items: start; }
+    .google-box { display: grid; gap: 14px; justify-items: center; text-align: center; padding-top: 4px; }
     .google-note { color: var(--night-soft); font-size: 0.88rem; line-height: 1.5; }
 
     form { display: grid; gap: 12px; }
@@ -66,8 +68,8 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="account-header">
     <div class="inner">
-      <h1>My Happy Hours</h1>
-      <p>Save favorites, keep notes, track places you want to try or have been to, and share your list with friends.</p>
+      <h1 id="header-title">Sign In</h1>
+      <p id="header-subtitle">Sign in to save favorites, keep notes, track places you want to try or have been to, and share your list with friends.</p>
     </div>
   </div>
 
@@ -211,6 +213,17 @@ import Layout from '../layouts/Layout.astro';
     function render() {
       document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentUser));
       document.getElementById('account-section')!.classList.toggle('hidden', !currentUser);
+
+      const headerTitle = document.getElementById('header-title')!;
+      const headerSubtitle = document.getElementById('header-subtitle')!;
+      if (currentUser) {
+        headerTitle.textContent = 'My Happy Hours';
+        headerSubtitle.textContent = 'Save favorites, keep notes, track places you want to try or have been to, and share your list with friends.';
+      } else {
+        headerTitle.textContent = 'Sign In';
+        headerSubtitle.textContent = 'Sign in to save favorites, keep notes, track places you want to try or have been to, and share your list with friends.';
+      }
+
       if (!currentUser) return;
 
       document.getElementById('account-title')!.textContent = `${currentUser.name}'s saved spots`;

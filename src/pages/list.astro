@@ -3,7 +3,7 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Shared Happy Hour List | SD Happy Hours" description="A shared list of favorite San Diego happy hour spots.">
-  <style>
+  <style is:global>
     .list-header {
       background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
       color: white;

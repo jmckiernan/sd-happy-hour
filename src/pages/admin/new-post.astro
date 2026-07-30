@@ -1,0 +1,156 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Add Blog Post | SD Happy Hours Admin" description="Generate a new SD Happy Hours blog post draft.">
+  <style is:global>
+    .np-wrap { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+    .np-wrap h1 { font-family: var(--font-display); font-size: 1.75rem; margin-bottom: 6px; }
+    .np-wrap p.sub { color: var(--night-soft); margin-bottom: 28px; line-height: 1.5; }
+
+    .np-panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      padding: 28px;
+    }
+
+    label { color: var(--night-soft); display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 6px; }
+    label:first-of-type { margin-top: 0; }
+    textarea, input {
+      width: 100%; padding: 12px 14px; border: 2px solid var(--sand-warm); border-radius: var(--radius-sm);
+      font: inherit; font-size: 0.95rem; color: var(--night);
+    }
+    textarea:focus, input:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
+    textarea { min-height: 110px; resize: vertical; }
+    .hint { font-size: 0.8rem; color: var(--night-soft); margin-top: 4px; }
+
+    button {
+      margin-top: 24px; background: var(--night); color: white; border: none; padding: 13px 24px;
+      border-radius: 100px; font-weight: 700; font-size: 0.95rem; cursor: pointer; font-family: inherit;
+    }
+    button:hover { background: var(--sunset-start); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #result { margin-top: 22px; padding: 16px 18px; border-radius: var(--radius-sm); display: none; font-size: 0.9rem; }
+    #result.ok { background: #DCFCE7; color: #166534; display: block; }
+    #result.err { background: #FEE2E2; color: #991B1B; display: block; }
+    #result a { font-weight: 700; color: inherit; }
+
+    .np-locked { text-align: center; padding: 60px 24px; }
+    .np-locked p { color: var(--night-soft); margin-bottom: 20px; }
+    .np-locked a {
+      display: inline-flex; background: var(--night); color: white; padding: 12px 22px;
+      border-radius: 100px; text-decoration: none; font-weight: 700;
+    }
+    .np-locked a:hover { background: var(--sunset-start); }
+    .hidden { display: none; }
+
+    .admin-subnav { display: flex; gap: 8px; margin: 0 0 28px; font-size: 0.85rem; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+  </style>
+
+  <div class="np-wrap">
+    <div id="np-locked" class="np-locked hidden">
+      <h1>Add Blog Post</h1>
+      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+      <a href="/account/">Sign In</a>
+    </div>
+
+    <div id="np-form" class="hidden">
+      <nav class="admin-subnav">
+        <a href="/admin/">Submissions</a>
+        <a href="/admin/new-post/" aria-current="page">Add Blog Post</a>
+        <a href="/admin/drafts/">Drafts</a>
+      </nav>
+
+      <h1>Add Blog Post</h1>
+      <p class="sub">Drop in your idea, any source material, and the venues it's about. Claude drafts it as a real post — review and publish it right here on the site, no GitHub needed.</p>
+
+      <div class="np-panel">
+        <label for="angle">Your idea / angle *</label>
+        <textarea id="angle" placeholder="e.g. Round up the best patio happy hours for a warm Friday, tie it to the upcoming holiday weekend, keep it upbeat and San Diego-specific."></textarea>
+
+        <label for="source">Source material (optional)</label>
+        <textarea id="source" placeholder="Paste anything from a Google Alert, a scraper, an article, or your own notes. Claude treats this as inspiration, not verified fact."></textarea>
+
+        <label for="venues">Related venue slugs (optional, comma-separated)</label>
+        <input id="venues" placeholder="ironside-fish-oyster, craft-commerce" />
+        <p class="hint">Must match the slug in the venue's URL — these get pulled in as verified, ground-truth data so Claude never has to guess at hours or deals.</p>
+
+        <button id="go">Generate Draft</button>
+
+        <div id="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkAccess() {
+      try {
+        const res = await fetch('/api/admin/me');
+        const data = await res.json();
+        document.getElementById(data.authenticated ? 'np-form' : 'np-locked')!.classList.remove('hidden');
+      } catch {
+        document.getElementById('np-locked')!.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('go')?.addEventListener('click', async () => {
+      const btn = document.getElementById('go') as HTMLButtonElement;
+      const resultEl = document.getElementById('result')!;
+      const angle = (document.getElementById('angle') as HTMLTextAreaElement).value.trim();
+      const source = (document.getElementById('source') as HTMLTextAreaElement).value.trim();
+      const venues = (document.getElementById('venues') as HTMLInputElement).value
+        .split(',').map((s) => s.trim()).filter(Boolean);
+
+      if (!angle) {
+        resultEl.className = 'err';
+        resultEl.textContent = 'Add your idea/angle first.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Generating…';
+      resultEl.className = '';
+      resultEl.textContent = '';
+
+      try {
+        const res = await fetch('/api/generate-draft', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ angle, sourceMaterial: source, venues }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          resultEl.className = 'err';
+          resultEl.textContent = data.error || 'Something went wrong.';
+          const extra = data.raw || data.detail;
+          if (extra) {
+            const pre = document.createElement('pre');
+            pre.style.cssText = 'margin-top:10px;white-space:pre-wrap;font-size:0.78rem;opacity:0.8;max-height:200px;overflow:auto;';
+            pre.textContent = String(extra).slice(0, 2000);
+            resultEl.appendChild(pre);
+          }
+        } else {
+          resultEl.className = 'ok';
+          resultEl.innerHTML = `Draft created. <a href="/admin/drafts/${encodeURIComponent(data.slug)}/">Preview it and publish →</a> <span style="opacity:0.6;">(or <a href="${data.editUrl}" target="_blank" rel="noopener">edit the raw file on GitHub</a> first if you want to tweak the text)</span>`;
+        }
+      } catch {
+        resultEl.className = 'err';
+        resultEl.textContent = 'Network error — is the site deployed with the API route live?';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate Draft';
+      }
+    });
+
+    checkAccess();
+  </script>
+</Layout>

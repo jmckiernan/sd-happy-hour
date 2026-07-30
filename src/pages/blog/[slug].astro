@@ -2,6 +2,7 @@
 export const prerender = true;
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { getPostImage } from '../../lib/venues';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -20,7 +21,7 @@ const { Content } = await render(post);
   pubDate={post.data.pubDate}
   updatedDate={post.data.updatedDate}
   author={post.data.author}
-  heroImage={post.data.heroImage}
+  heroImage={getPostImage(post.data.heroImage, post.data.venues, 'hero')}
   venues={post.data.venues}
 >
   <Content />

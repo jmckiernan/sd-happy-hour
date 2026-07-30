@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Octokit } from '@octokit/rest';
 import happyHours from '../../../public/data/happy-hours.json';
+import { getAdminUser } from '../../lib/admins';
 
 export const prerender = false;
 
@@ -16,8 +17,12 @@ Hard rules, never break these:
 - Do not fabricate quotes, reviews, or claims about a venue you have no data for.
 - If the source material conflicts with the verified venue data, trust the verified venue data.
 
-Output strict JSON only, no markdown fences, no commentary, matching this shape:
-{"title": "...", "description": "...", "body": "... full markdown body ..."}`;
+Output in exactly this format, with nothing before or after it — no JSON, no markdown fences, no commentary:
+
+TITLE: <the post title, one line, no quotes>
+DESCRIPTION: <a one-sentence summary for the post preview/SEO description, one line>
+---BODY---
+<the full markdown body of the post, starting on the next line>`;
 
 function slugify(input: string): string {
   return input
@@ -41,10 +46,10 @@ function findVenueData(venueSlugs: string[]) {
     }));
 }
 
-export const POST: APIRoute = async ({ request }) => {
-  const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  if (!import.meta.env.DRAFT_API_TOKEN || token !== import.meta.env.DRAFT_API_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+export const POST: APIRoute = async ({ request, cookies }) => {
+  const admin = await getAdminUser(cookies);
+  if (!admin) {
+    return new Response(JSON.stringify({ error: 'Sign in at /account/ with an authorized admin email first.' }), { status: 401 });
   }
 
   const { sourceMaterial, angle, venues = [] } = await request.json();
@@ -64,7 +69,7 @@ ${sourceMaterial || '(none provided)'}
 VERIFIED VENUE DATA (the only source of truth for any specific venue facts):
 ${JSON.stringify(verifiedVenues, null, 2)}
 
-Write the blog post now, following all rules in your instructions. Respond with the JSON object only.`;
+Write the blog post now, following all rules in your instructions. Respond in the exact TITLE/DESCRIPTION/---BODY--- format only.`;
 
   const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -87,13 +92,58 @@ Write the blog post now, following all rules in your instructions. Respond with 
   }
 
   const anthropicData = await anthropicRes.json();
-  const raw = anthropicData.content?.[0]?.text ?? '';
+
+  // Don't assume the text is at content[0] — if the model emits any other
+  // block first (e.g. a "thinking" block), content[0] has no .text field
+  // and this would silently end up as an empty string. Find the first
+  // actual text block instead.
+  const textBlock = Array.isArray(anthropicData.content)
+    ? anthropicData.content.find((block: any) => block?.type === 'text')
+    : null;
+  const raw = textBlock?.text ?? '';
+
+  if (!raw) {
+    return new Response(
+      JSON.stringify({
+        error: 'Claude returned no text content',
+        detail: JSON.stringify(anthropicData, null, 2),
+      }),
+      { status: 502 }
+    );
+  }
+
+  // Deliberately NOT asking the model for JSON here. A long markdown body
+  // embedded as a JSON string value means the model has to correctly
+  // escape every quote and newline in hundreds of words of prose — and in
+  // practice it drifts partway through (falls back to real line breaks
+  // instead of \n), which produces invalid JSON that no amount of
+  // fence-stripping/substring-extraction can recover, since the string
+  // itself is broken, not just wrapped in extra text. A plain delimiter
+  // the model never has to escape avoids the whole failure mode.
+  function extractDraft(text: string): { title: string; description: string; body: string } {
+    let cleaned = text.trim();
+    const fenced = cleaned.match(/```(?:\w+)?\s*([\s\S]*?)\s*```/);
+    if (fenced) cleaned = fenced[1].trim();
+
+    const marker = '---BODY---';
+    const markerIdx = cleaned.indexOf(marker);
+    if (markerIdx === -1) throw new Error('missing ---BODY--- marker');
+
+    const header = cleaned.slice(0, markerIdx);
+    const body = cleaned.slice(markerIdx + marker.length).replace(/^\r?\n/, '').trimEnd();
+
+    const titleMatch = header.match(/^\s*TITLE:\s*(.+)$/m);
+    const descMatch = header.match(/^\s*DESCRIPTION:\s*(.+)$/m);
+    if (!titleMatch || !descMatch || !body) throw new Error('missing TITLE/DESCRIPTION/body');
+
+    return { title: titleMatch[1].trim(), description: descMatch[1].trim(), body };
+  }
 
   let parsed: { title: string; description: string; body: string };
   try {
-    parsed = JSON.parse(raw);
+    parsed = extractDraft(raw);
   } catch {
-    return new Response(JSON.stringify({ error: 'Could not parse AI response as JSON', raw }), { status: 502 });
+    return new Response(JSON.stringify({ error: 'Could not parse AI response', raw }), { status: 502 });
   }
 
   const slug = slugify(parsed.title) || `draft-${Date.now()}`;
@@ -128,30 +178,55 @@ Write the blog post now, following all rules in your instructions. Respond with 
 
   const octokit = new Octokit({ auth: import.meta.env.GITHUB_TOKEN });
 
-  let sha: string | undefined;
+  // Everything from here on talks to the GitHub API and can fail for
+  // reasons worth actually seeing (bad/expired token, wrong owner/repo,
+  // no write access, wrong branch name, etc). Wrapped in one try/catch so
+  // that real reason reaches the browser as `detail` instead of being
+  // swallowed into a generic "Something went wrong" by the app-wide
+  // error-handling middleware (src/middleware.ts), which only sees that
+  // an error was thrown, not what it actually said.
   try {
-    const existing = await octokit.repos.getContent({ owner, repo, path: filePath, ref: branch });
-    if (!Array.isArray(existing.data)) sha = existing.data.sha;
-  } catch {
-    // file doesn't exist yet - that's fine, we're creating it
-  }
+    let sha: string | undefined;
+    try {
+      const existing = await octokit.repos.getContent({ owner, repo, path: filePath, ref: branch });
+      if (!Array.isArray(existing.data)) sha = existing.data.sha;
+    } catch (err: any) {
+      // A real 404 (file doesn't exist yet) is expected and fine. Anything
+      // else (403 no access, 401 bad token, etc.) should stop here and be
+      // reported, not silently treated as "the file doesn't exist yet."
+      if (err.status && err.status !== 404) throw err;
+    }
 
-  await octokit.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path: filePath,
-    branch,
-    message: `AI draft: ${parsed.title}`,
-    content: Buffer.from(fileContent, 'utf-8').toString('base64'),
-    sha,
-  });
+    await octokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: filePath,
+      branch,
+      message: `AI draft: ${parsed.title}`,
+      content: Buffer.from(fileContent, 'utf-8').toString('base64'),
+      sha,
+    });
+  } catch (err: any) {
+    const detail = err?.response?.data?.message || err?.message || String(err);
+    return new Response(
+      JSON.stringify({
+        error: `Could not commit to ${owner}/${repo} (branch: ${branch})`,
+        detail,
+      }),
+      { status: 502 }
+    );
+  }
 
   return new Response(
     JSON.stringify({
       success: true,
       slug,
       path: filePath,
-      editUrl: `/admin/#/collections/blog/entries/${slug}`,
+      // No visual CMS — review/tweak the draft directly in GitHub's own
+      // web editor, then flip `draft: true` to `false` and commit to
+      // publish (same "git is the database" pattern as everything else
+      // that writes content in this app).
+      editUrl: `https://github.com/${owner}/${repo}/edit/${branch}/${filePath}`,
     }),
     { status: 200, headers: { 'content-type': 'application/json' } }
   );

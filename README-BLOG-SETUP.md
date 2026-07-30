@@ -1,15 +1,26 @@
-# Blog + CMS + AI Draft Generator — Setup Guide
+# Blog + AI Draft Generator — Setup Guide
 
 This branch (`feature/astro-blog-cms`) converts the site to Astro and adds:
 
 - A real, indexable page per venue at `/venues/<slug>/` (previously venues only existed as JS-rendered cards).
 - A blog at `/blog/` (Markdown posts in `src/content/blog/`), each with its own real, SEO-friendly page.
-- Sveltia CMS at `/admin/` — a free, browser-based editor that commits Markdown files straight to this GitHub repo. No database, no separate backend.
-- An "AI draft generator" at `/admin/generate.html` — paste your idea/angle and any source material, Claude drafts the post, it lands as a draft entry in the same CMS for you to review, edit, and publish.
+- An "Add Blog Post" generator at `/admin/new-post/` — paste your idea/angle and any source material, Claude drafts the post and commits it to the repo as a draft. Only visible in the nav, and only usable, when signed in with an authorized email (see below).
 
-Nothing here costs money except the Claude API calls (pennies per post) and, optionally, Vercel/Cloudflare if you outgrow their free tiers.
+There's no separate CMS or GitHub OAuth to set up — writing a post by hand just means adding a `.md` file to `src/content/blog/` (by hand, or via GitHub's own web editor), same as any other file in the repo.
 
-## Part 1 — One-time setup (you'll need to do this yourself; it needs your GitHub/Vercel/Anthropic accounts)
+Nothing here costs money except the Claude API calls (pennies per post).
+
+## Who can generate posts
+
+There's no separate admin login for this (or for the submissions review queue at `/admin/`). Both are gated by the same check: sign in at `/account/` (Google or email/password) with an email listed in `ADMIN_EMAILS`, in `src/lib/admins.ts`:
+
+```ts
+export const ADMIN_EMAILS = ['jmckiernan86@gmail.com', 'shanewlykins@gmail.com'];
+```
+
+Add or remove emails there directly if the list ever needs to change — whoever's on it gets full admin rights everywhere (submissions + blog posts), automatically.
+
+## One-time setup (you'll need to do this yourself; it needs your GitHub/Vercel/Anthropic accounts)
 
 ### 1. Push this branch and deploy to Vercel
 - Push `feature/astro-blog-cms` to GitHub, then connect the repo in Vercel (if not already). Vercel auto-detects Astro.
@@ -21,12 +32,9 @@ Nothing here costs money except the Claude API calls (pennies per post) and, opt
 ### 3. Create a GitHub Personal Access Token (for the AI generator to commit drafts)
 - GitHub → Settings → Developer settings → Personal access tokens → Fine-grained token.
 - Scope it to just this repo, with **Contents: Read and write** permission.
-- This becomes the `GITHUB_TOKEN` env var. (Different from the OAuth app below — this one is for the server, not for humans logging into the CMS.)
+- This becomes the `GITHUB_TOKEN` env var — the same one already used for committing approved venue submissions (see README-ACCOUNTS-SETUP.md).
 
-### 4. Pick a shared secret for the draft generator
-- Make up any random string, e.g. `openssl rand -hex 16`. This becomes `DRAFT_API_TOKEN` — it's the "Admin token" field on the `/admin/generate.html` page, just there to stop randoms from hitting your API and spending your Claude credits.
-
-### 5. Set environment variables in Vercel
+### 4. Set environment variables in Vercel
 Project Settings → Environment Variables:
 
 | Variable | Value |
@@ -37,41 +45,22 @@ Project Settings → Environment Variables:
 | `GITHUB_OWNER` | your GitHub username/org |
 | `GITHUB_REPO` | `sd-happy-hour` (or whatever you named it) |
 | `GITHUB_BRANCH` | `main` |
-| `DRAFT_API_TOKEN` | from step 4 |
 
 Redeploy after adding these.
 
-### 6. Set up Sveltia CMS login (so you can use `/admin/` itself)
-Sveltia CMS needs a small OAuth relay to let you log in with GitHub. The maintainers publish a ready-made one:
+## Day-to-day usage
 
-1. Fork/deploy **sveltia/sveltia-cms-auth** (github.com/sveltia/sveltia-cms-auth) — it's a tiny Cloudflare Worker, free tier is plenty.
-2. Create a GitHub OAuth App (GitHub → Settings → Developer settings → OAuth Apps → New OAuth App). Set its callback URL per the worker's README.
-3. Add the OAuth App's Client ID/Secret as environment variables on the Cloudflare Worker (via the Cloudflare dashboard).
-4. Note the Worker's URL (`https://sveltia-cms-auth.<you>.workers.dev`).
+**Writing a normal post by hand:** add a `.md` file to `src/content/blog/` with the right frontmatter (see any existing post for the shape) — either locally and push, or directly in GitHub's web editor.
 
-Then edit `public/admin/config.yml` in this repo:
-```yaml
-backend:
-  name: github
-  repo: YOUR_GITHUB_USERNAME/sd-happy-hour
-  branch: main
-  base_url: https://sveltia-cms-auth.<you>.workers.dev
-```
-Commit and redeploy. Visit `/admin/` and log in with GitHub.
+**Generating an AI draft:** sign in at `/account/` with an authorized email, then the "Add Blog Post" nav link appears — go to `/admin/new-post/`. Paste your idea/angle (required) and any source material — a Google Alert result, a scraped article, your own notes (optional). If the post is about specific venues, add their slugs (the part of the URL after `/venues/`) so Claude gets real, verified hours/deals instead of guessing. Hit Generate — it commits the draft to the repo as a file.
 
-This step is the fiddliest part of the whole setup and the one most worth doing together over a screen-share the first time — everything else is copy-pasting keys into a form.
+**Reviewing and publishing — no GitHub needed:** the draft always lands with `draft: true`, so it's never publicly visible until someone reviews it. After generating, click through to `/admin/drafts/<slug>/` (or go to `/admin/drafts/` any time to see everything waiting for review) — it fetches the draft straight from the repo and renders it like a real post, right on the site. Read it like you would any junior writer's draft — the one thing worth actually checking is that any specific venue facts match reality — then hit **Publish** to flip `draft: true` to `false` and commit, or **Discard** to delete the file entirely if it's not worth keeping. Vercel rebuilds automatically after publishing (usually a couple minutes) and it's live.
 
-## Part 2 — Day-to-day usage
-
-**Writing a normal post by hand:** go to `/admin/`, log in, "New Blog Posts" entry, fill it in, uncheck "Draft" when ready, publish. That's a commit to the repo; Vercel rebuilds automatically.
-
-**Generating an AI draft:** go to `/admin/generate.html`. Paste your idea/angle (required) and any source material — a Google Alert result, a scraped article, your own notes (optional). If the post is about specific venues, add their slugs (the part of the URL after `/venues/`) so Claude gets real, verified hours/deals instead of guessing. Hit Generate. It'll show a link straight into the CMS editor for that new draft.
-
-**Reviewing:** the draft always lands with `draft: true`, so it's never publicly visible until someone reviews it. Open it in `/admin/`, read it like you would any junior writer's draft — the one thing worth actually checking is that any specific venue facts match reality — edit anything off, uncheck Draft, publish.
+If you'd rather hand-edit the text before publishing, the generator's success message still includes a link to open the raw file in GitHub's own editor.
 
 **Cost per post:** roughly a few cents of Claude API usage. No other per-post cost.
 
 ## What's still a manual/human step, on purpose
 
-- Nobody's post goes live without a human unchecking "Draft" — there's no auto-publish path, by design (see the earlier automation plan for why: unsupervised AI content about real, specific local businesses is the one place small factual errors do real damage to trust).
+- Nobody's post goes live without a human flipping `draft` to `false` — there's no auto-publish path, by design (unsupervised AI content about real, specific local businesses is the one place small factual errors do real damage to trust).
 - The generator only knows verified facts about venues you explicitly tag by slug. Anything else it writes about a specific business should be treated as unverified until you check it.

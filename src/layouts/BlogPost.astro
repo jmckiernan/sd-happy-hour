@@ -47,9 +47,16 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       margin: 0 auto 32px;
       padding: 0 24px;
     }
+    .post-hero .frame {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
     .post-hero img {
       width: 100%;
-      border-radius: var(--radius);
+      height: clamp(220px, 40vw, 420px);
+      object-fit: cover;
+      display: block;
     }
     .post-body {
       max-width: 760px;
@@ -97,7 +104,9 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
 
   {heroImage && (
     <div class="post-hero">
-      <img src={heroImage} alt={title} />
+      <div class="frame">
+        <img src={heroImage} alt={title} />
+      </div>
     </div>
   )}
 

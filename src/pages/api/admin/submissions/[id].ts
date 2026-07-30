@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Octokit } from '@octokit/rest';
 import { readSubmissions, writeSubmissions, validateListing, cleanString } from '../../../../lib/kv';
-import { getSession } from '../../../../lib/session';
+import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
 export const prerender = false;
@@ -55,8 +55,8 @@ async function commitApprovedVenue(listing: ReturnType<typeof validateListing>['
 }
 
 export const PATCH: APIRoute = async ({ params, request, cookies }) => {
-  const session = await getSession(cookies);
-  if (!session || session.role !== 'admin') return errorJson(['Admin login required.'], 401);
+  const admin = await getAdminUser(cookies);
+  if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email.'], 401);
 
   let body: Record<string, any>;
   try {

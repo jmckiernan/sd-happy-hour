@@ -5,7 +5,7 @@ This restores a feature that existed on `main` (commit "Add backend submissions 
 - **Google Sign-In** at `/account/` (with an email/password fallback if Google isn't configured yet).
 - **Saved lists** — click the bookmark icon on any homepage card or venue page to save it as a favorite / want-to-try / been-to, with an optional note. Share a read-only link to your list from `/account/`.
 - **Submit a Spot** at `/submit/` — a public form for restaurants/patrons to suggest a happy hour. Submissions land in a review queue.
-- **Admin review** at `/admin/` (behind `/login/`) — approve, edit, or deny submissions. Approving one commits it straight into `public/data/happy-hours.json` via the GitHub API, the same way the AI blog draft generator publishes posts — it becomes a real venue page on the next deploy.
+- **Admin review** at `/admin/` (sign in at `/account/` with an admin email — see below) — approve, edit, or deny submissions. Approving one commits it straight into `public/data/happy-hours.json` via the GitHub API, the same way the AI blog draft generator publishes posts — it becomes a real venue page on the next deploy.
 
 Nothing here costs money beyond Vercel's free tier for KV (or an Upstash free tier, same thing under the hood).
 
@@ -36,8 +36,8 @@ vercel env pull .env.development.local
 
 Until this is set, `/account/` automatically falls back to a plain email/password form, so accounts and saved lists still work end-to-end for local testing.
 
-### 3. Set admin credentials
-Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in Vercel's Environment Variables — these gate `/admin/`. The code defaults to `admin` / `password` if unset, which is fine for local dev but should be changed before anyone else can reach your deployment.
+### 3. Admin access
+There's no separate admin login. Whoever signs in at `/account/` (Google or email/password) with an email listed in `ADMIN_EMAILS` (`src/lib/admins.ts`) automatically gets full admin rights — reviewing/approving/denying submissions at `/admin/`, and generating blog posts at `/admin/new-post/`. Edit that file directly to add or remove admins.
 
 ### 4. Confirm the GitHub commit vars are set
 Admin approvals reuse the same `GITHUB_TOKEN` / `GITHUB_OWNER` / `GITHUB_REPO` / `GITHUB_BRANCH` variables the blog's AI draft generator uses (see `README-BLOG-SETUP.md`). If you already set those up, approvals will just work. The token needs **Contents: Read and write** on this repo.
@@ -50,6 +50,6 @@ Redeploy after adding/changing any of the above.
 
 **Sharing a list:** on `/account/`, "Copy share link" — anyone with that link can view your saved spots at `/list/?id=...`, no login required.
 
-**Reviewing submissions:** `/admin/` (log in at `/login/`). Each submission shows the raw listing JSON, editable inline. Approve commits it to the repo (goes live on next deploy); Deny asks for a reason and archives it; Save Edit updates the listing without changing its status.
+**Reviewing submissions:** `/admin/` (sign in at `/account/` with an admin email). Each submission shows the raw listing JSON, editable inline. Approve commits it to the repo (goes live on next deploy); Deny asks for a reason and archives it; Save Edit updates the listing without changing its status.
 
 Note that approving a submission while running only against the local `.data/` fallback (no KV connected) still commits the new venue to GitHub via `GITHUB_TOKEN` — that part always talks to the real repo, regardless of where the submissions queue itself is stored.

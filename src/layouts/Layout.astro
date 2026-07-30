@@ -65,6 +65,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       background: var(--sand);
       color: var(--night);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     a { color: inherit; }
@@ -74,14 +76,27 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       align-items: center;
       justify-content: space-between;
       max-width: 1400px;
+      width: 100%;
       margin: 0 auto;
       padding: 20px 24px;
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 200;
-      background: rgba(255, 251, 245, 0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .site-nav .links a[aria-current="page"] {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Plain block wrapper (NOT itself a flex container) so every page's own
+       max-width + margin: auto centering keeps working unmodified — only
+       this single wrapper needs to be a flex item of body, to grow and
+       push the footer to the bottom on short pages. */
+    .page-content {
+      flex: 1 0 auto;
+      width: 100%;
     }
 
     .site-nav .brand {
@@ -89,10 +104,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       font-weight: 700;
       font-size: 1.35rem;
       text-decoration: none;
-      background: linear-gradient(135deg, var(--sunset-start), var(--ocean));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--sunset-start);
     }
 
     .site-nav .links {
@@ -113,6 +125,23 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     .site-nav .links a:hover { background: var(--sunset-end); }
     .site-nav .links a[aria-current="page"] { background: var(--night); color: white; }
+
+    /* Admin-only links (visible only to signed-in admin emails) get a
+       distinct teal tint so they read as different from the regular nav. */
+    .site-nav .links a#admin-nav-link,
+    .site-nav .links a#blog-admin-nav-link {
+      background: rgba(8, 145, 178, 0.14);
+      color: var(--ocean-deep);
+    }
+    .site-nav .links a#admin-nav-link:hover,
+    .site-nav .links a#blog-admin-nav-link:hover {
+      background: rgba(8, 145, 178, 0.26);
+    }
+    .site-nav .links a#admin-nav-link[aria-current="page"],
+    .site-nav .links a#blog-admin-nav-link[aria-current="page"] {
+      background: var(--night);
+      color: white;
+    }
 
     /* Overlay variant: floats transparently on top of a hero image/gradient
        instead of sitting in its own bar, so the hero reaches the very top. */
@@ -144,6 +173,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       color: white;
       text-align: center;
       padding: 48px 24px;
+      flex-shrink: 0;
     }
 
     footer.site-footer p { opacity: 0.7; font-size: 0.9rem; }
@@ -156,14 +186,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
     <a class="brand" href="/">SD Happy Hours</a>
     <div class="links">
-      <a href="/blog/" aria-current={Astro.url.pathname.startsWith('/blog') ? 'page' : undefined}>Blog</a>
+      <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
       <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>Sign In</a>
+      <a href="/admin/new-post/" id="blog-admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
       <a href="/admin/" id="admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>
     </div>
   </nav>
 
-  <slot />
+  <div class="page-content">
+    <slot />
+  </div>
 
   <footer class="site-footer">
     <p>Built by Shane & John in San Diego | <a href="/submit/">Submit a spot</a></p>
@@ -188,14 +221,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       }
 
       try {
+        // Single check for both admin-only links: authorized = signed in
+        // at /account/ with an email in ADMIN_EMAILS (src/lib/admins.ts) —
+        // there's no separate admin login anymore.
         const res = await fetch('/api/admin/me');
         const session = await res.json();
-        const adminLink = document.getElementById('admin-nav-link') as HTMLElement | null;
-        if (adminLink && session.authenticated) {
-          adminLink.style.display = '';
+        if (session.authenticated) {
+          const adminLink = document.getElementById('admin-nav-link') as HTMLElement | null;
+          const blogAdminLink = document.getElementById('blog-admin-nav-link') as HTMLElement | null;
+          if (adminLink) adminLink.style.display = '';
+          if (blogAdminLink) blogAdminLink.style.display = '';
         }
       } catch {
-        // Not an admin session — leave the Admin link hidden.
+        // Not signed in with an authorized admin email — leave both hidden.
       }
     })();
   </script>

@@ -48,7 +48,7 @@ export function formatTime(time: string): string {
 // at a higher resolution, as the hero banner on individual venue pages.
 export const vibeImages: Record<string, string> = {
   'Upscale casual': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b',
-  'Speakeasy': 'https://images.unsplash.com/photo-1527761939622-933f3c8e0a94',
+  'Speakeasy': 'https://images.unsplash.com/photo-1470337458703-46ad1756a187',
   'Trendy gastropub': 'https://images.unsplash.com/photo-1538488881038-e252a119ace7',
   'Seafood spot': 'https://images.unsplash.com/photo-1559339352-11d035aa65de',
   'Rooftop vibes': 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
@@ -78,4 +78,19 @@ export const vibeImages: Record<string, string> = {
 export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
   const base = vibeImages[vibe] || vibeImages['default'];
   return size === 'hero' ? `${base}?w=1600&q=85` : `${base}?w=800&q=80`;
+}
+
+/**
+ * Picks an image for a blog post: the post's own heroImage if set, else the
+ * vibe photo of the first venue it mentions, else a generic default — so
+ * every post gets a thumbnail/hero even before a real photo is uploaded.
+ */
+export function getPostImage(
+  heroImage: string | undefined,
+  venueSlugs: string[] = [],
+  size: 'card' | 'hero' = 'card'
+): string {
+  if (heroImage) return heroImage;
+  const firstVenue = venueSlugs.map(getVenueBySlug).find((v): v is Venue => Boolean(v));
+  return getVenueImage(firstVenue?.vibe || '', size);
 }

@@ -6,9 +6,11 @@ import { getKv, isKvConfigured, readLocal, writeLocal } from './kv';
 // dev without KV configured, this falls back to a local JSON file — see
 // the comment in kv.ts for why that's fine locally but not once deployed.
 
-export type SessionData =
-  | { role: 'user'; userId: string }
-  | { role: 'admin'; username: string };
+// Only one kind of session now — the account (Google/email) login. Admin
+// privileges (submissions review, blog post generation) are granted based
+// on whether that account's email is in ADMIN_EMAILS (see lib/admins.ts),
+// not a separate admin login.
+export type SessionData = { role: 'user'; userId: string };
 
 const COOKIE_NAME = 'sdhh_session';
 const MAX_AGE_SECONDS = 60 * 60 * 8; // 8 hours, matches the original
