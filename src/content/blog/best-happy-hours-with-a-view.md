@@ -5,8 +5,8 @@ pubDate: 2026-07-27
 author: "John"
 draft: false
 venues: ["rustic-root", "coasterra", "pacific-beach-alehouse"]
+heroImage: "/api/images/best-happy-hours-with-a-view-1785441714912-92fbdf29.jpg"
 ---
-
 San Diego's happy hour scene isn't short on good deals, but the ones with a view are worth planning your evening around.
 
 **Rustic Root** in Gaslamp has one of downtown's best rooftop patios, and the happy hour matches it: $6 wells, $5 drafts, $7 wines, and $5 appetizers, Monday through Friday from 3-6pm. Go early enough and you'll get a rail seat for the sunset over the bay.
