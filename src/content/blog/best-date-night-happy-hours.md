@@ -5,8 +5,8 @@ pubDate: 2026-07-28
 author: "John & Shane"
 draft: false
 venues: ["raised-by-wolves", "false-idol", "kindred", "herb-wood"]
+heroImage: "/api/images/best-date-night-happy-hours-1785441279451-c2968c3d.jpg"
 ---
-
 A good date night doesn't have to mean an 8pm reservation and a three-figure bill. Timed right, happy hour gets you the same atmosphere — sometimes better — for a lot less.
 
 **Raised by Wolves** in UTC is the move if you want to feel like you found a secret: a hidden speakeasy behind an unmarked door, with $10 classic cocktails and $8 beer and wine, Tuesday through Thursday from 5-7pm. It's a whole experience before the first sip.
