@@ -3,7 +3,7 @@ title: "San Diego's Best Happy Hour Apps: Your Guide to Snacking Smarter"
 description: "A local's take on what makes a happy hour appetizer menu truly worth chasing across San Diego, from crispy classics to unexpected upgrades."
 pubDate: 2026-07-30
 author: "SD Happy Hours"
-draft: true
+draft: false
 aiGenerated: true
 venues: []
 ---
