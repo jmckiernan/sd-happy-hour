@@ -6,8 +6,8 @@ author: "SD Happy Hours"
 draft: false
 aiGenerated: true
 venues: []
+heroImage: "/api/images/san-diego-s-best-happy-hour-apps-your-guide-to-snacking-smar-1785442854327-00c3c021.jpg"
 ---
-
 Let's be honest: happy hour is really about the apps. Sure, the discounted drinks get you in the door, but it's the food that decides whether you're staying for one round or settling in for the whole evening. San Diego has no shortage of spots slinging good bites at good prices — the trick is knowing what to look for (and where to look).
 
 Since our venue database for this specific roundup is still filling in real-time details, consider this your primer on app-hunting like a pro, plus a few neighborhood pointers to get you started.
