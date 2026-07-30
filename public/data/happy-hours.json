@@ -6,17 +6,38 @@
     "address": "1654 India St",
     "lat": 32.7227,
     "lng": -117.1689,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$1.50 oysters", "$6 beers", "$8 wines", "$9 cocktails"],
+    "deals": [
+      "$1.50 oysters",
+      "$6 beers",
+      "$8 wines",
+      "$9 cocktails"
+    ],
     "vibe": "Seafood spot",
     "website": "https://ironsidefishandoyster.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://ironsidefishandoyster.com",
-    "dealTypes": ["oysters", "beer", "wine", "cocktails", "food"],
-    "features": ["seafood", "date night", "upscale"]
+    "dealTypes": [
+      "oysters",
+      "beer",
+      "wine",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "seafood",
+      "date night",
+      "upscale"
+    ]
   },
   {
     "id": 2,
@@ -25,17 +46,37 @@
     "address": "675 W Beech St",
     "lat": 32.7195,
     "lng": -117.1711,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": ["$8 cocktails", "$5 draft beers", "$6 wines", "Half-price snacks"],
+    "deals": [
+      "$8 cocktails",
+      "$5 draft beers",
+      "$6 wines",
+      "Half-price snacks"
+    ],
     "vibe": "Trendy gastropub",
     "website": "https://consortium-holdings.com/craft-commerce",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://consortium-holdings.com/craft-commerce",
-    "dealTypes": ["cocktails", "beer", "wine", "food"],
-    "features": ["date night", "group friendly", "cocktail bar"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "date night",
+      "group friendly",
+      "cocktail bar"
+    ]
   },
   {
     "id": 3,
@@ -44,17 +85,32 @@
     "address": "4301 La Jolla Village Dr",
     "lat": 32.8696,
     "lng": -117.2108,
-    "days": ["Tuesday", "Wednesday", "Thursday"],
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
     "startTime": "17:00",
     "endTime": "19:00",
-    "deals": ["$10 classic cocktails", "$8 beer & wine"],
+    "deals": [
+      "$10 classic cocktails",
+      "$8 beer & wine"
+    ],
     "vibe": "Speakeasy",
     "website": "https://www.raisedbywolvessd.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.raisedbywolvessd.com",
-    "dealTypes": ["cocktails", "beer", "wine"],
-    "features": ["date night", "speakeasy", "upscale"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine"
+    ],
+    "features": [
+      "date night",
+      "speakeasy",
+      "upscale"
+    ]
   },
   {
     "id": 4,
@@ -63,17 +119,35 @@
     "address": "2044 Kettner Blvd",
     "lat": 32.7267,
     "lng": -117.1697,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$6 wells", "$7 house wine", "$5 select beers"],
+    "deals": [
+      "$6 wells",
+      "$7 house wine",
+      "$5 select beers"
+    ],
     "vibe": "Upscale casual",
     "website": "https://waterfrontbarandgrill.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://waterfrontbarandgrill.com",
-    "dealTypes": ["cocktails", "beer", "wine"],
-    "features": ["casual", "historic", "group friendly"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine"
+    ],
+    "features": [
+      "casual",
+      "historic",
+      "group friendly"
+    ]
   },
   {
     "id": 5,
@@ -82,17 +156,37 @@
     "address": "535 5th Ave",
     "lat": 32.7123,
     "lng": -117.1598,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$6 wells", "$5 drafts", "$7 wines", "$5 appetizers"],
+    "deals": [
+      "$6 wells",
+      "$5 drafts",
+      "$7 wines",
+      "$5 appetizers"
+    ],
     "vibe": "Rooftop vibes",
     "website": "https://www.rusticroot.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.rusticroot.com",
-    "dealTypes": ["cocktails", "beer", "wine", "food"],
-    "features": ["rooftop", "date night", "group friendly"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "rooftop",
+      "date night",
+      "group friendly"
+    ]
   },
   {
     "id": 6,
@@ -101,17 +195,34 @@
     "address": "1490 Kettner Blvd",
     "lat": 32.7219,
     "lng": -117.1693,
-    "days": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": ["$8 margaritas", "$5 tacos", "$6 Mexican beers"],
+    "deals": [
+      "$8 margaritas",
+      "$5 tacos",
+      "$6 Mexican beers"
+    ],
     "vibe": "Modern Mexican",
     "website": "https://www.bracerococina.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.bracerococina.com",
-    "dealTypes": ["cocktails", "beer", "food"],
-    "features": ["mexican", "tacos", "date night"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "food"
+    ],
+    "features": [
+      "mexican",
+      "tacos",
+      "date night"
+    ]
   },
   {
     "id": 7,
@@ -120,17 +231,30 @@
     "address": "675 W Beech St",
     "lat": 32.7195,
     "lng": -117.1711,
-    "days": ["Wednesday", "Thursday"],
+    "days": [
+      "Wednesday",
+      "Thursday"
+    ],
     "startTime": "17:00",
     "endTime": "19:00",
-    "deals": ["$10 tiki cocktails", "Half-price pupus"],
+    "deals": [
+      "$10 tiki cocktails",
+      "Half-price pupus"
+    ],
     "vibe": "Tiki bar",
     "website": "https://falseidoltiki.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://falseidoltiki.com",
-    "dealTypes": ["cocktails", "food"],
-    "features": ["tiki", "date night", "cocktail bar"]
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "tiki",
+      "date night",
+      "cocktail bar"
+    ]
   },
   {
     "id": 8,
@@ -139,17 +263,37 @@
     "address": "2228 Kettner Blvd",
     "lat": 32.7285,
     "lng": -117.1698,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:30",
     "endTime": "18:30",
-    "deals": ["$9 cocktails", "$7 wines", "$5 beers", "$8 small plates"],
+    "deals": [
+      "$9 cocktails",
+      "$7 wines",
+      "$5 beers",
+      "$8 small plates"
+    ],
     "vibe": "Chef-driven",
     "website": "https://juniperandivy.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://juniperandivy.com",
-    "dealTypes": ["cocktails", "wine", "beer", "food"],
-    "features": ["chef-driven", "date night", "upscale"]
+    "dealTypes": [
+      "cocktails",
+      "wine",
+      "beer",
+      "food"
+    ],
+    "features": [
+      "chef-driven",
+      "date night",
+      "upscale"
+    ]
   },
   {
     "id": 9,
@@ -158,17 +302,37 @@
     "address": "2219 30th St",
     "lat": 32.7263,
     "lng": -117.1296,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "startTime": "16:00",
     "endTime": "19:00",
-    "deals": ["$5 wine", "$4 beers", "$7 cocktails"],
+    "deals": [
+      "$5 wine",
+      "$4 beers",
+      "$7 cocktails"
+    ],
     "vibe": "Wine bar",
     "website": "https://therosesouthpark.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://therosesouthpark.com",
-    "dealTypes": ["wine", "beer", "cocktails"],
-    "features": ["wine bar", "date night", "patio"]
+    "dealTypes": [
+      "wine",
+      "beer",
+      "cocktails"
+    ],
+    "features": [
+      "wine bar",
+      "date night",
+      "patio"
+    ]
   },
   {
     "id": 10,
@@ -177,17 +341,35 @@
     "address": "2210 Kettner Blvd",
     "lat": 32.7283,
     "lng": -117.1698,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": ["$8 cocktails", "$6 wines", "$5 beers"],
+    "deals": [
+      "$8 cocktails",
+      "$6 wines",
+      "$5 beers"
+    ],
     "vibe": "Upscale Mediterranean",
     "website": "https://herbandwood.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://herbandwood.com",
-    "dealTypes": ["cocktails", "wine", "beer"],
-    "features": ["mediterranean", "date night", "upscale"]
+    "dealTypes": [
+      "cocktails",
+      "wine",
+      "beer"
+    ],
+    "features": [
+      "mediterranean",
+      "date night",
+      "upscale"
+    ]
   },
   {
     "id": 11,
@@ -195,18 +377,36 @@
     "neighborhood": "North Park",
     "address": "3012 University Ave",
     "lat": 32.7491,
-    "lng": -117.1290,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "lng": -117.129,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$4 beers", "$5 wells", "$2 off appetizers"],
+    "deals": [
+      "$4 beers",
+      "$5 wells",
+      "$2 off appetizers"
+    ],
     "vibe": "Neighborhood gastropub",
     "website": "https://neighborhoodsd.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://neighborhoodsd.com",
-    "dealTypes": ["beer", "cocktails", "food"],
-    "features": ["casual", "group friendly", "gastropub"]
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly",
+      "gastropub"
+    ]
   },
   {
     "id": 12,
@@ -215,17 +415,32 @@
     "address": "4696 30th St",
     "lat": 32.7573,
     "lng": -117.1296,
-    "days": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": ["$9 cocktails", "$5 draft beers"],
+    "deals": [
+      "$9 cocktails",
+      "$5 draft beers"
+    ],
     "vibe": "Craft cocktails",
     "website": "https://politeprovisions.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://politeprovisions.com",
-    "dealTypes": ["cocktails", "beer"],
-    "features": ["cocktail bar", "date night", "patio"]
+    "dealTypes": [
+      "cocktails",
+      "beer"
+    ],
+    "features": [
+      "cocktail bar",
+      "date night",
+      "patio"
+    ]
   },
   {
     "id": 13,
@@ -234,17 +449,37 @@
     "address": "4445 Lamont St",
     "lat": 32.7971,
     "lng": -117.2446,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$5 wells", "$4 drafts", "$6 wines", "Half-price apps"],
+    "deals": [
+      "$5 wells",
+      "$4 drafts",
+      "$6 wines",
+      "Half-price apps"
+    ],
     "vibe": "Dog-friendly patio",
     "website": "https://thepatio.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://thepatio.com",
-    "dealTypes": ["cocktails", "beer", "wine", "food"],
-    "features": ["dog friendly", "patio", "casual"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "dog friendly",
+      "patio",
+      "casual"
+    ]
   },
   {
     "id": 14,
@@ -253,17 +488,35 @@
     "address": "2266 Kettner Blvd",
     "lat": 32.7289,
     "lng": -117.1699,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "17:00",
-    "deals": ["$4 beers", "$6 wines", "$5 chicken sandwich"],
+    "deals": [
+      "$4 beers",
+      "$6 wines",
+      "$5 chicken sandwich"
+    ],
     "vibe": "Casual chicken joint",
     "website": "https://crackshack.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://crackshack.com",
-    "dealTypes": ["beer", "wine", "food"],
-    "features": ["casual", "patio", "group friendly"]
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "patio",
+      "group friendly"
+    ]
   },
   {
     "id": 15,
@@ -272,17 +525,37 @@
     "address": "880 Harbor Island Dr",
     "lat": 32.7232,
     "lng": -117.1894,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$8 margaritas", "$6 beers", "$7 wines", "$5 tacos"],
+    "deals": [
+      "$8 margaritas",
+      "$6 beers",
+      "$7 wines",
+      "$5 tacos"
+    ],
     "vibe": "Waterfront Mexican",
     "website": "https://cohnrestaurants.com/coasterra",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://cohnrestaurants.com/coasterra",
-    "dealTypes": ["cocktails", "beer", "wine", "food"],
-    "features": ["waterfront", "mexican", "date night"]
+    "dealTypes": [
+      "cocktails",
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "waterfront",
+      "mexican",
+      "date night"
+    ]
   },
   {
     "id": 16,
@@ -291,17 +564,35 @@
     "address": "3926 30th St",
     "lat": 32.7532,
     "lng": -117.1296,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "19:00",
-    "deals": ["$5 beers", "$6 wells", "Free arcade games"],
+    "deals": [
+      "$5 beers",
+      "$6 wells",
+      "Free arcade games"
+    ],
     "vibe": "Arcade bar",
     "website": "https://coinopsd.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://coinopsd.com",
-    "dealTypes": ["beer", "cocktails", "entertainment"],
-    "features": ["games", "group friendly", "casual"]
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "entertainment"
+    ],
+    "features": [
+      "games",
+      "group friendly",
+      "casual"
+    ]
   },
   {
     "id": 17,
@@ -310,17 +601,36 @@
     "address": "550 W Date St",
     "lat": 32.7208,
     "lng": -117.1705,
-    "days": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "17:00",
-    "deals": ["$6 wines", "$5 beers", "$8 cocktails", "$5 snacks"],
+    "deals": [
+      "$6 wines",
+      "$5 beers",
+      "$8 cocktails",
+      "$5 snacks"
+    ],
     "vibe": "All-day cafe",
     "website": "https://morningglorysandiego.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://morningglorysandiego.com",
-    "dealTypes": ["wine", "beer", "cocktails", "food"],
-    "features": ["brunch", "cafe", "patio"]
+    "dealTypes": [
+      "wine",
+      "beer",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "brunch",
+      "cafe",
+      "patio"
+    ]
   },
   {
     "id": 18,
@@ -329,17 +639,37 @@
     "address": "1950 India St",
     "lat": 32.7253,
     "lng": -117.1688,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$7 cocktails", "$5 wines", "$4 beers", "$6 pizzas"],
+    "deals": [
+      "$7 cocktails",
+      "$5 wines",
+      "$4 beers",
+      "$6 pizzas"
+    ],
     "vibe": "Italian gastropub",
     "website": "https://lucebarandkitchen.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://lucebarandkitchen.com",
-    "dealTypes": ["cocktails", "wine", "beer", "food"],
-    "features": ["italian", "casual", "group friendly"]
+    "dealTypes": [
+      "cocktails",
+      "wine",
+      "beer",
+      "food"
+    ],
+    "features": [
+      "italian",
+      "casual",
+      "group friendly"
+    ]
   },
   {
     "id": 19,
@@ -348,17 +678,35 @@
     "address": "1503 30th St",
     "lat": 32.7308,
     "lng": -117.1296,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": ["$6 beers", "$8 cocktails", "$5 vegan bites"],
+    "deals": [
+      "$6 beers",
+      "$8 cocktails",
+      "$5 vegan bites"
+    ],
     "vibe": "Vegan metal bar",
     "website": "https://barkindred.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://barkindred.com",
-    "dealTypes": ["beer", "cocktails", "food"],
-    "features": ["vegan", "date night", "cocktail bar"]
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "vegan",
+      "date night",
+      "cocktail bar"
+    ]
   },
   {
     "id": 20,
@@ -367,16 +715,34 @@
     "address": "721 Grand Ave",
     "lat": 32.7948,
     "lng": -117.2527,
-    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": ["$4 house beers", "$5 wells", "$3 off apps"],
+    "deals": [
+      "$4 house beers",
+      "$5 wells",
+      "$3 off apps"
+    ],
     "vibe": "Beach brewery",
     "website": "https://pbalehouse.com",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://pbalehouse.com",
-    "dealTypes": ["beer", "cocktails", "food"],
-    "features": ["beach", "brewery", "group friendly"]
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "beach",
+      "brewery",
+      "group friendly"
+    ]
   }
 ]

@@ -1,2 +1,11 @@
 node_modules/
+dist/
+.astro/
+.vercel/
 .env
+.DS_Store
+# Local-only fallback storage for accounts/submissions when no Vercel KV
+# store is connected yet — see src/lib/kv.ts and README-ACCOUNTS-SETUP.md.
+.data/
+*.xlsx
+*.docx

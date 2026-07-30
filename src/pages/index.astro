@@ -1,0 +1,951 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="SD Happy Hours — Where San Diego Drinks"
+  description="Find happy hours happening right now in San Diego. Real-time deals from Little Italy to Pacific Beach."
+  transparentNav={true}
+>
+  <style is:global>
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 110px 24px 100px;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #1A0A2E 0%, #2D1B4E 30%, #8B4B6B 55%, #E8956B 75%, #F4C05C 90%, #FFE4A0 100%);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 40%;
+      background-image:
+        radial-gradient(2px 2px at 20% 15%, white 100%, transparent),
+        radial-gradient(2px 2px at 40% 8%, white 100%, transparent),
+        radial-gradient(1px 1px at 60% 20%, white 100%, transparent),
+        radial-gradient(2px 2px at 80% 12%, white 100%, transparent),
+        radial-gradient(1px 1px at 10% 25%, white 100%, transparent),
+        radial-gradient(1px 1px at 70% 5%, white 100%, transparent),
+        radial-gradient(2px 2px at 90% 22%, white 100%, transparent);
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    .sun {
+      position: absolute;
+      bottom: 15%; left: 50%;
+      transform: translateX(-50%);
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, #FFF9E6 0%, #FFD54F 30%, #FF9800 60%, transparent 70%);
+      border-radius: 50%;
+      z-index: 1;
+      filter: blur(2px);
+    }
+
+    .ocean {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 18%;
+      background: linear-gradient(to bottom, #1A5276 0%, #154360 50%, #0E2F44 100%);
+      z-index: 2;
+    }
+
+    .cocktail-icon {
+      display: inline-block;
+      width: clamp(36px, 7vw, 64px);
+      height: auto;
+      flex-shrink: 0;
+      opacity: 0.9;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .hero-content { position: relative; z-index: 5; max-width: 900px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .hero-badge .pulse {
+      width: 8px; height: 8px;
+      background: #4ADE80;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 12px #4ADE80;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 12vw, 6.5rem);
+      font-weight: 700;
+      color: white;
+      line-height: 0.95;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.3);
+    }
+
+    .hero h1 .eyebrow {
+      display: block;
+      font-family: var(--font-body);
+      font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      color: #FFE4A0;
+    }
+
+    .hero h1 .title-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 2vw, 20px);
+    }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 2.5vw, 1.375rem);
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 36px;
+    }
+
+    .live-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      background: white;
+      padding: 18px 36px;
+      border-radius: 100px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .live-counter .number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--sunset-start), #E85D4C);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .live-counter .label { text-align: left; line-height: 1.3; }
+    .live-counter .label strong { display: block; font-weight: 700; color: var(--night); }
+    .live-counter .label span { font-size: 0.875rem; color: var(--night-soft); }
+
+    /* ===== FILTERS ===== */
+    .filters-section {
+      background: white;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 24px;
+    }
+
+    .filters-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .search-input {
+      appearance: none;
+      background: white;
+      border: 2px solid var(--sand-warm);
+      color: var(--night);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 100px;
+      min-width: min(240px, 100%);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12); outline: none; }
+
+    .filter-btn, .view-btn, .location-btn {
+      appearance: none;
+      background: var(--sand-warm);
+      border: 2px solid transparent;
+      color: var(--night);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230F172A' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .filter-btn:hover, .view-btn:hover, .location-btn:hover { background-color: var(--sunset-end); }
+    .view-btn.active, .location-btn.active { background: var(--night); color: white; }
+    .location-btn { display: flex; align-items: center; gap: 6px; }
+    .location-btn svg { width: 16px; height: 16px; }
+
+    .view-toggle { display: flex; gap: 4px; background: var(--sand-warm); padding: 4px; border-radius: 100px; }
+    .view-toggle .view-btn { padding: 8px 16px; background: transparent; }
+    .view-toggle .view-btn.active { background: var(--night); color: white; }
+
+    .results-info { font-size: 0.875rem; color: var(--night-soft); display: flex; align-items: center; gap: 12px; }
+    .results-info strong { color: var(--night); font-weight: 700; }
+    .distance-info { color: var(--ocean); font-weight: 500; }
+
+    /* ===== MAP ===== */
+    .map-container { height: 500px; display: none; border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .map-container.active { display: block; }
+    #map { height: 100%; width: 100%; }
+    .leaflet-popup-content-wrapper { border-radius: var(--radius-sm); padding: 0; }
+    .leaflet-popup-content { margin: 0; min-width: 200px; }
+    .map-popup { padding: 12px; }
+    .map-popup h3 { font-family: var(--font-display); font-size: 1.125rem; margin-bottom: 4px; }
+    .map-popup .vibe { font-size: 0.75rem; color: var(--ocean); margin-bottom: 8px; }
+    .map-popup .time { font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; }
+    .map-popup .deals { font-size: 0.75rem; color: var(--night-soft); margin-bottom: 8px; }
+    .map-popup a { display: inline-block; background: var(--night); color: white; padding: 6px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+
+    /* ===== MAIN GRID ===== */
+    .main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px; }
+    .grid.hidden { display: none; }
+
+    /* ===== CARD ===== */
+    .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 24px 60px rgba(0,0,0,0.08); }
+    .card.is-live { box-shadow: 0 0 0 3px var(--palm), 0 12px 32px rgba(34, 197, 94, 0.2); }
+    .card-image { position: relative; height: 200px; overflow: hidden; }
+    .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .card:hover .card-image img { transform: scale(1.05); }
+    .card-image .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); }
+
+    .card-image .live-badge {
+      position: absolute; top: 12px; left: 12px;
+      display: flex; align-items: center; gap: 6px;
+      background: var(--palm); color: white;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 5px 12px; border-radius: 100px;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+    .card-image .live-badge .dot { width: 5px; height: 5px; background: white; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; }
+    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 52px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .distance-tag { position: absolute; top: 12px; right: 52px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .time-overlay { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
+    .card-image .time-badge { background: white; color: var(--night); font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: var(--radius-sm); white-space: nowrap; }
+
+    .card-body { padding: 20px; }
+    .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .card-vibe { font-size: 0.75rem; font-weight: 600; color: var(--ocean); background: rgba(8, 145, 178, 0.1); padding: 4px 10px; border-radius: 100px; }
+    .card-distance { font-size: 0.75rem; font-weight: 600; color: var(--sunset-start); }
+
+    .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; }
+    .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 14px; }
+    .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
+
+    .trust-row { display: flex; justify-content: space-between; gap: 12px; margin: -4px 0 14px; color: var(--night-soft); font-size: 0.75rem; font-weight: 500; }
+    .trust-row a { color: var(--ocean); font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .trust-row a:hover { text-decoration: underline; }
+
+    .save-panel { background: var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 8px; margin: 0 0 14px; padding: 10px; }
+    .save-panel.compact { align-items: center; display: flex; justify-content: space-between; gap: 10px; }
+    .save-panel select, .save-panel input { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
+    .save-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .save-action { border: 0; border-radius: 100px; background: var(--night); color: white; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px 12px; }
+    .save-action:hover { background: var(--sunset-start); }
+    .save-action.secondary { background: white; color: var(--night); }
+    .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.78rem; font-weight: 700; gap: 4px; }
+
+    .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
+    .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
+    .week-dot.active { background: var(--sunset-start); color: white; }
+    .week-dot.today { box-shadow: 0 0 0 2px var(--violet); }
+
+    .card-deals h3 { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--night-soft); margin-bottom: 8px; }
+    .deal-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .deal { display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%); color: var(--night); font-size: 0.75rem; font-weight: 600; padding: 6px 10px; border-radius: var(--radius-sm); }
+
+    .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--sand-warm); gap: 12px; }
+    .card-address { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--night-soft); text-decoration: none; transition: color 0.2s; flex: 1; min-width: 0; }
+    .card-address:hover { color: var(--night); }
+    .card-address svg { color: var(--sunset-start); flex-shrink: 0; }
+    .card-address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .card-cta { display: flex; align-items: center; gap: 6px; background: var(--night); color: white; font-size: 0.8rem; font-weight: 600; padding: 10px 18px; border-radius: 100px; text-decoration: none; transition: background 0.2s; flex-shrink: 0; }
+    .card-cta:hover { background: var(--sunset-start); }
+
+    /* Blog teaser card on homepage venue links back to /venues */
+    .venue-page-link { font-size: 0.7rem; opacity: 0.75; text-decoration: underline; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state { text-align: center; padding: 80px 24px; }
+    .empty-state h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 12px; }
+    .empty-state p { color: var(--night-soft); font-size: 1.125rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero { min-height: 70vh; padding: 100px 20px 80px; }
+      .filters-container { flex-direction: column; align-items: stretch; }
+      .filters { flex-wrap: wrap; }
+      .search-input { width: 100%; }
+      .filter-btn { flex: 1; min-width: 100px; }
+      .grid { grid-template-columns: 1fr; }
+      .map-container { height: 400px; border-radius: var(--radius-sm); }
+      .live-counter { flex-direction: column; text-align: center; padding: 16px 28px; }
+      .live-counter .label { text-align: center; }
+    }
+  </style>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="sun"></div>
+    <div class="ocean"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="pulse"></span>
+        <span id="current-time">4:32 PM</span> in San Diego
+      </div>
+
+      <h1>
+        <span class="eyebrow">Where San Diego Drinks</span>
+        <span class="title-row">
+          Happy Hour
+          <svg class="cocktail-icon" viewBox="0 0 70 90" fill="none">
+            <path d="M10 10 L35 50 L60 10 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <line x1="35" y1="50" x2="35" y2="75" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <ellipse cx="35" cy="78" rx="15" ry="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+            <path d="M18 20 L35 42 L52 20 Z" fill="#FF6B6B" opacity="0.8"/>
+            <circle cx="28" cy="18" r="6" fill="#4ADE80" opacity="0.9"/>
+            <path d="M25 18 Q28 15 31 18" stroke="#22C55E" stroke-width="1.5" fill="none"/>
+            <path d="M42 8 Q50 5 55 15 L42 12 Z" fill="#FFD23F"/>
+            <line x1="42" y1="8" x2="42" y2="25" stroke="#8B4513" stroke-width="1.5"/>
+          </svg>
+        </span>
+      </h1>
+
+      <p class="hero-tagline">The best deals happening right now, from Little Italy to PB</p>
+
+      <div class="live-counter">
+        <span class="number" id="live-count-big">0</span>
+        <div class="label">
+          <strong>spots live right now</strong>
+          <span>Scroll to explore</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="filters-section">
+    <div class="filters-container">
+      <div class="filters">
+        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" />
+
+        <select class="filter-btn" id="day-filter">
+          <option value="">All days</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+          <option value="Sunday">Sunday</option>
+        </select>
+
+        <select class="filter-btn" id="neighborhood-filter">
+          <option value="">All neighborhoods</option>
+        </select>
+
+        <select class="filter-btn" id="deal-filter">
+          <option value="">All deals</option>
+        </select>
+
+        <select class="filter-btn" id="feature-filter">
+          <option value="">All vibes</option>
+        </select>
+
+        <select class="filter-btn" id="status-filter">
+          <option value="">All spots</option>
+          <option value="now">Live now</option>
+        </select>
+
+        <select class="filter-btn" id="trust-filter">
+          <option value="">Any trust status</option>
+          <option value="verified">Verified only</option>
+          <option value="unverified">Needs verification</option>
+        </select>
+
+        <button class="location-btn" id="location-btn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+          <span id="location-text">Near me</span>
+        </button>
+
+        <div class="view-toggle">
+          <button class="view-btn active" id="list-view-btn">List</button>
+          <button class="view-btn" id="map-view-btn">Map</button>
+        </div>
+      </div>
+
+      <div class="results-info">
+        <span><strong id="result-count">0</strong> spots</span>
+        <span class="distance-info" id="distance-info" style="display: none;"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="map-container" id="map-container">
+      <div id="map"></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <h2>No spots found</h2>
+      <p>Try adjusting your filters or check back later</p>
+    </div>
+  </main>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <script>
+    import { getVenueImage } from '../lib/venues';
+
+    let happyHours: any[] = [];
+    let userLocation: { lat: number; lng: number } | null = null;
+    let map: any = null;
+    let markers: any[] = [];
+    let isSignedIn = false;
+    let savedSpotIds = new Set<number>();
+    let accountUser: any = null;
+    let saveConfirmation: { spotId: number; text: string } | null = null;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function labelize(value: string) {
+      return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayAbbrev = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const today = dayNames[new Date().getDay()];
+    const todayIndex = new Date().getDay();
+
+    function slugify(name: string) {
+      return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    const dayFilterEl = document.getElementById('day-filter') as HTMLSelectElement;
+    dayFilterEl.value = today;
+
+    function updateTime() {
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour = h % 12 || 12;
+      document.getElementById('current-time')!.textContent = `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+    }
+    updateTime();
+    setInterval(updateTime, 30000);
+
+    function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+      const R = 3959;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function formatDistance(miles: number) {
+      if (miles < 0.1) return 'Nearby';
+      if (miles < 1) return `${(miles * 5280 / 1000).toFixed(1)}k ft`;
+      return `${miles.toFixed(1)} mi`;
+    }
+
+    document.getElementById('location-btn')!.addEventListener('click', () => {
+      const btn = document.getElementById('location-btn')!;
+      const text = document.getElementById('location-text')!;
+
+      if (userLocation) {
+        userLocation = null;
+        btn.classList.remove('active');
+        text.textContent = 'Near me';
+        (document.getElementById('distance-info') as HTMLElement).style.display = 'none';
+        render();
+        return;
+      }
+
+      text.textContent = 'Locating...';
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          btn.classList.add('active');
+          text.textContent = 'Sorted by distance';
+          document.getElementById('distance-info')!.textContent = 'Sorted by distance';
+          (document.getElementById('distance-info') as HTMLElement).style.display = 'inline';
+          render();
+          if (map) {
+            map.setView([userLocation.lat, userLocation.lng], 13);
+          }
+        },
+        () => {
+          text.textContent = 'Near me';
+          alert('Could not get your location. Please enable location services.');
+        }
+      );
+    });
+
+    document.getElementById('list-view-btn')!.addEventListener('click', () => {
+      document.getElementById('list-view-btn')!.classList.add('active');
+      document.getElementById('map-view-btn')!.classList.remove('active');
+      document.getElementById('map-container')!.classList.remove('active');
+      document.getElementById('grid')!.classList.remove('hidden');
+    });
+
+    document.getElementById('map-view-btn')!.addEventListener('click', () => {
+      document.getElementById('map-view-btn')!.classList.add('active');
+      document.getElementById('list-view-btn')!.classList.remove('active');
+      document.getElementById('map-container')!.classList.add('active');
+      document.getElementById('grid')!.classList.add('hidden');
+
+      if (!map) {
+        initMap();
+      }
+      setTimeout(() => map.invalidateSize(), 100);
+      updateMapMarkers();
+    });
+
+    function initMap() {
+      const center = userLocation || { lat: 32.7157, lng: -117.1611 };
+      // @ts-ignore - Leaflet loaded via script tag
+      map = L.map('map').setView([center.lat, center.lng], 12);
+      // @ts-ignore
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+      }).addTo(map);
+    }
+
+    function updateMapMarkers() {
+      if (!map) return;
+      markers.forEach((m) => map.removeLayer(m));
+      markers = [];
+
+      const filtered = getFilteredData();
+
+      filtered.forEach((h) => {
+        const isLive = isHappeningNow(h);
+        // @ts-ignore
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="
+            background: ${isLive ? '#22C55E' : '#FF6B35'};
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 12px;
+          ">${isLive ? '!' : ''}</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
+        });
+
+        // @ts-ignore
+        const marker = L.marker([h.lat, h.lng], { icon })
+          .bindPopup(`
+            <div class="map-popup">
+              <h3>${escapeHTML(h.name)}</h3>
+              <div class="vibe">${escapeHTML(h.vibe)} · ${h.verified ? 'Verified' : 'Needs verification'}</div>
+              <div class="time">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</div>
+              <div class="deals">${h.deals.slice(0, 2).map(escapeHTML).join(' • ')}</div>
+              <a href="/venues/${slugify(h.name)}/">View details</a>
+            </div>
+          `)
+          .addTo(map);
+
+        markers.push(marker);
+      });
+    }
+
+    async function loadAccount() {
+      try {
+        const res = await fetch('/api/account/me');
+        const session = await res.json();
+        accountUser = session.authenticated ? session.user : null;
+        isSignedIn = Boolean(accountUser);
+        savedSpotIds = new Set((accountUser?.savedSpots || []).map((s: any) => s.spotId));
+      } catch {
+        accountUser = null;
+        isSignedIn = false;
+        savedSpotIds = new Set();
+      }
+
+      render();
+    }
+
+    function getSavedSpot(spotId: number) {
+      return accountUser?.savedSpots?.find((item: any) => item.spotId === spotId);
+    }
+
+    function populateSelect(id: string, values: string[], formatter: (v: string) => string = (v) => v) {
+      const select = document.getElementById(id) as HTMLSelectElement;
+      values.forEach((n) => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = formatter(n);
+        select.appendChild(opt);
+      });
+    }
+
+    async function loadData() {
+      const res = await fetch('/data/happy-hours.json');
+      happyHours = await res.json();
+
+      populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
+      populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
+      populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
+
+      await loadAccount();
+      render();
+    }
+
+    function isHappeningNow(hh: any) {
+      if (!hh.days.includes(today)) return false;
+      const now = new Date();
+      const mins = now.getHours() * 60 + now.getMinutes();
+      const [sh, sm] = hh.startTime.split(':').map(Number);
+      const [eh, em] = hh.endTime.split(':').map(Number);
+      return mins >= (sh * 60 + sm) && mins <= (eh * 60 + em);
+    }
+
+    function formatTime(time: string) {
+      const [h, m] = time.split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour = h % 12 || 12;
+      return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+    }
+
+    function getImage(vibe: string) {
+      return getVenueImage(vibe, 'card');
+    }
+
+    function getTrustLabel(h: any) {
+      if (h.verified && h.lastVerifiedAt) {
+        return `Verified ${new Date(h.lastVerifiedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+      }
+      if (h.verified) return 'Verified';
+      return 'Needs verification';
+    }
+
+    function matchesSearch(h: any, query: string) {
+      if (!query) return true;
+      const haystack = [h.name, h.neighborhood, h.address, h.vibe, ...(h.deals || []), ...(h.dealTypes || []), ...(h.features || [])]
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(query);
+    }
+
+    function getFilteredData() {
+      const searchQuery = (document.getElementById('search-input') as HTMLInputElement).value.trim().toLowerCase();
+      const dayFilter = (document.getElementById('day-filter') as HTMLSelectElement).value;
+      const neighborhoodFilter = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
+      const dealFilter = (document.getElementById('deal-filter') as HTMLSelectElement).value;
+      const featureFilter = (document.getElementById('feature-filter') as HTMLSelectElement).value;
+      const statusFilter = (document.getElementById('status-filter') as HTMLSelectElement).value;
+      const trustFilter = (document.getElementById('trust-filter') as HTMLSelectElement).value;
+
+      let filtered = [...happyHours];
+
+      if (searchQuery) filtered = filtered.filter((h) => matchesSearch(h, searchQuery));
+      if (dayFilter) filtered = filtered.filter((h) => h.days.includes(dayFilter));
+      if (neighborhoodFilter) filtered = filtered.filter((h) => h.neighborhood === neighborhoodFilter);
+      if (dealFilter) filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
+      if (featureFilter) filtered = filtered.filter((h) => (h.features || []).includes(featureFilter));
+      if (statusFilter === 'now') filtered = filtered.filter((h) => isHappeningNow(h));
+      if (trustFilter === 'verified') filtered = filtered.filter((h) => h.verified);
+      if (trustFilter === 'unverified') filtered = filtered.filter((h) => !h.verified);
+
+      if (userLocation) {
+        filtered = filtered.map((h) => ({
+          ...h,
+          distance: getDistance(userLocation!.lat, userLocation!.lng, h.lat, h.lng)
+        }));
+        filtered.sort((a, b) => a.distance - b.distance);
+      } else {
+        filtered.sort((a, b) => {
+          const aLive = isHappeningNow(a);
+          const bLive = isHappeningNow(b);
+          if (aLive && !bLive) return -1;
+          if (!aLive && bLive) return 1;
+          return a.startTime.localeCompare(b.startTime);
+        });
+      }
+
+      return filtered;
+    }
+
+    function render() {
+      const filtered = getFilteredData();
+
+      const grid = document.getElementById('grid')!;
+      const empty = document.getElementById('empty-state')!;
+      const countEl = document.getElementById('result-count')!;
+      const liveCountBig = document.getElementById('live-count-big')!;
+
+      const liveNow = happyHours.filter((h) => isHappeningNow(h)).length;
+      countEl.textContent = String(filtered.length);
+      liveCountBig.textContent = String(liveNow);
+
+      if (filtered.length === 0) {
+        (grid as HTMLElement).style.display = 'none';
+        (empty as HTMLElement).style.display = 'block';
+        return;
+      }
+
+      (grid as HTMLElement).style.display = 'grid';
+      (empty as HTMLElement).style.display = 'none';
+
+      grid.innerHTML = filtered.map((h) => {
+        const isLive = isHappeningNow(h);
+        const img = getImage(h.vibe);
+        const hasDistance = h.distance !== undefined;
+        const slug = slugify(h.name);
+
+        const weekDots = dayNames.map((day, i) => {
+          const active = h.days.includes(day);
+          const isToday = i === todayIndex;
+          let cls = 'week-dot';
+          if (active) cls += ' active';
+          if (isToday) cls += ' today';
+          return `<span class="${cls}">${dayAbbrev[i]}</span>`;
+        }).join('');
+
+        const trustClass = h.verified ? '' : ' unverified';
+        const featureTags = (h.features || []).slice(0, 3)
+          .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
+          .join('');
+
+        return `
+          <article class="card ${isLive ? 'is-live' : ''}">
+            <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
+              <div class="card-image">
+                <img src="${img}" alt="${escapeHTML(h.name)}" loading="lazy">
+                <div class="overlay"></div>
+                ${isLive ? '<div class="live-badge"><span class="dot"></span> Live Now</div>' : ''}
+                ${hasDistance
+                  ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
+                  : `<span class="neighborhood-tag">${escapeHTML(h.neighborhood)}</span>`
+                }
+                <div class="time-overlay">
+                  <span class="venue-name">${escapeHTML(h.name)}</span>
+                  <span class="time-badge">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</span>
+                </div>
+              </div>
+            </a>
+
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="card-vibe">${escapeHTML(h.vibe)}</span>
+                <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
+                ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
+              </div>
+
+              <div class="tag-row">${featureTags}</div>
+
+              <div class="trust-row">
+                <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
+                <a href="/submit/">Report update</a>
+              </div>
+
+              ${renderSavePanel(h)}
+
+              <div class="week-row">${weekDots}</div>
+
+              <div class="card-deals">
+                <h3>Deals</h3>
+                <div class="deal-grid">
+                  ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <a class="card-address" href="https://maps.google.com/?q=${encodeURIComponent(h.address + ', San Diego, CA')}" target="_blank" rel="noopener">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span>${escapeHTML(h.address)}</span>
+                </a>
+                <a class="card-cta" href="/venues/${slug}/">
+                  Details
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      if (document.getElementById('map-container')!.classList.contains('active')) {
+        updateMapMarkers();
+      }
+    }
+
+    function renderSavePanel(h: any) {
+      if (!accountUser) {
+        return `
+          <div class="save-panel compact">
+            <span>Save notes and lists</span>
+            <button class="save-action" data-save-login>Log in</button>
+          </div>
+        `;
+      }
+
+      const saved = getSavedSpot(h.id);
+      if (!saved) {
+        return `
+          <div class="save-panel compact">
+            <span>Add to your happy hour list</span>
+            <button class="save-action" data-save-spot="${h.id}">Save</button>
+          </div>
+        `;
+      }
+
+      const confirm = saveConfirmation && saveConfirmation.spotId === h.id
+        ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
+        : '';
+
+      return `
+        <div class="save-panel" data-saved-spot="${h.id}">
+          <select data-save-status>
+            <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
+            <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
+            <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
+          </select>
+          <input data-save-note value="${escapeHTML(saved.note)}" placeholder="Private note or shareable tip" />
+          <div class="save-actions">
+            <button class="save-action" data-update-spot="${h.id}">Update</button>
+            <button class="save-action secondary" data-remove-spot="${h.id}">Remove</button>
+            ${confirm}
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('search-input')!.addEventListener('input', render);
+    document.getElementById('day-filter')!.addEventListener('change', render);
+    document.getElementById('neighborhood-filter')!.addEventListener('change', render);
+    document.getElementById('deal-filter')!.addEventListener('change', render);
+    document.getElementById('feature-filter')!.addEventListener('change', render);
+    document.getElementById('status-filter')!.addEventListener('change', render);
+    document.getElementById('trust-filter')!.addEventListener('change', render);
+
+    document.getElementById('grid')!.addEventListener('click', async (event) => {
+      const target = event.target as HTMLElement;
+
+      if (target.closest('[data-save-login]')) {
+        window.location.href = '/account/';
+        return;
+      }
+
+      const saveButton = target.closest('[data-save-spot]') as HTMLElement | null;
+      const updateButton = target.closest('[data-update-spot]') as HTMLElement | null;
+      const removeButton = target.closest('[data-remove-spot]') as HTMLElement | null;
+      const spotId = saveButton?.dataset.saveSpot || updateButton?.dataset.updateSpot || removeButton?.dataset.removeSpot;
+      if (!spotId) return;
+
+      event.preventDefault();
+
+      if (removeButton) {
+        saveConfirmation = null;
+        await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
+      } else {
+        const panel = target.closest('.save-panel');
+        await fetch(`/api/account/spots/${spotId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            status: (panel?.querySelector('[data-save-status]') as HTMLSelectElement | null)?.value || 'favorite',
+            note: (panel?.querySelector('[data-save-note]') as HTMLInputElement | null)?.value || '',
+          }),
+        });
+        saveConfirmation = { spotId: Number(spotId), text: updateButton ? 'Updated' : 'Saved' };
+      }
+      await loadAccount();
+
+      if (saveConfirmation) {
+        const confirmedId = saveConfirmation.spotId;
+        setTimeout(() => {
+          if (saveConfirmation && saveConfirmation.spotId === confirmedId) {
+            saveConfirmation = null;
+            render();
+          }
+        }, 2000);
+      }
+    });
+
+    loadData();
+  </script>
+</Layout>

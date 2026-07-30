@@ -1,0 +1,241 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  transparentNav?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/og-default.jpg',
+  transparentNav = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={new URL(image, Astro.site)} />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <style is:global>
+    :root {
+      --sunset-start: #FF6B35;
+      --sunset-mid: #F7931E;
+      --sunset-end: #FFD23F;
+      --ocean: #0891B2;
+      --ocean-deep: #164E63;
+      --palm: #22C55E;
+      --night: #0F172A;
+      --night-soft: #1E293B;
+      --sand: #FFFBF5;
+      --sand-warm: #FEF3E2;
+      --coral: #FF6B6B;
+      --violet: #8B5CF6;
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+
+      --radius: 24px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--sand);
+      color: var(--night);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px;
+      position: relative;
+      z-index: 200;
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .site-nav .links a[aria-current="page"] {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Plain block wrapper (NOT itself a flex container) so every page's own
+       max-width + margin: auto centering keeps working unmodified — only
+       this single wrapper needs to be a flex item of body, to grow and
+       push the footer to the bottom on short pages. */
+    .page-content {
+      flex: 1 0 auto;
+      width: 100%;
+    }
+
+    .site-nav .brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.35rem;
+      text-decoration: none;
+      color: var(--sunset-start);
+    }
+
+    .site-nav .links {
+      display: flex;
+      gap: 8px;
+      font-size: 0.875rem;
+    }
+
+    .site-nav .links a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--night);
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: var(--sand-warm);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .site-nav .links a:hover { background: var(--sunset-end); }
+    .site-nav .links a[aria-current="page"] { background: var(--night); color: white; }
+
+    /* Admin-only links (visible only to signed-in admin emails) get a
+       distinct teal tint so they read as different from the regular nav. */
+    .site-nav .links a#admin-nav-link,
+    .site-nav .links a#blog-admin-nav-link {
+      background: rgba(8, 145, 178, 0.14);
+      color: var(--ocean-deep);
+    }
+    .site-nav .links a#admin-nav-link:hover,
+    .site-nav .links a#blog-admin-nav-link:hover {
+      background: rgba(8, 145, 178, 0.26);
+    }
+    .site-nav .links a#admin-nav-link[aria-current="page"],
+    .site-nav .links a#blog-admin-nav-link[aria-current="page"] {
+      background: var(--night);
+      color: white;
+    }
+
+    /* Overlay variant: floats transparently on top of a hero image/gradient
+       instead of sitting in its own bar, so the hero reaches the very top. */
+    .site-nav.transparent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: transparent;
+      backdrop-filter: none;
+      border-bottom: none;
+    }
+
+    .site-nav.transparent .brand {
+      background: none;
+      -webkit-text-fill-color: white;
+      color: white;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .site-nav.transparent .links a {
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--night);
+    }
+
+    .site-nav.transparent .links a:hover { background: white; }
+    .site-nav.transparent .links a[aria-current="page"] { background: var(--night); color: white; }
+
+    footer.site-footer {
+      background: var(--night);
+      color: white;
+      text-align: center;
+      padding: 48px 24px;
+      flex-shrink: 0;
+    }
+
+    footer.site-footer p { opacity: 0.7; font-size: 0.9rem; }
+    footer.site-footer a { color: var(--sunset-end); text-decoration: none; font-weight: 600; }
+    footer.site-footer a:hover { text-decoration: underline; }
+    footer.site-footer .disclaimer { margin-top: 16px; font-size: 0.8rem; opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
+    <a class="brand" href="/">SD Happy Hours</a>
+    <div class="links">
+      <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
+      <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
+      <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>Sign In</a>
+      <a href="/admin/new-post/" id="blog-admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
+      <a href="/admin/" id="admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <slot />
+  </div>
+
+  <footer class="site-footer">
+    <p>Built by Shane & John in San Diego | <a href="/submit/">Submit a spot</a></p>
+    <p class="disclaimer">Happy hour details are community-sourced. Always verify with the venue before visiting.</p>
+  </footer>
+
+  <script>
+    // Site-wide: reflect sign-in state in the nav, and only show the Admin
+    // link when an admin session is active. Runs on every page (this layout
+    // wraps all of them) so login status stays consistent site-wide, unlike
+    // the original single-page version which only showed this on the homepage.
+    (async () => {
+      try {
+        const res = await fetch('/api/account/me');
+        const session = await res.json();
+        const link = document.getElementById('account-nav-link');
+        if (link && session.authenticated) {
+          link.textContent = 'My Spots';
+        }
+      } catch {
+        // Not signed in / KV not configured yet — leave the default "Sign In".
+      }
+
+      try {
+        // Single check for both admin-only links: authorized = signed in
+        // at /account/ with an email in ADMIN_EMAILS (src/lib/admins.ts) —
+        // there's no separate admin login anymore.
+        const res = await fetch('/api/admin/me');
+        const session = await res.json();
+        if (session.authenticated) {
+          const adminLink = document.getElementById('admin-nav-link') as HTMLElement | null;
+          const blogAdminLink = document.getElementById('blog-admin-nav-link') as HTMLElement | null;
+          if (adminLink) adminLink.style.display = '';
+          if (blogAdminLink) blogAdminLink.style.display = '';
+        }
+      } catch {
+        // Not signed in with an authorized admin email — leave both hidden.
+      }
+    })();
+  </script>
+</body>
+</html>

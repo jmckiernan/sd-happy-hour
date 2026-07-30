@@ -1,0 +1,201 @@
+---
+export const prerender = true;
+import Layout from '../../../layouts/Layout.astro';
+---
+<Layout title="Blog Drafts | SD Happy Hours Admin" description="Review and publish AI-generated blog drafts.">
+  <style is:global>
+    .admin-bar {
+      background: white;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .admin-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; }
+    .admin-actions { display: flex; gap: 8px; align-items: center; }
+    .admin-user { color: var(--night-soft); font-size: 0.85rem; font-weight: 700; }
+    button.secondary {
+      background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night);
+      cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px;
+    }
+    button.secondary:hover { background: var(--sunset-end); }
+
+    .admin-subnav { display: flex; gap: 8px; max-width: 1100px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
+    .admin-status { margin-bottom: 16px; color: var(--night-soft); font-weight: 600; }
+
+    .draft-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .draft-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+    .draft-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
+    .draft-head p { color: var(--night-soft); font-size: 0.85rem; }
+    .pill { align-self: flex-start; border-radius: 100px; background: rgba(8,145,178,0.14); color: var(--ocean-deep); font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .draft-desc { color: var(--night-soft); font-size: 0.92rem; margin-bottom: 14px; }
+    .draft-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .draft-actions a, .draft-actions button {
+      border: 0; border-radius: 100px; padding: 10px 16px; cursor: pointer;
+      font: inherit; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .draft-actions a.primary { background: var(--night); color: white; }
+    .draft-actions a.primary:hover { background: var(--sunset-start); }
+    .draft-actions button.bad { background: #FEE2E2; color: #991B1B; }
+    .draft-actions button.bad:hover { background: #FECACA; }
+
+    .error { color: #B91C1C; font-weight: 600; margin-top: 10px; white-space: pre-wrap; font-size: 0.85rem; }
+
+    .np-locked { text-align: center; padding: 60px 24px; }
+    .np-locked p { color: var(--night-soft); margin-bottom: 20px; }
+    .np-locked a {
+      display: inline-flex; background: var(--night); color: white; padding: 12px 22px;
+      border-radius: 100px; text-decoration: none; font-weight: 700;
+    }
+    .hidden { display: none; }
+
+    @media (max-width: 760px) {
+      .admin-bar-inner, .draft-head { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+
+  <div id="dr-locked" class="np-locked hidden">
+    <h1>Blog Drafts</h1>
+    <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+    <a href="/account/">Sign In</a>
+  </div>
+
+  <div id="dr-app" class="hidden">
+    <div class="admin-bar">
+      <div class="admin-bar-inner">
+        <div>
+          <h1>Blog Drafts</h1>
+          <p>Review, publish, or discard AI-generated posts.</p>
+        </div>
+        <div class="admin-actions">
+          <span class="admin-user" id="admin-user"></span>
+          <button class="secondary" id="refresh">Refresh</button>
+        </div>
+      </div>
+      <nav class="admin-subnav">
+        <a href="/admin/">Submissions</a>
+        <a href="/admin/new-post/">Add Blog Post</a>
+        <a href="/admin/drafts/" aria-current="page">Drafts</a>
+      </nav>
+    </div>
+
+    <main class="admin-main">
+      <div class="admin-status" id="status">Loading drafts...</div>
+      <div id="drafts"></div>
+    </main>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status')!;
+    const draftsEl = document.getElementById('drafts')!;
+    const adminUserEl = document.getElementById('admin-user')!;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function setStatus(message: string) {
+      statusEl.textContent = message;
+    }
+
+    function renderDrafts(drafts: any[]) {
+      if (!drafts.length) {
+        draftsEl.innerHTML = '';
+        setStatus('No drafts waiting — generate one from "Add Blog Post".');
+        return;
+      }
+
+      setStatus(`${drafts.length} draft${drafts.length === 1 ? '' : 's'} waiting for review`);
+      draftsEl.innerHTML = drafts.map((item) => `
+        <article class="draft-card" data-slug="${escapeHTML(item.slug)}">
+          <div class="draft-head">
+            <div>
+              <h2>${escapeHTML(item.title)}</h2>
+              <p>${escapeHTML(item.pubDate)} · by ${escapeHTML(item.author)}</p>
+            </div>
+            ${item.aiGenerated ? '<span class="pill">AI Draft</span>' : ''}
+          </div>
+          <p class="draft-desc">${escapeHTML(item.description)}</p>
+          <div class="draft-actions">
+            <a class="primary" href="/admin/drafts/${encodeURIComponent(item.slug)}/">Preview &amp; Publish</a>
+            <button class="bad" data-action="discard">Discard</button>
+          </div>
+          <div class="error" aria-live="polite"></div>
+        </article>
+      `).join('');
+    }
+
+    async function loadDrafts() {
+      setStatus('Loading drafts...');
+      try {
+        const res = await fetch('/api/admin/drafts');
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+        renderDrafts(data.drafts);
+      } catch (err: any) {
+        setStatus(err.message || 'Could not load drafts.');
+      }
+    }
+
+    async function handleAction(event: MouseEvent) {
+      const button = (event.target as HTMLElement).closest('button[data-action="discard"]') as HTMLButtonElement | null;
+      if (!button) return;
+
+      const card = button.closest('.draft-card') as HTMLElement;
+      const errorEl = card.querySelector('.error') as HTMLElement;
+      const slug = card.dataset.slug!;
+
+      if (!confirm('Discard this draft? This deletes the file from the repo — it cannot be undone.')) return;
+
+      button.disabled = true;
+      errorEl.textContent = '';
+      try {
+        const res = await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+        await loadDrafts();
+      } catch (err: any) {
+        errorEl.textContent = err.message;
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById('refresh')?.addEventListener('click', loadDrafts);
+    draftsEl.addEventListener('click', handleAction);
+
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/me');
+        const session = await res.json();
+        if (!session.authenticated) {
+          document.getElementById('dr-locked')!.classList.remove('hidden');
+          return;
+        }
+        adminUserEl.textContent = `Logged in as ${session.email}`;
+        document.getElementById('dr-app')!.classList.remove('hidden');
+        await loadDrafts();
+      } catch {
+        document.getElementById('dr-locked')!.classList.remove('hidden');
+      }
+    })();
+  </script>
+</Layout>

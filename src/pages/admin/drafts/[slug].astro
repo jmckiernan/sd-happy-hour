@@ -1,0 +1,326 @@
+---
+export const prerender = false;
+import Layout from '../../../layouts/Layout.astro';
+import { getAdminUser } from '../../../lib/admins';
+import { getGitHubTarget, getOctokit, getBlogFile } from '../../../lib/blogDrafts';
+import { renderMarkdown } from '../../../lib/markdown';
+import { getPostImage } from '../../../lib/venues';
+
+const slug = Astro.params.slug!;
+const admin = await getAdminUser(Astro.cookies);
+
+let draft: Awaited<ReturnType<typeof getBlogFile>> = null;
+let loadError: string | null = null;
+let bodyHtml = '';
+let heroImage = '';
+
+if (admin) {
+  try {
+    const target = getGitHubTarget();
+    const octokit = getOctokit(target);
+    draft = await getBlogFile(octokit, target, slug);
+    if (draft) {
+      bodyHtml = renderMarkdown(draft.body);
+      heroImage = getPostImage(draft.data.heroImage, draft.data.venues, 'hero');
+    } else {
+      loadError = 'Draft not found — it may have already been published or discarded.';
+    }
+  } catch (err: any) {
+    loadError = err.message;
+  }
+}
+
+const dateStr = draft?.data.pubDate
+  ? new Date(draft.data.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : '';
+---
+<Layout title={draft ? `Preview: ${draft.data.title} | SD Happy Hours Admin` : 'Draft Preview | SD Happy Hours Admin'} description="Preview and publish an AI-generated blog draft.">
+  <style is:global>
+    .admin-bar {
+      background: white;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px;
+    }
+    .admin-bar-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; }
+    .admin-subnav { display: flex; gap: 8px; max-width: 900px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .preview-banner {
+      max-width: 900px; margin: 20px auto 0; padding: 0 24px;
+    }
+    .preview-banner .box {
+      background: var(--sand-warm); border-radius: var(--radius-sm); padding: 14px 18px;
+      display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap;
+    }
+    .preview-banner .box p { font-size: 0.85rem; color: var(--night-soft); }
+    .preview-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .preview-actions button {
+      border: 0; border-radius: 100px; padding: 11px 20px; cursor: pointer;
+      font: inherit; font-weight: 700;
+    }
+    .preview-actions button.good { background: var(--palm); color: white; }
+    .preview-actions button.good:hover { background: #16A34A; }
+    .preview-actions button.bad { background: #FEE2E2; color: #991B1B; }
+    .preview-actions button.bad:hover { background: #FECACA; }
+    .preview-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #preview-msg { max-width: 900px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; font-weight: 600; }
+    #preview-msg.ok { color: #166534; }
+    #preview-msg.err { color: #991B1B; }
+
+    .post-header { max-width: 760px; margin: 0 auto; padding: 32px 24px 24px; }
+    .post-header .meta { font-size: 0.85rem; color: var(--night-soft); margin-bottom: 12px; }
+    .post-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.75rem); line-height: 1.1; margin-bottom: 12px; }
+    .post-header .description { font-size: 1.1rem; color: var(--night-soft); }
+    .post-hero { max-width: 900px; margin: 0 auto 32px; padding: 0 24px; }
+    .post-hero .frame { border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); }
+    .post-hero img { width: 100%; height: clamp(220px, 40vw, 420px); object-fit: cover; display: block; }
+    .post-body { max-width: 760px; margin: 0 auto; padding: 0 24px 80px; font-size: 1.05rem; line-height: 1.75; }
+    .post-body h2 { font-family: var(--font-display); margin: 32px 0 12px; }
+    .post-body h3 { margin: 24px 0 8px; }
+    .post-body p { margin-bottom: 16px; }
+    .post-body a { color: var(--ocean); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; }
+
+    .np-locked { text-align: center; padding: 60px 24px; }
+    .np-locked p { color: var(--night-soft); margin-bottom: 20px; }
+    .np-locked a {
+      display: inline-flex; background: var(--night); color: white; padding: 12px 22px;
+      border-radius: 100px; text-decoration: none; font-weight: 700;
+    }
+
+    .preview-actions button.neutral { background: var(--sand-warm); color: var(--night); }
+    .preview-actions button.neutral:hover { background: var(--sunset-end); }
+
+    .edit-panel { max-width: 760px; margin: 0 auto; padding: 24px 24px 80px; }
+    .edit-panel label {
+      color: var(--night-soft); display: block; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 6px;
+    }
+    .edit-panel label:first-of-type { margin-top: 0; }
+    .edit-panel input, .edit-panel textarea {
+      width: 100%; padding: 12px 14px; border: 2px solid var(--sand-warm); border-radius: var(--radius-sm);
+      font: inherit; font-size: 0.95rem; color: var(--night);
+    }
+    .edit-panel input:focus, .edit-panel textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
+    .edit-panel textarea.body-field {
+      min-height: 420px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.88rem; line-height: 1.6; resize: vertical;
+    }
+    .edit-panel textarea.description-field { min-height: 70px; resize: vertical; }
+    .edit-panel .hint { font-size: 0.8rem; color: var(--night-soft); margin-top: 4px; }
+    .edit-panel .edit-actions { display: flex; gap: 8px; margin-top: 20px; }
+    .edit-panel .edit-actions button {
+      border: 0; border-radius: 100px; padding: 12px 22px; cursor: pointer; font: inherit; font-weight: 700;
+    }
+    .edit-panel .edit-actions button.save { background: var(--night); color: white; }
+    .edit-panel .edit-actions button.save:hover { background: var(--sunset-start); }
+    .edit-panel .edit-actions button.cancel { background: var(--sand-warm); color: var(--night); }
+    .edit-panel .edit-actions button.cancel:hover { background: #FEE2E2; }
+    .edit-panel .edit-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #edit-msg { font-size: 0.85rem; font-weight: 600; margin-top: 10px; }
+    #edit-msg.ok { color: #166534; }
+    #edit-msg.err { color: #991B1B; }
+    .hidden { display: none; }
+  </style>
+
+  {!admin && (
+    <div class="np-locked">
+      <h1>Draft Preview</h1>
+      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+      <a href="/account/">Sign In</a>
+    </div>
+  )}
+
+  {admin && loadError && (
+    <div class="np-locked">
+      <h1>Draft Preview</h1>
+      <p>{loadError}</p>
+      <a href="/admin/drafts/">Back to drafts</a>
+    </div>
+  )}
+
+  {admin && draft && (
+    <Fragment>
+      <div class="admin-bar">
+        <div class="admin-bar-inner">
+          <div>
+            <h1>Draft Preview</h1>
+            <p>Read it over, then publish or discard.</p>
+          </div>
+        </div>
+        <nav class="admin-subnav">
+          <a href="/admin/">Submissions</a>
+          <a href="/admin/new-post/">Add Blog Post</a>
+          <a href="/admin/drafts/" aria-current="page">Drafts</a>
+        </nav>
+      </div>
+
+      <div class="preview-banner">
+        <div class="box">
+          <p>This draft is still hidden (<code>draft: true</code>) — publishing commits the change and it goes live on the next deploy, usually within a couple minutes.</p>
+          <div class="preview-actions">
+            <button id="edit-btn" class="neutral">Edit</button>
+            <button id="publish-btn" class="good" data-slug={draft.slug}>Publish</button>
+            <button id="discard-btn" class="bad" data-slug={draft.slug}>Discard</button>
+          </div>
+        </div>
+        <div id="preview-msg"></div>
+      </div>
+
+      <div id="view-mode">
+        <div class="post-header">
+          <div class="meta">By {draft.data.author} · {dateStr}</div>
+          <h1>{draft.data.title}</h1>
+          <p class="description">{draft.data.description}</p>
+        </div>
+
+        {heroImage && (
+          <div class="post-hero">
+            <div class="frame">
+              <img src={heroImage} alt={draft.data.title} />
+            </div>
+          </div>
+        )}
+
+        <div class="post-body" set:html={bodyHtml} />
+      </div>
+
+      <div id="edit-panel" class="edit-panel hidden">
+        <label for="edit-title">Title</label>
+        <input id="edit-title" value={draft.data.title} />
+
+        <label for="edit-description">Description</label>
+        <textarea id="edit-description" class="description-field">{draft.data.description}</textarea>
+
+        <label for="edit-venues">Related venue slugs (comma-separated)</label>
+        <input id="edit-venues" value={draft.data.venues.join(', ')} />
+        <p class="hint">Must match the slug in the venue's URL — these get pulled in as verified data.</p>
+
+        <label for="edit-hero-image">Featured image URL</label>
+        <input id="edit-hero-image" value={draft.data.heroImage ?? ''} placeholder="https://images.unsplash.com/..." />
+        <p class="hint">
+          Leave blank to auto-pick an image based on the linked venue's vibe.
+          {heroImage && <span> Currently showing: <a href={heroImage} target="_blank" rel="noopener">preview image</a>.</span>}
+        </p>
+
+        <label for="edit-body">Body (Markdown)</label>
+        <textarea id="edit-body" class="body-field" spellcheck="false">{draft.body}</textarea>
+
+        <div class="edit-actions">
+          <button id="save-btn" class="save" data-slug={draft.slug}>Save Changes</button>
+          <button id="cancel-btn" class="cancel">Cancel</button>
+        </div>
+        <div id="edit-msg"></div>
+      </div>
+    </Fragment>
+  )}
+
+  <script>
+    const msgEl = document.getElementById('preview-msg');
+    const publishBtn = document.getElementById('publish-btn') as HTMLButtonElement | null;
+    const discardBtn = document.getElementById('discard-btn') as HTMLButtonElement | null;
+    const editBtn = document.getElementById('edit-btn') as HTMLButtonElement | null;
+    const cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement | null;
+    const saveBtn = document.getElementById('save-btn') as HTMLButtonElement | null;
+    const viewMode = document.getElementById('view-mode');
+    const editPanel = document.getElementById('edit-panel');
+    const editMsg = document.getElementById('edit-msg');
+
+    async function callApi(method: 'POST' | 'DELETE') {
+      const slug = (publishBtn || discardBtn)?.dataset.slug;
+      if (!slug || !msgEl) return;
+
+      publishBtn?.setAttribute('disabled', 'true');
+      discardBtn?.setAttribute('disabled', 'true');
+      msgEl.className = '';
+      msgEl.textContent = method === 'POST' ? 'Publishing…' : 'Discarding…';
+
+      try {
+        const res = await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+
+        if (method === 'POST') {
+          msgEl.className = 'ok';
+          msgEl.textContent = 'Published! It\'ll go live on the site within a couple minutes as the deploy finishes.';
+        } else {
+          msgEl.className = 'ok';
+          msgEl.textContent = 'Draft discarded.';
+          setTimeout(() => { window.location.href = '/admin/drafts/'; }, 900);
+        }
+      } catch (err: any) {
+        msgEl.className = 'err';
+        msgEl.textContent = err.message;
+        publishBtn?.removeAttribute('disabled');
+        discardBtn?.removeAttribute('disabled');
+      }
+    }
+
+    publishBtn?.addEventListener('click', () => callApi('POST'));
+    discardBtn?.addEventListener('click', () => {
+      if (confirm('Discard this draft? This deletes the file from the repo — it cannot be undone.')) callApi('DELETE');
+    });
+
+    editBtn?.addEventListener('click', () => {
+      viewMode?.classList.add('hidden');
+      editPanel?.classList.remove('hidden');
+      editBtn.classList.add('hidden');
+    });
+
+    cancelBtn?.addEventListener('click', () => {
+      editPanel?.classList.add('hidden');
+      viewMode?.classList.remove('hidden');
+      editBtn?.classList.remove('hidden');
+      if (editMsg) { editMsg.textContent = ''; editMsg.className = ''; }
+    });
+
+    saveBtn?.addEventListener('click', async () => {
+      const slug = saveBtn.dataset.slug;
+      if (!slug || !editMsg) return;
+
+      const title = (document.getElementById('edit-title') as HTMLInputElement).value.trim();
+      const description = (document.getElementById('edit-description') as HTMLTextAreaElement).value.trim();
+      const venues = (document.getElementById('edit-venues') as HTMLInputElement).value
+        .split(',').map((s) => s.trim()).filter(Boolean);
+      const heroImage = (document.getElementById('edit-hero-image') as HTMLInputElement).value.trim();
+      const body = (document.getElementById('edit-body') as HTMLTextAreaElement).value.trim();
+
+      if (!title || !description || !body) {
+        editMsg.className = 'err';
+        editMsg.textContent = 'Title, description, and body are all required.';
+        return;
+      }
+
+      saveBtn.setAttribute('disabled', 'true');
+      cancelBtn?.setAttribute('disabled', 'true');
+      editMsg.className = '';
+      editMsg.textContent = 'Saving…';
+
+      try {
+        const res = await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ title, description, venues, body, heroImage }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+
+        editMsg.className = 'ok';
+        editMsg.textContent = 'Saved! Reloading preview…';
+        setTimeout(() => window.location.reload(), 600);
+      } catch (err: any) {
+        editMsg.className = 'err';
+        editMsg.textContent = err.message;
+        saveBtn.removeAttribute('disabled');
+        cancelBtn?.removeAttribute('disabled');
+      }
+    });
+  </script>
+</Layout>
