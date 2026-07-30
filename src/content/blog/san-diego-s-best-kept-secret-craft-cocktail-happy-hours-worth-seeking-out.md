@@ -3,7 +3,7 @@ title: "San Diego's Best-Kept Secret: Craft Cocktail Happy Hours Worth Seeking O
 description: "A local's guide to hunting down San Diego's most creative, artisan-level cocktail happy hours—and what to look for when you find one."
 pubDate: 2026-07-30
 author: "SD Happy Hours"
-draft: true
+draft: false
 aiGenerated: true
 venues: []
 heroImage: "/api/images/san-diego-s-best-kept-secret-craft-cocktail-happy-hours-wort-1785438987390-6a806688.jpg"
