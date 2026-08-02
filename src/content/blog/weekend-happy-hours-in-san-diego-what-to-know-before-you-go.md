@@ -3,7 +3,7 @@ title: "Weekend Happy Hours in San Diego: What to Know Before You Go"
 description: "A local's guide to hunting down great weekend happy hours across San Diego, plus what to watch for since weekend deals work differently than weekday ones."
 pubDate: 2026-08-02
 author: "SD Happy Hours"
-draft: true
+draft: false
 aiGenerated: true
 venues: []
 heroImage: "/api/images/best-weekend-happy-hours-1785649254989-5c676065.png"
