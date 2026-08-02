@@ -20,10 +20,10 @@ export const ADMIN_EMAILS = ['jmckiernan86@gmail.com', 'shanewlykins@gmail.com']
 
 Add or remove emails there directly if the list ever needs to change — whoever's on it gets full admin rights everywhere (submissions + blog posts), automatically.
 
-## One-time setup (you'll need to do this yourself; it needs your GitHub/Vercel/Anthropic accounts)
+## One-time setup (you'll need to do this yourself; it needs your GitHub/Netlify/Anthropic accounts)
 
-### 1. Push this branch and deploy to Vercel
-- Push `feature/astro-blog-cms` to GitHub, then connect the repo in Vercel (if not already). Vercel auto-detects Astro.
+### 1. Push this branch and deploy to Netlify
+- Push `feature/astro-blog-cms` to GitHub, then connect the repo in Netlify (if not already). Netlify auto-detects Astro.
 - Merge to `main` once you've reviewed it, or deploy the branch as a preview first — up to you.
 
 ### 2. Get an Anthropic API key
@@ -34,8 +34,8 @@ Add or remove emails there directly if the list ever needs to change — whoever
 - Scope it to just this repo, with **Contents: Read and write** permission.
 - This becomes the `GITHUB_TOKEN` env var — the same one already used for committing approved venue submissions (see README-ACCOUNTS-SETUP.md).
 
-### 4. Set environment variables in Vercel
-Project Settings → Environment Variables:
+### 4. Set environment variables in Netlify
+Site configuration → Environment variables:
 
 | Variable | Value |
 |---|---|
@@ -54,9 +54,13 @@ Redeploy after adding these.
 
 **Generating an AI draft:** sign in at `/account/` with an authorized email, then the "Add Blog Post" nav link appears — go to `/admin/new-post/`. Paste your idea/angle (required) and any source material — a Google Alert result, a scraped article, your own notes (optional). If the post is about specific venues, add their slugs (the part of the URL after `/venues/`) so Claude gets real, verified hours/deals instead of guessing. Hit Generate — it commits the draft to the repo as a file.
 
-**Reviewing and publishing — no GitHub needed:** the draft always lands with `draft: true`, so it's never publicly visible until someone reviews it. After generating, click through to `/admin/drafts/<slug>/` (or go to `/admin/drafts/` any time to see everything waiting for review) — it fetches the draft straight from the repo and renders it like a real post, right on the site. Read it like you would any junior writer's draft — the one thing worth actually checking is that any specific venue facts match reality — then hit **Publish** to flip `draft: true` to `false` and commit, or **Discard** to delete the file entirely if it's not worth keeping. Vercel rebuilds automatically after publishing (usually a couple minutes) and it's live.
+**Reviewing, editing, and publishing — no GitHub needed:** the draft always lands with `draft: true`, so it's never publicly visible until someone reviews it. After generating, click through to `/admin/drafts/<slug>/` (or go to `/admin/drafts/` any time to see everything waiting for review) — it fetches the draft straight from the repo and renders it like a real post, right on the site. Hit **Edit** to fix up the title, description, venues, featured image, or the body text directly — **Save Changes** commits the edit without publishing. Once it reads right, hit **Publish** to flip `draft: true` to `false` and commit, or **Discard** to delete the file entirely if it's not worth keeping. Netlify rebuilds automatically after publishing (usually a couple minutes) and it's live.
 
-If you'd rather hand-edit the text before publishing, the generator's success message still includes a link to open the raw file in GitHub's own editor.
+If you'd rather hand-edit the text in GitHub instead, the generator's success message still includes a link to open the raw file in GitHub's own editor.
+
+**Editing (or unpublishing) a post that's already live:** `/admin/drafts/` isn't just for pending drafts — it lists every post, live or hidden, each tagged with a "Live" or "Draft" pill. Click into any live post the same way to fix a typo, swap the image, or rewrite a section — **Save Changes** commits straight to the published file, no separate "republish" step needed. From there you can also **Unpublish** (pulls it back to hidden/draft without deleting it, useful if something needs a bigger fix before it's public again) or **Delete** it outright.
+
+**Featured images:** in the Edit view, paste any image URL and click "Download & store this URL" to save your own permanent copy instead of hotlinking someone else's server (works for something you found on Unsplash, an AI-generated image saved from elsewhere, anything with a direct image URL) — or click "Upload a file…" to upload one straight from your computer. Either way it's saved via Netlify Blobs (see README-ACCOUNTS-SETUP.md) and served from this site's own domain. Leave the field blank to fall back to an automatic image based on the linked venue's vibe.
 
 **Cost per post:** roughly a few cents of Claude API usage. No other per-post cost.
 

@@ -26,6 +26,7 @@ import Layout from '../layouts/Layout.astro';
     .list-card h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
     .list-meta, .list-note { color: var(--night-soft); line-height: 1.5; font-size: 0.9rem; }
     .list-pill { background: var(--sand-warm); border-radius: 100px; color: var(--night); font-size: 0.7rem; font-weight: 700; padding: 6px 10px; white-space: nowrap; }
+    .list-rating { color: var(--sunset-start); font-size: 0.9rem; letter-spacing: 1px; white-space: nowrap; }
     .list-empty { color: var(--night-soft); font-weight: 600; padding: 20px 0; }
 
     @media (max-width: 680px) { .list-card-head { flex-direction: column; } }
@@ -77,19 +78,26 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
-      listEl.innerHTML = data.spots.map((item: any) => `
+      listEl.innerHTML = data.spots.map((item: any) => {
+        const rating = Number(item.rating) || 0;
+        const stars = rating ? `<span class="list-rating" aria-label="${rating} out of 5 stars">${'&#9733;'.repeat(rating)}${'&#9734;'.repeat(5 - rating)}</span>` : '';
+        return `
         <article class="list-card">
           <div class="list-card-head">
             <div>
               <h2>${escapeHTML(item.spot.name)}</h2>
               <div class="list-meta">${escapeHTML(item.spot.neighborhood)} · ${escapeHTML(item.spot.deals.slice(0, 3).join(' · '))}</div>
             </div>
-            <span class="list-pill">${statusLabel(item.status)}</span>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+              <span class="list-pill">${statusLabel(item.status)}</span>
+              ${stars}
+            </div>
           </div>
           ${item.note ? `<div class="list-note">${escapeHTML(item.note)}</div>` : ''}
           <div class="list-meta" style="margin-top:8px;"><a href="/venues/${escapeHTML(item.spot.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''))}/">View venue</a></div>
         </article>
-      `).join('');
+      `;
+      }).join('');
     }
 
     loadSharedList();

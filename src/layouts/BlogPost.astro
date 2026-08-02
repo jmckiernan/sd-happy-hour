@@ -10,9 +10,10 @@ export interface Props {
   author: string;
   heroImage?: string;
   venues?: string[];
+  slug: string;
 }
 
-const { title, description, pubDate, updatedDate, author, heroImage, venues = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, author, heroImage, venues = [], slug } = Astro.props;
 
 const relatedVenues = venues
   .map((slug) => getVenueBySlug(slug))
@@ -27,11 +28,33 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       margin: 0 auto;
       padding: 48px 24px 24px;
     }
+    .post-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
     .post-header .meta {
       font-size: 0.85rem;
       color: var(--night-soft);
-      margin-bottom: 12px;
     }
+    .admin-edit-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ocean-deep);
+      background: rgba(8, 145, 178, 0.14);
+      padding: 6px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .admin-edit-link:hover { background: rgba(8, 145, 178, 0.26); }
+    .hidden { display: none; }
     .post-header h1 {
       font-family: var(--font-display);
       font-size: clamp(2rem, 5vw, 2.75rem);
@@ -97,7 +120,10 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
   </style>
 
   <div class="post-header">
-    <div class="meta">By {author} · {dateStr}{updatedDate && ` (updated ${updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`}</div>
+    <div class="post-header-top">
+      <div class="meta">By {author} · {dateStr}{updatedDate && ` (updated ${updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`}</div>
+      <a id="admin-edit-link" class="admin-edit-link hidden" href={`/admin/drafts/${slug}/`}>✎ Edit Post</a>
+    </div>
     <h1>{title}</h1>
     <p class="description">{description}</p>
   </div>
@@ -128,4 +154,21 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       </ul>
     </div>
   )}
+
+  <script>
+    // Shows the "Edit Post" link only for signed-in admins (same
+    // ADMIN_EMAILS check as the rest of the admin tools) — regular
+    // visitors never see it.
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/me');
+        const session = await res.json();
+        if (session.authenticated) {
+          document.getElementById('admin-edit-link')?.classList.remove('hidden');
+        }
+      } catch {
+        // Not signed in as an admin — leave it hidden.
+      }
+    })();
+  </script>
 </Layout>

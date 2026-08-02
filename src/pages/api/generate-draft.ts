@@ -52,7 +52,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return new Response(JSON.stringify({ error: 'Sign in at /account/ with an authorized admin email first.' }), { status: 401 });
   }
 
-  const { sourceMaterial, angle, venues = [] } = await request.json();
+  const { sourceMaterial, angle, venues = [], heroImage } = await request.json();
 
   if (!angle || typeof angle !== 'string') {
     return new Response(JSON.stringify({ error: 'Missing "angle" (your idea/notes for the post).' }), { status: 400 });
@@ -158,6 +158,12 @@ Write the blog post now, following all rules in your instructions. Respond in th
     `draft: true`,
     `aiGenerated: true`,
     `venues: [${venues.map((v: string) => JSON.stringify(v)).join(', ')}]`,
+    // Optional — set when the admin generated/uploaded/edited a hero image
+    // on the "Add Blog Post" page before submitting. Omitted entirely (not
+    // written as an empty string) when there isn't one, so getPostImage()
+    // falls back to auto-picking one based on the linked venue's vibe, same
+    // as a draft that's never had heroImage touched via the editor.
+    ...(typeof heroImage === 'string' && heroImage.trim() ? [`heroImage: ${JSON.stringify(heroImage.trim())}`] : []),
     '---',
     '',
   ].join('\n');

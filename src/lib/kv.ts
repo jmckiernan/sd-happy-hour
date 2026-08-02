@@ -56,6 +56,11 @@ export interface SavedSpot {
   spotId: number;
   status: 'favorite' | 'want-to-try' | 'been-to';
   note: string;
+  // 1-5, whole stars only. Only meaningful for 'favorite'/'been-to' (you
+  // haven't been somewhere you only "want to try" yet, so there's nothing
+  // to rate) — omitted entirely rather than stored as 0/null when there
+  // isn't one, matching how the rest of this app treats "no value" fields.
+  rating?: number;
   createdAt: string;
   updatedAt: string;
 }

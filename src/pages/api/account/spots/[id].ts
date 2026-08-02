@@ -32,15 +32,33 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   }
 
   const note = cleanString(body.note).slice(0, 500);
+
+  // Rating only makes sense for spots you've actually favorited or been
+  // to — not ones still on the "want to try" list. Rather than error out
+  // if a stale rating value tags along with a status change (e.g. moving
+  // a rated favorite back to "want to try"), it's just silently dropped so
+  // status is always the source of truth for whether a rating is kept.
+  let rating: number | undefined;
+  if (status === 'favorite' || status === 'been-to') {
+    if (body.rating !== undefined && body.rating !== null && body.rating !== '') {
+      const parsed = Number(body.rating);
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > 5) {
+        return errorJson(['Rating must be a whole number from 1 to 5.'], 422);
+      }
+      rating = parsed;
+    }
+  }
+
   const now = new Date().toISOString();
   user.savedSpots = user.savedSpots || [];
   const existing = user.savedSpots.find((item) => item.spotId === spotId);
   if (existing) {
     existing.status = status as any;
     existing.note = note;
+    existing.rating = rating;
     existing.updatedAt = now;
   } else {
-    user.savedSpots.unshift({ spotId, status: status as any, note, createdAt: now, updatedAt: now });
+    user.savedSpots.unshift({ spotId, status: status as any, note, rating, createdAt: now, updatedAt: now });
   }
   user.updatedAt = now;
   await writeUsers(users);

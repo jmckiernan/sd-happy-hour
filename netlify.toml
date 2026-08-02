@@ -1,0 +1,10 @@
+[build]
+  command = "astro build"
+  publish = "dist"
+
+# Tells `netlify dev` how to start the underlying app it wraps (proxying
+# in Netlify Blobs, env vars, redirects, etc. on top of plain `astro dev`).
+[dev]
+  command = "astro dev"
+  targetPort = 4321
+  port = 8888

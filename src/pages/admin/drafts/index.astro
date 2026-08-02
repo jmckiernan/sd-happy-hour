@@ -2,7 +2,7 @@
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
 ---
-<Layout title="Blog Drafts | SD Happy Hours Admin" description="Review and publish AI-generated blog drafts.">
+<Layout title="Manage Posts | SD Happy Hours Admin" description="Review, edit, publish, or unpublish blog posts.">
   <style is:global>
     .admin-bar {
       background: white;
@@ -44,7 +44,11 @@ import Layout from '../../../layouts/Layout.astro';
     .draft-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
     .draft-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
     .draft-head p { color: var(--night-soft); font-size: 0.85rem; }
-    .pill { align-self: flex-start; border-radius: 100px; background: rgba(8,145,178,0.14); color: var(--ocean-deep); font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { align-self: flex-start; border-radius: 100px; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill.status-live { background: #DCFCE7; color: #166534; }
+    .pill.status-draft { background: #FEF3C7; color: #92400E; }
+    .pill.ai { background: rgba(8,145,178,0.14); color: var(--ocean-deep); }
     .draft-desc { color: var(--night-soft); font-size: 0.92rem; margin-bottom: 14px; }
     .draft-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .draft-actions a, .draft-actions button {
@@ -53,6 +57,8 @@ import Layout from '../../../layouts/Layout.astro';
     }
     .draft-actions a.primary { background: var(--night); color: white; }
     .draft-actions a.primary:hover { background: var(--sunset-start); }
+    .draft-actions button.neutral { background: var(--sand-warm); color: var(--night); }
+    .draft-actions button.neutral:hover { background: var(--sunset-end); }
     .draft-actions button.bad { background: #FEE2E2; color: #991B1B; }
     .draft-actions button.bad:hover { background: #FECACA; }
 
@@ -72,7 +78,7 @@ import Layout from '../../../layouts/Layout.astro';
   </style>
 
   <div id="dr-locked" class="np-locked hidden">
-    <h1>Blog Drafts</h1>
+    <h1>Manage Posts</h1>
     <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
     <a href="/account/">Sign In</a>
   </div>
@@ -81,8 +87,8 @@ import Layout from '../../../layouts/Layout.astro';
     <div class="admin-bar">
       <div class="admin-bar-inner">
         <div>
-          <h1>Blog Drafts</h1>
-          <p>Review, publish, or discard AI-generated posts.</p>
+          <h1>Manage Posts</h1>
+          <p>Review, edit, publish, unpublish, or delete any blog post — draft or already live.</p>
         </div>
         <div class="admin-actions">
           <span class="admin-user" id="admin-user"></span>
@@ -92,12 +98,12 @@ import Layout from '../../../layouts/Layout.astro';
       <nav class="admin-subnav">
         <a href="/admin/">Submissions</a>
         <a href="/admin/new-post/">Add Blog Post</a>
-        <a href="/admin/drafts/" aria-current="page">Drafts</a>
+        <a href="/admin/drafts/" aria-current="page">Posts</a>
       </nav>
     </div>
 
     <main class="admin-main">
-      <div class="admin-status" id="status">Loading drafts...</div>
+      <div class="admin-status" id="status">Loading posts...</div>
       <div id="drafts"></div>
     </main>
   </div>
@@ -117,69 +123,95 @@ import Layout from '../../../layouts/Layout.astro';
       statusEl.textContent = message;
     }
 
-    function renderDrafts(drafts: any[]) {
-      if (!drafts.length) {
+    function renderPosts(posts: any[]) {
+      if (!posts.length) {
         draftsEl.innerHTML = '';
-        setStatus('No drafts waiting — generate one from "Add Blog Post".');
+        setStatus('No posts yet — generate one from "Add Blog Post".');
         return;
       }
 
-      setStatus(`${drafts.length} draft${drafts.length === 1 ? '' : 's'} waiting for review`);
-      draftsEl.innerHTML = drafts.map((item) => `
-        <article class="draft-card" data-slug="${escapeHTML(item.slug)}">
+      const draftCount = posts.filter((p) => p.draft).length;
+      setStatus(
+        `${posts.length} post${posts.length === 1 ? '' : 's'} total` +
+        (draftCount ? ` · ${draftCount} waiting for review` : '')
+      );
+
+      draftsEl.innerHTML = posts.map((item) => `
+        <article class="draft-card" data-slug="${escapeHTML(item.slug)}" data-draft="${item.draft ? '1' : '0'}">
           <div class="draft-head">
             <div>
               <h2>${escapeHTML(item.title)}</h2>
               <p>${escapeHTML(item.pubDate)} · by ${escapeHTML(item.author)}</p>
             </div>
-            ${item.aiGenerated ? '<span class="pill">AI Draft</span>' : ''}
+            <div class="pills">
+              <span class="pill ${item.draft ? 'status-draft' : 'status-live'}">${item.draft ? 'Draft' : 'Live'}</span>
+              ${item.aiGenerated ? '<span class="pill ai">AI</span>' : ''}
+            </div>
           </div>
           <p class="draft-desc">${escapeHTML(item.description)}</p>
           <div class="draft-actions">
-            <a class="primary" href="/admin/drafts/${encodeURIComponent(item.slug)}/">Preview &amp; Publish</a>
-            <button class="bad" data-action="discard">Discard</button>
+            <a class="primary" href="/admin/drafts/${encodeURIComponent(item.slug)}/">${item.draft ? 'Preview & Publish' : 'Edit'}</a>
+            ${item.draft
+              ? `<button class="bad" data-action="delete">Discard</button>`
+              : `<button class="neutral" data-action="unpublish">Unpublish</button><button class="bad" data-action="delete">Delete</button>`
+            }
           </div>
           <div class="error" aria-live="polite"></div>
         </article>
       `).join('');
     }
 
-    async function loadDrafts() {
-      setStatus('Loading drafts...');
+    async function loadPosts() {
+      setStatus('Loading posts...');
       try {
         const res = await fetch('/api/admin/drafts');
         const data = await res.json();
         if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
-        renderDrafts(data.drafts);
+        renderPosts(data.posts);
       } catch (err: any) {
-        setStatus(err.message || 'Could not load drafts.');
+        setStatus(err.message || 'Could not load posts.');
       }
     }
 
     async function handleAction(event: MouseEvent) {
-      const button = (event.target as HTMLElement).closest('button[data-action="discard"]') as HTMLButtonElement | null;
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
 
       const card = button.closest('.draft-card') as HTMLElement;
       const errorEl = card.querySelector('.error') as HTMLElement;
       const slug = card.dataset.slug!;
+      const isDraft = card.dataset.draft === '1';
+      const action = button.dataset.action;
 
-      if (!confirm('Discard this draft? This deletes the file from the repo — it cannot be undone.')) return;
+      if (action === 'delete') {
+        const msg = isDraft
+          ? 'Discard this draft? This deletes the file from the repo — it cannot be undone.'
+          : 'Delete this post entirely? This removes it from the repo — it cannot be undone.';
+        if (!confirm(msg)) return;
+      } else if (action === 'unpublish') {
+        if (!confirm('Unpublish this post? It goes back to hidden/draft until republished.')) return;
+      }
 
       button.disabled = true;
       errorEl.textContent = '';
       try {
-        const res = await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+        const res = action === 'delete'
+          ? await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+          : await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ action: 'unpublish' }),
+            });
         const data = await res.json();
         if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
-        await loadDrafts();
+        await loadPosts();
       } catch (err: any) {
         errorEl.textContent = err.message;
         button.disabled = false;
       }
     }
 
-    document.getElementById('refresh')?.addEventListener('click', loadDrafts);
+    document.getElementById('refresh')?.addEventListener('click', loadPosts);
     draftsEl.addEventListener('click', handleAction);
 
     (async () => {
@@ -192,7 +224,7 @@ import Layout from '../../../layouts/Layout.astro';
         }
         adminUserEl.textContent = `Logged in as ${session.email}`;
         document.getElementById('dr-app')!.classList.remove('hidden');
-        await loadDrafts();
+        await loadPosts();
       } catch {
         document.getElementById('dr-locked')!.classList.remove('hidden');
       }

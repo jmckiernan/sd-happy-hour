@@ -33,7 +33,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Bricolage+Grotesque:wght@600;700;800&display=swap" rel="stylesheet" />
 
   <style is:global>
     :root {
@@ -100,11 +100,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     }
 
     .site-nav .brand {
-      font-family: var(--font-display);
-      font-weight: 700;
+      font-family: 'Bricolage Grotesque', var(--font-display);
+      font-weight: 800;
       font-size: 1.35rem;
       text-decoration: none;
-      color: var(--sunset-start);
+      color: var(--night);
     }
 
     .site-nav .links {

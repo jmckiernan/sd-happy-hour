@@ -9,3 +9,6 @@ dist/
 .data/
 *.xlsx
 *.docx
+
+# Local Netlify folder
+.netlify
