@@ -23,6 +23,7 @@ const { Content } = await render(post);
   author={post.data.author}
   heroImage={getPostImage(post.data.heroImage, post.data.venues, 'hero')}
   venues={post.data.venues}
+  slug={post.id}
 >
   <Content />
 </BlogPost>

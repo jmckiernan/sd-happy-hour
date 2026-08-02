@@ -6,6 +6,7 @@ import {
   getOctokit,
   getBlogFile,
   setDraftFalse,
+  setDraftTrue,
   setField,
   removeField,
   rebuildFile,
@@ -34,7 +35,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
 
   try {
     const file = await getBlogFile(octokit, target, slug);
-    if (!file) return errorJson(['Draft not found.'], 404);
+    if (!file) return errorJson(['Post not found.'], 404);
 
     return json({
       slug: file.slug,
@@ -83,7 +84,7 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 
   try {
     const file = await getBlogFile(octokit, target, slug);
-    if (!file) return errorJson(['Draft not found.'], 404);
+    if (!file) return errorJson(['Post not found.'], 404);
 
     let lines = setField(file.lines, 'title', title.trim());
     lines = setField(lines, 'description', description.trim());
@@ -114,15 +115,28 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
   }
 };
 
-// POST: publish — flips draft: true to false and commits, so the post
-// goes live on the next deploy (same commit-to-repo mechanism the draft
-// itself was created with).
-export const POST: APIRoute = async ({ params, cookies }) => {
+// POST: publish (default) or unpublish — flips draft: true/false and
+// commits, so the post goes live (or comes back down) on the next deploy
+// (same commit-to-repo mechanism the draft itself was created with).
+// Body is optional: {"action": "unpublish"} to pull an already-live post
+// back to draft; omitted or {"action": "publish"} to publish it.
+export const POST: APIRoute = async ({ params, request, cookies }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email first.'], 401);
 
   const slug = params.slug;
   if (!slug) return errorJson(['Missing slug.'], 400);
+
+  let action: 'publish' | 'unpublish' = 'publish';
+  try {
+    const text = await request.text();
+    if (text.trim()) {
+      const parsed = JSON.parse(text);
+      if (parsed.action === 'unpublish') action = 'unpublish';
+    }
+  } catch {
+    // No/invalid body just means "publish", the original default behavior.
+  }
 
   let target;
   try {
@@ -135,28 +149,28 @@ export const POST: APIRoute = async ({ params, cookies }) => {
 
   try {
     const file = await getBlogFile(octokit, target, slug);
-    if (!file) return errorJson(['Draft not found.'], 404);
+    if (!file) return errorJson(['Post not found.'], 404);
 
-    const publishedLines = setDraftFalse(file.lines);
-    const content = rebuildFile(publishedLines, file.body);
+    const nextLines = action === 'unpublish' ? setDraftTrue(file.lines) : setDraftFalse(file.lines);
+    const content = rebuildFile(nextLines, file.body);
 
     await octokit.repos.createOrUpdateFileContents({
       owner: target.owner,
       repo: target.repo,
       path: file.path,
       branch: target.branch,
-      message: `Publish: ${file.data.title}`,
+      message: action === 'unpublish' ? `Unpublish: ${file.data.title}` : `Publish: ${file.data.title}`,
       content: Buffer.from(content, 'utf-8').toString('base64'),
       sha: file.sha,
     });
 
-    return json({ success: true, slug });
+    return json({ success: true, slug, action });
   } catch (err: any) {
-    return errorJson([`Could not publish: ${err.message}`], 502);
+    return errorJson([`Could not ${action}: ${err.message}`], 502);
   }
 };
 
-// DELETE: discard a draft that isn't worth publishing.
+// DELETE: remove a post entirely (draft or already-published).
 export const DELETE: APIRoute = async ({ params, cookies }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email first.'], 401);
@@ -175,14 +189,14 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
 
   try {
     const file = await getBlogFile(octokit, target, slug);
-    if (!file) return errorJson(['Draft not found.'], 404);
+    if (!file) return errorJson(['Post not found.'], 404);
 
     await octokit.repos.deleteFile({
       owner: target.owner,
       repo: target.repo,
       path: file.path,
       branch: target.branch,
-      message: `Discard draft: ${file.data.title}`,
+      message: `${file.data.draft ? 'Discard draft' : 'Delete post'}: ${file.data.title}`,
       sha: file.sha,
     });
 

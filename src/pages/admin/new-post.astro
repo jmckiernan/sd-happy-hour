@@ -53,6 +53,30 @@ import Layout from '../../layouts/Layout.astro';
     }
     .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
     .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .image-upload-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .image-upload-row .small, .file-btn {
+      display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
+      background: var(--sand-warm); color: var(--night); padding: 8px 16px; margin-top: 0;
+      font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+    .image-upload-row .small:hover, .file-btn:hover { background: var(--sunset-end); }
+    .image-upload-row .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ai-image-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--sand-warm); }
+    .ai-image-row input#ai-image-prompt { margin-bottom: 8px; }
+    .ai-image-row .source-file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .ai-image-row .source-file-row span { font-size: 0.8rem; color: var(--night-soft); }
+    .ai-image-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-image-actions .small {
+      display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
+      background: var(--sand-warm); color: var(--night); padding: 8px 16px; margin-top: 0;
+      font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+    .ai-image-actions .small:hover { background: var(--sunset-end); }
+    .ai-image-actions .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    #image-upload-status.busy { color: var(--night-soft); }
+    #image-upload-status.ok { color: #166534; font-weight: 600; }
+    #image-upload-status.err { color: #991B1B; font-weight: 600; }
   </style>
 
   <div class="np-wrap">
@@ -66,7 +90,7 @@ import Layout from '../../layouts/Layout.astro';
       <nav class="admin-subnav">
         <a href="/admin/">Submissions</a>
         <a href="/admin/new-post/" aria-current="page">Add Blog Post</a>
-        <a href="/admin/drafts/">Drafts</a>
+        <a href="/admin/drafts/">Posts</a>
       </nav>
 
       <h1>Add Blog Post</h1>
@@ -82,6 +106,36 @@ import Layout from '../../layouts/Layout.astro';
         <label for="venues">Related venue slugs (optional, comma-separated)</label>
         <input id="venues" placeholder="ironside-fish-oyster, craft-commerce" />
         <p class="hint">Must match the slug in the venue's URL — these get pulled in as verified, ground-truth data so Claude never has to guess at hours or deals.</p>
+
+        <label for="hero-image">Featured image (optional)</label>
+        <input id="hero-image" placeholder="https://images.unsplash.com/..." />
+        <div class="image-upload-row">
+          <button type="button" id="fetch-url-btn" class="small">Download &amp; store this URL</button>
+          <label class="file-btn small" for="hero-image-file">
+            Upload a file…
+            <input type="file" id="hero-image-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+          </label>
+        </div>
+        <div class="ai-image-row">
+          <input id="ai-image-prompt" placeholder="e.g. a cozy patio bar at golden hour with string lights" />
+          <div class="source-file-row">
+            <label class="file-btn small" for="ai-source-file">
+              Start from an image…
+              <input type="file" id="ai-source-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+            </label>
+            <span id="ai-source-file-name"></span>
+          </div>
+          <div class="ai-image-actions">
+            <button type="button" id="ai-generate-btn" class="small">Generate with AI</button>
+            <button type="button" id="ai-edit-btn" class="small">Edit current image with AI</button>
+          </div>
+        </div>
+        <p id="image-upload-status" class="hint"></p>
+        <p class="hint">
+          Paste a URL and click "Download &amp; store" or upload a file directly. Or describe an image and generate one with AI —
+          optionally attach a starting photo above (e.g. a bar's real exterior) and AI will edit/update that photo to your prompt
+          instead of creating one from scratch. Leave blank to auto-pick an image based on the linked venue's vibe.
+        </p>
 
         <button id="go">Generate Draft</button>
 
@@ -101,6 +155,159 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
+    // No post/slug exists yet at this point, so image keys just get a
+    // best-effort hint from whatever's in the angle field right now (falls
+    // back to "new-post" if it's empty) — makeImageKey() on the server adds
+    // a timestamp + random suffix regardless, so this only affects
+    // readability of the stored filename, nothing else.
+    function slugHint(): string {
+      const angle = (document.getElementById('angle') as HTMLTextAreaElement).value.trim();
+      const slug = angle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60);
+      return slug || 'new-post';
+    }
+
+    const heroImageInput = document.getElementById('hero-image') as HTMLInputElement | null;
+    const fetchUrlBtn = document.getElementById('fetch-url-btn') as HTMLButtonElement | null;
+    const fileInput = document.getElementById('hero-image-file') as HTMLInputElement | null;
+    const imageStatus = document.getElementById('image-upload-status');
+    const aiPromptInput = document.getElementById('ai-image-prompt') as HTMLInputElement | null;
+    const aiSourceFileInput = document.getElementById('ai-source-file') as HTMLInputElement | null;
+    const aiSourceFileName = document.getElementById('ai-source-file-name');
+    const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement | null;
+    const aiEditBtn = document.getElementById('ai-edit-btn') as HTMLButtonElement | null;
+
+    function setImageBusy(busy: boolean) {
+      [fetchUrlBtn, aiGenerateBtn, aiEditBtn].forEach((btn) => {
+        if (!btn) return;
+        if (busy) btn.setAttribute('disabled', 'true');
+        else btn.removeAttribute('disabled');
+      });
+    }
+
+    async function uploadImage(body: FormData | { url: string; slug: string }) {
+      if (!imageStatus || !heroImageInput) return;
+      setImageBusy(true);
+      imageStatus.className = 'hint busy';
+      imageStatus.textContent = 'Saving image…';
+
+      try {
+        const res = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          ...(body instanceof FormData
+            ? { body }
+            : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Upload failed.']).join('\n'));
+
+        heroImageInput.value = data.url;
+        imageStatus.className = 'hint ok';
+        imageStatus.textContent = `Saved as ${data.url}`;
+      } catch (err: any) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = err.message;
+      } finally {
+        setImageBusy(false);
+      }
+    }
+
+    // Covers all three AI paths: pure text-to-image generation
+    // (generate-image, JSON), editing the current heroImage value
+    // (edit-image, JSON sourceUrl), and generating from a freshly attached
+    // photo (edit-image, multipart file) — all land the resulting URL in
+    // the same heroImageInput field, same as uploadImage() above.
+    async function runAIImage(input: RequestInfo, init: RequestInit, busyText: string) {
+      if (!imageStatus || !heroImageInput) return;
+      setImageBusy(true);
+      imageStatus.className = 'hint busy';
+      imageStatus.textContent = busyText;
+
+      try {
+        const res = await fetch(input, init);
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+
+        heroImageInput.value = data.url;
+        imageStatus.className = 'hint ok';
+        imageStatus.textContent = `Saved as ${data.url}`;
+      } catch (err: any) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = err.message;
+      } finally {
+        setImageBusy(false);
+      }
+    }
+
+    fetchUrlBtn?.addEventListener('click', () => {
+      const url = heroImageInput?.value.trim();
+      if (!url) {
+        if (imageStatus) { imageStatus.className = 'hint err'; imageStatus.textContent = 'Paste a URL into the field first.'; }
+        return;
+      }
+      uploadImage({ url, slug: slugHint() });
+    });
+
+    fileInput?.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      const form = new FormData();
+      form.append('file', file);
+      form.append('slug', slugHint());
+      uploadImage(form);
+      fileInput.value = '';
+    });
+
+    aiSourceFileInput?.addEventListener('change', () => {
+      const file = aiSourceFileInput.files?.[0];
+      if (aiSourceFileName) aiSourceFileName.textContent = file ? `Starting from: ${file.name}` : '';
+    });
+
+    aiGenerateBtn?.addEventListener('click', () => {
+      if (!imageStatus) return;
+      const prompt = aiPromptInput?.value.trim();
+      if (!prompt) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'Describe the image you want first.';
+        return;
+      }
+
+      const sourceFile = aiSourceFileInput?.files?.[0];
+      if (sourceFile) {
+        const form = new FormData();
+        form.append('file', sourceFile);
+        form.append('prompt', prompt);
+        form.append('slug', slugHint());
+        runAIImage('/api/admin/edit-image', { method: 'POST', body: form }, 'Generating image from your photo…');
+      } else {
+        runAIImage(
+          '/api/admin/generate-image',
+          { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, slug: slugHint() }) },
+          'Generating image…'
+        );
+      }
+    });
+
+    aiEditBtn?.addEventListener('click', () => {
+      if (!imageStatus) return;
+      const prompt = aiPromptInput?.value.trim();
+      const sourceUrl = heroImageInput?.value.trim();
+      if (!prompt) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'Describe the edit you want first.';
+        return;
+      }
+      if (!sourceUrl) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'No current image to edit — generate or upload one first.';
+        return;
+      }
+      runAIImage(
+        '/api/admin/edit-image',
+        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, sourceUrl, slug: slugHint() }) },
+        'Editing image…'
+      );
+    });
+
     document.getElementById('go')?.addEventListener('click', async () => {
       const btn = document.getElementById('go') as HTMLButtonElement;
       const resultEl = document.getElementById('result')!;
@@ -108,6 +315,7 @@ import Layout from '../../layouts/Layout.astro';
       const source = (document.getElementById('source') as HTMLTextAreaElement).value.trim();
       const venues = (document.getElementById('venues') as HTMLInputElement).value
         .split(',').map((s) => s.trim()).filter(Boolean);
+      const heroImage = heroImageInput?.value.trim() || '';
 
       if (!angle) {
         resultEl.className = 'err';
@@ -124,7 +332,7 @@ import Layout from '../../layouts/Layout.astro';
         const res = await fetch('/api/generate-draft', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ angle, sourceMaterial: source, venues }),
+          body: JSON.stringify({ angle, sourceMaterial: source, venues, heroImage }),
         });
         const data = await res.json();
 

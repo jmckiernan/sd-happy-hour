@@ -33,8 +33,9 @@ if (admin) {
 const dateStr = draft?.data.pubDate
   ? new Date(draft.data.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : '';
+const isLive = Boolean(draft && !draft.data.draft);
 ---
-<Layout title={draft ? `Preview: ${draft.data.title} | SD Happy Hours Admin` : 'Draft Preview | SD Happy Hours Admin'} description="Preview and publish an AI-generated blog draft.">
+<Layout title={draft ? `${isLive ? 'Edit' : 'Preview'}: ${draft.data.title} | SD Happy Hours Admin` : 'Manage Post | SD Happy Hours Admin'} description="Preview, edit, publish, unpublish, or delete a blog post.">
   <style is:global>
     .admin-bar {
       background: white;
@@ -115,6 +116,29 @@ const dateStr = draft?.data.pubDate
     }
     .edit-panel textarea.description-field { min-height: 70px; resize: vertical; }
     .edit-panel .hint { font-size: 0.8rem; color: var(--night-soft); margin-top: 4px; }
+    .image-upload-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .image-upload-row .small, .edit-panel .file-btn {
+      display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
+      background: var(--sand-warm); color: var(--night); padding: 8px 16px; font: inherit;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+    .image-upload-row .small:hover, .edit-panel .file-btn:hover { background: var(--sunset-end); }
+    .image-upload-row .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ai-image-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--sand-warm); }
+    .ai-image-row input#ai-image-prompt { margin-bottom: 8px; }
+    .ai-image-row .source-file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .ai-image-row .source-file-row span { font-size: 0.8rem; color: var(--night-soft); }
+    .ai-image-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-image-actions .small {
+      display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
+      background: var(--sand-warm); color: var(--night); padding: 8px 16px; font: inherit;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    }
+    .ai-image-actions .small:hover { background: var(--sunset-end); }
+    .ai-image-actions .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    #image-upload-status.busy { color: var(--night-soft); }
+    #image-upload-status.ok { color: #166534; font-weight: 600; }
+    #image-upload-status.err { color: #991B1B; font-weight: 600; }
     .edit-panel .edit-actions { display: flex; gap: 8px; margin-top: 20px; }
     .edit-panel .edit-actions button {
       border: 0; border-radius: 100px; padding: 12px 22px; cursor: pointer; font: inherit; font-weight: 700;
@@ -132,7 +156,7 @@ const dateStr = draft?.data.pubDate
 
   {!admin && (
     <div class="np-locked">
-      <h1>Draft Preview</h1>
+      <h1>Manage Post</h1>
       <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
       <a href="/account/">Sign In</a>
     </div>
@@ -140,9 +164,9 @@ const dateStr = draft?.data.pubDate
 
   {admin && loadError && (
     <div class="np-locked">
-      <h1>Draft Preview</h1>
+      <h1>Manage Post</h1>
       <p>{loadError}</p>
-      <a href="/admin/drafts/">Back to drafts</a>
+      <a href="/admin/drafts/">Back to posts</a>
     </div>
   )}
 
@@ -151,24 +175,39 @@ const dateStr = draft?.data.pubDate
       <div class="admin-bar">
         <div class="admin-bar-inner">
           <div>
-            <h1>Draft Preview</h1>
-            <p>Read it over, then publish or discard.</p>
+            <h1>{isLive ? 'Edit Post' : 'Draft Preview'}</h1>
+            <p>{isLive ? 'This post is already live — edit, unpublish, or delete it.' : 'Read it over, then publish or discard.'}</p>
           </div>
         </div>
         <nav class="admin-subnav">
           <a href="/admin/">Submissions</a>
           <a href="/admin/new-post/">Add Blog Post</a>
-          <a href="/admin/drafts/" aria-current="page">Drafts</a>
+          <a href="/admin/drafts/" aria-current="page">Posts</a>
         </nav>
       </div>
 
       <div class="preview-banner">
         <div class="box">
-          <p>This draft is still hidden (<code>draft: true</code>) — publishing commits the change and it goes live on the next deploy, usually within a couple minutes.</p>
+          <p>
+            {isLive ? (
+              'This post is live on the site right now. Unpublishing pulls it back to hidden/draft; deleting removes it from the repo entirely.'
+            ) : (
+              <Fragment>This draft is still hidden (<code>draft: true</code>) — publishing commits the change and it goes live on the next deploy, usually within a couple minutes.</Fragment>
+            )}
+          </p>
           <div class="preview-actions">
             <button id="edit-btn" class="neutral">Edit</button>
-            <button id="publish-btn" class="good" data-slug={draft.slug}>Publish</button>
-            <button id="discard-btn" class="bad" data-slug={draft.slug}>Discard</button>
+            {isLive ? (
+              <Fragment>
+                <button class="neutral" data-slug={draft.slug} data-action="unpublish">Unpublish</button>
+                <button class="bad" data-slug={draft.slug} data-action="delete">Delete</button>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <button class="good" data-slug={draft.slug} data-action="publish">Publish</button>
+                <button class="bad" data-slug={draft.slug} data-action="delete">Discard</button>
+              </Fragment>
+            )}
           </div>
         </div>
         <div id="preview-msg"></div>
@@ -203,9 +242,34 @@ const dateStr = draft?.data.pubDate
         <input id="edit-venues" value={draft.data.venues.join(', ')} />
         <p class="hint">Must match the slug in the venue's URL — these get pulled in as verified data.</p>
 
-        <label for="edit-hero-image">Featured image URL</label>
+        <label for="edit-hero-image">Featured image</label>
         <input id="edit-hero-image" value={draft.data.heroImage ?? ''} placeholder="https://images.unsplash.com/..." />
+        <div class="image-upload-row">
+          <button type="button" id="fetch-url-btn" class="small">Download &amp; store this URL</button>
+          <label class="file-btn small" for="edit-hero-image-file">
+            Upload a file…
+            <input type="file" id="edit-hero-image-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+          </label>
+        </div>
+        <div class="ai-image-row">
+          <input id="ai-image-prompt" placeholder="e.g. a cozy patio bar at golden hour with string lights" />
+          <div class="source-file-row">
+            <label class="file-btn small" for="ai-source-file">
+              Start from an image…
+              <input type="file" id="ai-source-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+            </label>
+            <span id="ai-source-file-name"></span>
+          </div>
+          <div class="ai-image-actions">
+            <button type="button" id="ai-generate-btn" class="small">Generate with AI</button>
+            <button type="button" id="ai-edit-btn" class="small">Edit current image with AI</button>
+          </div>
+        </div>
+        <p id="image-upload-status" class="hint"></p>
         <p class="hint">
+          Paste any URL and click "Download &amp; store" to save your own copy instead of hotlinking it, or upload a file directly.
+          Or describe an image above and generate one with AI — optionally attach a starting photo to have AI edit/update that
+          photo to your prompt instead of creating one from scratch — or edit the current image with AI (e.g. "make it nighttime").
           Leave blank to auto-pick an image based on the linked venue's vibe.
           {heroImage && <span> Currently showing: <a href={heroImage} target="_blank" rel="noopener">preview image</a>.</span>}
         </p>
@@ -224,48 +288,222 @@ const dateStr = draft?.data.pubDate
 
   <script>
     const msgEl = document.getElementById('preview-msg');
-    const publishBtn = document.getElementById('publish-btn') as HTMLButtonElement | null;
-    const discardBtn = document.getElementById('discard-btn') as HTMLButtonElement | null;
+    const previewActions = document.querySelector('.preview-actions');
     const editBtn = document.getElementById('edit-btn') as HTMLButtonElement | null;
     const cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement | null;
     const saveBtn = document.getElementById('save-btn') as HTMLButtonElement | null;
     const viewMode = document.getElementById('view-mode');
     const editPanel = document.getElementById('edit-panel');
     const editMsg = document.getElementById('edit-msg');
+    const heroImageInput = document.getElementById('edit-hero-image') as HTMLInputElement | null;
+    const fetchUrlBtn = document.getElementById('fetch-url-btn') as HTMLButtonElement | null;
+    const fileInput = document.getElementById('edit-hero-image-file') as HTMLInputElement | null;
+    const imageStatus = document.getElementById('image-upload-status');
+    const draftSlug = saveBtn?.dataset.slug || '';
+    const aiPromptInput = document.getElementById('ai-image-prompt') as HTMLInputElement | null;
+    const aiSourceFileInput = document.getElementById('ai-source-file') as HTMLInputElement | null;
+    const aiSourceFileName = document.getElementById('ai-source-file-name');
+    const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement | null;
+    const aiEditBtn = document.getElementById('ai-edit-btn') as HTMLButtonElement | null;
 
-    async function callApi(method: 'POST' | 'DELETE') {
-      const slug = (publishBtn || discardBtn)?.dataset.slug;
-      if (!slug || !msgEl) return;
+    async function uploadImage(body: FormData | { url: string; slug: string }) {
+      if (!imageStatus || !heroImageInput) return;
+      fetchUrlBtn?.setAttribute('disabled', 'true');
+      aiGenerateBtn?.setAttribute('disabled', 'true');
+      aiEditBtn?.setAttribute('disabled', 'true');
 
-      publishBtn?.setAttribute('disabled', 'true');
-      discardBtn?.setAttribute('disabled', 'true');
-      msgEl.className = '';
-      msgEl.textContent = method === 'POST' ? 'Publishing…' : 'Discarding…';
+      imageStatus.className = 'hint busy';
+      imageStatus.textContent = 'Saving image…';
 
       try {
-        const res = await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method });
+        const res = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          ...(body instanceof FormData
+            ? { body }
+            : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Upload failed.']).join('\n'));
+
+        heroImageInput.value = data.url;
+        imageStatus.className = 'hint ok';
+        imageStatus.textContent = `Saved as ${data.url}`;
+      } catch (err: any) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = err.message;
+      } finally {
+        fetchUrlBtn?.removeAttribute('disabled');
+        aiGenerateBtn?.removeAttribute('disabled');
+        aiEditBtn?.removeAttribute('disabled');
+      }
+    }
+
+    // Both AI image actions (generate-from-scratch or from an attached
+    // source photo, edit-current-image) hit their own admin API route but
+    // otherwise behave exactly like uploadImage() above — same
+    // busy/disabled/status handling, same "drop the resulting URL into
+    // heroImageInput" outcome — so a draft can be AI-generated, then
+    // AI-edited, then swapped for a manual upload, all through the same
+    // field.
+    async function runAIImage(input: RequestInfo, init: RequestInit, busyText: string) {
+      if (!imageStatus || !heroImageInput) return;
+      fetchUrlBtn?.setAttribute('disabled', 'true');
+      aiGenerateBtn?.setAttribute('disabled', 'true');
+      aiEditBtn?.setAttribute('disabled', 'true');
+
+      imageStatus.className = 'hint busy';
+      imageStatus.textContent = busyText;
+
+      try {
+        const res = await fetch(input, init);
         const data = await res.json();
         if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
 
-        if (method === 'POST') {
-          msgEl.className = 'ok';
-          msgEl.textContent = 'Published! It\'ll go live on the site within a couple minutes as the deploy finishes.';
-        } else {
-          msgEl.className = 'ok';
-          msgEl.textContent = 'Draft discarded.';
+        heroImageInput.value = data.url;
+        imageStatus.className = 'hint ok';
+        imageStatus.textContent = `Saved as ${data.url}`;
+      } catch (err: any) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = err.message;
+      } finally {
+        fetchUrlBtn?.removeAttribute('disabled');
+        aiGenerateBtn?.removeAttribute('disabled');
+        aiEditBtn?.removeAttribute('disabled');
+      }
+    }
+
+    aiSourceFileInput?.addEventListener('change', () => {
+      const file = aiSourceFileInput.files?.[0];
+      if (aiSourceFileName) aiSourceFileName.textContent = file ? `Starting from: ${file.name}` : '';
+    });
+
+    aiGenerateBtn?.addEventListener('click', () => {
+      if (!imageStatus) return;
+      const prompt = aiPromptInput?.value.trim();
+      if (!prompt) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'Describe the image you want first.';
+        return;
+      }
+
+      // A photo attached in "Start from an image…" makes this an edit of
+      // that photo (image-to-image) instead of a from-scratch generation —
+      // same edit-image endpoint the "Edit current image" button uses,
+      // just with a fresh file instead of the current heroImage URL.
+      const sourceFile = aiSourceFileInput?.files?.[0];
+      if (sourceFile) {
+        const form = new FormData();
+        form.append('file', sourceFile);
+        form.append('prompt', prompt);
+        form.append('slug', draftSlug);
+        runAIImage('/api/admin/edit-image', { method: 'POST', body: form }, 'Generating image from your photo…');
+      } else {
+        runAIImage(
+          '/api/admin/generate-image',
+          { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, slug: draftSlug }) },
+          'Generating image…'
+        );
+      }
+    });
+
+    aiEditBtn?.addEventListener('click', () => {
+      if (!imageStatus) return;
+      const prompt = aiPromptInput?.value.trim();
+      const sourceUrl = heroImageInput?.value.trim();
+      if (!prompt) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'Describe the edit you want first.';
+        return;
+      }
+      if (!sourceUrl) {
+        imageStatus.className = 'hint err';
+        imageStatus.textContent = 'No current image to edit — generate or upload one first.';
+        return;
+      }
+      runAIImage(
+        '/api/admin/edit-image',
+        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, sourceUrl, slug: draftSlug }) },
+        'Editing image…'
+      );
+    });
+
+    fetchUrlBtn?.addEventListener('click', () => {
+      const url = heroImageInput?.value.trim();
+      if (!url) {
+        if (imageStatus) { imageStatus.className = 'hint err'; imageStatus.textContent = 'Paste a URL into the field first.'; }
+        return;
+      }
+      uploadImage({ url, slug: draftSlug });
+    });
+
+    fileInput?.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      const form = new FormData();
+      form.append('file', file);
+      form.append('slug', draftSlug);
+      uploadImage(form);
+      fileInput.value = '';
+    });
+
+    const CONFIRM_MESSAGES: Record<string, string> = {
+      delete: 'Delete this permanently? This removes the file from the repo — it cannot be undone.',
+      unpublish: 'Unpublish this post? It goes back to hidden/draft until republished.',
+    };
+    const BUSY_MESSAGES: Record<string, string> = {
+      publish: 'Publishing…',
+      unpublish: 'Unpublishing…',
+      delete: 'Deleting…',
+    };
+    const SUCCESS_MESSAGES: Record<string, string> = {
+      publish: 'Published! It\'ll go live on the site within a couple minutes as the deploy finishes.',
+      unpublish: 'Unpublished — it\'s back to hidden/draft.',
+      delete: 'Deleted.',
+    };
+
+    async function callApi(action: 'publish' | 'unpublish' | 'delete', slug: string) {
+      if (!msgEl) return;
+
+      const buttons = previewActions?.querySelectorAll('button[data-action]');
+      buttons?.forEach((b) => (b as HTMLButtonElement).setAttribute('disabled', 'true'));
+      msgEl.className = '';
+      msgEl.textContent = BUSY_MESSAGES[action];
+
+      try {
+        const res = action === 'delete'
+          ? await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+          : await fetch(`/api/admin/drafts/${encodeURIComponent(slug)}`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ action }),
+            });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+
+        msgEl.className = 'ok';
+        msgEl.textContent = SUCCESS_MESSAGES[action];
+        if (action !== 'publish') {
           setTimeout(() => { window.location.href = '/admin/drafts/'; }, 900);
+        } else {
+          setTimeout(() => window.location.reload(), 900);
         }
       } catch (err: any) {
         msgEl.className = 'err';
         msgEl.textContent = err.message;
-        publishBtn?.removeAttribute('disabled');
-        discardBtn?.removeAttribute('disabled');
+        buttons?.forEach((b) => (b as HTMLButtonElement).removeAttribute('disabled'));
       }
     }
 
-    publishBtn?.addEventListener('click', () => callApi('POST'));
-    discardBtn?.addEventListener('click', () => {
-      if (confirm('Discard this draft? This deletes the file from the repo — it cannot be undone.')) callApi('DELETE');
+    previewActions?.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+      const action = button.dataset.action as 'publish' | 'unpublish' | 'delete';
+      const slug = button.dataset.slug;
+      if (!slug) return;
+
+      const confirmMsg = CONFIRM_MESSAGES[action];
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      callApi(action, slug);
     });
 
     editBtn?.addEventListener('click', () => {

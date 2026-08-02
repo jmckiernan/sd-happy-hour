@@ -125,6 +125,12 @@ export function setDraftFalse(lines: string[]): string[] {
   return setField(lines, 'draft', false);
 }
 
+// The reverse — pulls an already-published post back to draft/hidden
+// (e.g. to fix something before it's visible again), without deleting it.
+export function setDraftTrue(lines: string[]): string[] {
+  return setField(lines, 'draft', true);
+}
+
 export function rebuildFile(lines: string[], body: string): string {
   return ['---', ...lines, '---', body].join('\n');
 }

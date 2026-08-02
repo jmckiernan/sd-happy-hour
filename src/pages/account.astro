@@ -52,16 +52,26 @@ import Layout from '../layouts/Layout.astro';
     .saved-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 12px; padding: 16px; }
     .saved-card h3 { font-family: var(--font-display); margin-bottom: 4px; }
     .saved-meta { color: var(--night-soft); font-size: 0.88rem; }
-    .saved-edit { display: grid; grid-template-columns: 170px 1fr auto auto; gap: 10px; align-items: start; }
-    .saved-edit select, .saved-edit textarea { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; }
-    .saved-edit textarea { min-height: 44px; resize: vertical; }
-    .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; grid-column: 1 / -1; }
+    .saved-edit { display: grid; gap: 10px; }
+    .saved-edit-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .saved-edit-row select { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: auto; min-width: 160px; }
+    .saved-edit textarea { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; min-height: 44px; resize: vertical; }
+    .star-rating { display: inline-flex; gap: 2px; }
+    .star-rating.hidden { display: none; }
+    .star-rating .star {
+      background: none; border: 0; cursor: pointer; padding: 2px; font-size: 1.35rem;
+      line-height: 1; color: var(--sand-warm); transition: color 0.15s;
+    }
+    .star-rating .star.filled { color: var(--sunset-start); }
+    .star-rating .star:hover { color: var(--sunset-start); }
+    .saved-edit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; }
 
     .empty { color: var(--night-soft); padding: 18px 0; }
     .hidden { display: none; }
 
     @media (max-width: 820px) {
-      .auth-grid, .saved-edit { grid-template-columns: 1fr; }
+      .auth-grid { grid-template-columns: 1fr; }
       .account-head { align-items: stretch; flex-direction: column; }
     }
   </style>
@@ -243,6 +253,11 @@ import Layout from '../layouts/Layout.astro';
         const confirm = saveConfirmation && saveConfirmation.spotId === saved.spotId
           ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
           : '';
+        const canRate = saved.status === 'favorite' || saved.status === 'been-to';
+        const rating = Number(saved.rating) || 0;
+        const stars = [1, 2, 3, 4, 5].map((n) =>
+          `<button type="button" class="star${n <= rating ? ' filled' : ''}" data-value="${n}" aria-label="${n} star${n === 1 ? '' : 's'}">&#9733;</button>`
+        ).join('');
         return `
           <article class="saved-card" data-id="${saved.spotId}">
             <div>
@@ -250,15 +265,22 @@ import Layout from '../layouts/Layout.astro';
               <div class="saved-meta">${escapeHTML(spot.neighborhood)} · ${escapeHTML(spot.deals.slice(0, 2).join(' · '))}</div>
             </div>
             <div class="saved-edit">
-              <select data-field="status">
-                <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
-                <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
-                <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
-              </select>
+              <div class="saved-edit-row">
+                <select data-field="status">
+                  <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
+                  <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
+                  <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
+                </select>
+                <div class="star-rating${canRate ? '' : ' hidden'}" data-field="rating" data-rating="${rating}" role="group" aria-label="Your rating">
+                  ${stars}
+                </div>
+              </div>
               <textarea data-field="note" placeholder="Add a note for friends or future you...">${escapeHTML(saved.note)}</textarea>
-              <button data-action="save">Save</button>
-              <button class="secondary" data-action="remove">Remove</button>
-              ${confirm}
+              <div class="saved-edit-actions">
+                <button data-action="save">Save</button>
+                <button class="secondary" data-action="remove">Remove</button>
+                ${confirm}
+              </div>
             </div>
           </article>
         `;
@@ -295,7 +317,40 @@ import Layout from '../layouts/Layout.astro';
       handleAuth(event.currentTarget as HTMLFormElement, '/api/account/register', 'register-status');
     });
 
+    function paintStars(container: HTMLElement, rating: number) {
+      container.dataset.rating = String(rating);
+      container.querySelectorAll('.star').forEach((el) => {
+        const value = Number((el as HTMLElement).dataset.value);
+        el.classList.toggle('filled', value <= rating);
+      });
+    }
+
+    // A rated favorite/been-to spot can only stay rated while it stays a
+    // favorite/been-to — switching to "want to try" hides the stars
+    // immediately (before Save is even clicked) since the backend drops any
+    // rating that arrives alongside that status anyway.
+    document.getElementById('saved-grid')!.addEventListener('change', (event) => {
+      const select = event.target as HTMLElement;
+      if (select.dataset.field !== 'status') return;
+      const card = select.closest('.saved-card') as HTMLElement;
+      const stars = card.querySelector('.star-rating') as HTMLElement;
+      const status = (select as HTMLSelectElement).value;
+      stars.classList.toggle('hidden', !(status === 'favorite' || status === 'been-to'));
+    });
+
     document.getElementById('saved-grid')!.addEventListener('click', async (event) => {
+      const starBtn = (event.target as HTMLElement).closest('.star-rating .star') as HTMLButtonElement | null;
+      if (starBtn) {
+        const container = starBtn.closest('.star-rating') as HTMLElement;
+        const clicked = Number(starBtn.dataset.value);
+        const current = Number(container.dataset.rating) || 0;
+        // Clicking the star that's already the top of the current rating
+        // clears it — the only way to get back to "no rating" without a
+        // separate button.
+        paintStars(container, clicked === current ? 0 : clicked);
+        return;
+      }
+
       const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
 
@@ -305,12 +360,15 @@ import Layout from '../layouts/Layout.astro';
         saveConfirmation = null;
         await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
       } else {
+        const ratingEl = card.querySelector('.star-rating') as HTMLElement;
+        const rating = Number(ratingEl.dataset.rating) || 0;
         await fetch(`/api/account/spots/${spotId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             status: (card.querySelector('[data-field="status"]') as HTMLSelectElement).value,
             note: (card.querySelector('[data-field="note"]') as HTMLTextAreaElement).value,
+            rating: rating || null,
           }),
         });
         saveConfirmation = { spotId: Number(spotId), text: 'Updated' };

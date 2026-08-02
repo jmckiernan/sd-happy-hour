@@ -5,10 +5,12 @@ import { getGitHubTarget, getOctokit, listBlogFiles, getBlogFile } from '../../.
 
 export const prerender = false;
 
-// Lists every blog post file in the repo that currently has draft: true,
-// fetched live from GitHub (not from Astro's build-time content
-// collection, which wouldn't know about a file committed since the last
-// deploy). Used by /admin/drafts/ to show what's waiting for review.
+// Lists every blog post file in the repo — both still-hidden drafts and
+// already-published posts — fetched live from GitHub (not from Astro's
+// build-time content collection, which wouldn't know about a file
+// committed since the last deploy). Used by /admin/drafts/ to manage
+// anything, not just what's waiting for review: each item includes
+// `draft` so the page can group/label live vs. draft posts.
 export const GET: APIRoute = async ({ cookies }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email first.'], 401);
@@ -24,19 +26,19 @@ export const GET: APIRoute = async ({ cookies }) => {
 
   try {
     const files = await listBlogFiles(octokit, target);
-    const drafts = (
+    const posts = (
       await Promise.all(
         files.map(async ({ slug }) => {
           const file = await getBlogFile(octokit, target, slug);
-          return file && file.data.draft ? { slug, ...file.data } : null;
+          return file ? { slug, ...file.data } : null;
         })
       )
     ).filter((d): d is NonNullable<typeof d> => d !== null);
 
-    drafts.sort((a, b) => (a.pubDate < b.pubDate ? 1 : -1));
+    posts.sort((a, b) => (a.pubDate < b.pubDate ? 1 : -1));
 
-    return json({ drafts });
+    return json({ posts });
   } catch (err: any) {
-    return errorJson([`Could not list drafts: ${err.message}`], 502);
+    return errorJson([`Could not list posts: ${err.message}`], 502);
   }
 };

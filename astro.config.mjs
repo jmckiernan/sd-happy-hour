@@ -1,10 +1,10 @@
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
+import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://sdhappyhours.com',
   output: 'server',
-  adapter: vercel(),
+  adapter: netlify(),
   integrations: [sitemap()],
 });
