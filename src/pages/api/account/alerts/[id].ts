@@ -7,7 +7,7 @@ export const prerender = false;
 
 // Partial update — rename, edit filters, change channels, or toggle
 // active/inactive. Only fields present in the body are touched, so the
-// on/off toggle on /alerts/ can PUT just `{ active }` without resending
+// on/off toggle in My Stuff (/account/) can PUT just `{ active }` without resending
 // everything else.
 export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const session = await getSession(cookies);

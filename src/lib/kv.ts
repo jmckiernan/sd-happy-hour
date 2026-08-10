@@ -131,6 +131,11 @@ export interface User {
   // they agreed to receive texts (compliance — see the alerts spec).
   phone?: string;
   smsConsentAt?: string | null;
+  // Opt-in to the (separate, marketing-style) weekly roundup email — not
+  // the same as live-alert emails, which are per-alert and always on. Set
+  // from the Preferences section of /account/. The actual weekly send job
+  // isn't built yet; this just captures the preference for when it is.
+  weeklyDigestOptIn?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -289,6 +294,36 @@ export async function writeLiveOverrides(overrides: Record<number, LiveOverride>
 }
 
 // ---------------------------------------------------------------------------
+// Promoted deals. A restaurant can attach a discount code to their listing
+// (e.g. "HHSD10") — every happy hour stays visible to everyone regardless
+// of login, but the code itself is only ever sent to the server for a
+// logged-in user's request (see api/promotions.ts) rather than hidden with
+// CSS/JS on an otherwise-public payload. `description` is the public-safe
+// teaser ("10% off your bill") shown to everyone; only `dealCode` is gated.
+// Same small-separate-KV-store shape as live overrides, for the same
+// reason: this changes far more often than the static happy-hours.json is
+// suited for.
+// ---------------------------------------------------------------------------
+
+export interface Promotion {
+  dealCode: string;
+  description: string;
+  updatedAt: string;
+}
+
+const PROMOTIONS_KEY = 'sdhh:promotions';
+
+export async function readPromotions(): Promise<Record<number, Promotion>> {
+  if (!isKvConfigured()) return readLocal<Record<number, Promotion>>('promotions', {});
+  return (await getKv().get<Record<number, Promotion>>(PROMOTIONS_KEY)) || {};
+}
+
+export async function writePromotions(promotions: Record<number, Promotion>): Promise<void> {
+  if (!isKvConfigured()) return writeLocal('promotions', promotions);
+  await getKv().set(PROMOTIONS_KEY, promotions);
+}
+
+// ---------------------------------------------------------------------------
 // Notification log. Backs dedup (don't re-notify the same user about the
 // same venue within a cooldown window) and the per-user daily text cap (see
 // the alerts spec, "SMS cost control"). Pruned to a rolling retention
@@ -329,6 +364,10 @@ export function publicUser(user: User) {
     shareId: user.shareId,
     savedSpots: user.savedSpots || [],
     alerts: user.alerts || [],
+    phone: user.phone || '',
+    smsOptedIn: Boolean(user.smsConsentAt),
+    weeklyDigestOptIn: Boolean(user.weeklyDigestOptIn),
+    hasPassword: Boolean(user.passwordHash),
   };
 }
 

@@ -335,6 +335,38 @@ import Layout from '../layouts/Layout.astro';
     .week-dot.today { box-shadow: 0 0 0 2px var(--violet); }
 
     .card-deals h3 { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--night-soft); margin-bottom: 8px; }
+
+    .promo-banner {
+      align-items: center;
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(255,107,53,0.12));
+      border: 1px dashed var(--violet);
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      flex-wrap: wrap;
+    }
+    .promo-desc { color: var(--night); font-weight: 600; }
+    .promo-code {
+      background: var(--night);
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 0.78rem;
+    }
+    .promo-signin {
+      color: var(--violet);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .promo-signin:hover { text-decoration: underline; }
     .deal-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .deal { display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%); color: var(--night); font-size: 0.75rem; font-weight: 600; padding: 6px 10px; border-radius: var(--radius-sm); }
 
@@ -713,6 +745,36 @@ import Layout from '../layouts/Layout.astro';
       }
     }
 
+    // Every happy hour stays visible to everyone regardless of login —
+    // only a promoted deal's *code* is gated. /api/promotions itself never
+    // sends the code down for an anonymous request (see that route), so
+    // there's nothing to hide here client-side; this is just rendering
+    // whatever the server already decided to include.
+    let promotions: Record<number, { description: string; dealCode?: string }> = {};
+
+    async function loadPromotions() {
+      try {
+        const res = await fetch('/api/promotions');
+        promotions = await res.json();
+      } catch {
+        // Non-critical — cards just render without a promo banner.
+      }
+    }
+
+    function renderPromoBanner(venueId: number) {
+      const promo = promotions[venueId];
+      if (!promo) return '';
+      const codePart = promo.dealCode
+        ? `<span class="promo-code">${escapeHTML(promo.dealCode)}</span>`
+        : `<a class="promo-signin" href="/account/?next=${encodeURIComponent('/')}">Sign in to see code</a>`;
+      return `
+        <div class="promo-banner">
+          <span class="promo-desc">${escapeHTML(promo.description)}</span>
+          ${codePart}
+        </div>
+      `;
+    }
+
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
       happyHours = await res.json();
@@ -721,7 +783,7 @@ import Layout from '../layouts/Layout.astro';
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
       populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
 
-      await Promise.all([loadAccount(), loadLiveOverrides()]);
+      await Promise.all([loadAccount(), loadLiveOverrides(), loadPromotions()]);
       render();
     }
 
@@ -890,6 +952,8 @@ import Layout from '../layouts/Layout.astro';
                 </div>
               </div>
 
+              ${renderPromoBanner(h.id)}
+
               <div class="card-footer">
                 <a class="card-address" href="https://maps.google.com/?q=${encodeURIComponent(h.address + ', San Diego, CA')}" target="_blank" rel="noopener">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -966,7 +1030,7 @@ import Layout from '../layouts/Layout.astro';
 
     // "Save as Alert" — captures whatever's currently in the filter bar
     // (day/neighborhood/deal/feature/search) as a named, saved alert. Full
-    // editing (multi-day, toggling, deleting, sharing) happens on /alerts/;
+    // editing (multi-day, toggling, deleting, sharing) happens in My Stuff (/account/);
     // this is just the quick-capture entry point.
     const saveAlertPanel = document.getElementById('save-alert-panel')!;
     const saveAlertStatus = document.getElementById('alert-save-status')!;
@@ -1020,7 +1084,7 @@ import Layout from '../layouts/Layout.astro';
         });
         const json = await res.json();
         if (!res.ok) throw new Error((json.errors || ['Could not save alert.']).join(' '));
-        saveAlertStatus.textContent = 'Saved — manage it on My Alerts.';
+        saveAlertStatus.textContent = 'Saved — manage it in My Stuff.';
         nameInput.value = '';
         setTimeout(() => {
           saveAlertPanel.classList.add('hidden');

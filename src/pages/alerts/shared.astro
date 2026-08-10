@@ -125,7 +125,7 @@ import Layout from '../../layouts/Layout.astro';
           const json = await res.json();
           if (!res.ok) throw new Error((json.errors || ['Could not add alert.']).join(' '));
           status.textContent = 'Added to your alerts.';
-          cta.innerHTML += ' <a class="cta-link" href="/alerts/">View my alerts</a>';
+          cta.innerHTML += ' <a class="cta-link" href="/account/#section-alerts">View in My Stuff</a>';
         } catch (err: any) {
           status.classList.add('error');
           status.textContent = err.message;

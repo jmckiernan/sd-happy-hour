@@ -2,7 +2,7 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="My Happy Hours | SD Happy Hours" description="Save favorite happy hour spots and share your list with friends.">
+<Layout title="My Stuff | SD Happy Hours" description="Saved spots, alerts, and account preferences, all in one place.">
   <style is:global>
     .account-header {
       background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
@@ -21,8 +21,10 @@ import Layout from '../layouts/Layout.astro';
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
       padding: 22px;
       margin-bottom: 18px;
+      scroll-margin-top: 90px;
     }
-    .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
+    .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
+    .panel .hint { color: var(--night-soft); font-size: 0.85rem; margin-bottom: 14px; }
 
     .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; }
     .auth-grid.password-hidden { grid-template-columns: minmax(0, 420px); }
@@ -36,17 +38,37 @@ import Layout from '../layouts/Layout.astro';
     label { color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700; gap: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
     input { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 11px 12px; width: 100%; }
     input:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
+    select { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; }
 
     button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
     button:hover { background: var(--sunset-start); }
     button.secondary { background: var(--sand-warm); color: var(--night); }
     button.secondary:hover { background: var(--sunset-end); }
+    button:disabled { opacity: 0.6; cursor: default; }
 
     .status { color: var(--night-soft); font-weight: 600; min-height: 1.3em; font-size: 0.88rem; }
     .status.error { color: #B91C1C; }
 
     .account-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Jump nav between My Stuff sections */
+    .stuff-nav {
+      position: sticky;
+      top: 64px;
+      z-index: 4;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--sand);
+      padding: 10px 0 16px;
+      margin-bottom: 4px;
+    }
+    .stuff-nav a {
+      text-decoration: none; font-weight: 700; color: var(--night-soft); font-size: 0.85rem;
+      padding: 8px 16px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .stuff-nav a:hover { background: var(--sunset-end); color: var(--night); }
 
     .saved-grid { display: grid; gap: 14px; }
     .saved-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 12px; padding: 16px; }
@@ -67,6 +89,26 @@ import Layout from '../layouts/Layout.astro';
     .saved-edit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; }
 
+    /* Alerts section */
+    .alert-form { display: grid; gap: 12px; }
+    .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .day-checks { display: flex; gap: 6px; flex-wrap: wrap; }
+    .day-check { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: var(--night-soft); text-transform: none; letter-spacing: 0; }
+    .day-check input { width: 16px; height: 16px; }
+    .channel-row { display: flex; gap: 18px; flex-wrap: wrap; }
+    .channel-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--night); text-transform: none; letter-spacing: 0; }
+    .channel-check input { width: 16px; height: 16px; }
+    .channel-note { color: var(--night-soft); font-size: 0.75rem; font-weight: 400; text-transform: none; }
+    .alerts-list-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; }
+    .alerts-grid { display: grid; gap: 14px; margin-top: 14px; }
+    .alert-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 12px; padding: 16px; }
+    .alert-card.is-inactive { opacity: 0.6; }
+    .alert-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: var(--night-soft); }
+    .toggle-row input { width: 34px; height: 18px; }
+    .match-count { color: var(--ocean); font-weight: 700; font-size: 0.85rem; }
+    .alert-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
     .empty { color: var(--night-soft); padding: 18px 0; }
     .hidden { display: none; }
 
@@ -79,7 +121,7 @@ import Layout from '../layouts/Layout.astro';
   <div class="account-header">
     <div class="inner">
       <h1 id="header-title">Sign In</h1>
-      <p id="header-subtitle">Sign in to save favorites, keep notes, track places you want to try or have been to, and share your list with friends.</p>
+      <p id="header-subtitle">Sign in to save favorites, set up custom alerts, and manage your preferences.</p>
     </div>
   </div>
 
@@ -115,27 +157,93 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <section class="panel hidden" id="account-section">
+    <section id="account-section" class="hidden">
       <div class="account-head">
         <div>
-          <h2 id="account-title">Saved spots</h2>
+          <h2 id="account-title">My Stuff</h2>
           <p id="account-subtitle" class="status"></p>
         </div>
         <div class="actions">
-          <a class="secondary" id="share-link" href="#" style="display:inline-flex;align-items:center;padding:11px 18px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Open shared list</a>
-          <button class="secondary" id="copy-share">Copy share link</button>
           <button class="secondary" id="logout">Log out</button>
         </div>
       </div>
-      <div id="saved-grid" class="saved-grid"></div>
+
+      <nav class="stuff-nav">
+        <a href="#section-spots">Saved Spots</a>
+        <a href="#section-alerts">Alerts</a>
+        <a href="#section-preferences">Preferences</a>
+        <a href="#section-profile">Profile</a>
+      </nav>
+
+      <section class="panel" id="section-spots">
+        <div class="account-head">
+          <h2>Saved spots</h2>
+          <div class="actions">
+            <a class="secondary" id="share-link" href="#" style="display:inline-flex;align-items:center;padding:11px 18px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Open shared list</a>
+            <button class="secondary" id="copy-share">Copy share link</button>
+          </div>
+        </div>
+        <div id="saved-grid" class="saved-grid"></div>
+      </section>
+
+      <section class="panel" id="section-alerts">
+        <h2>Create a new alert</h2>
+        <p class="hint">Leave any filter blank to match any value for that field.</p>
+        <form class="alert-form" id="create-form"></form>
+
+        <div class="alerts-list-head" style="margin-top:24px;">
+          <h2>Your alerts</h2>
+          <p class="status" id="list-subtitle"></p>
+        </div>
+        <div class="alerts-grid" id="alerts-grid"></div>
+      </section>
+
+      <section class="panel" id="section-preferences">
+        <h2>Email &amp; text preferences</h2>
+        <p class="hint">Live-alert emails are always on for any alert with the Email channel checked — this is for everything else.</p>
+        <form id="preferences-form">
+          <label style="flex-direction:row; align-items:center; display:flex; gap:8px;">
+            <input type="checkbox" name="weeklyDigestOptIn" style="width:16px;height:16px;">
+            <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">Send me the weekly happy hour email digest &amp; deals</span>
+          </label>
+          <label>Phone number (for text alerts) <input type="tel" name="phone" placeholder="(619) 555-0100"></label>
+          <label style="flex-direction:row; align-items:center; display:flex; gap:8px;">
+            <input type="checkbox" name="smsOptIn" style="width:16px;height:16px;">
+            <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">Allow text alerts for alerts with the Text channel checked</span>
+          </label>
+          <button type="submit">Save preferences</button>
+          <div class="status" id="preferences-status" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <section class="panel" id="section-profile">
+        <h2>Profile</h2>
+        <form id="profile-form">
+          <label>Name <input name="name" required></label>
+          <label>Email <input name="email" disabled></label>
+        </form>
+
+        <form id="password-form" class="hidden" style="margin-top:16px;">
+          <label>Current password <input type="password" name="currentPassword" autocomplete="current-password"></label>
+          <label>New password <input type="password" name="newPassword" autocomplete="new-password" minlength="8"></label>
+          <button type="submit" class="secondary">Change password</button>
+        </form>
+        <div class="status" id="profile-status" aria-live="polite"></div>
+      </section>
     </section>
   </main>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
+    import { alertMatchesVenue } from '../lib/venues';
+
     let currentUser: any = null;
     let happyHours: any[] = [];
     let saveConfirmation: { spotId: number; text: string } | null = null;
+    let alertSaveConfirmation: { alertId: string; text: string } | null = null;
+
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayAbbrev = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -143,9 +251,13 @@ import Layout from '../layouts/Layout.astro';
       } as Record<string, string>)[char]);
     }
 
-    async function postJson(path: string, body: unknown) {
+    function labelize(value: string) {
+      return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    async function postJson(path: string, body: unknown, method = 'POST') {
       const res = await fetch(path, {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
@@ -220,6 +332,10 @@ import Layout from '../layouts/Layout.astro';
       document.getElementById('google-note')!.textContent = 'Use Google to save and share your happy hour list.';
     }
 
+    // ---------------------------------------------------------------------
+    // Rendering: top-level dispatch, then one render*() per section.
+    // ---------------------------------------------------------------------
+
     function render() {
       document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentUser));
       document.getElementById('account-section')!.classList.toggle('hidden', !currentUser);
@@ -227,17 +343,33 @@ import Layout from '../layouts/Layout.astro';
       const headerTitle = document.getElementById('header-title')!;
       const headerSubtitle = document.getElementById('header-subtitle')!;
       if (currentUser) {
-        headerTitle.textContent = 'My Happy Hours';
-        headerSubtitle.textContent = 'Save favorites, keep notes, track places you want to try or have been to, and share your list with friends.';
+        headerTitle.textContent = 'My Stuff';
+        headerSubtitle.textContent = 'Saved spots, alerts, and account preferences, all in one place.';
       } else {
         headerTitle.textContent = 'Sign In';
-        headerSubtitle.textContent = 'Sign in to save favorites, keep notes, track places you want to try or have been to, and share your list with friends.';
+        headerSubtitle.textContent = 'Sign in to save favorites, set up custom alerts, and manage your preferences.';
       }
 
       if (!currentUser) return;
 
-      document.getElementById('account-title')!.textContent = `${currentUser.name}'s saved spots`;
-      document.getElementById('account-subtitle')!.textContent = `${currentUser.savedSpots.length} saved spot${currentUser.savedSpots.length === 1 ? '' : 's'}`;
+      document.getElementById('account-subtitle')!.textContent = currentUser.email;
+
+      renderSavedSpots();
+      renderCreateAlertForm();
+      renderAlertsList();
+      renderPreferences();
+      renderProfile();
+    }
+
+    // ---------------------------------------------------------------------
+    // Saved spots
+    // ---------------------------------------------------------------------
+
+    function getSavedSpot(spotId: number) {
+      return currentUser?.savedSpots?.find((item: any) => item.spotId === spotId);
+    }
+
+    function renderSavedSpots() {
       const shareUrl = `${window.location.origin}/list/?id=${encodeURIComponent(currentUser.shareId)}`;
       (document.getElementById('share-link') as HTMLAnchorElement).href = shareUrl;
 
@@ -287,36 +419,6 @@ import Layout from '../layouts/Layout.astro';
       }).join('');
     }
 
-    async function handleAuth(form: HTMLFormElement, path: string, statusId: string) {
-      const status = document.getElementById(statusId)!;
-      const button = form.querySelector('button') as HTMLButtonElement;
-      const formData = new FormData(form);
-      status.classList.remove('error');
-      status.textContent = 'Working...';
-      button.disabled = true;
-      try {
-        await postJson(path, Object.fromEntries(formData.entries()));
-        form.reset();
-        await loadAccount();
-        status.textContent = '';
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
-      } finally {
-        button.disabled = false;
-      }
-    }
-
-    document.getElementById('login-form')!.addEventListener('submit', (event) => {
-      event.preventDefault();
-      handleAuth(event.currentTarget as HTMLFormElement, '/api/account/login', 'login-status');
-    });
-
-    document.getElementById('register-form')!.addEventListener('submit', (event) => {
-      event.preventDefault();
-      handleAuth(event.currentTarget as HTMLFormElement, '/api/account/register', 'register-status');
-    });
-
     function paintStars(container: HTMLElement, rating: number) {
       container.dataset.rating = String(rating);
       container.querySelectorAll('.star').forEach((el) => {
@@ -325,10 +427,6 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    // A rated favorite/been-to spot can only stay rated while it stays a
-    // favorite/been-to — switching to "want to try" hides the stars
-    // immediately (before Save is even clicked) since the backend drops any
-    // rating that arrives alongside that status anyway.
     document.getElementById('saved-grid')!.addEventListener('change', (event) => {
       const select = event.target as HTMLElement;
       if (select.dataset.field !== 'status') return;
@@ -344,9 +442,6 @@ import Layout from '../layouts/Layout.astro';
         const container = starBtn.closest('.star-rating') as HTMLElement;
         const clicked = Number(starBtn.dataset.value);
         const current = Number(container.dataset.rating) || 0;
-        // Clicking the star that's already the top of the current rating
-        // clears it — the only way to get back to "no rating" without a
-        // separate button.
         paintStars(container, clicked === current ? 0 : clicked);
         return;
       }
@@ -380,7 +475,7 @@ import Layout from '../layouts/Layout.astro';
         setTimeout(() => {
           if (saveConfirmation && saveConfirmation.spotId === confirmedId) {
             saveConfirmation = null;
-            render();
+            renderSavedSpots();
           }
         }, 2000);
       }
@@ -389,6 +484,275 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('copy-share')!.addEventListener('click', async () => {
       await navigator.clipboard.writeText((document.getElementById('share-link') as HTMLAnchorElement).href);
       document.getElementById('account-subtitle')!.textContent = 'Share link copied.';
+    });
+
+    // ---------------------------------------------------------------------
+    // Alerts (merged from the former /alerts/ page)
+    // ---------------------------------------------------------------------
+
+    function optionList(values: string[], selected: string) {
+      return `<option value="">Any</option>` + values.map((v) =>
+        `<option value="${escapeHTML(v)}" ${v === selected ? 'selected' : ''}>${escapeHTML(labelize(v))}</option>`
+      ).join('');
+    }
+
+    function filterFieldsHTML(filters: any) {
+      const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood))].sort();
+      const dealTypes = [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort();
+      const features = [...new Set(happyHours.flatMap((h) => h.features || []))].sort();
+      const days = filters.days || [];
+
+      return `
+        <div class="day-checks">
+          ${dayNames.map((day, i) => `
+            <label class="day-check">
+              ${dayAbbrev[i]}
+              <input type="checkbox" data-field="days" value="${day}" ${days.includes(day) ? 'checked' : ''}>
+            </label>
+          `).join('')}
+        </div>
+        <div class="filter-row">
+          <select data-field="neighborhood">${optionList(neighborhoods, filters.neighborhood || '')}</select>
+          <select data-field="dealType">${optionList(dealTypes, filters.dealType || '')}</select>
+          <select data-field="feature">${optionList(features, filters.feature || '')}</select>
+        </div>
+        <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters.query || '')}">
+      `;
+    }
+
+    function readFilterFields(container: HTMLElement) {
+      const days = Array.from(container.querySelectorAll('[data-field="days"]:checked')).map((el) => (el as HTMLInputElement).value);
+      return {
+        days,
+        neighborhood: (container.querySelector('[data-field="neighborhood"]') as HTMLSelectElement)?.value || '',
+        dealType: (container.querySelector('[data-field="dealType"]') as HTMLSelectElement)?.value || '',
+        feature: (container.querySelector('[data-field="feature"]') as HTMLSelectElement)?.value || '',
+        query: (container.querySelector('[data-field="query"]') as HTMLInputElement)?.value || '',
+      };
+    }
+
+    function readChannelFields(container: HTMLElement) {
+      return {
+        email: (container.querySelector('[data-field="channel-email"]') as HTMLInputElement)?.checked ?? true,
+        text: (container.querySelector('[data-field="channel-text"]') as HTMLInputElement)?.checked ?? false,
+      };
+    }
+
+    function channelFieldsHTML(channels: any) {
+      return `
+        <div class="channel-row">
+          <label class="channel-check">
+            <input type="checkbox" data-field="channel-email" ${channels.email !== false ? 'checked' : ''}>
+            Email
+          </label>
+          <label class="channel-check">
+            <input type="checkbox" data-field="channel-text" ${channels.text ? 'checked' : ''}>
+            Text <span class="channel-note">(needs a phone number in Preferences below)</span>
+          </label>
+        </div>
+      `;
+    }
+
+    function renderCreateAlertForm() {
+      const form = document.getElementById('create-form')!;
+      form.innerHTML = `
+        <label>Alert name <input type="text" data-field="name" placeholder="e.g. Friday Rooftop Wine" required></label>
+        ${filterFieldsHTML({})}
+        ${channelFieldsHTML({ email: true, text: false })}
+        <div class="alert-actions">
+          <button type="submit">Save alert</button>
+          <div class="status" id="create-status" aria-live="polite"></div>
+        </div>
+      `;
+    }
+
+    function matchCount(filters: any) {
+      return happyHours.filter((h) => alertMatchesVenue(filters, h)).length;
+    }
+
+    function renderAlertsList() {
+      const grid = document.getElementById('alerts-grid')!;
+      const alerts = currentUser?.alerts || [];
+      document.getElementById('list-subtitle')!.textContent = `${alerts.length} alert${alerts.length === 1 ? '' : 's'}`;
+
+      if (!alerts.length) {
+        grid.innerHTML = '<div class="empty">No alerts yet. Create one above, or save a filter combo from the homepage.</div>';
+        return;
+      }
+
+      grid.innerHTML = alerts.map((alert: any) => {
+        const count = matchCount(alert.filters);
+        const confirm = alertSaveConfirmation && alertSaveConfirmation.alertId === alert.id
+          ? `<span class="save-confirm">&#10003; ${escapeHTML(alertSaveConfirmation.text)}</span>`
+          : '';
+        return `
+          <article class="alert-card${alert.active ? '' : ' is-inactive'}" data-id="${alert.id}">
+            <div class="alert-card-top">
+              <label class="toggle-row">
+                <input type="checkbox" data-action="toggle" ${alert.active ? 'checked' : ''}>
+                ${alert.active ? 'On' : 'Off'}
+              </label>
+              <span class="match-count">${count} spot${count === 1 ? '' : 's'} match right now</span>
+            </div>
+            <label>Alert name <input type="text" data-field="name" value="${escapeHTML(alert.name)}"></label>
+            ${filterFieldsHTML(alert.filters)}
+            ${channelFieldsHTML(alert.channels)}
+            <div class="alert-actions">
+              <button data-action="save">Save changes</button>
+              <button class="secondary" data-action="share">Copy share link</button>
+              <button class="secondary" data-action="delete">Delete</button>
+              ${confirm}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('create-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('create-status')!;
+      const button = form.querySelector('button') as HTMLButtonElement;
+      status.classList.remove('error');
+      status.textContent = 'Saving...';
+      button.disabled = true;
+      try {
+        await postJson('/api/account/alerts', {
+          name: (form.querySelector('[data-field="name"]') as HTMLInputElement).value,
+          filters: readFilterFields(form),
+          channels: readChannelFields(form),
+        });
+        await loadAccount();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('alerts-grid')!.addEventListener('change', async (event) => {
+      const toggle = (event.target as HTMLElement).closest('[data-action="toggle"]') as HTMLInputElement | null;
+      if (!toggle) return;
+      const card = toggle.closest('.alert-card') as HTMLElement;
+      const id = card.dataset.id!;
+      await postJson(`/api/account/alerts/${id}`, { active: toggle.checked }, 'PUT');
+      await loadAccount();
+    });
+
+    document.getElementById('alerts-grid')!.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+      const card = button.closest('.alert-card') as HTMLElement;
+      const id = card.dataset.id!;
+      const action = button.dataset.action;
+
+      if (action === 'delete') {
+        alertSaveConfirmation = null;
+        await postJson(`/api/account/alerts/${id}`, {}, 'DELETE');
+        await loadAccount();
+        return;
+      }
+
+      if (action === 'share') {
+        const url = `${window.location.origin}/alerts/shared/?id=${encodeURIComponent(currentUser.shareId)}&alert=${encodeURIComponent(id)}`;
+        await navigator.clipboard.writeText(url);
+        alertSaveConfirmation = { alertId: id, text: 'Link copied' };
+        renderAlertsList();
+        setTimeout(() => { alertSaveConfirmation = null; renderAlertsList(); }, 2000);
+        return;
+      }
+
+      if (action === 'save') {
+        await postJson(`/api/account/alerts/${id}`, {
+          name: (card.querySelector('[data-field="name"]') as HTMLInputElement).value,
+          filters: readFilterFields(card),
+          channels: readChannelFields(card),
+        }, 'PUT');
+        alertSaveConfirmation = { alertId: id, text: 'Saved' };
+        await loadAccount();
+        setTimeout(() => { alertSaveConfirmation = null; renderAlertsList(); }, 2000);
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Preferences (weekly digest opt-in, phone + SMS opt-in)
+    // ---------------------------------------------------------------------
+
+    function renderPreferences() {
+      const form = document.getElementById('preferences-form') as HTMLFormElement;
+      (form.querySelector('[name="weeklyDigestOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.weeklyDigestOptIn);
+      (form.querySelector('[name="phone"]') as HTMLInputElement).value = currentUser.phone || '';
+      (form.querySelector('[name="smsOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.smsOptedIn);
+    }
+
+    document.getElementById('preferences-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('preferences-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Saving...';
+      try {
+        await postJson('/api/account/preferences', {
+          weeklyDigestOptIn: (form.querySelector('[name="weeklyDigestOptIn"]') as HTMLInputElement).checked,
+          phone: (form.querySelector('[name="phone"]') as HTMLInputElement).value,
+          smsOptIn: (form.querySelector('[name="smsOptIn"]') as HTMLInputElement).checked,
+        }, 'PUT');
+        status.textContent = 'Saved.';
+        await loadAccount();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Profile (name, password)
+    // ---------------------------------------------------------------------
+
+    function renderProfile() {
+      const profileForm = document.getElementById('profile-form') as HTMLFormElement;
+      (profileForm.querySelector('[name="name"]') as HTMLInputElement).value = currentUser.name || '';
+      (profileForm.querySelector('[name="email"]') as HTMLInputElement).value = currentUser.email || '';
+      document.getElementById('password-form')!.classList.toggle('hidden', !currentUser.hasPassword);
+    }
+
+    document.getElementById('profile-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('profile-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Saving...';
+      try {
+        await postJson('/api/account/profile', {
+          name: (form.querySelector('[name="name"]') as HTMLInputElement).value,
+        }, 'PUT');
+        status.textContent = 'Saved.';
+        await loadAccount();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    document.getElementById('password-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('profile-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Saving...';
+      try {
+        await postJson('/api/account/profile', {
+          name: currentUser.name,
+          currentPassword: (form.querySelector('[name="currentPassword"]') as HTMLInputElement).value,
+          newPassword: (form.querySelector('[name="newPassword"]') as HTMLInputElement).value,
+        }, 'PUT');
+        status.textContent = 'Password changed.';
+        form.reset();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
     });
 
     document.getElementById('logout')!.addEventListener('click', async () => {

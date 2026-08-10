@@ -43,7 +43,7 @@ function buildEmailHtml(userName: string, venues: Venue[]): string {
   const items = venues
     .map((v) => `<li><strong>${escapeHtml(v.name)}</strong> — ${escapeHtml(v.neighborhood)} — ${formatTime(v.startTime)}–${formatTime(v.endTime)}. ${escapeHtml(v.deals.slice(0, 2).join(', '))}</li>`)
     .join('');
-  return `<p>Hi ${escapeHtml(userName)},</p><p>These happy hours from your alerts are live right now:</p><ul>${items}</ul><p><a href="https://sdhappyhours.com/alerts/">Manage your alerts</a></p>`;
+  return `<p>Hi ${escapeHtml(userName)},</p><p>These happy hours from your alerts are live right now:</p><ul>${items}</ul><p><a href="https://sdhappyhours.com/account/#section-alerts">Manage your alerts</a></p>`;
 }
 
 // Kept to a single SMS segment (~160 chars) — see the spec's SMS cost

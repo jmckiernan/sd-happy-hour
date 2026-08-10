@@ -133,6 +133,20 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="status" id="live-status" aria-live="polite"></div>
       </div>
+
+      <div id="promo-panel" class="hidden">
+        <h2>Promote a deal</h2>
+        <p class="status">Every happy hour stays visible to everyone — this code specifically is only shown to visitors who are signed in.</p>
+        <form id="promo-form">
+          <label>Public description <input name="description" placeholder='e.g. "10% off your bill"' maxlength="200" required></label>
+          <label>Deal code <input name="dealCode" placeholder="e.g. HHSD10" maxlength="30" required></label>
+          <div class="alert-actions" style="display:flex; gap:8px; align-items:center;">
+            <button type="submit">Save promo</button>
+            <button type="button" class="secondary" id="promo-remove">Remove promo</button>
+          </div>
+          <div class="status" id="promo-status" aria-live="polite"></div>
+        </form>
+      </div>
     </section>
   </main>
 
@@ -183,6 +197,7 @@ import Layout from '../layouts/Layout.astro';
       const deniedPanel = document.getElementById('denied-panel')!;
       const venuePanel = document.getElementById('venue-panel')!;
       const livePanel = document.getElementById('live-panel')!;
+      const promoPanel = document.getElementById('promo-panel')!;
 
       claimPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'pending');
       deniedPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'denied');
@@ -192,12 +207,31 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const verified = currentRestaurant.verified;
-      venuePanel.classList.toggle('hidden', !verified || currentRestaurant.venueId != null);
-      livePanel.classList.toggle('hidden', !verified || currentRestaurant.venueId == null);
+      const hasVenue = currentRestaurant.venueId != null;
+      venuePanel.classList.toggle('hidden', !verified || hasVenue);
+      livePanel.classList.toggle('hidden', !verified || !hasVenue);
+      promoPanel.classList.toggle('hidden', !verified || !hasVenue);
 
-      if (verified && currentRestaurant.venueId != null) {
+      if (verified && hasVenue) {
         const venue = happyHours.find((h) => h.id === currentRestaurant.venueId);
         document.getElementById('linked-venue-name')!.textContent = venue ? `Managing: ${venue.name}` : 'Managing a linked listing.';
+        loadPromotion();
+      }
+    }
+
+    async function loadPromotion() {
+      try {
+        const res = await fetch('/api/restaurant/promotion');
+        const data = await res.json();
+        const form = document.getElementById('promo-form') as HTMLFormElement;
+        if (data.promotion) {
+          (form.querySelector('[name="description"]') as HTMLInputElement).value = data.promotion.description;
+          (form.querySelector('[name="dealCode"]') as HTMLInputElement).value = data.promotion.dealCode;
+        } else {
+          form.reset();
+        }
+      } catch {
+        // No promotion set yet, or a transient error — form just stays blank.
       }
     }
 
@@ -297,6 +331,38 @@ import Layout from '../layouts/Layout.astro';
         toggle.classList.toggle('is-live', !isLive);
         (document.getElementById('live-btn') as HTMLButtonElement).textContent = !isLive ? "We're live — tap to end" : "We're live now";
         status.textContent = !isLive ? 'Live — matching alerts will go out.' : 'Marked as no longer live.';
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    document.getElementById('promo-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('promo-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Saving...';
+      try {
+        await postJson('/api/restaurant/promotion', {
+          description: (form.querySelector('[name="description"]') as HTMLInputElement).value,
+          dealCode: (form.querySelector('[name="dealCode"]') as HTMLInputElement).value,
+        }, 'PUT');
+        status.textContent = 'Saved — visible on the site now (code shown only to signed-in visitors).';
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    document.getElementById('promo-remove')!.addEventListener('click', async () => {
+      const status = document.getElementById('promo-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Removing...';
+      try {
+        await postJson('/api/restaurant/promotion', {}, 'DELETE');
+        (document.getElementById('promo-form') as HTMLFormElement).reset();
+        status.textContent = 'Promo removed.';
       } catch (err: any) {
         status.classList.add('error');
         status.textContent = err.message;

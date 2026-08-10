@@ -150,6 +150,33 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
     .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
     .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
 
+    .promo-card {
+      max-width: 800px;
+      margin: 0 auto 24px;
+      padding: 0 24px;
+    }
+    .promo-card.hidden { display: none; }
+    .promo-card-inner {
+      align-items: center;
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(255,107,53,0.12));
+      border: 1px dashed var(--violet);
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      flex-wrap: wrap;
+    }
+    .promo-card-inner .promo-desc { color: var(--night); font-weight: 700; }
+    .promo-card-inner .promo-code {
+      background: var(--night); color: white; font-weight: 700; letter-spacing: 0.04em;
+      padding: 8px 16px; border-radius: 100px; font-size: 0.9rem;
+    }
+    .promo-card-inner .promo-signin {
+      color: var(--violet); font-weight: 700; text-decoration: none; font-size: 0.85rem;
+    }
+    .promo-card-inner .promo-signin:hover { text-decoration: underline; }
+
     .related-posts {
       max-width: 800px;
       margin: 0 auto 64px;
@@ -236,6 +263,13 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
     </div>
   </div>
 
+  <div class="promo-card hidden" id="promo-card">
+    <div class="promo-card-inner">
+      <span class="promo-desc" id="promo-desc"></span>
+      <span id="promo-code-area"></span>
+    </div>
+  </div>
+
   {posts.length > 0 && (
     <div class="related-posts">
       <h3>Mentioned in the blog</h3>
@@ -269,6 +303,30 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       }
     }
 
+    async function initPromo() {
+      try {
+        const res = await fetch('/api/promotions');
+        const promotions = await res.json();
+        const promo = promotions[venueId];
+        if (!promo) return;
+
+        document.getElementById('promo-desc')!.textContent = promo.description;
+        const codeArea = document.getElementById('promo-code-area')!;
+        if (promo.dealCode) {
+          const codeSpan = document.createElement('span');
+          codeSpan.className = 'promo-code';
+          codeSpan.textContent = promo.dealCode;
+          codeArea.innerHTML = '';
+          codeArea.appendChild(codeSpan);
+        } else {
+          codeArea.innerHTML = `<a class="promo-signin" href="/account/?next=${encodeURIComponent(window.location.pathname)}">Sign in to see code</a>`;
+        }
+        document.getElementById('promo-card')!.classList.remove('hidden');
+      } catch {
+        // Non-critical — card just stays hidden.
+      }
+    }
+
     saveBtn.addEventListener('click', async () => {
       if (!isSignedIn) {
         window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
@@ -289,5 +347,6 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
     });
 
     init();
+    initPromo();
   </script>
 </Layout>

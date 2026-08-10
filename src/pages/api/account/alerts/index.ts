@@ -8,7 +8,7 @@ export const prerender = false;
 
 // Creates a new saved alert (a named, saved filter combination) for the
 // signed-in user — the "Save as Alert" action on the homepage, or the
-// "Create new alert" form on /alerts/.
+// "Create new alert" form in the Alerts section of My Stuff (/account/).
 export const POST: APIRoute = async ({ request, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
