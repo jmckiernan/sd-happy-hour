@@ -20,6 +20,8 @@ That local `.data/` folder only works because `astro dev` is a normal, persisten
 ### 1. Connect a KV store
 User accounts, saved lists, and the submission queue need somewhere durable to live once this runs as Netlify Functions, which can't write to local files or keep things in memory between requests.
 
+> **Planned change:** this store is slated to move from Upstash Redis to Neon Postgres — the current design keeps each whole collection in a single JSON blob, which races on concurrent writes and stops working past ~10 MB. See `README-NEON-MIGRATION.md` for the full spec. Until that's done, the setup below is still what's required.
+
 This code talks to Upstash Redis via its plain REST API (through the `@vercel/kv` package, which despite the name is really just a thin wrapper around that same REST API — it works from any host, not just Vercel). Create a free database at [upstash.com](https://upstash.com) (or connect it via Netlify's own Upstash extension in the Netlify dashboard, if available for your account), then set `KV_REST_API_URL` and `KV_REST_API_TOKEN` in Netlify's Environment Variables (Site configuration → Environment variables). As soon as those two vars are present, the code automatically switches from the local `.data/` fallback to real KV — nothing else to flip.
 
 If you want to test against the real store locally too (instead of the `.data/` fallback), pull those values from Netlify with:
