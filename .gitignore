@@ -12,3 +12,7 @@ dist/
 
 # Local Netlify folder
 .netlify
+
+# Dev-server output (e.g. `astro dev > server.stdout.log 2> server.stderr.log`).
+# Local runtime noise, not source — and it can capture request paths.
+*.log
