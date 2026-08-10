@@ -188,6 +188,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <div class="links">
       <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
+      <a href="/alerts/" aria-current={Astro.url.pathname === '/alerts/' ? 'page' : undefined}>My Alerts</a>
+      <a href="/restaurant/" aria-current={Astro.url.pathname === '/restaurant/' ? 'page' : undefined}>For Restaurants</a>
       <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>Sign In</a>
       <a href="/admin/new-post/" id="blog-admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
       <a href="/admin/" id="admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>

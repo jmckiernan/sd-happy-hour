@@ -1,0 +1,314 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Restaurant Dashboard | SD Happy Hours" description="Claim your listing and let it live when your happy hour is live.">
+  <style is:global>
+    .restaurant-header {
+      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
+      color: white;
+      padding: 48px 24px 40px;
+    }
+    .restaurant-header .inner { max-width: 1080px; margin: 0 auto; }
+    .restaurant-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5.5vw, 3.25rem); margin-bottom: 10px; }
+    .restaurant-header p { color: rgba(255,255,255,0.88); max-width: 640px; line-height: 1.6; }
+
+    .restaurant-main { max-width: 700px; margin: 0 auto; padding: 28px 24px 80px; }
+
+    .panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
+
+    .auth-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .auth-tabs button { background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px; }
+    .auth-tabs button.active { background: var(--night); color: white; }
+
+    form { display: grid; gap: 12px; }
+    label { color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700; gap: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    input, textarea { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 11px 12px; width: 100%; }
+    input:focus, textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
+    textarea { min-height: 90px; resize: vertical; }
+
+    button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
+    button:hover { background: var(--sunset-start); }
+    button.secondary { background: var(--sand-warm); color: var(--night); }
+    button.secondary:hover { background: var(--sunset-end); }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .status { color: var(--night-soft); font-weight: 600; min-height: 1.3em; font-size: 0.88rem; }
+    .status.error { color: #B91C1C; }
+
+    .pill { align-self: flex-start; border-radius: 100px; display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 5px 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill.pending { background: #FEF3C7; color: #92400E; }
+    .pill.verified { background: #DCFCE7; color: #166534; }
+    .pill.denied { background: #FEE2E2; color: #991B1B; }
+
+    .dash-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; }
+
+    .venue-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; }
+    .venue-result { background: var(--sand); border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); cursor: pointer; padding: 10px 12px; font-size: 0.9rem; }
+    .venue-result:hover { background: var(--sand-warm); }
+    .venue-result strong { display: block; }
+    .venue-result span { color: var(--night-soft); font-size: 0.8rem; }
+
+    .live-toggle { align-items: center; display: flex; gap: 14px; }
+    .live-toggle .live-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--sand-warm); }
+    .live-toggle.is-live .live-dot { background: var(--palm); box-shadow: 0 0 0 4px rgba(34,197,94,0.18); }
+    .hidden { display: none; }
+
+    @media (max-width: 600px) { .dash-head { align-items: stretch; flex-direction: column; } }
+  </style>
+
+  <div class="restaurant-header">
+    <div class="inner">
+      <h1>Restaurant Dashboard</h1>
+      <p>Claim your listing, and toggle it live the moment your happy hour starts so matching alerts go out.</p>
+    </div>
+  </div>
+
+  <main class="restaurant-main">
+    <section class="panel" id="auth-section">
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="active">Log in</button>
+        <button type="button" id="tab-register">Create account</button>
+      </div>
+
+      <form id="login-form">
+        <label>Email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Log in</button>
+        <div class="status" id="login-status" aria-live="polite"></div>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <label>Restaurant name <input name="name" required></label>
+        <label>Business email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Website <input name="website" type="url" placeholder="https://yourrestaurant.com" required></label>
+        <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button type="submit">Create account</button>
+        <div class="status" id="register-status" aria-live="polite"></div>
+      </form>
+      <p class="status" style="margin-top:8px;">Signing up with an email at your website's own domain verifies you instantly. Otherwise we'll ask for a bit of proof and review it by hand.</p>
+    </section>
+
+    <section class="panel hidden" id="dash-section">
+      <div class="dash-head">
+        <div>
+          <h2 id="dash-name"></h2>
+          <span class="pill" id="dash-pill"></span>
+        </div>
+        <button class="secondary" id="logout">Log out</button>
+      </div>
+
+      <div id="claim-panel" class="hidden">
+        <p class="status">This account hasn't been verified yet. Add some proof (a link to your Google Business/Yelp listing, a liquor license, etc.) and we'll review it by hand.</p>
+        <form id="claim-form">
+          <label>Supporting info <textarea name="claimNote" placeholder="e.g. link to our Google Business listing"></textarea></label>
+          <button type="submit">Submit for review</button>
+          <div class="status" id="claim-status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div id="denied-panel" class="hidden">
+        <p class="status error" id="denial-reason"></p>
+      </div>
+
+      <div id="venue-panel" class="hidden">
+        <h2>Claim your listing</h2>
+        <input type="text" id="venue-search" placeholder="Search by restaurant name...">
+        <div class="venue-results" id="venue-results"></div>
+      </div>
+
+      <div id="live-panel" class="hidden">
+        <h2>Go live</h2>
+        <p class="status" id="linked-venue-name"></p>
+        <div class="live-toggle" id="live-toggle">
+          <span class="live-dot"></span>
+          <button type="button" id="live-btn">We're live now</button>
+        </div>
+        <div class="status" id="live-status" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentRestaurant: any = null;
+    let happyHours: any[] = [];
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    async function postJson(path: string, body: unknown, method = 'POST') {
+      const res = await fetch(path, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error((json.errors || ['Request failed.']).join(' '));
+      return json;
+    }
+
+    async function loadHappyHours() {
+      const res = await fetch('/data/happy-hours.json');
+      happyHours = await res.json();
+    }
+
+    async function loadRestaurant() {
+      const res = await fetch('/api/restaurant/me');
+      const session = await res.json();
+      currentRestaurant = session.authenticated ? session.restaurant : null;
+      render();
+    }
+
+    function render() {
+      document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentRestaurant));
+      document.getElementById('dash-section')!.classList.toggle('hidden', !currentRestaurant);
+      if (!currentRestaurant) return;
+
+      document.getElementById('dash-name')!.textContent = currentRestaurant.name;
+      const pill = document.getElementById('dash-pill')!;
+      pill.textContent = currentRestaurant.verificationStatus;
+      pill.className = `pill ${currentRestaurant.verificationStatus}`;
+
+      const claimPanel = document.getElementById('claim-panel')!;
+      const deniedPanel = document.getElementById('denied-panel')!;
+      const venuePanel = document.getElementById('venue-panel')!;
+      const livePanel = document.getElementById('live-panel')!;
+
+      claimPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'pending');
+      deniedPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'denied');
+      if (currentRestaurant.verificationStatus === 'denied') {
+        document.getElementById('denial-reason')!.textContent = `Not verified: ${currentRestaurant.denialReason || 'no reason given.'} You can submit new info below.`;
+        claimPanel.classList.remove('hidden');
+      }
+
+      const verified = currentRestaurant.verified;
+      venuePanel.classList.toggle('hidden', !verified || currentRestaurant.venueId != null);
+      livePanel.classList.toggle('hidden', !verified || currentRestaurant.venueId == null);
+
+      if (verified && currentRestaurant.venueId != null) {
+        const venue = happyHours.find((h) => h.id === currentRestaurant.venueId);
+        document.getElementById('linked-venue-name')!.textContent = venue ? `Managing: ${venue.name}` : 'Managing a linked listing.';
+      }
+    }
+
+    document.getElementById('tab-login')!.addEventListener('click', () => {
+      document.getElementById('tab-login')!.classList.add('active');
+      document.getElementById('tab-register')!.classList.remove('active');
+      document.getElementById('login-form')!.classList.remove('hidden');
+      document.getElementById('register-form')!.classList.add('hidden');
+    });
+    document.getElementById('tab-register')!.addEventListener('click', () => {
+      document.getElementById('tab-register')!.classList.add('active');
+      document.getElementById('tab-login')!.classList.remove('active');
+      document.getElementById('register-form')!.classList.remove('hidden');
+      document.getElementById('login-form')!.classList.add('hidden');
+    });
+
+    async function handleAuth(form: HTMLFormElement, path: string, statusId: string) {
+      const status = document.getElementById(statusId)!;
+      const button = form.querySelector('button') as HTMLButtonElement;
+      const formData = new FormData(form);
+      status.classList.remove('error');
+      status.textContent = 'Working...';
+      button.disabled = true;
+      try {
+        await postJson(path, Object.fromEntries(formData.entries()));
+        form.reset();
+        await loadRestaurant();
+        status.textContent = '';
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById('login-form')!.addEventListener('submit', (event) => {
+      event.preventDefault();
+      handleAuth(event.currentTarget as HTMLFormElement, '/api/restaurant/login', 'login-status');
+    });
+    document.getElementById('register-form')!.addEventListener('submit', (event) => {
+      event.preventDefault();
+      handleAuth(event.currentTarget as HTMLFormElement, '/api/restaurant/register', 'register-status');
+    });
+
+    document.getElementById('claim-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('claim-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Submitting...';
+      try {
+        await postJson('/api/restaurant/claim', { claimNote: (form.querySelector('[name="claimNote"]') as HTMLTextAreaElement).value });
+        status.textContent = 'Submitted for review.';
+        await loadRestaurant();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    document.getElementById('venue-search')!.addEventListener('input', (event) => {
+      const query = (event.target as HTMLInputElement).value.trim().toLowerCase();
+      const resultsEl = document.getElementById('venue-results')!;
+      if (!query) {
+        resultsEl.innerHTML = '';
+        return;
+      }
+      const matches = happyHours.filter((h) => h.name.toLowerCase().includes(query)).slice(0, 8);
+      resultsEl.innerHTML = matches.map((h) => `
+        <div class="venue-result" data-venue-id="${h.id}">
+          <strong>${escapeHTML(h.name)}</strong>
+          <span>${escapeHTML(h.neighborhood)} · ${escapeHTML(h.address)}</span>
+        </div>
+      `).join('') || '<div class="status">No matches.</div>';
+    });
+
+    document.getElementById('venue-results')!.addEventListener('click', async (event) => {
+      const result = (event.target as HTMLElement).closest('[data-venue-id]') as HTMLElement | null;
+      if (!result) return;
+      try {
+        await postJson('/api/restaurant/venue', { venueId: Number(result.dataset.venueId) }, 'PUT');
+        await loadRestaurant();
+      } catch (err: any) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById('live-btn')!.addEventListener('click', async () => {
+      const toggle = document.getElementById('live-toggle')!;
+      const status = document.getElementById('live-status')!;
+      const isLive = toggle.classList.contains('is-live');
+      status.classList.remove('error');
+      status.textContent = 'Working...';
+      try {
+        await postJson('/api/restaurant/live', { active: !isLive });
+        toggle.classList.toggle('is-live', !isLive);
+        (document.getElementById('live-btn') as HTMLButtonElement).textContent = !isLive ? "We're live — tap to end" : "We're live now";
+        status.textContent = !isLive ? 'Live — matching alerts will go out.' : 'Marked as no longer live.';
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    document.getElementById('logout')!.addEventListener('click', async () => {
+      await fetch('/api/restaurant/logout', { method: 'POST' });
+      currentRestaurant = null;
+      render();
+    });
+
+    Promise.all([loadHappyHours(), loadRestaurant()]);
+  </script>
+</Layout>

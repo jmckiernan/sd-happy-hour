@@ -231,6 +231,38 @@ import Layout from '../layouts/Layout.astro';
     .results-info strong { color: var(--night); font-weight: 700; }
     .distance-info { color: var(--ocean); font-weight: 500; }
 
+    .save-alert-panel {
+      max-width: 1400px;
+      margin: 12px auto 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: var(--sand-warm);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+    }
+    .save-alert-panel.hidden { display: none; }
+    .save-alert-panel input[type="text"] {
+      border: 2px solid white;
+      border-radius: 100px;
+      color: var(--night);
+      font: inherit;
+      font-size: 0.875rem;
+      padding: 9px 16px;
+      min-width: min(260px, 100%);
+    }
+    .save-alert-panel input[type="text"]:focus { border-color: var(--sunset-start); outline: none; }
+    .save-alert-panel button { border-radius: 100px; border: 0; cursor: pointer; font: inherit; font-weight: 700; padding: 9px 18px; background: var(--night); color: white; }
+    .save-alert-panel button:hover { background: var(--sunset-start); }
+    .save-alert-panel button.secondary { background: white; color: var(--night); }
+    .save-alert-panel button.secondary:hover { background: var(--sunset-end); }
+    .channel-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--night); }
+    .channel-check input { width: 16px; height: 16px; }
+    .channel-note { color: var(--night-soft); font-size: 0.75rem; font-weight: 400; }
+    .save-alert-panel .status { color: var(--night-soft); font-weight: 600; font-size: 0.85rem; }
+    .save-alert-panel .status.error { color: #B91C1C; }
+
     /* ===== MAP ===== */
     .map-container { height: 500px; display: none; border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     .map-container.active { display: block; }
@@ -432,11 +464,22 @@ import Layout from '../layouts/Layout.astro';
           <button class="view-btn active" id="list-view-btn">List</button>
           <button class="view-btn" id="map-view-btn">Map</button>
         </div>
+
+        <button class="location-btn" id="save-alert-btn" type="button">Save as Alert</button>
       </div>
 
       <div class="results-info">
         <span><strong id="result-count">0</strong> spots</span>
         <span class="distance-info" id="distance-info" style="display: none;"></span>
+      </div>
+
+      <div class="save-alert-panel hidden" id="save-alert-panel">
+        <input type="text" id="alert-name-input" placeholder="Name this alert (e.g. Friday Rooftop Wine)" maxlength="60">
+        <label class="channel-check"><input type="checkbox" id="alert-channel-email" checked> Email</label>
+        <label class="channel-check"><input type="checkbox" id="alert-channel-text"> Text <span class="channel-note">(limited during beta)</span></label>
+        <button type="button" id="alert-save-confirm">Save Alert</button>
+        <button type="button" class="secondary" id="alert-save-cancel">Cancel</button>
+        <span class="status" id="alert-save-status" aria-live="polite"></span>
       </div>
     </div>
   </section>
@@ -657,6 +700,19 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    let liveOverrideIds = new Set<number>();
+
+    async function loadLiveOverrides() {
+      try {
+        const res = await fetch('/api/live-status');
+        const data = await res.json();
+        liveOverrideIds = new Set<number>(data.liveVenueIds || []);
+      } catch {
+        // Non-critical — worst case a restaurant's manual "live now" toggle
+        // just doesn't show a badge until the next poll.
+      }
+    }
+
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
       happyHours = await res.json();
@@ -665,11 +721,17 @@ import Layout from '../layouts/Layout.astro';
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
       populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
 
-      await loadAccount();
+      await Promise.all([loadAccount(), loadLiveOverrides()]);
       render();
     }
 
+    // Combines the normal weekly schedule with a restaurant's manual
+    // "we're live now" toggle (src/pages/restaurant.astro), so a manual
+    // override shows the same Live Now badge as a scheduled happy hour.
+    // Polled via loadLiveOverrides() rather than computed purely from
+    // hh.days/startTime/endTime like the rest of this check.
     function isHappeningNow(hh: any) {
+      if (liveOverrideIds.has(hh.id)) return true;
       if (!hh.days.includes(today)) return false;
       const now = new Date();
       const mins = now.getHours() * 60 + now.getMinutes();
@@ -901,6 +963,74 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('feature-filter')!.addEventListener('change', render);
     document.getElementById('status-filter')!.addEventListener('change', render);
     document.getElementById('trust-filter')!.addEventListener('change', render);
+
+    // "Save as Alert" — captures whatever's currently in the filter bar
+    // (day/neighborhood/deal/feature/search) as a named, saved alert. Full
+    // editing (multi-day, toggling, deleting, sharing) happens on /alerts/;
+    // this is just the quick-capture entry point.
+    const saveAlertPanel = document.getElementById('save-alert-panel')!;
+    const saveAlertStatus = document.getElementById('alert-save-status')!;
+
+    document.getElementById('save-alert-btn')!.addEventListener('click', () => {
+      if (!accountUser) {
+        window.location.href = '/account/';
+        return;
+      }
+      saveAlertPanel.classList.toggle('hidden');
+      if (!saveAlertPanel.classList.contains('hidden')) {
+        (document.getElementById('alert-name-input') as HTMLInputElement).focus();
+      }
+    });
+
+    document.getElementById('alert-save-cancel')!.addEventListener('click', () => {
+      saveAlertPanel.classList.add('hidden');
+      saveAlertStatus.textContent = '';
+      saveAlertStatus.classList.remove('error');
+    });
+
+    document.getElementById('alert-save-confirm')!.addEventListener('click', async () => {
+      const nameInput = document.getElementById('alert-name-input') as HTMLInputElement;
+      const name = nameInput.value.trim();
+      if (!name) {
+        saveAlertStatus.classList.add('error');
+        saveAlertStatus.textContent = 'Give this alert a name.';
+        return;
+      }
+
+      const dayValue = (document.getElementById('day-filter') as HTMLSelectElement).value;
+      const filters = {
+        days: dayValue ? [dayValue] : [],
+        neighborhood: (document.getElementById('neighborhood-filter') as HTMLSelectElement).value,
+        dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
+        feature: (document.getElementById('feature-filter') as HTMLSelectElement).value,
+        query: (document.getElementById('search-input') as HTMLInputElement).value.trim(),
+      };
+      const channels = {
+        email: (document.getElementById('alert-channel-email') as HTMLInputElement).checked,
+        text: (document.getElementById('alert-channel-text') as HTMLInputElement).checked,
+      };
+
+      saveAlertStatus.classList.remove('error');
+      saveAlertStatus.textContent = 'Saving...';
+      try {
+        const res = await fetch('/api/account/alerts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, filters, channels }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error((json.errors || ['Could not save alert.']).join(' '));
+        saveAlertStatus.textContent = 'Saved — manage it on My Alerts.';
+        nameInput.value = '';
+        setTimeout(() => {
+          saveAlertPanel.classList.add('hidden');
+          saveAlertStatus.textContent = '';
+        }, 1800);
+      } catch (err: any) {
+        saveAlertStatus.classList.add('error');
+        saveAlertStatus.textContent = err.message;
+      }
+    });
 
     document.getElementById('grid')!.addEventListener('click', async (event) => {
       const target = event.target as HTMLElement;

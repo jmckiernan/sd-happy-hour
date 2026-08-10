@@ -2,6 +2,15 @@
   command = "astro build"
   publish = "dist"
 
+# Standalone function (not part of the Astro app) that checks for live
+# happy hours and dispatches matching alerts. See
+# netlify/functions/dispatch-alerts.mts and README-NOTIFICATIONS-SETUP.md.
+[functions]
+  directory = "netlify/functions"
+
+[functions."dispatch-alerts"]
+  schedule = "*/15 * * * *"
+
 # Tells `netlify dev` how to start the underlying app it wraps (proxying
 # in Netlify Blobs, env vars, redirects, etc. on top of plain `astro dev`).
 [dev]

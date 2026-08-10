@@ -24,13 +24,24 @@ import path from 'node:path';
 
 const LOCAL_DATA_DIR = path.join(process.cwd(), '.data');
 
+// Reads an env var from whichever mechanism is available. Astro API routes
+// (built through Vite) populate `import.meta.env` from the real process env
+// at runtime, so that's normally enough — but the scheduled alert-dispatch
+// job (netlify/functions/dispatch-alerts.mts, see README-NOTIFICATIONS-SETUP.md)
+// is a *standalone* Netlify Function, not built through Astro/Vite, so
+// `import.meta.env` isn't populated there at all. Checking `process.env` too
+// means this data layer works from both places without two copies of it.
+export function getEnv(name: string): string | undefined {
+  return (import.meta as any).env?.[name] ?? process.env[name];
+}
+
 export function isKvConfigured(): boolean {
-  return Boolean(import.meta.env.KV_REST_API_URL && import.meta.env.KV_REST_API_TOKEN);
+  return Boolean(getEnv('KV_REST_API_URL') && getEnv('KV_REST_API_TOKEN'));
 }
 
 export function getKv() {
-  const url = import.meta.env.KV_REST_API_URL;
-  const token = import.meta.env.KV_REST_API_TOKEN;
+  const url = getEnv('KV_REST_API_URL');
+  const token = getEnv('KV_REST_API_TOKEN');
   if (!url || !token) {
     throw new Error('@vercel/kv: Missing required environment variables KV_REST_API_URL and KV_REST_API_TOKEN');
   }
@@ -65,6 +76,43 @@ export interface SavedSpot {
   updatedAt: string;
 }
 
+// A saved, named filter combination the user wants to be notified about
+// when a matching happy hour goes live. Filters mirror the homepage filter
+// bar (src/pages/index.astro) plus a free-text query, so "does this venue
+// match this alert" can be computed the same way in both places — see
+// alertMatchesVenue() in lib/venues.ts.
+export interface AlertFilters {
+  days: string[]; // empty = any day
+  neighborhood: string; // '' = any
+  dealType: string; // '' = any
+  feature: string; // '' = any
+  query: string; // '' = no keyword filter
+}
+
+export interface AlertChannels {
+  email: boolean;
+  // Text is opt-in and capped/digested once notification sending exists
+  // (see the alerts spec) — cost and carrier compliance make it a much
+  // more limited channel than email, unlike email which is free/unlimited.
+  text: boolean;
+}
+
+export interface Alert {
+  id: string;
+  name: string;
+  filters: AlertFilters;
+  channels: AlertChannels;
+  active: boolean;
+  // Set when this alert was cloned from someone else's shared alert
+  // (src/pages/api/account/alerts/clone.ts) rather than created fresh —
+  // sharing is "clone", not live-sync, so this is provenance only.
+  sourceAlertId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const MAX_ALERTS_PER_USER = 25;
+
 export interface User {
   id: string;
   name: string;
@@ -75,6 +123,14 @@ export interface User {
   picture?: string;
   shareId: string;
   savedSpots: SavedSpot[];
+  // Optional/absent on accounts created before this feature shipped —
+  // always read through `user.alerts || []`, never assume it's present.
+  alerts?: Alert[];
+  // Needed for the text channel on alerts. Absent until the user opts a
+  // text-enabled alert on and supplies a number; smsConsentAt records when
+  // they agreed to receive texts (compliance — see the alerts spec).
+  phone?: string;
+  smsConsentAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -132,6 +188,139 @@ export async function writeSubmissions(submissions: Submission[]): Promise<void>
   await getKv().set(SUBMISSIONS_KEY, submissions);
 }
 
+// ---------------------------------------------------------------------------
+// Restaurant accounts. A second, separate login from the consumer User
+// accounts above — restaurants sign in to claim a listing and eventually
+// promote deals, not to save favorites. See README-NOTIFICATIONS-SETUP.md
+// for the full verification + live-toggle flow.
+// ---------------------------------------------------------------------------
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  email: string;
+  passwordSalt: string | null;
+  passwordHash: string | null;
+  website: string; // e.g. https://joesbar.com — the business's own site
+  verified: boolean;
+  verificationMethod: 'domain' | 'manual' | null;
+  verificationStatus: 'verified' | 'pending' | 'denied';
+  claimNote: string; // proof/context submitted for manual review
+  denialReason?: string;
+  // Free for now; kept separate from `verified` so turning on billing later
+  // doesn't require re-verifying anyone.
+  plan: 'free' | 'paid';
+  smsFundingEnabled: boolean;
+  // The venue (public/data/happy-hours.json) this restaurant manages, set
+  // by the restaurant searching/selecting their own listing during
+  // onboarding. Trusted rather than admin-arbitrated for now — a known
+  // limitation, see README-NOTIFICATIONS-SETUP.md.
+  venueId: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const RESTAURANTS_KEY = 'sdhh:restaurants';
+
+export async function readRestaurants(): Promise<Restaurant[]> {
+  if (!isKvConfigured()) return readLocal<Restaurant[]>('restaurants', []);
+  return (await getKv().get<Restaurant[]>(RESTAURANTS_KEY)) || [];
+}
+
+export async function writeRestaurants(restaurants: Restaurant[]): Promise<void> {
+  if (!isKvConfigured()) return writeLocal('restaurants', restaurants);
+  await getKv().set(RESTAURANTS_KEY, restaurants);
+}
+
+export function publicRestaurant(restaurant: Restaurant) {
+  return {
+    id: restaurant.id,
+    name: restaurant.name,
+    email: restaurant.email,
+    website: restaurant.website,
+    verified: restaurant.verified,
+    verificationMethod: restaurant.verificationMethod,
+    verificationStatus: restaurant.verificationStatus,
+    claimNote: restaurant.claimNote,
+    denialReason: restaurant.denialReason,
+    plan: restaurant.plan,
+    smsFundingEnabled: restaurant.smsFundingEnabled,
+    venueId: restaurant.venueId,
+  };
+}
+
+/** Normalizes an email address or a website URL down to a bare domain
+ * (lowercase, no protocol, no "www.", no path) so the two can be compared
+ * for the domain-match auto-verification check. */
+export function extractDomain(value: string): string {
+  const raw = cleanString(value).toLowerCase();
+  if (!raw) return '';
+  const withoutProtocol = raw.replace(/^[a-z]+:\/\//, '');
+  const host = withoutProtocol.split('/')[0].split('@').pop() || '';
+  return host.replace(/^www\./, '');
+}
+
+// ---------------------------------------------------------------------------
+// Manual "live now" overrides. public/data/happy-hours.json is static,
+// git-committed data (see commitApprovedVenue in
+// api/admin/submissions/[id].ts) — fine for weekly schedules, far too
+// slow/heavy for a restaurant tapping "we're live now" on a whim. This is a
+// small, separate, frequently-written store just for that override.
+// ---------------------------------------------------------------------------
+
+export interface LiveOverride {
+  active: boolean;
+  since: string;
+  // Auto-expires so a forgotten toggle doesn't stay "live" forever —
+  // restaurants can always re-trigger it.
+  expiresAt: string;
+}
+
+const LIVE_OVERRIDES_KEY = 'sdhh:live-overrides';
+
+export async function readLiveOverrides(): Promise<Record<number, LiveOverride>> {
+  if (!isKvConfigured()) return readLocal<Record<number, LiveOverride>>('live-overrides', {});
+  return (await getKv().get<Record<number, LiveOverride>>(LIVE_OVERRIDES_KEY)) || {};
+}
+
+export async function writeLiveOverrides(overrides: Record<number, LiveOverride>): Promise<void> {
+  if (!isKvConfigured()) return writeLocal('live-overrides', overrides);
+  await getKv().set(LIVE_OVERRIDES_KEY, overrides);
+}
+
+// ---------------------------------------------------------------------------
+// Notification log. Backs dedup (don't re-notify the same user about the
+// same venue within a cooldown window) and the per-user daily text cap (see
+// the alerts spec, "SMS cost control"). Pruned to a rolling retention
+// window on every write so it doesn't grow unbounded.
+// ---------------------------------------------------------------------------
+
+export interface NotificationLogEntry {
+  id: string;
+  userId: string;
+  venueId: number;
+  channel: 'email' | 'text';
+  sentAt: string;
+}
+
+const NOTIFICATION_LOG_KEY = 'sdhh:notification-log';
+const NOTIFICATION_LOG_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export async function readNotificationLog(): Promise<NotificationLogEntry[]> {
+  if (!isKvConfigured()) return readLocal<NotificationLogEntry[]>('notification-log', []);
+  return (await getKv().get<NotificationLogEntry[]>(NOTIFICATION_LOG_KEY)) || [];
+}
+
+export async function appendNotificationLog(entries: NotificationLogEntry[]): Promise<void> {
+  if (!entries.length) return;
+  const existing = await readNotificationLog();
+  const cutoff = Date.now() - NOTIFICATION_LOG_RETENTION_MS;
+  const pruned = existing.filter((entry) => new Date(entry.sentAt).getTime() >= cutoff);
+  const next = [...pruned, ...entries];
+  if (!isKvConfigured()) return writeLocal('notification-log', next);
+  await getKv().set(NOTIFICATION_LOG_KEY, next);
+}
+
 export function publicUser(user: User) {
   return {
     id: user.id,
@@ -139,6 +328,7 @@ export function publicUser(user: User) {
     email: user.email,
     shareId: user.shareId,
     savedSpots: user.savedSpots || [],
+    alerts: user.alerts || [],
   };
 }
 
@@ -147,7 +337,9 @@ export function hashPassword(password: string, salt = crypto.randomBytes(16).toS
   return { salt, hash };
 }
 
-export function verifyPassword(password: string, user: User): boolean {
+// Structural rather than `User`-typed so Restaurant (same passwordSalt/
+// passwordHash shape, different record type) can reuse this too.
+export function verifyPassword(password: string, user: { passwordSalt: string | null; passwordHash: string | null }): boolean {
   if (!user.passwordSalt || !user.passwordHash) return false;
   const { hash } = hashPassword(password, user.passwordSalt);
   const a = Buffer.from(hash, 'hex');
@@ -172,6 +364,29 @@ export function cleanList(value: unknown): string[] {
 
 export function isValidTime(value: string): boolean {
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+const VALID_DAYS = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+
+export function cleanAlertFilters(input: Record<string, any>): AlertFilters {
+  return {
+    days: cleanList(input?.days).filter((day) => VALID_DAYS.has(day)),
+    neighborhood: cleanString(input?.neighborhood),
+    dealType: cleanString(input?.dealType),
+    feature: cleanString(input?.feature),
+    query: cleanString(input?.query).slice(0, 80),
+  };
+}
+
+export function cleanAlertChannels(input: Record<string, any> | undefined): AlertChannels {
+  return {
+    // Email defaults on unless explicitly turned off — it's free and
+    // unlimited, so there's no cost reason to make users opt in.
+    email: input?.email !== false,
+    // Text defaults off — it's capped/cost-controlled, so users opt in
+    // deliberately rather than getting it by default.
+    text: Boolean(input?.text),
+  };
 }
 
 export function validateListing(

@@ -1,8 +1,8 @@
 ---
 export const prerender = true;
-import Layout from '../layouts/Layout.astro';
+import Layout from '../../layouts/Layout.astro';
 ---
-<Layout title="Submission Review | SD Happy Hours Admin" description="Review, approve, or deny happy hour submissions.">
+<Layout title="Restaurant Verifications | SD Happy Hours Admin" description="Review pending restaurant account verifications.">
   <style is:global>
     .admin-bar {
       background: white;
@@ -34,30 +34,24 @@ import Layout from '../layouts/Layout.astro';
     .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
     .admin-status { margin-bottom: 16px; color: var(--night-soft); font-weight: 600; }
 
-    .submission {
+    .restaurant-card {
       background: white;
       border-radius: var(--radius-sm);
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       padding: 20px;
       margin-bottom: 16px;
     }
-    .submission-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-    .submission-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
-    .submission-head p { color: var(--night-soft); font-size: 0.85rem; }
+    .restaurant-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+    .restaurant-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
+    .restaurant-head p { color: var(--night-soft); font-size: 0.85rem; }
 
-    .pill { align-self: flex-start; border-radius: 100px; background: #FEF3C7; color: #92400E; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .pill.approved { background: #DCFCE7; color: #166534; }
+    .pill { align-self: flex-start; border-radius: 100px; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill.pending { background: #FEF3C7; color: #92400E; }
+    .pill.verified { background: #DCFCE7; color: #166534; }
     .pill.denied { background: #FEE2E2; color: #991B1B; }
 
     .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 14px; color: var(--night-soft); font-size: 0.85rem; }
-
-    textarea {
-      width: 100%; min-height: 260px; resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.82rem; line-height: 1.5;
-      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); padding: 12px; color: var(--night);
-    }
-    textarea:focus { border-color: var(--sunset-start); outline: none; }
+    .claim-note { background: var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font-size: 0.85rem; padding: 12px; margin-bottom: 12px; white-space: pre-wrap; }
 
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .actions button { border: 0; border-radius: 100px; padding: 10px 16px; cursor: pointer; font: inherit; font-weight: 700; }
@@ -67,26 +61,25 @@ import Layout from '../layouts/Layout.astro';
     .error { color: #B91C1C; font-weight: 600; margin-top: 10px; white-space: pre-wrap; font-size: 0.85rem; }
 
     @media (max-width: 760px) {
-      .admin-bar-inner, .submission-head { flex-direction: column; align-items: stretch; }
+      .admin-bar-inner, .restaurant-head { flex-direction: column; align-items: stretch; }
     }
   </style>
 
   <div class="admin-bar">
     <div class="admin-bar-inner">
       <div>
-        <h1>Submission Review</h1>
-        <p>Approve, deny, or edit restaurant-submitted happy hour listings.</p>
+        <h1>Restaurant Verifications</h1>
+        <p>Approve or deny restaurant accounts that didn't auto-verify by domain match.</p>
       </div>
       <div class="admin-actions">
         <span class="admin-user" id="admin-user"></span>
-        <button class="secondary" id="dispatch-alerts">Send alerts now</button>
         <button class="secondary" id="refresh">Refresh</button>
         <button class="secondary" id="logout">Log out</button>
       </div>
     </div>
     <nav class="admin-subnav">
-      <a href="/admin/" aria-current="page">Submissions</a>
-      <a href="/admin/restaurants/">Restaurant Verifications</a>
+      <a href="/admin/">Submissions</a>
+      <a href="/admin/restaurants/" aria-current="page">Restaurant Verifications</a>
       <a href="/admin/new-post/">Add Blog Post</a>
       <a href="/admin/drafts/">Posts</a>
     </nav>
@@ -94,12 +87,12 @@ import Layout from '../layouts/Layout.astro';
 
   <main class="admin-main">
     <div class="admin-status" id="status">Checking login...</div>
-    <div id="submissions"></div>
+    <div id="restaurants"></div>
   </main>
 
   <script>
     const statusEl = document.getElementById('status')!;
-    const submissionsEl = document.getElementById('submissions')!;
+    const restaurantsEl = document.getElementById('restaurants')!;
     const adminUserEl = document.getElementById('admin-user')!;
 
     function escapeHTML(value: unknown) {
@@ -122,44 +115,49 @@ import Layout from '../layouts/Layout.astro';
       return data;
     }
 
-    function renderSubmissions(submissions: any[]) {
-      if (!submissions.length) {
-        submissionsEl.innerHTML = '';
-        setStatus('No submissions yet.');
+    function renderRestaurants(restaurants: any[]) {
+      // Pending first (the actionable queue), then verified, then denied.
+      const order: Record<string, number> = { pending: 0, verified: 1, denied: 2 };
+      const sorted = [...restaurants].sort((a, b) => (order[a.verificationStatus] ?? 3) - (order[b.verificationStatus] ?? 3));
+
+      if (!sorted.length) {
+        restaurantsEl.innerHTML = '';
+        setStatus('No restaurant accounts yet.');
         return;
       }
 
-      setStatus(`${submissions.length} submission${submissions.length === 1 ? '' : 's'}`);
-      submissionsEl.innerHTML = submissions.map((item) => `
-        <article class="submission" data-id="${escapeHTML(item.id)}">
-          <div class="submission-head">
+      const pendingCount = restaurants.filter((r) => r.verificationStatus === 'pending').length;
+      setStatus(`${pendingCount} pending · ${restaurants.length} total`);
+
+      restaurantsEl.innerHTML = sorted.map((item) => `
+        <article class="restaurant-card" data-id="${escapeHTML(item.id)}">
+          <div class="restaurant-head">
             <div>
-              <h2>${escapeHTML(item.listing.name)}</h2>
-              <p>${escapeHTML(item.listing.neighborhood)} · submitted ${new Date(item.createdAt).toLocaleString()}</p>
+              <h2>${escapeHTML(item.name)}</h2>
+              <p>${escapeHTML(item.email)} · ${escapeHTML(item.website)}</p>
             </div>
-            <span class="pill ${escapeHTML(item.status)}">${escapeHTML(item.status)}</span>
+            <span class="pill ${escapeHTML(item.verificationStatus)}">${escapeHTML(item.verificationStatus)}</span>
           </div>
           <div class="meta">
-            <div><strong>Contact:</strong> ${escapeHTML(item.contact.contactName)}</div>
-            <div><strong>Email:</strong> ${escapeHTML(item.contact.contactEmail)}</div>
-            <div><strong>Website:</strong> ${escapeHTML(item.listing.website)}</div>
-            <div><strong>Source:</strong> ${escapeHTML(item.listing.sourceUrl)}</div>
+            <div><strong>Verification method:</strong> ${escapeHTML(item.verificationMethod || 'none yet')}</div>
+            <div><strong>Linked venue ID:</strong> ${item.venueId ?? 'not claimed'}</div>
           </div>
-          <textarea spellcheck="false">${escapeHTML(JSON.stringify(item.listing, null, 2))}</textarea>
-          <div class="actions">
-            <button class="secondary" data-action="edit">Save edit</button>
-            <button class="good" data-action="approve">Approve</button>
-            <button class="bad" data-action="deny">Deny</button>
-          </div>
+          ${item.claimNote ? `<div class="claim-note">${escapeHTML(item.claimNote)}</div>` : ''}
+          ${item.verificationStatus === 'pending' ? `
+            <div class="actions">
+              <button class="good" data-action="approve">Approve</button>
+              <button class="bad" data-action="deny">Deny</button>
+            </div>
+          ` : ''}
           <div class="error" aria-live="polite"></div>
         </article>
       `).join('');
     }
 
-    async function loadSubmissions() {
-      setStatus('Loading submissions...');
+    async function loadRestaurants() {
+      setStatus('Loading restaurant accounts...');
       try {
-        renderSubmissions(await api('/api/admin/submissions'));
+        renderRestaurants(await api('/api/admin/restaurants'));
       } catch {
         window.location.href = '/account/';
       }
@@ -173,7 +171,7 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
       adminUserEl.textContent = `Logged in as ${session.email}`;
-      await loadSubmissions();
+      await loadRestaurants();
     }
 
     async function logout() {
@@ -185,57 +183,30 @@ import Layout from '../layouts/Layout.astro';
       const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
 
-      const card = button.closest('.submission') as HTMLElement;
+      const card = button.closest('.restaurant-card') as HTMLElement;
       const errorEl = card.querySelector('.error') as HTMLElement;
       const action = button.dataset.action;
       errorEl.textContent = '';
 
-      let listing;
-      try {
-        listing = JSON.parse((card.querySelector('textarea') as HTMLTextAreaElement).value);
-      } catch {
-        errorEl.textContent = 'Listing JSON is invalid.';
-        return;
-      }
-
-      const body: Record<string, any> = { action, listing };
+      const body: Record<string, any> = { action };
       if (action === 'deny') {
         body.denialReason = prompt('Reason for denial?') || '';
       }
 
       try {
-        await api(`/api/admin/submissions/${encodeURIComponent(card.dataset.id!)}`, {
+        await api(`/api/admin/restaurants/${encodeURIComponent(card.dataset.id!)}`, {
           method: 'PATCH',
           body: JSON.stringify(body),
         });
-        await loadSubmissions();
+        await loadRestaurants();
       } catch (err: any) {
         errorEl.textContent = err.message;
       }
     }
 
-    document.getElementById('refresh')!.addEventListener('click', loadSubmissions);
+    document.getElementById('refresh')!.addEventListener('click', loadRestaurants);
     document.getElementById('logout')!.addEventListener('click', logout);
-    submissionsEl.addEventListener('click', handleAction);
-
-    document.getElementById('dispatch-alerts')!.addEventListener('click', async () => {
-      const button = document.getElementById('dispatch-alerts') as HTMLButtonElement;
-      button.disabled = true;
-      const originalText = button.textContent;
-      button.textContent = 'Sending...';
-      try {
-        const summary = await api('/api/admin/dispatch-alerts', { method: 'POST' });
-        alert(
-          `Live venues: ${summary.liveVenueCount}\nUsers notified: ${summary.usersNotified}\nEmails sent: ${summary.emailsSent}\nTexts sent: ${summary.textsSent}` +
-          (summary.simulated ? '\n\n(Email/SMS provider not configured yet — this run was simulated/logged, not actually delivered.)' : '')
-        );
-      } catch (err: any) {
-        alert(err.message);
-      } finally {
-        button.disabled = false;
-        button.textContent = originalText;
-      }
-    });
+    restaurantsEl.addEventListener('click', handleAction);
 
     requireLogin();
   </script>

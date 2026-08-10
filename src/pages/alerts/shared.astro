@@ -1,0 +1,139 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Shared Alert | SD Happy Hours" description="A shared San Diego happy hour alert filter.">
+  <style is:global>
+    .shared-alert-header {
+      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
+      color: white;
+      padding: 44px 24px 36px;
+    }
+    .shared-alert-header .inner { max-width: 700px; margin: 0 auto; }
+    .shared-alert-header h1 { font-family: var(--font-display); font-size: clamp(1.9rem, 5vw, 2.75rem); margin-bottom: 8px; }
+    .shared-alert-header p { color: rgba(255,255,255,0.88); }
+
+    .shared-alert-main { max-width: 700px; margin: 0 auto; padding: 28px 24px 80px; }
+    .shared-alert-panel {
+      background: white; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      padding: 22px; display: grid; gap: 14px;
+    }
+    .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-pill { background: var(--sand-warm); border-radius: 100px; color: var(--night); font-size: 0.78rem; font-weight: 700; padding: 6px 12px; }
+    .match-list { display: grid; gap: 6px; }
+    .match-item { color: var(--night-soft); font-size: 0.9rem; }
+    .empty { color: var(--night-soft); padding: 4px 0; }
+
+    button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
+    button:hover { background: var(--sunset-start); }
+    button:disabled { opacity: 0.6; cursor: default; }
+    .status { color: var(--night-soft); font-weight: 600; min-height: 1.3em; font-size: 0.88rem; }
+    .status.error { color: #B91C1C; }
+    .cta-link { display: inline-block; background: var(--night); color: white; text-decoration: none; font-weight: 700; padding: 11px 18px; border-radius: 100px; }
+    .cta-link:hover { background: var(--sunset-start); }
+  </style>
+
+  <div class="shared-alert-header">
+    <div class="inner">
+      <h1 id="title">Shared Alert</h1>
+      <p id="subtitle">Loading...</p>
+    </div>
+  </div>
+
+  <main class="shared-alert-main">
+    <div class="shared-alert-panel" id="panel">
+      <div class="filter-pills" id="filter-pills"></div>
+      <div>
+        <strong id="match-heading"></strong>
+        <div class="match-list" id="match-list"></div>
+      </div>
+      <div id="cta"></div>
+    </div>
+  </main>
+
+  <script>
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function filterPillsHTML(filters: any) {
+      const pills: string[] = [];
+      if (filters.days?.length) pills.push(filters.days.join(', '));
+      if (filters.neighborhood) pills.push(filters.neighborhood);
+      if (filters.dealType) pills.push(filters.dealType);
+      if (filters.feature) pills.push(filters.feature);
+      if (filters.query) pills.push(`"${filters.query}"`);
+      if (!pills.length) return '<span class="filter-pill">Any day, any spot</span>';
+      return pills.map((p) => `<span class="filter-pill">${escapeHTML(p)}</span>`).join('');
+    }
+
+    async function loadSharedAlert() {
+      const params = new URLSearchParams(window.location.search);
+      const shareId = params.get('id');
+      const alertId = params.get('alert');
+      const panel = document.getElementById('panel')!;
+      if (!shareId || !alertId) {
+        document.getElementById('subtitle')!.textContent = 'Missing shared alert link.';
+        panel.innerHTML = '<div class="empty">Ask your friend for their full share link.</div>';
+        return;
+      }
+
+      const res = await fetch(`/api/shared-alerts/${encodeURIComponent(shareId)}/${encodeURIComponent(alertId)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('subtitle')!.textContent = (data.errors || ['Shared alert not found.']).join(' ');
+        panel.innerHTML = '';
+        return;
+      }
+
+      document.getElementById('title')!.textContent = data.name;
+      document.getElementById('subtitle')!.textContent = `Shared by ${data.ownerName}`;
+      document.getElementById('filter-pills')!.innerHTML = filterPillsHTML(data.filters);
+      document.getElementById('match-heading')!.textContent = `${data.matchCount} spot${data.matchCount === 1 ? '' : 's'} match right now`;
+      document.getElementById('match-list')!.innerHTML = data.matches.length
+        ? data.matches.map((m: any) => `<div class="match-item">${escapeHTML(m.name)} — ${escapeHTML(m.neighborhood)}</div>`).join('')
+        : '<div class="empty">No spots match right now.</div>';
+
+      await renderCTA(shareId, alertId);
+    }
+
+    async function renderCTA(shareId: string, alertId: string) {
+      const cta = document.getElementById('cta')!;
+      const meRes = await fetch('/api/account/me');
+      const session = await meRes.json();
+
+      if (!session.authenticated) {
+        cta.innerHTML = '<a class="cta-link" href="/account/">Sign in to add this alert</a>';
+        return;
+      }
+
+      cta.innerHTML = `<button id="clone-btn">Add to my alerts</button><div class="status" id="clone-status" aria-live="polite"></div>`;
+      document.getElementById('clone-btn')!.addEventListener('click', async () => {
+        const button = document.getElementById('clone-btn') as HTMLButtonElement;
+        const status = document.getElementById('clone-status')!;
+        button.disabled = true;
+        status.classList.remove('error');
+        status.textContent = 'Adding...';
+        try {
+          const res = await fetch('/api/account/alerts/clone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ shareId, alertId }),
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error((json.errors || ['Could not add alert.']).join(' '));
+          status.textContent = 'Added to your alerts.';
+          cta.innerHTML += ' <a class="cta-link" href="/alerts/">View my alerts</a>';
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+          button.disabled = false;
+        }
+      });
+    }
+
+    loadSharedAlert();
+  </script>
+</Layout>

@@ -1,4 +1,5 @@
 import happyHours from '../../public/data/happy-hours.json';
+import type { AlertFilters, LiveOverride } from './kv';
 
 export interface Venue {
   id: number;
@@ -35,6 +36,72 @@ export function getVenues(): Venue[] {
 
 export function getVenueBySlug(slug: string): Venue | undefined {
   return getVenues().find((v) => slugify(v.name) === slug);
+}
+
+/**
+ * Does this venue satisfy a saved alert's filters? Every set filter must
+ * match (unset/empty filters are ignored) — same semantics as the homepage
+ * filter bar (src/pages/index.astro getFilteredData()), so a "this alert
+ * currently matches N spots" preview stays consistent with what the
+ * homepage would show for the same filters. Also the basis for the future
+ * live-happy-hour matching/notification engine (see the alerts spec).
+ */
+const SD_TIME_ZONE = 'America/Los_Angeles';
+
+/** Breaks a Date down into San Diego-local weekday + minutes-since-midnight,
+ * regardless of what timezone the code is actually running in. The
+ * homepage's own isHappeningNow() (src/pages/index.astro) uses the
+ * visitor's browser clock instead, which is fine for a mostly-local
+ * audience checking on their phone — but this server-side version backs
+ * the notification dispatch job (lib/notify.ts), which runs on whatever
+ * timezone the server happens to be in, so it has to pin to Pacific
+ * explicitly rather than trust the runtime's local clock. */
+function pacificParts(now: Date): { weekday: string; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: SD_TIME_ZONE,
+    weekday: 'long',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || '0';
+  const weekday = parts.find((p) => p.type === 'weekday')?.value || '';
+  return { weekday, minutes: (Number(get('hour')) % 24) * 60 + Number(get('minute')) };
+}
+
+/** Is this venue within its scheduled happy-hour window right now, in San
+ * Diego local time? Ignores manual live overrides — see isVenueLive() for
+ * the combined check used everywhere that matters (matching, live badges). */
+export function isHappeningNow(venue: Venue, now: Date = new Date()): boolean {
+  const { weekday, minutes } = pacificParts(now);
+  if (!venue.days.includes(weekday)) return false;
+  const [sh, sm] = venue.startTime.split(':').map(Number);
+  const [eh, em] = venue.endTime.split(':').map(Number);
+  return minutes >= sh * 60 + sm && minutes <= eh * 60 + em;
+}
+
+/** Is this venue live right now — either by its normal schedule, or because
+ * a restaurant tapped "we're live now" (src/pages/api/restaurant/live.ts)
+ * and the override hasn't expired? This is the check the notification
+ * dispatch job and the public /api/live-status endpoint use. */
+export function isVenueLive(venue: Venue, overrides: Record<number, LiveOverride>, now: Date = new Date()): boolean {
+  const override = overrides[venue.id];
+  if (override?.active && new Date(override.expiresAt).getTime() > now.getTime()) return true;
+  return isHappeningNow(venue, now);
+}
+
+export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean {
+  if (filters.days?.length && !filters.days.some((day) => venue.days.includes(day))) return false;
+  if (filters.neighborhood && venue.neighborhood !== filters.neighborhood) return false;
+  if (filters.dealType && !(venue.dealTypes || []).includes(filters.dealType)) return false;
+  if (filters.feature && !(venue.features || []).includes(filters.feature)) return false;
+  if (filters.query) {
+    const haystack = [venue.name, venue.neighborhood, venue.address, venue.vibe, ...(venue.deals || []), ...(venue.dealTypes || []), ...(venue.features || [])]
+      .join(' ')
+      .toLowerCase();
+    if (!haystack.includes(filters.query.toLowerCase())) return false;
+  }
+  return true;
 }
 
 export function formatTime(time: string): string {
