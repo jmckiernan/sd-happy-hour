@@ -3,7 +3,7 @@ title: "San Diego's Classiest Happy Hours: Where to Sip Like You Mean It"
 description: "A guide to San Diego's most polished happy hour spots — the ones with linen napkins, good wine lists, and zero plastic cups."
 pubDate: 2026-08-10
 author: "SD Happy Hours"
-draft: true
+draft: false
 aiGenerated: true
 venues: []
 heroImage: "/api/images/classiest-happy-hours-1786332897765-2c1611ff.png"
