@@ -231,6 +231,7 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
   <div class="venue-actions">
     <a class="btn-primary" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
     <a class="btn-secondary" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
+    {venue.phone && <a class="btn-secondary" href={`tel:${venue.phone.replace(/[^0-9+]/g, '')}`}>Call {venue.phone}</a>}
     <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>

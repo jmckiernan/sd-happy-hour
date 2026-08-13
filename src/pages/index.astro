@@ -309,6 +309,13 @@ import Layout from '../layouts/Layout.astro';
     .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .card-vibe { font-size: 0.75rem; font-weight: 600; color: var(--ocean); background: rgba(8, 145, 178, 0.1); padding: 4px 10px; border-radius: 100px; }
     .card-distance { font-size: 0.75rem; font-weight: 600; color: var(--sunset-start); }
+    /* Pill button styled like .card-vibe but in green, so it reads as
+       tappable. Pushed to the right edge of the row, then nudged 8px
+       further so it lines up exactly with .time-badge above — .card-body
+       has 20px of padding but .time-overlay only insets 12px, so the two
+       right edges don't naturally match without this offset. */
+    .card-phone { font-size: 0.75rem; font-weight: 600; color: #047857; background: rgba(5, 150, 105, 0.12); padding: 4px 10px; border-radius: 100px; text-decoration: none; margin-left: auto; margin-right: -8px; transition: background 0.2s ease; }
+    .card-phone:hover { background: rgba(5, 150, 105, 0.22); color: #065f46; }
 
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; }
     .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
@@ -931,6 +938,7 @@ import Layout from '../layouts/Layout.astro';
               <div class="card-meta">
                 <span class="card-vibe">${escapeHTML(h.vibe)}</span>
                 <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
+                ${h.phone ? `<a class="card-phone" href="tel:${h.phone.replace(/[^0-9+]/g, '')}">${escapeHTML(h.phone)}</a>` : ''}
                 ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
               </div>
 
