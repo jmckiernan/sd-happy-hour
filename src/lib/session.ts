@@ -1,10 +1,10 @@
-import crypto from 'node:crypto';
 import type { AstroCookies } from 'astro';
-import { getKv, isKvConfigured, readLocal, writeLocal } from './kv';
+import { createSession as createSessionRow, getSessionById, deleteSession as deleteSessionRow } from './store';
 
-// Session storage backed by Vercel KV (with a TTL) in production. In local
-// dev without KV configured, this falls back to a local JSON file — see
-// the comment in kv.ts for why that's fine locally but not once deployed.
+// Session storage backed by Postgres (README-NEON-MIGRATION.md §6 step 9 —
+// everything else depends on this, so it migrates first). `sessions.expires_at`
+// replaces the old Redis TTL (`{ ex: MAX_AGE_SECONDS }`); createSession/
+// getSessionById/deleteSession in store.ts do the actual row-level work.
 
 // Two kinds of session: the consumer account (Google/email) login, and a
 // separate restaurant login (src/pages/api/restaurant/*.ts) used to claim a
@@ -24,63 +24,25 @@ function cookieName(role: SessionData['role']) {
   return role === 'restaurant' ? 'sdhh_restaurant_session' : 'sdhh_session';
 }
 
-function sessionKey(id: string) {
-  return `sdhh:session:${id}`;
-}
-
-type LocalSessions = Record<string, { data: SessionData; expiresAt: number }>;
-
-async function readLocalSession(id: string): Promise<SessionData | null> {
-  const sessions = await readLocal<LocalSessions>('sessions', {});
-  const entry = sessions[id];
-  if (!entry) return null;
-  if (entry.expiresAt <= Date.now()) {
-    delete sessions[id];
-    await writeLocal('sessions', sessions);
-    return null;
-  }
-  return entry.data;
-}
-
-async function writeLocalSession(id: string, data: SessionData): Promise<void> {
-  const sessions = await readLocal<LocalSessions>('sessions', {});
-  sessions[id] = { data, expiresAt: Date.now() + MAX_AGE_SECONDS * 1000 };
-  await writeLocal('sessions', sessions);
-}
-
-async function deleteLocalSession(id: string): Promise<void> {
-  const sessions = await readLocal<LocalSessions>('sessions', {});
-  if (id in sessions) {
-    delete sessions[id];
-    await writeLocal('sessions', sessions);
-  }
-}
-
 export async function createSession(cookies: AstroCookies, data: SessionData): Promise<string> {
-  const id = crypto.randomBytes(32).toString('hex');
-  if (isKvConfigured()) {
-    await getKv().set(sessionKey(id), data, { ex: MAX_AGE_SECONDS });
-  } else {
-    await writeLocalSession(id, data);
-  }
-  cookies.set(cookieName(data.role), id, {
+  const subjectId = data.role === 'user' ? data.userId : data.restaurantId;
+  const session = await createSessionRow(data.role, subjectId);
+  cookies.set(cookieName(data.role), session.id, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
     maxAge: MAX_AGE_SECONDS,
   });
-  return id;
+  return session.id;
 }
 
 async function readSessionFromCookie(cookies: AstroCookies, name: string): Promise<SessionData | null> {
   const id = cookies.get(name)?.value;
   if (!id) return null;
   try {
-    if (isKvConfigured()) {
-      const data = await getKv().get<SessionData>(sessionKey(id));
-      return data ?? null;
-    }
-    return await readLocalSession(id);
+    const row = await getSessionById(id);
+    if (!row) return null;
+    return row.role === 'user' ? { role: 'user', userId: row.userId! } : { role: 'restaurant', restaurantId: row.restaurantId! };
   } catch {
     // Transient store error — treat as "not signed in" rather than taking
     // down every page that checks auth status on load.
@@ -108,11 +70,7 @@ export async function clearSession(cookies: AstroCookies, role: SessionData['rol
   const id = cookies.get(name)?.value;
   if (id) {
     try {
-      if (isKvConfigured()) {
-        await getKv().del(sessionKey(id));
-      } else {
-        await deleteLocalSession(id);
-      }
+      await deleteSessionRow(id);
     } catch {
       // Logging out should never fail the request just because the store
       // is unreachable.

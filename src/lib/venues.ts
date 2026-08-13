@@ -1,5 +1,5 @@
 import happyHours from '../../public/data/happy-hours.json';
-import type { AlertFilters, LiveOverride } from './kv';
+import type { AlertFilters, LiveOverride } from './store';
 
 export interface Venue {
   id: number;

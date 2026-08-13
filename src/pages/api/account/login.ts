@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readUsers, publicUser, verifyPassword, cleanString } from '../../../lib/kv';
+import { getUserByEmail, listSavedSpots, listAlerts } from '../../../lib/store';
+import { publicUser, verifyPassword, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -15,12 +16,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const email = cleanString(body.email).toLowerCase();
   const password = String(body.password || '');
-  const users = await readUsers();
-  const user = users.find((item) => item.email === email);
+  const user = await getUserByEmail(email);
   if (!user || !verifyPassword(password, user)) {
     return errorJson(['Invalid email or password.'], 401);
   }
 
   await createSession(cookies, { role: 'user', userId: user.id });
-  return json(publicUser(user), 200);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts), 200);
 };

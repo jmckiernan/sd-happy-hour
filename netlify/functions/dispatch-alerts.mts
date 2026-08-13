@@ -11,8 +11,8 @@ import { runAlertDispatch } from '../../src/lib/notify';
 //
 // Because this isn't built through Astro/Vite, `import.meta.env` isn't
 // populated here — everything runAlertDispatch() touches reads env vars via
-// kv.ts's getEnv() helper, which checks `process.env` too for exactly this
-// reason.
+// env.ts's getEnv() helper, which checks `process.env` too for exactly this
+// reason (including db.ts's DATABASE_URL lookup).
 export default async (): Promise<Response> => {
   try {
     const summary = await runAlertDispatch();

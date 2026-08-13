@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, writeRestaurants, publicRestaurant } from '../../../lib/kv';
+import { getRestaurantById, updateRestaurant } from '../../../lib/store';
+import { publicRestaurant } from '../../../lib/validation';
 import { getRestaurantSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { getVenues } from '../../../lib/venues';
@@ -17,8 +18,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return errorJson(['Restaurant login required.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   if (!restaurant) return errorJson(['Restaurant not found.'], 404);
   if (!restaurant.verified) return errorJson(['Verify your account before claiming a listing.'], 403);
 
@@ -34,8 +34,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     return errorJson(['Venue not found.'], 404);
   }
 
-  restaurant.venueId = venueId;
-  restaurant.updatedAt = new Date().toISOString();
-  await writeRestaurants(restaurants);
-  return json(publicRestaurant(restaurant));
+  const updated = await updateRestaurant(restaurant.id, { venueId });
+  if (!updated) return errorJson(['Restaurant not found.'], 404);
+  return json(publicRestaurant(updated));
 };

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, readPromotions, writePromotions, cleanString } from '../../../lib/kv';
+import { getRestaurantById, getPromotion, setPromotion, deletePromotion } from '../../../lib/store';
+import { cleanString } from '../../../lib/validation';
 import { getRestaurantSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -12,12 +13,11 @@ export const GET: APIRoute = async ({ cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return errorJson(['Restaurant login required.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   if (!restaurant || restaurant.venueId == null) return json({ promotion: null });
 
-  const promotions = await readPromotions();
-  return json({ promotion: promotions[restaurant.venueId] || null });
+  const promotion = await getPromotion(restaurant.venueId);
+  return json({ promotion });
 };
 
 // Sets (or clears) the promoted deal code for the signed-in restaurant's
@@ -28,8 +28,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return errorJson(['Restaurant login required.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   if (!restaurant) return errorJson(['Restaurant not found.'], 404);
   if (!restaurant.verified) return errorJson(['Verify your account before promoting a deal.'], 403);
   if (restaurant.venueId == null) return errorJson(['Claim your listing before promoting a deal.'], 422);
@@ -46,23 +45,18 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   if (!dealCode) return errorJson(['A deal code is required.'], 422);
   if (!description) return errorJson(['A short public description is required (e.g. "10% off your bill").'], 422);
 
-  const promotions = await readPromotions();
-  promotions[restaurant.venueId] = { dealCode, description, updatedAt: new Date().toISOString() };
-  await writePromotions(promotions);
-  return json(promotions[restaurant.venueId]);
+  const promotion = await setPromotion(restaurant.venueId, { dealCode, description });
+  return json(promotion);
 };
 
 export const DELETE: APIRoute = async ({ cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return errorJson(['Restaurant login required.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   if (!restaurant) return errorJson(['Restaurant not found.'], 404);
   if (restaurant.venueId == null) return errorJson(['No linked venue.'], 422);
 
-  const promotions = await readPromotions();
-  delete promotions[restaurant.venueId];
-  await writePromotions(promotions);
+  await deletePromotion(restaurant.venueId);
   return json({ ok: true });
 };

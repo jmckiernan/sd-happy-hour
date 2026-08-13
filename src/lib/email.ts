@@ -1,4 +1,4 @@
-import { getEnv } from './kv';
+import { getEnv } from './env';
 
 // ---------------------------------------------------------------------------
 // Email delivery via Resend's plain REST API (no SDK dependency — same

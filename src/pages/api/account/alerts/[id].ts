@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readUsers, writeUsers, publicUser, cleanString, cleanAlertFilters, cleanAlertChannels } from '../../../../lib/kv';
+import { getUserById, getAlert, updateAlert, deleteAlert, listSavedSpots, listAlerts } from '../../../../lib/store';
+import { publicUser, cleanString, cleanAlertFilters, cleanAlertChannels } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -13,13 +14,11 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
-  user.alerts = user.alerts || [];
-  const alert = user.alerts.find((item) => item.id === params.id);
-  if (!alert) return errorJson(['Alert not found.'], 404);
+  const existing = await getAlert(user.id, params.id!);
+  if (!existing) return errorJson(['Alert not found.'], 404);
 
   let body: Record<string, any>;
   try {
@@ -28,31 +27,32 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
 
+  let name: string | undefined;
   if (body.name !== undefined) {
-    const name = cleanString(body.name).slice(0, 60);
+    name = cleanString(body.name).slice(0, 60);
     if (!name) return errorJson(['Alert name is required.'], 422);
-    alert.name = name;
   }
-  if (body.filters !== undefined) alert.filters = cleanAlertFilters(body.filters);
-  if (body.channels !== undefined) alert.channels = cleanAlertChannels(body.channels);
-  if (body.active !== undefined) alert.active = Boolean(body.active);
 
-  alert.updatedAt = new Date().toISOString();
-  user.updatedAt = alert.updatedAt;
-  await writeUsers(users);
-  return json(publicUser(user));
+  const updated = await updateAlert(user.id, params.id!, {
+    name,
+    filters: body.filters !== undefined ? cleanAlertFilters(body.filters) : undefined,
+    channels: body.channels !== undefined ? cleanAlertChannels(body.channels) : undefined,
+    active: body.active !== undefined ? Boolean(body.active) : undefined,
+  });
+  if (!updated) return errorJson(['Alert not found.'], 404);
+
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts));
 };
 
 export const DELETE: APIRoute = async ({ params, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
-  user.alerts = (user.alerts || []).filter((item) => item.id !== params.id);
-  user.updatedAt = new Date().toISOString();
-  await writeUsers(users);
-  return json(publicUser(user));
+  await deleteAlert(user.id, params.id!);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts));
 };

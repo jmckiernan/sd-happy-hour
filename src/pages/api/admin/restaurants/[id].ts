@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, writeRestaurants, publicRestaurant, cleanString } from '../../../../lib/kv';
+import { getRestaurantById, updateRestaurant } from '../../../../lib/store';
+import { publicRestaurant, cleanString } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -12,8 +13,7 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === params.id);
+  const restaurant = await getRestaurantById(params.id!);
   if (!restaurant) return errorJson(['Restaurant not found.'], 404);
 
   let body: Record<string, any>;
@@ -24,22 +24,25 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
   }
 
   const action = cleanString(body.action);
-  const now = new Date().toISOString();
 
+  let updated;
   if (action === 'approve') {
-    restaurant.verified = true;
-    restaurant.verificationMethod = 'manual';
-    restaurant.verificationStatus = 'verified';
-    restaurant.denialReason = undefined;
+    updated = await updateRestaurant(restaurant.id, {
+      verified: true,
+      verificationMethod: 'manual',
+      verificationStatus: 'verified',
+      denialReason: null,
+    });
   } else if (action === 'deny') {
-    restaurant.verified = false;
-    restaurant.verificationStatus = 'denied';
-    restaurant.denialReason = cleanString(body.denialReason) || 'Not verified.';
+    updated = await updateRestaurant(restaurant.id, {
+      verified: false,
+      verificationStatus: 'denied',
+      denialReason: cleanString(body.denialReason) || 'Not verified.',
+    });
   } else {
     return errorJson(['Action must be approve or deny.'], 400);
   }
 
-  restaurant.updatedAt = now;
-  await writeRestaurants(restaurants);
-  return json(publicRestaurant(restaurant));
+  if (!updated) return errorJson(['Restaurant not found.'], 404);
+  return json(publicRestaurant(updated));
 };

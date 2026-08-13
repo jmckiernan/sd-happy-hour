@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import crypto from 'node:crypto';
-import { readUsers, writeUsers, publicUser, cleanString, cleanAlertFilters, cleanAlertChannels, MAX_ALERTS_PER_USER, type Alert } from '../../../../lib/kv';
+import { getUserById, createAlert, listSavedSpots, listAlerts, MAX_ALERTS_PER_USER } from '../../../../lib/store';
+import { publicUser, cleanString, cleanAlertFilters, cleanAlertChannels } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -13,8 +13,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
   let body: Record<string, any>;
@@ -27,24 +26,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const name = cleanString(body.name).slice(0, 60);
   if (!name) return errorJson(['Alert name is required.'], 422);
 
-  user.alerts = user.alerts || [];
-  if (user.alerts.length >= MAX_ALERTS_PER_USER) {
-    return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
-  }
-
-  const now = new Date().toISOString();
-  const alert: Alert = {
-    id: `alert_${Date.now().toString(36)}${crypto.randomBytes(4).toString('hex')}`,
+  // The 25-alert cap is enforced inside the insert itself now (README-NEON-
+  // MIGRATION.md §4), so a null result unambiguously means "cap hit" rather
+  // than racing a separate count-then-insert.
+  const alert = await createAlert(user.id, {
     name,
     filters: cleanAlertFilters(body.filters || {}),
     channels: cleanAlertChannels(body.channels),
-    active: true,
-    createdAt: now,
-    updatedAt: now,
-  };
+  });
+  if (!alert) return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
 
-  user.alerts.unshift(alert);
-  user.updatedAt = now;
-  await writeUsers(users);
-  return json(publicUser(user), 201);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts), 201);
 };

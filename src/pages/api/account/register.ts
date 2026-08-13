@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import crypto from 'node:crypto';
-import { readUsers, writeUsers, publicUser, hashPassword, cleanString, type User } from '../../../lib/kv';
+import { createUser } from '../../../lib/store';
+import { publicUser, hashPassword, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -25,26 +26,25 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   if (password.length < 8) errors.push('Password must be at least 8 characters.');
   if (errors.length) return errorJson(errors, 422);
 
-  const users = await readUsers();
-  if (users.some((user) => user.email === email)) {
-    return errorJson(['An account already exists for that email.'], 409);
+  const passwordRecord = hashPassword(password);
+
+  // No pre-read — let the unique index on lower(email) arbitrate (design
+  // principle 5). A concurrent duplicate registration now fails cleanly
+  // instead of racing a read-modify-write.
+  let user;
+  try {
+    user = await createUser({
+      name,
+      email,
+      passwordSalt: passwordRecord.salt,
+      passwordHash: passwordRecord.hash,
+      shareId: crypto.randomBytes(8).toString('hex'),
+    });
+  } catch (err: any) {
+    if (err?.code === '23505') return errorJson(['An account already exists for that email.'], 409);
+    throw err;
   }
 
-  const passwordRecord = hashPassword(password);
-  const now = new Date().toISOString();
-  const user: User = {
-    id: `user_${Date.now()}`,
-    name,
-    email,
-    passwordSalt: passwordRecord.salt,
-    passwordHash: passwordRecord.hash,
-    shareId: crypto.randomBytes(8).toString('hex'),
-    savedSpots: [],
-    createdAt: now,
-    updatedAt: now,
-  };
-  users.push(user);
-  await writeUsers(users);
   await createSession(cookies, { role: 'user', userId: user.id });
-  return json(publicUser(user), 201);
+  return json(publicUser(user, [], []), 201);
 };

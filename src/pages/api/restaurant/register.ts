@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import crypto from 'node:crypto';
-import { readRestaurants, writeRestaurants, publicRestaurant, hashPassword, cleanString, extractDomain, type Restaurant } from '../../../lib/kv';
+import { createRestaurant, getRestaurantByEmail } from '../../../lib/store';
+import { publicRestaurant, hashPassword, cleanString, extractDomain } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -33,8 +33,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   if (password.length < 8) errors.push('Password must be at least 8 characters.');
   if (errors.length) return errorJson(errors, 422);
 
-  const restaurants = await readRestaurants();
-  if (restaurants.some((item) => item.email === email)) {
+  if (await getRestaurantByEmail(email)) {
     return errorJson(['An account already exists for that email.'], 409);
   }
 
@@ -43,26 +42,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const domainMatches = Boolean(emailDomain) && emailDomain === websiteDomain;
 
   const passwordRecord = hashPassword(password);
-  const now = new Date().toISOString();
-  const restaurant: Restaurant = {
-    id: `restaurant_${Date.now().toString(36)}${crypto.randomBytes(4).toString('hex')}`,
-    name,
-    email,
-    passwordSalt: passwordRecord.salt,
-    passwordHash: passwordRecord.hash,
-    website,
-    verified: domainMatches,
-    verificationMethod: domainMatches ? 'domain' : null,
-    verificationStatus: domainMatches ? 'verified' : 'pending',
-    claimNote: '',
-    plan: 'free',
-    smsFundingEnabled: false,
-    venueId: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-  restaurants.push(restaurant);
-  await writeRestaurants(restaurants);
+
+  let restaurant;
+  try {
+    restaurant = await createRestaurant({
+      name,
+      email,
+      passwordSalt: passwordRecord.salt,
+      passwordHash: passwordRecord.hash,
+      website,
+      verified: domainMatches,
+      verificationMethod: domainMatches ? 'domain' : null,
+      verificationStatus: domainMatches ? 'verified' : 'pending',
+    });
+  } catch (err: any) {
+    if (err?.code === '23505') return errorJson(['An account already exists for that email.'], 409);
+    throw err;
+  }
+
   await createSession(cookies, { role: 'restaurant', restaurantId: restaurant.id });
   return json(publicRestaurant(restaurant), 201);
 };

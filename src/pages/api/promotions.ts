@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { readPromotions } from '../../lib/kv';
+import { getPromotions } from '../../lib/store';
 import { getSession } from '../../lib/session';
 import { json } from '../../lib/api';
 
@@ -13,7 +13,7 @@ export const prerender = false;
 // sending the code to every client and hiding it with CSS, which anyone
 // could inspect around.
 export const GET: APIRoute = async ({ cookies }) => {
-  const [promotions, session] = await Promise.all([readPromotions(), getSession(cookies)]);
+  const [promotions, session] = await Promise.all([getPromotions(), getSession(cookies)]);
   const signedIn = session?.role === 'user';
 
   const result: Record<number, { description: string; dealCode?: string }> = {};

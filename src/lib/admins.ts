@@ -1,6 +1,6 @@
 import type { AstroCookies } from 'astro';
 import { getSession } from './session';
-import { readUsers, type User } from './kv';
+import { getUserById, type User } from './store';
 
 // The only site admins — full privileges (review/approve/deny submissions,
 // generate blog posts) come from signing in with one of these emails via
@@ -16,8 +16,7 @@ export async function getAdminUser(cookies: AstroCookies): Promise<User | null> 
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return null;
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user || !ADMIN_EMAILS.includes(user.email)) return null;
   return user;
 }

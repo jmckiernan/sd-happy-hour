@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readUsers, writeUsers, publicUser, cleanString } from '../../../../lib/kv';
+import { getUserById, upsertSavedSpot, deleteSavedSpot, listSavedSpots, listAlerts } from '../../../../lib/store';
+import { publicUser, cleanString } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 import happyHours from '../../../../../public/data/happy-hours.json';
@@ -10,8 +11,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
   const spotId = Number(params.id);
@@ -49,33 +49,23 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     }
   }
 
-  const now = new Date().toISOString();
-  user.savedSpots = user.savedSpots || [];
-  const existing = user.savedSpots.find((item) => item.spotId === spotId);
-  if (existing) {
-    existing.status = status as any;
-    existing.note = note;
-    existing.rating = rating;
-    existing.updatedAt = now;
-  } else {
-    user.savedSpots.unshift({ spotId, status: status as any, note, rating, createdAt: now, updatedAt: now });
-  }
-  user.updatedAt = now;
-  await writeUsers(users);
-  return json(publicUser(user));
+  // One entry per venue per user, upserted atomically (UNIQUE (user_id,
+  // venue_id) — README-NEON-MIGRATION.md §5) instead of the old
+  // find-or-unshift against the whole savedSpots array.
+  await upsertSavedSpot(user.id, { venueId: spotId, status: status as any, note, rating });
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts));
 };
 
 export const DELETE: APIRoute = async ({ params, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
   const spotId = Number(params.id);
-  user.savedSpots = (user.savedSpots || []).filter((item) => item.spotId !== spotId);
-  user.updatedAt = new Date().toISOString();
-  await writeUsers(users);
-  return json(publicUser(user));
+  await deleteSavedSpot(user.id, spotId);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts));
 };

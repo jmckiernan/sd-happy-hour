@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Octokit } from '@octokit/rest';
-import { readSubmissions, writeSubmissions, validateListing, cleanString } from '../../../../lib/kv';
+import { getSubmission, updateSubmission } from '../../../../lib/store';
+import { validateListing, cleanString } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -10,11 +11,11 @@ const DATA_PATH = 'public/data/happy-hours.json';
 
 // Approving a submission needs to turn it into a real, statically-generated
 // venue page (src/pages/venues/[slug].astro builds one page per entry in
-// public/data/happy-hours.json at build time). Since Vercel's serverless
-// functions can't write to that file directly, this commits the update
-// straight to the repo via the GitHub API — the same "git is the database"
-// approach the AI blog draft feature already uses (see api/generate-draft.ts).
-// The new venue goes live on the next deploy (immediate if auto-deploy is on).
+// public/data/happy-hours.json at build time). Since serverless functions
+// can't write to that file directly, this commits the update straight to
+// the repo via the GitHub API — the same "git is the database" approach the
+// AI blog draft feature already uses (see api/generate-draft.ts). The new
+// venue goes live on the next deploy (immediate if auto-deploy is on).
 async function commitApprovedVenue(listing: ReturnType<typeof validateListing>['listing'], now: string) {
   const owner = import.meta.env.GITHUB_OWNER;
   const repo = import.meta.env.GITHUB_REPO;
@@ -65,41 +66,36 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
 
-  const submissions = await readSubmissions();
-  const index = submissions.findIndex((item) => item.id === params.id);
-  if (index === -1) return errorJson(['Submission not found.'], 404);
+  const submission = await getSubmission(params.id!);
+  if (!submission) return errorJson(['Submission not found.'], 404);
 
-  const submission = submissions[index];
   const now = new Date().toISOString();
   const action = cleanString(body.action);
 
   if (action === 'deny') {
-    submission.status = 'denied';
-    submission.denialReason = cleanString(body.denialReason);
-    submission.updatedAt = now;
-    await writeSubmissions(submissions);
-    return json(submission);
+    const updated = await updateSubmission(submission.id, {
+      status: 'denied',
+      denialReason: cleanString(body.denialReason),
+    });
+    return json(updated);
   }
 
   if (action === 'edit' || action === 'approve') {
     const { listing, errors } = validateListing(body.listing || submission.listing, { requireCoordinates: action === 'approve' });
     if (errors.length) return errorJson(errors, 422);
 
-    submission.listing = listing;
-    submission.updatedAt = now;
-
     if (action === 'approve') {
       try {
         const nextId = await commitApprovedVenue(listing, now);
-        submission.status = 'approved';
-        submission.approvedListingId = nextId;
+        const updated = await updateSubmission(submission.id, { listing, status: 'approved', approvedListingId: nextId });
+        return json(updated);
       } catch (err: any) {
         return errorJson([`Could not publish venue: ${err.message}`], 502);
       }
     }
 
-    await writeSubmissions(submissions);
-    return json(submission);
+    const updated = await updateSubmission(submission.id, { listing });
+    return json(updated);
   }
 
   return errorJson(['Action must be edit, approve, or deny.'], 400);

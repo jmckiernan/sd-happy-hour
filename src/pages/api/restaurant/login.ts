@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, publicRestaurant, verifyPassword, cleanString } from '../../../lib/kv';
+import { getRestaurantByEmail } from '../../../lib/store';
+import { publicRestaurant, verifyPassword, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -15,8 +16,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const email = cleanString(body.email).toLowerCase();
   const password = String(body.password || '');
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.email === email);
+  const restaurant = await getRestaurantByEmail(email);
   if (!restaurant || !verifyPassword(password, restaurant)) {
     return errorJson(['Invalid email or password.'], 401);
   }

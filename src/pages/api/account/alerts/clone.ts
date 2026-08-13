@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import crypto from 'node:crypto';
-import { readUsers, writeUsers, publicUser, cleanAlertFilters, MAX_ALERTS_PER_USER, type Alert } from '../../../../lib/kv';
+import { getUserById, getUserByShareId, getAlert, createAlert, hasAlertWithSource, listSavedSpots, listAlerts, MAX_ALERTS_PER_USER } from '../../../../lib/store';
+import { publicUser } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -25,38 +25,28 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const shareId = String(body.shareId || '');
   const alertId = String(body.alertId || '');
 
-  const users = await readUsers();
-  const owner = users.find((item) => item.shareId === shareId);
-  const sourceAlert = owner?.alerts?.find((item) => item.id === alertId);
+  const owner = await getUserByShareId(shareId);
+  const sourceAlert = owner ? await getAlert(owner.id, alertId) : null;
   if (!owner || !sourceAlert) return errorJson(['Shared alert not found.'], 404);
 
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
-  user.alerts = user.alerts || [];
-  if (user.alerts.length >= MAX_ALERTS_PER_USER) {
-    return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
-  }
-  if (user.alerts.some((item) => item.sourceAlertId === sourceAlert.id)) {
+  if (await hasAlertWithSource(user.id, sourceAlert.id)) {
     return errorJson(['You already added this alert.'], 409);
   }
 
-  const now = new Date().toISOString();
-  const alert: Alert = {
-    id: `alert_${Date.now().toString(36)}${crypto.randomBytes(4).toString('hex')}`,
+  const alert = await createAlert(user.id, {
     name: sourceAlert.name,
-    filters: cleanAlertFilters(sourceAlert.filters),
+    filters: sourceAlert.filters,
     // Cloned alerts always start email-only, regardless of the sharer's own
     // channel choices — text is opt-in per person, not something one user
     // can turn on for another.
     channels: { email: true, text: false },
-    active: true,
     sourceAlertId: sourceAlert.id,
-    createdAt: now,
-    updatedAt: now,
-  };
-  user.alerts.unshift(alert);
-  user.updatedAt = now;
-  await writeUsers(users);
-  return json(publicUser(user), 201);
+  });
+  if (!alert) return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
+
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts), 201);
 };

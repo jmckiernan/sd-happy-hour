@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, publicRestaurant } from '../../../lib/kv';
+import { getRestaurantById } from '../../../lib/store';
+import { publicRestaurant } from '../../../lib/validation';
 import { getRestaurantSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
 
@@ -9,7 +10,6 @@ export const GET: APIRoute = async ({ cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return json({ authenticated: false, restaurant: null });
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   return json({ authenticated: Boolean(restaurant), restaurant: restaurant ? publicRestaurant(restaurant) : null });
 };

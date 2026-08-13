@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, writeRestaurants, publicRestaurant, cleanString } from '../../../lib/kv';
+import { getRestaurantById, updateRestaurant } from '../../../lib/store';
+import { publicRestaurant, cleanString } from '../../../lib/validation';
 import { getRestaurantSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -15,8 +16,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const session = await getRestaurantSession(cookies);
   if (!session) return errorJson(['Restaurant login required.'], 401);
 
-  const restaurants = await readRestaurants();
-  const restaurant = restaurants.find((item) => item.id === session.restaurantId);
+  const restaurant = await getRestaurantById(session.restaurantId);
   if (!restaurant) return errorJson(['Restaurant not found.'], 404);
 
   if (restaurant.verified) {
@@ -33,10 +33,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const claimNote = cleanString(body.claimNote).slice(0, 1000);
   if (!claimNote) return errorJson(['Add some supporting info before submitting.'], 422);
 
-  restaurant.claimNote = claimNote;
-  restaurant.verificationStatus = 'pending';
-  restaurant.denialReason = undefined;
-  restaurant.updatedAt = new Date().toISOString();
-  await writeRestaurants(restaurants);
-  return json(publicRestaurant(restaurant));
+  const updated = await updateRestaurant(restaurant.id, {
+    claimNote,
+    verificationStatus: 'pending',
+    denialReason: null,
+  });
+  if (!updated) return errorJson(['Restaurant not found.'], 404);
+  return json(publicRestaurant(updated));
 };

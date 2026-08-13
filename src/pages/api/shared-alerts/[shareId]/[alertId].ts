@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { readUsers } from '../../../../lib/kv';
+import { getUserByShareId, getAlert } from '../../../../lib/store';
 import { json, errorJson } from '../../../../lib/api';
 import { getVenues, alertMatchesVenue } from '../../../../lib/venues';
 
@@ -10,11 +10,10 @@ export const prerender = false;
 // already on the User record for saved-list sharing — no separate alert
 // share token needed since the (shareId, alertId) pair is unique.
 export const GET: APIRoute = async ({ params }) => {
-  const users = await readUsers();
-  const owner = users.find((item) => item.shareId === params.shareId);
+  const owner = await getUserByShareId(params.shareId!);
   if (!owner) return errorJson(['Shared alert not found.'], 404);
 
-  const alert = (owner.alerts || []).find((item) => item.id === params.alertId);
+  const alert = await getAlert(owner.id, params.alertId!);
   if (!alert) return errorJson(['Shared alert not found.'], 404);
 
   const matches = getVenues().filter((venue) => alertMatchesVenue(alert.filters, venue));

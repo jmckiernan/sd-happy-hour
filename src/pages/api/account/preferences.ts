@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readUsers, writeUsers, publicUser, cleanString } from '../../../lib/kv';
+import { getUserById, updateUserPreferences, listSavedSpots, listAlerts } from '../../../lib/store';
+import { publicUser, cleanString } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -7,15 +8,13 @@ export const prerender = false;
 
 // Notification preferences from the "Preferences" section of /account/
 // (the merged My Stuff page) — the weekly marketing digest opt-in, and the
-// phone number + consent needed for the text channel on alerts (see
-// User.phone/smsConsentAt in lib/kv.ts). Distinct from per-alert channel
-// toggles, which stay on each alert itself.
+// phone number + consent needed for the text channel on alerts. Distinct
+// from per-alert channel toggles, which stay on each alert itself.
 export const PUT: APIRoute = async ({ request, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
+  const user = await getUserById(session.userId);
   if (!user) return errorJson(['User not found.'], 404);
 
   let body: Record<string, any>;
@@ -34,10 +33,12 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     return errorJson(['That phone number doesn’t look valid.'], 422);
   }
 
-  user.phone = phone;
-  user.smsConsentAt = smsOptIn ? new Date().toISOString() : null;
-  user.weeklyDigestOptIn = Boolean(body.weeklyDigestOptIn);
-  user.updatedAt = new Date().toISOString();
-  await writeUsers(users);
-  return json(publicUser(user));
+  const updated = await updateUserPreferences(user.id, {
+    phone,
+    smsConsentAt: smsOptIn ? new Date().toISOString() : null,
+    weeklyDigestOptIn: Boolean(body.weeklyDigestOptIn),
+  });
+  if (!updated) return errorJson(['User not found.'], 404);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(updated.id), listAlerts(updated.id)]);
+  return json(publicUser(updated, savedSpots, alerts));
 };

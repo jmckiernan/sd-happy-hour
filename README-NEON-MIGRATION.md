@@ -1,10 +1,46 @@
 # Migrating the data layer from Upstash Redis to Neon Postgres
 
-**Status:** planned, not started. **Drafted:** 2026-08-10.
+**Status:** done. **Drafted:** 2026-08-10. **Implemented:** 2026-08-12.
 
-This is the implementation spec for replacing `src/lib/kv.ts` (Upstash Redis,
-via `@vercel/kv`) with Neon Postgres. Nothing here is built yet — the app
-still runs on the blob store described below. Read this before starting.
+This was the implementation spec for replacing `src/lib/kv.ts` (Upstash
+Redis, via `@vercel/kv`) with Neon Postgres. All four phases below are
+built: `src/lib/db.ts` + `migrations/0001_init.sql` + `scripts/migrate.js`
+(Phase 1), `src/lib/store.ts` + `src/lib/validation.ts` (Phase 2), every
+call site across accounts/restaurants/admin/public/cron migrated (Phase 3),
+and `kv.ts`/`@vercel/kv`/the `.data/` fallback removed with
+`src/middleware.ts` updated (Phase 4). Schema verified against a local
+PGlite-backed Postgres 17 (constraints, triggers, uniqueness, jsonb
+queries, upserts — see §10). Kept for reference and for §7's future work
+(moving venues into Postgres) — read this before touching the data layer.
+
+**What's still open:** no real Neon project exists yet — `DATABASE_URL`/
+`DATABASE_URL_UNPOOLED` need to be set (§6 step 2) before this runs against
+anything but the local dev database. §9's decision 4 (SMS daily-cap
+timezone) also remains unresolved, carried forward unchanged from the
+pre-migration code rather than silently changed as part of this migration.
+
+**PGlite doesn't survive real concurrent load — this was tested, and it's
+the local emulator, not the schema.** Every `store.ts` accessor was
+exercised individually against a local PGlite-backed Postgres and behaves
+correctly (correct rows, correct constraint rejections, correct partial
+updates). Run sequentially, 20/20 concurrent-style registrations succeed.
+But firing them genuinely concurrently (`Promise.all`) against the same
+local PGlite instance fails most of them with "Connection terminated
+unexpectedly" — even 3 at once drops to roughly a 1-in-3 success rate. This
+reproduces §10's own caveat ("whether PGlite's behavior is faithful enough
+... is worth confirming early — if it diverges, fall back to a Neon dev
+branch"): PGlite is a single-process embedded WASM Postgres, and the
+third-party `pglite-socket` wrapper that exposes it over the wire protocol
+locally doesn't reliably hold up several simultaneous physical connections,
+regardless of `db.ts`'s connection pool. This is not evidence of a race in
+the schema or in `store.ts` — the concurrency guarantees (unique indexes,
+`ON CONFLICT` upserts, the alert-cap `WHERE count(*) < 25` insert) are
+enforced by Postgres itself and work identically on real Postgres/Neon,
+which handles concurrent connections natively. §8's concurrency checklist
+items (20 simultaneous registrations, simultaneous saves across venues)
+need to be re-run against a real Neon project or a real local `postgres`
+(e.g. via Docker) before trusting them — not against the local PGlite dev
+database.
 
 ---
 

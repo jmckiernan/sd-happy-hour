@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readRestaurants, publicRestaurant } from '../../../../lib/kv';
+import { listRestaurants } from '../../../../lib/store';
+import { publicRestaurant } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson } from '../../../../lib/api';
 
@@ -12,6 +13,6 @@ export const GET: APIRoute = async ({ cookies }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email.'], 401);
 
-  const restaurants = await readRestaurants();
+  const restaurants = await listRestaurants();
   return json(restaurants.map(publicRestaurant));
 };

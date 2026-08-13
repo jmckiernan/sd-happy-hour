@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { readUsers, publicUser } from '../../../lib/kv';
+import { getUserById, listSavedSpots, listAlerts } from '../../../lib/store';
+import { publicUser } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
 
@@ -11,7 +12,9 @@ export const GET: APIRoute = async ({ cookies }) => {
     return json({ authenticated: false, user: null });
   }
 
-  const users = await readUsers();
-  const user = users.find((item) => item.id === session.userId);
-  return json({ authenticated: Boolean(user), user: user ? publicUser(user) : null });
+  const user = await getUserById(session.userId);
+  if (!user) return json({ authenticated: false, user: null });
+
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json({ authenticated: true, user: publicUser(user, savedSpots, alerts) });
 };

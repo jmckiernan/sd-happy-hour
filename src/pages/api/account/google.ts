@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { OAuth2Client } from 'google-auth-library';
 import crypto from 'node:crypto';
-import { readUsers, writeUsers, publicUser, cleanString, type User } from '../../../lib/kv';
+import { upsertUserByGoogle, listSavedSpots, listAlerts } from '../../../lib/store';
+import { publicUser, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
@@ -37,34 +38,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return errorJson(['Google account email must be verified.'], 401);
   }
 
-  const users = await readUsers();
   const email = payload.email.toLowerCase();
-  const now = new Date().toISOString();
-  let user = users.find((item) => item.googleId === payload!.sub || item.email === email);
 
-  if (user) {
-    user.googleId = payload.sub;
-    user.name = cleanString(payload.name) || user.name;
-    user.picture = cleanString(payload.picture);
-    user.updatedAt = now;
-  } else {
-    user = {
-      id: `user_${Date.now()}`,
-      name: cleanString(payload.name) || email.split('@')[0],
-      email,
-      googleId: payload.sub,
-      picture: cleanString(payload.picture),
-      passwordSalt: null,
-      passwordHash: null,
-      shareId: crypto.randomBytes(8).toString('hex'),
-      savedSpots: [],
-      createdAt: now,
-      updatedAt: now,
-    } satisfies User;
-    users.push(user);
-  }
+  // One atomic upsert (README-NEON-MIGRATION.md §5) replacing the old
+  // find-by-googleId-or-email → mutate-or-push → writeUsers. Links google_id
+  // onto an existing password account instead of creating a duplicate, same
+  // as before, but now enforced by the database's ON CONFLICT rather than an
+  // in-memory find.
+  const user = await upsertUserByGoogle({
+    email,
+    googleId: payload.sub,
+    name: cleanString(payload.name) || email.split('@')[0],
+    picture: cleanString(payload.picture),
+    shareId: crypto.randomBytes(8).toString('hex'),
+  });
 
-  await writeUsers(users);
   await createSession(cookies, { role: 'user', userId: user.id });
-  return json(publicUser(user), 200);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, savedSpots, alerts), 200);
 };

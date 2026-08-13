@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "validate:data": "node scripts/validate-data.js",
+    "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
     "test": "npm run validate:data"
   },
   "keywords": [],
@@ -22,11 +23,12 @@
     "@netlify/blobs": "^10.7.11",
     "@netlify/functions": "^5.3.0",
     "@octokit/rest": "^21.0.2",
-    "@vercel/kv": "^3.0.0",
     "astro": "^7.1.3",
-    "google-auth-library": "^10.9.0"
+    "google-auth-library": "^10.9.0",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.21.0",
     "netlify-cli": "^27.0.1",
     "nodemon": "^3.1.14"
   }
