@@ -45,6 +45,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     throw err;
   }
 
-  await createSession(cookies, { role: 'user', userId: user.id });
+  await createSession(cookies, user.id);
   return json(publicUser(user, [], []), 201);
 };

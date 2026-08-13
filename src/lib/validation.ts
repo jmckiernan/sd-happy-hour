@@ -1,15 +1,20 @@
 import crypto from 'node:crypto';
-import type { User, Restaurant, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
+import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
 
 // ---------------------------------------------------------------------------
 // Pure helpers with nothing to do with storage (README-NEON-MIGRATION.md §6
-// step 7) — moved verbatim out of kv.ts. publicUser()/publicRestaurant() are
-// the one meaningful signature change: since saved spots and alerts are now
-// separate tables instead of nested on the User object, callers fetch them
-// via store.ts (listSavedSpots/listAlerts) and pass them in explicitly. The
-// JSON shape returned to the client is unchanged — every existing frontend
-// call site (account.astro, index.astro) still reads
-// `currentUser.savedSpots` / `currentUser.alerts` off the response.
+// step 7) — moved verbatim out of kv.ts. publicUser() has one meaningful
+// signature change: since saved spots and alerts are now separate tables
+// instead of nested on the User object, callers fetch them via store.ts
+// (listSavedSpots/listAlerts) and pass them in explicitly. The JSON shape
+// returned to the client is unchanged — every existing frontend call site
+// (account.astro, index.astro) still reads `currentUser.savedSpots` /
+// `currentUser.alerts` off the response.
+//
+// publicRestaurant() is gone — restaurants no longer have a separate
+// account to redact a password from (2026-08-12 redesign). VenueClaim
+// records from store.ts have nothing sensitive on them and are returned
+// to clients as-is.
 // ---------------------------------------------------------------------------
 
 export function publicUser(user: User, savedSpots: SavedSpot[], alerts: Alert[]) {
@@ -27,30 +32,15 @@ export function publicUser(user: User, savedSpots: SavedSpot[], alerts: Alert[])
   };
 }
 
-export function publicRestaurant(restaurant: Restaurant) {
-  return {
-    id: restaurant.id,
-    name: restaurant.name,
-    email: restaurant.email,
-    website: restaurant.website,
-    verified: restaurant.verified,
-    verificationMethod: restaurant.verificationMethod,
-    verificationStatus: restaurant.verificationStatus,
-    claimNote: restaurant.claimNote,
-    denialReason: restaurant.denialReason,
-    plan: restaurant.plan,
-    smsFundingEnabled: restaurant.smsFundingEnabled,
-    venueId: restaurant.venueId,
-  };
-}
-
 export function hashPassword(password: string, salt = crypto.randomBytes(16).toString('hex')) {
   const hash = crypto.pbkdf2Sync(String(password), salt, 120000, 32, 'sha256').toString('hex');
   return { salt, hash };
 }
 
-// Structural rather than `User`-typed so Restaurant (same passwordSalt/
-// passwordHash shape, different record type) can reuse this too.
+// Structural rather than `User`-typed — only User has a password today
+// (restaurants sign in as regular users, see the 2026-08-12 redesign), but
+// keeping this loosely typed costs nothing and avoids coupling it to one
+// specific record shape.
 export function verifyPassword(password: string, user: { passwordSalt: string | null; passwordHash: string | null }): boolean {
   if (!user.passwordSalt || !user.passwordHash) return false;
   const { hash } = hashPassword(password, user.passwordSalt);
@@ -133,6 +123,11 @@ export function validateListing(
     sourceUrl: cleanString(input.sourceUrl || input.website),
     dealTypes: cleanList(input.dealTypes),
     features: cleanList(input.features),
+    // Optional — no format requirement beyond a light sanity check below,
+    // since submitters worldwide use different phone formats and this isn't
+    // security-critical at submission time (it only matters later, when a
+    // claim actually gets verified against it).
+    phone: cleanString(input.phone).slice(0, 20),
   };
 
   const errors: string[] = [];
@@ -140,6 +135,7 @@ export function validateListing(
   if (!listing.name) errors.push('Restaurant name is required.');
   if (!listing.neighborhood) errors.push('Neighborhood is required.');
   if (!listing.address) errors.push('Address is required.');
+  if (listing.phone && !/^\+?[0-9()\-.\s]{7,20}$/.test(listing.phone)) errors.push('That phone number doesn’t look valid.');
   if (!listing.website || !/^https?:\/\//i.test(listing.website)) errors.push('Website must start with http:// or https://.');
   if (!listing.sourceUrl || !/^https?:\/\//i.test(listing.sourceUrl)) errors.push('Source URL must start with http:// or https://.');
   if (!listing.days.length || listing.days.some((day) => !validDays.has(day))) errors.push('Choose at least one valid day.');

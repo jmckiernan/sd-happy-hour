@@ -1,26 +1,20 @@
 import type { APIRoute } from 'astro';
-import { getRestaurantById, setLiveOverride } from '../../../lib/store';
-import { getRestaurantSession } from '../../../lib/session';
+import { getVenueClaimByUserAndVenue, setLiveOverride } from '../../../lib/store';
+import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 
 export const prerender = false;
 
-// The "We're live now" toggle on the restaurant dashboard — this is the
-// manual trigger from the alerts spec's notification section, alongside
-// the schedule-based auto-live check. Writes to the small live_overrides
-// table (not the static happy-hours.json) so it's cheap and instant.
-// Overrides auto-expire after a few hours so a forgotten toggle doesn't
-// stay "live" indefinitely.
+// The "We're live now" toggle on the restaurant dashboard. Since a user can
+// now hold claims on more than one venue (see the 2026-08-12 redesign),
+// venueId comes from the request body instead of being implied by a
+// single-restaurant session — every request re-checks that the signed-in
+// user actually holds a *verified* claim on that specific venue.
 const OVERRIDE_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours — typical happy hour window
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const session = await getRestaurantSession(cookies);
-  if (!session) return errorJson(['Restaurant login required.'], 401);
-
-  const restaurant = await getRestaurantById(session.restaurantId);
-  if (!restaurant) return errorJson(['Restaurant not found.'], 404);
-  if (!restaurant.verified) return errorJson(['Verify your account before going live.'], 403);
-  if (restaurant.venueId == null) return errorJson(['Claim your listing before going live.'], 422);
+  const session = await getSession(cookies);
+  if (!session) return errorJson(['Sign in required.'], 401);
 
   let body: Record<string, any>;
   try {
@@ -29,16 +23,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
 
+  const venueId = Number(body.venueId);
+  const claim = await getVenueClaimByUserAndVenue(session.userId, venueId);
+  if (!claim || claim.status !== 'verified') {
+    return errorJson(['You need a verified claim on this listing before going live.'], 403);
+  }
+
   const active = Boolean(body.active);
   const now = new Date();
 
   if (active) {
     const since = now.toISOString();
     const expiresAt = new Date(now.getTime() + OVERRIDE_DURATION_MS).toISOString();
-    await setLiveOverride(restaurant.venueId, { since, expiresAt });
-    return json({ venueId: restaurant.venueId, override: { active: true, since, expiresAt } });
+    await setLiveOverride(venueId, { since, expiresAt });
+    return json({ venueId, override: { active: true, since, expiresAt } });
   }
 
-  await setLiveOverride(restaurant.venueId, null);
-  return json({ venueId: restaurant.venueId, override: null });
+  await setLiveOverride(venueId, null);
+  return json({ venueId, override: null });
 };

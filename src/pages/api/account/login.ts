@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return errorJson(['Invalid email or password.'], 401);
   }
 
-  await createSession(cookies, { role: 'user', userId: user.id });
+  await createSession(cookies, user.id);
   const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
   return json(publicUser(user, savedSpots, alerts), 200);
 };

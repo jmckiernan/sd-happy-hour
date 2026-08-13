@@ -53,7 +53,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     shareId: crypto.randomBytes(8).toString('hex'),
   });
 
-  await createSession(cookies, { role: 'user', userId: user.id });
+  await createSession(cookies, user.id);
   const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
   return json(publicUser(user, savedSpots, alerts), 200);
 };

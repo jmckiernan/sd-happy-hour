@@ -69,7 +69,7 @@ import Layout from '../../layouts/Layout.astro';
     <div class="admin-bar-inner">
       <div>
         <h1>Restaurant Verifications</h1>
-        <p>Approve or deny restaurant accounts that didn't auto-verify by domain match.</p>
+        <p>Approve or deny venue claims that didn't auto-verify by domain match.</p>
       </div>
       <div class="admin-actions">
         <span class="admin-user" id="admin-user"></span>
@@ -115,35 +115,35 @@ import Layout from '../../layouts/Layout.astro';
       return data;
     }
 
-    function renderRestaurants(restaurants: any[]) {
+    function renderRestaurants(claims: any[]) {
       // Pending first (the actionable queue), then verified, then denied.
       const order: Record<string, number> = { pending: 0, verified: 1, denied: 2 };
-      const sorted = [...restaurants].sort((a, b) => (order[a.verificationStatus] ?? 3) - (order[b.verificationStatus] ?? 3));
+      const sorted = [...claims].sort((a, b) => (order[a.status] ?? 3) - (order[b.status] ?? 3));
 
       if (!sorted.length) {
         restaurantsEl.innerHTML = '';
-        setStatus('No restaurant accounts yet.');
+        setStatus('No venue claims yet.');
         return;
       }
 
-      const pendingCount = restaurants.filter((r) => r.verificationStatus === 'pending').length;
-      setStatus(`${pendingCount} pending · ${restaurants.length} total`);
+      const pendingCount = claims.filter((c) => c.status === 'pending').length;
+      setStatus(`${pendingCount} pending · ${claims.length} total`);
 
       restaurantsEl.innerHTML = sorted.map((item) => `
         <article class="restaurant-card" data-id="${escapeHTML(item.id)}">
           <div class="restaurant-head">
             <div>
-              <h2>${escapeHTML(item.name)}</h2>
-              <p>${escapeHTML(item.email)} · ${escapeHTML(item.website)}</p>
+              <h2>${escapeHTML(item.venueName)}</h2>
+              <p>Claimed by ${escapeHTML(item.userName)} · ${escapeHTML(item.userEmail)}</p>
             </div>
-            <span class="pill ${escapeHTML(item.verificationStatus)}">${escapeHTML(item.verificationStatus)}</span>
+            <span class="pill ${escapeHTML(item.status)}">${escapeHTML(item.status)}</span>
           </div>
           <div class="meta">
             <div><strong>Verification method:</strong> ${escapeHTML(item.verificationMethod || 'none yet')}</div>
-            <div><strong>Linked venue ID:</strong> ${item.venueId ?? 'not claimed'}</div>
+            <div><strong>Venue website:</strong> ${item.venueWebsite ? escapeHTML(item.venueWebsite) : 'unknown'}</div>
           </div>
           ${item.claimNote ? `<div class="claim-note">${escapeHTML(item.claimNote)}</div>` : ''}
-          ${item.verificationStatus === 'pending' ? `
+          ${item.status === 'pending' ? `
             <div class="actions">
               <button class="good" data-action="approve">Approve</button>
               <button class="bad" data-action="deny">Deny</button>
@@ -155,7 +155,7 @@ import Layout from '../../layouts/Layout.astro';
     }
 
     async function loadRestaurants() {
-      setStatus('Loading restaurant accounts...');
+      setStatus('Loading venue claims...');
       try {
         renderRestaurants(await api('/api/admin/restaurants'));
       } catch {

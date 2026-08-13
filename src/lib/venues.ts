@@ -21,6 +21,12 @@ export interface Venue {
   lastVerifiedAt?: string | null;
   dealTypes?: string[];
   features?: string[];
+  // The venue's own listed phone number, independently sourced (not
+  // self-reported by a claimant) — backs phone-based claim verification
+  // (see api/restaurant/claim/send-code.ts). Absent on venues nobody has
+  // looked up a number for yet; phone verification just isn't offered for
+  // those, falling back to domain-match/manual review.
+  phone?: string;
 }
 
 export function slugify(name: string): string {

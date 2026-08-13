@@ -1,27 +1,35 @@
 import type { APIRoute } from 'astro';
-import { getRestaurantById, updateRestaurant } from '../../../lib/store';
-import { publicRestaurant, cleanString } from '../../../lib/validation';
-import { getRestaurantSession } from '../../../lib/session';
+import { getUserById, getVenueClaimByUserAndVenue, createVenueClaim, updateVenueClaim } from '../../../lib/store';
+import { cleanString, extractDomain } from '../../../lib/validation';
+import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
+import { getVenues } from '../../../lib/venues';
 
 export const prerender = false;
 
-// Submits (or updates) the supporting info an admin reviews at
-// /admin/restaurants/ for accounts that didn't auto-verify by domain match
-// — e.g. "we run a Toast/Square page at joesbar.example, here's a link to
-// our liquor license" (see the alerts spec, "Restaurant Verification").
-// Submitting doesn't change status by itself; an admin still has to
-// approve or deny it.
+// Claim a specific venue listing. Restaurants no longer have a separate
+// account (see the 2026-08-12 redesign) — any signed-in user can claim a
+// venue, but verification is now scoped to *this* venue rather than
+// self-reported at signup:
+//
+//   - If the signed-in Google account's email domain matches *this venue's
+//     own* website domain (from happy-hours.json), the claim auto-verifies
+//     instantly.
+//   - Otherwise the claim lands in `pending` with no verification method
+//     chosen yet. The response tells the client whether phone verification
+//     is available (venue.phone set) so the dashboard can offer "text me a
+//     code" (see claim/send-code.ts) ahead of manual review — resubmit this
+//     same endpoint with a claimNote for the manual-review path.
+//
+// venue_claims_verified_venue_unique (the DB) enforces that at most one
+// account can hold a verified claim on a given venue at a time — the actual
+// fix for "claim any restaurant you want."
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const session = await getRestaurantSession(cookies);
-  if (!session) return errorJson(['Restaurant login required.'], 401);
+  const session = await getSession(cookies);
+  if (!session) return errorJson(['Sign in to claim a listing.'], 401);
 
-  const restaurant = await getRestaurantById(session.restaurantId);
-  if (!restaurant) return errorJson(['Restaurant not found.'], 404);
-
-  if (restaurant.verified) {
-    return errorJson(['This account is already verified.'], 422);
-  }
+  const user = await getUserById(session.userId);
+  if (!user) return errorJson(['User not found.'], 404);
 
   let body: Record<string, any>;
   try {
@@ -30,14 +38,45 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
 
-  const claimNote = cleanString(body.claimNote).slice(0, 1000);
-  if (!claimNote) return errorJson(['Add some supporting info before submitting.'], 422);
+  const venueId = Number(body.venueId);
+  const venue = getVenues().find((v) => v.id === venueId);
+  if (!venue) return errorJson(['Venue not found.'], 404);
 
-  const updated = await updateRestaurant(restaurant.id, {
-    claimNote,
-    verificationStatus: 'pending',
-    denialReason: null,
-  });
-  if (!updated) return errorJson(['Restaurant not found.'], 404);
-  return json(publicRestaurant(updated));
+  const existing = await getVenueClaimByUserAndVenue(user.id, venueId);
+  if (existing?.status === 'verified') {
+    // Already verified — nothing to do, just hand back the current record.
+    return json({ claim: existing, venuePhoneAvailable: Boolean(venue.phone) });
+  }
+
+  const emailDomain = extractDomain(user.email);
+  const venueDomain = extractDomain(venue.website);
+  const domainMatches = Boolean(emailDomain) && emailDomain === venueDomain;
+
+  try {
+    if (domainMatches) {
+      const claim = existing
+        ? await updateVenueClaim(existing.id, { status: 'verified', verificationMethod: 'domain', denialReason: null })
+        : await createVenueClaim({ userId: user.id, venueId, status: 'verified', verificationMethod: 'domain' });
+      return json({ claim, venuePhoneAvailable: Boolean(venue.phone) }, existing ? 200 : 201);
+    }
+
+    const claimNote = cleanString(body.claimNote);
+    if (claimNote) {
+      // Explicit manual-review submission.
+      const claim = existing
+        ? await updateVenueClaim(existing.id, { status: 'pending', verificationMethod: 'manual', claimNote: claimNote.slice(0, 1000), denialReason: null })
+        : await createVenueClaim({ userId: user.id, venueId, status: 'pending', verificationMethod: 'manual', claimNote: claimNote.slice(0, 1000) });
+      return json({ claim, venuePhoneAvailable: Boolean(venue.phone) }, existing ? 200 : 201);
+    }
+
+    // No domain match, no note yet — create/return a bare pending claim so
+    // the dashboard can offer phone verification (or the note form) next.
+    const claim = existing ?? (await createVenueClaim({ userId: user.id, venueId, status: 'pending', verificationMethod: null }));
+    return json({ claim, venuePhoneAvailable: Boolean(venue.phone) }, existing ? 200 : 201);
+  } catch (err: any) {
+    if (err?.code === '23505') {
+      return errorJson(['This listing has already been claimed and verified by another account.'], 409);
+    }
+    throw err;
+  }
 };

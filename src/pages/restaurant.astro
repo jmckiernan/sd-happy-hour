@@ -13,7 +13,7 @@ import Layout from '../layouts/Layout.astro';
     .restaurant-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5.5vw, 3.25rem); margin-bottom: 10px; }
     .restaurant-header p { color: rgba(255,255,255,0.88); max-width: 640px; line-height: 1.6; }
 
-    .restaurant-main { max-width: 700px; margin: 0 auto; padding: 28px 24px 80px; }
+    .restaurant-main { max-width: 760px; margin: 0 auto; padding: 28px 24px 80px; }
 
     .panel {
       background: white;
@@ -23,10 +23,6 @@ import Layout from '../layouts/Layout.astro';
       margin-bottom: 18px;
     }
     .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
-
-    .auth-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .auth-tabs button { background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px; }
-    .auth-tabs button.active { background: var(--night); color: white; }
 
     form { display: grid; gap: 12px; }
     label { color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700; gap: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -48,17 +44,31 @@ import Layout from '../layouts/Layout.astro';
     .pill.verified { background: #DCFCE7; color: #166534; }
     .pill.denied { background: #FEE2E2; color: #991B1B; }
 
-    .dash-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; }
+    .dash-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; }
+    .dash-head .who { color: var(--night-soft); font-size: 0.85rem; }
 
-    .venue-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; }
-    .venue-result { background: var(--sand); border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); cursor: pointer; padding: 10px 12px; font-size: 0.9rem; }
+    .venue-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-top: 10px; }
+    .venue-result { align-items: center; background: var(--sand); border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; font-size: 0.9rem; }
     .venue-result:hover { background: var(--sand-warm); }
+    .venue-result.claimed { cursor: default; opacity: 0.6; }
     .venue-result strong { display: block; }
     .venue-result span { color: var(--night-soft); font-size: 0.8rem; }
+    .venue-result .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--night-soft); }
 
-    .live-toggle { align-items: center; display: flex; gap: 14px; }
+    .claim-card { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
+    .claim-card-head { align-items: center; display: flex; gap: 10px; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
+    .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; }
+    .claim-card > .status { margin-bottom: 8px; }
+
+    .live-toggle { align-items: center; display: flex; gap: 14px; margin-top: 10px; }
     .live-toggle .live-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--sand-warm); }
     .live-toggle.is-live .live-dot { background: var(--palm); box-shadow: 0 0 0 4px rgba(34,197,94,0.18); }
+
+    .verify-block { margin-top: 8px; }
+    .code-entry { display: flex; gap: 8px; margin-top: 8px; }
+    .code-entry input { max-width: 140px; }
+    details > summary { cursor: pointer; }
+    details form { margin-top: 10px; }
     .hidden { display: none; }
 
     @media (max-width: 600px) { .dash-head { align-items: stretch; flex-direction: column; } }
@@ -72,86 +82,34 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <main class="restaurant-main">
-    <section class="panel" id="auth-section">
-      <div class="auth-tabs">
-        <button type="button" id="tab-login" class="active">Log in</button>
-        <button type="button" id="tab-register">Create account</button>
-      </div>
-
-      <form id="login-form">
-        <label>Email <input name="email" type="email" autocomplete="email" required></label>
-        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-        <button type="submit">Log in</button>
-        <div class="status" id="login-status" aria-live="polite"></div>
-      </form>
-
-      <form id="register-form" class="hidden">
-        <label>Restaurant name <input name="name" required></label>
-        <label>Business email <input name="email" type="email" autocomplete="email" required></label>
-        <label>Website <input name="website" type="url" placeholder="https://yourrestaurant.com" required></label>
-        <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-        <button type="submit">Create account</button>
-        <div class="status" id="register-status" aria-live="polite"></div>
-      </form>
-      <p class="status" style="margin-top:8px;">Signing up with an email at your website's own domain verifies you instantly. Otherwise we'll ask for a bit of proof and review it by hand.</p>
+    <section class="panel" id="signin-panel">
+      <h2>Sign in to get started</h2>
+      <p class="status">Restaurants sign in the same way visitors do — no separate account. Sign in, then come back here to claim your listing.</p>
+      <a href="/account/"><button type="button">Sign in at /account/</button></a>
     </section>
 
-    <section class="panel hidden" id="dash-section">
-      <div class="dash-head">
-        <div>
-          <h2 id="dash-name"></h2>
-          <span class="pill" id="dash-pill"></span>
+    <div id="dashboard" class="hidden">
+      <section class="panel">
+        <div class="dash-head">
+          <h2>Your listings</h2>
+          <span class="who" id="who"></span>
         </div>
-        <button class="secondary" id="logout">Log out</button>
-      </div>
+        <div id="claims-list"></div>
+        <p class="status" id="no-claims" style="margin-top:8px;">You haven't claimed a listing yet — search for it below.</p>
+      </section>
 
-      <div id="claim-panel" class="hidden">
-        <p class="status">This account hasn't been verified yet. Add some proof (a link to your Google Business/Yelp listing, a liquor license, etc.) and we'll review it by hand.</p>
-        <form id="claim-form">
-          <label>Supporting info <textarea name="claimNote" placeholder="e.g. link to our Google Business listing"></textarea></label>
-          <button type="submit">Submit for review</button>
-          <div class="status" id="claim-status" aria-live="polite"></div>
-        </form>
-      </div>
-
-      <div id="denied-panel" class="hidden">
-        <p class="status error" id="denial-reason"></p>
-      </div>
-
-      <div id="venue-panel" class="hidden">
-        <h2>Claim your listing</h2>
+      <section class="panel">
+        <h2>Claim a listing</h2>
+        <p class="status">Signing in with an email at your restaurant's own website domain verifies you instantly. Otherwise verify by phone (if we have a number on file) or submit for manual review.</p>
         <input type="text" id="venue-search" placeholder="Search by restaurant name...">
         <div class="venue-results" id="venue-results"></div>
-      </div>
-
-      <div id="live-panel" class="hidden">
-        <h2>Go live</h2>
-        <p class="status" id="linked-venue-name"></p>
-        <div class="live-toggle" id="live-toggle">
-          <span class="live-dot"></span>
-          <button type="button" id="live-btn">We're live now</button>
-        </div>
-        <div class="status" id="live-status" aria-live="polite"></div>
-      </div>
-
-      <div id="promo-panel" class="hidden">
-        <h2>Promote a deal</h2>
-        <p class="status">Every happy hour stays visible to everyone — this code specifically is only shown to visitors who are signed in.</p>
-        <form id="promo-form">
-          <label>Public description <input name="description" placeholder='e.g. "10% off your bill"' maxlength="200" required></label>
-          <label>Deal code <input name="dealCode" placeholder="e.g. HHSD10" maxlength="30" required></label>
-          <div class="alert-actions" style="display:flex; gap:8px; align-items:center;">
-            <button type="submit">Save promo</button>
-            <button type="button" class="secondary" id="promo-remove">Remove promo</button>
-          </div>
-          <div class="status" id="promo-status" aria-live="polite"></div>
-        </form>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <script>
-    let currentRestaurant: any = null;
+    let currentUser: any = null;
+    let claims: any[] = [];
     let happyHours: any[] = [];
 
     function escapeHTML(value: unknown) {
@@ -176,54 +134,122 @@ import Layout from '../layouts/Layout.astro';
       happyHours = await res.json();
     }
 
-    async function loadRestaurant() {
-      const res = await fetch('/api/restaurant/me');
-      const session = await res.json();
-      currentRestaurant = session.authenticated ? session.restaurant : null;
+    async function loadEverything() {
+      const meRes = await fetch('/api/account/me');
+      const me = await meRes.json();
+      currentUser = me.authenticated ? me.user : null;
+
+      if (!currentUser) {
+        claims = [];
+        render();
+        return;
+      }
+
+      const claimsRes = await fetch('/api/restaurant/claims');
+      const claimsData = await claimsRes.json();
+      claims = claimsData.claims || [];
       render();
     }
 
+    // Phone verification + manual review, shared by both a fresh pending
+    // claim and a denied one that's trying again. Verifying by phone always
+    // supersedes an in-progress manual review — verifyVenueClaimPhoneCode
+    // flips status straight to 'verified' regardless of what else is
+    // pending, so there's no harm offering both at once.
+    function verificationOptionsHTML(claim: any) {
+      const phoneSection = claim.venuePhoneAvailable ? `
+        <div class="verify-block" data-phone-section>
+          <button type="button" class="secondary" data-action="send-code">Text me a code to verify</button>
+          <div class="code-entry hidden" data-code-entry>
+            <input type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" data-code-input>
+            <button type="button" data-action="verify-code">Verify</button>
+          </div>
+          <div class="status" data-phone-status aria-live="polite"></div>
+        </div>
+      ` : '';
+
+      return `
+        ${phoneSection}
+        <details class="verify-block">
+          <summary class="status">Or submit for manual review</summary>
+          <form data-resubmit-form>
+            <textarea name="claimNote" placeholder="e.g. link to our Google Business listing">${escapeHTML(claim.claimNote || '')}</textarea>
+            <button type="submit">Submit for review</button>
+            <div class="status" data-resubmit-status aria-live="polite"></div>
+          </form>
+        </details>
+      `;
+    }
+
+    function claimCardHTML(claim: any) {
+      const underManualReview = claim.status === 'pending' && claim.verificationMethod === 'manual' && claim.claimNote;
+      const statusNote =
+        claim.status === 'verified' ? 'Verified.'
+        : claim.status === 'denied' ? `Not verified: ${escapeHTML(claim.denialReason || 'no reason given.')} Try again below.`
+        : underManualReview ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
+        : 'Verify this listing to finish claiming it.';
+
+      const liveAndPromo = claim.status === 'verified' ? `
+        <div class="live-toggle" data-live-toggle>
+          <span class="live-dot"></span>
+          <button type="button" class="secondary" data-action="toggle-live">We're live now</button>
+        </div>
+        <div class="status" data-live-status aria-live="polite"></div>
+
+        <form data-promo-form style="margin-top:14px;">
+          <label>Public description <input name="description" placeholder='e.g. "10% off your bill"' maxlength="200" required></label>
+          <label>Deal code <input name="dealCode" placeholder="e.g. HHSD10" maxlength="30" required></label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="submit">Save promo</button>
+            <button type="button" class="secondary" data-action="remove-promo">Remove promo</button>
+          </div>
+          <div class="status" data-promo-status aria-live="polite"></div>
+        </form>
+      ` : '';
+
+      const verifyOptions = claim.status !== 'verified' ? verificationOptionsHTML(claim) : '';
+
+      return `
+        <article class="claim-card" data-claim-id="${escapeHTML(claim.id)}" data-venue-id="${claim.venueId}">
+          <div class="claim-card-head">
+            <h3>${escapeHTML(claim.venueName || `Venue #${claim.venueId}`)}</h3>
+            <span class="pill ${escapeHTML(claim.status)}">${escapeHTML(claim.status)}</span>
+          </div>
+          <p class="status">${statusNote}</p>
+          ${liveAndPromo}
+          ${verifyOptions}
+        </article>
+      `;
+    }
+
     function render() {
-      document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentRestaurant));
-      document.getElementById('dash-section')!.classList.toggle('hidden', !currentRestaurant);
-      if (!currentRestaurant) return;
+      document.getElementById('signin-panel')!.classList.toggle('hidden', Boolean(currentUser));
+      document.getElementById('dashboard')!.classList.toggle('hidden', !currentUser);
+      if (!currentUser) return;
 
-      document.getElementById('dash-name')!.textContent = currentRestaurant.name;
-      const pill = document.getElementById('dash-pill')!;
-      pill.textContent = currentRestaurant.verificationStatus;
-      pill.className = `pill ${currentRestaurant.verificationStatus}`;
+      document.getElementById('who')!.textContent = `Signed in as ${currentUser.email}`;
 
-      const claimPanel = document.getElementById('claim-panel')!;
-      const deniedPanel = document.getElementById('denied-panel')!;
-      const venuePanel = document.getElementById('venue-panel')!;
-      const livePanel = document.getElementById('live-panel')!;
-      const promoPanel = document.getElementById('promo-panel')!;
-
-      claimPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'pending');
-      deniedPanel.classList.toggle('hidden', currentRestaurant.verificationStatus !== 'denied');
-      if (currentRestaurant.verificationStatus === 'denied') {
-        document.getElementById('denial-reason')!.textContent = `Not verified: ${currentRestaurant.denialReason || 'no reason given.'} You can submit new info below.`;
-        claimPanel.classList.remove('hidden');
-      }
-
-      const verified = currentRestaurant.verified;
-      const hasVenue = currentRestaurant.venueId != null;
-      venuePanel.classList.toggle('hidden', !verified || hasVenue);
-      livePanel.classList.toggle('hidden', !verified || !hasVenue);
-      promoPanel.classList.toggle('hidden', !verified || !hasVenue);
-
-      if (verified && hasVenue) {
-        const venue = happyHours.find((h) => h.id === currentRestaurant.venueId);
-        document.getElementById('linked-venue-name')!.textContent = venue ? `Managing: ${venue.name}` : 'Managing a linked listing.';
-        loadPromotion();
+      const listEl = document.getElementById('claims-list')!;
+      const noClaimsEl = document.getElementById('no-claims')!;
+      if (!claims.length) {
+        listEl.innerHTML = '';
+        noClaimsEl.classList.remove('hidden');
+      } else {
+        noClaimsEl.classList.add('hidden');
+        listEl.innerHTML = claims.map(claimCardHTML).join('');
+        for (const claim of claims) {
+          if (claim.status === 'verified') loadPromotion(claim.venueId);
+        }
       }
     }
 
-    async function loadPromotion() {
+    async function loadPromotion(venueId: number) {
       try {
-        const res = await fetch('/api/restaurant/promotion');
+        const res = await fetch(`/api/restaurant/promotion?venueId=${venueId}`);
         const data = await res.json();
-        const form = document.getElementById('promo-form') as HTMLFormElement;
+        const card = document.querySelector(`.claim-card[data-venue-id="${venueId}"]`);
+        const form = card?.querySelector('[data-promo-form]') as HTMLFormElement | null;
+        if (!form) return;
         if (data.promotion) {
           (form.querySelector('[name="description"]') as HTMLInputElement).value = data.promotion.description;
           (form.querySelector('[name="dealCode"]') as HTMLInputElement).value = data.promotion.dealCode;
@@ -235,146 +261,152 @@ import Layout from '../layouts/Layout.astro';
       }
     }
 
-    document.getElementById('tab-login')!.addEventListener('click', () => {
-      document.getElementById('tab-login')!.classList.add('active');
-      document.getElementById('tab-register')!.classList.remove('active');
-      document.getElementById('login-form')!.classList.remove('hidden');
-      document.getElementById('register-form')!.classList.add('hidden');
-    });
-    document.getElementById('tab-register')!.addEventListener('click', () => {
-      document.getElementById('tab-register')!.classList.add('active');
-      document.getElementById('tab-login')!.classList.remove('active');
-      document.getElementById('register-form')!.classList.remove('hidden');
-      document.getElementById('login-form')!.classList.add('hidden');
-    });
-
-    async function handleAuth(form: HTMLFormElement, path: string, statusId: string) {
-      const status = document.getElementById(statusId)!;
-      const button = form.querySelector('button') as HTMLButtonElement;
-      const formData = new FormData(form);
-      status.classList.remove('error');
-      status.textContent = 'Working...';
-      button.disabled = true;
-      try {
-        await postJson(path, Object.fromEntries(formData.entries()));
-        form.reset();
-        await loadRestaurant();
-        status.textContent = '';
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
-      } finally {
-        button.disabled = false;
-      }
-    }
-
-    document.getElementById('login-form')!.addEventListener('submit', (event) => {
-      event.preventDefault();
-      handleAuth(event.currentTarget as HTMLFormElement, '/api/restaurant/login', 'login-status');
-    });
-    document.getElementById('register-form')!.addEventListener('submit', (event) => {
-      event.preventDefault();
-      handleAuth(event.currentTarget as HTMLFormElement, '/api/restaurant/register', 'register-status');
-    });
-
-    document.getElementById('claim-form')!.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const form = event.currentTarget as HTMLFormElement;
-      const status = document.getElementById('claim-status')!;
-      status.classList.remove('error');
-      status.textContent = 'Submitting...';
-      try {
-        await postJson('/api/restaurant/claim', { claimNote: (form.querySelector('[name="claimNote"]') as HTMLTextAreaElement).value });
-        status.textContent = 'Submitted for review.';
-        await loadRestaurant();
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
-      }
-    });
-
-    document.getElementById('venue-search')!.addEventListener('input', (event) => {
-      const query = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    document.getElementById('venue-search')!.addEventListener('input', async (event) => {
+      const query = (event.target as HTMLInputElement).value.trim();
       const resultsEl = document.getElementById('venue-results')!;
       if (!query) {
         resultsEl.innerHTML = '';
         return;
       }
-      const matches = happyHours.filter((h) => h.name.toLowerCase().includes(query)).slice(0, 8);
-      resultsEl.innerHTML = matches.map((h) => `
-        <div class="venue-result" data-venue-id="${h.id}">
-          <strong>${escapeHTML(h.name)}</strong>
-          <span>${escapeHTML(h.neighborhood)} · ${escapeHTML(h.address)}</span>
-        </div>
-      `).join('') || '<div class="status">No matches.</div>';
+      try {
+        const res = await fetch(`/api/restaurant/venues?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        const matches = data.venues || [];
+        resultsEl.innerHTML = matches.map((v: any) => `
+          <div class="venue-result ${v.alreadyClaimed ? 'claimed' : ''}" data-venue-id="${v.id}">
+            <div>
+              <strong>${escapeHTML(v.name)}</strong>
+              <span>${escapeHTML(v.neighborhood)} · ${escapeHTML(v.address)}</span>
+            </div>
+            ${v.alreadyClaimed ? '<span class="tag">Claimed</span>' : ''}
+          </div>
+        `).join('') || '<div class="status">No matches.</div>';
+      } catch {
+        resultsEl.innerHTML = '<div class="status error">Search failed.</div>';
+      }
     });
 
     document.getElementById('venue-results')!.addEventListener('click', async (event) => {
       const result = (event.target as HTMLElement).closest('[data-venue-id]') as HTMLElement | null;
-      if (!result) return;
+      if (!result || result.classList.contains('claimed')) return;
       try {
-        await postJson('/api/restaurant/venue', { venueId: Number(result.dataset.venueId) }, 'PUT');
-        await loadRestaurant();
+        await postJson('/api/restaurant/claim', { venueId: Number(result.dataset.venueId) });
+        await loadEverything();
       } catch (err: any) {
         alert(err.message);
       }
     });
 
-    document.getElementById('live-btn')!.addEventListener('click', async () => {
-      const toggle = document.getElementById('live-toggle')!;
-      const status = document.getElementById('live-status')!;
-      const isLive = toggle.classList.contains('is-live');
-      status.classList.remove('error');
-      status.textContent = 'Working...';
-      try {
-        await postJson('/api/restaurant/live', { active: !isLive });
-        toggle.classList.toggle('is-live', !isLive);
-        (document.getElementById('live-btn') as HTMLButtonElement).textContent = !isLive ? "We're live — tap to end" : "We're live now";
-        status.textContent = !isLive ? 'Live — matching alerts will go out.' : 'Marked as no longer live.';
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
+    document.getElementById('claims-list')!.addEventListener('click', async (event) => {
+      const target = event.target as HTMLElement;
+      const card = target.closest('.claim-card') as HTMLElement | null;
+      if (!card) return;
+      const venueId = Number(card.dataset.venueId);
+
+      if (target.closest('[data-action="toggle-live"]')) {
+        const toggle = card.querySelector('[data-live-toggle]')!;
+        const status = card.querySelector('[data-live-status]')!;
+        const isLive = toggle.classList.contains('is-live');
+        status.classList.remove('error');
+        status.textContent = 'Working...';
+        try {
+          await postJson('/api/restaurant/live', { venueId, active: !isLive });
+          toggle.classList.toggle('is-live', !isLive);
+          (target.closest('[data-action="toggle-live"]') as HTMLButtonElement).textContent = !isLive ? "We're live — tap to end" : "We're live now";
+          status.textContent = !isLive ? 'Live — matching alerts will go out.' : 'Marked as no longer live.';
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
+        return;
+      }
+
+      if (target.closest('[data-action="remove-promo"]')) {
+        const status = card.querySelector('[data-promo-status]')!;
+        status.classList.remove('error');
+        status.textContent = 'Removing...';
+        try {
+          await postJson('/api/restaurant/promotion', { venueId }, 'DELETE');
+          (card.querySelector('[data-promo-form]') as HTMLFormElement).reset();
+          status.textContent = 'Promo removed.';
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
+        return;
+      }
+
+      if (target.closest('[data-action="send-code"]')) {
+        const status = card.querySelector('[data-phone-status]')!;
+        status.classList.remove('error');
+        status.textContent = 'Sending...';
+        try {
+          const result = await postJson('/api/restaurant/claim/send-code', { venueId });
+          card.querySelector('[data-code-entry]')!.classList.remove('hidden');
+          status.textContent = result.simulated
+            ? 'Code generated — provider not configured, check the server log.'
+            : "Code sent — check the venue's phone.";
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
+        return;
+      }
+
+      if (target.closest('[data-action="verify-code"]')) {
+        const status = card.querySelector('[data-phone-status]')!;
+        const codeInput = card.querySelector('[data-code-input]') as HTMLInputElement;
+        status.classList.remove('error');
+        status.textContent = 'Verifying...';
+        try {
+          await postJson('/api/restaurant/claim/verify-code', { venueId, code: codeInput.value.trim() });
+          status.textContent = 'Verified!';
+          await loadEverything();
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
       }
     });
 
-    document.getElementById('promo-form')!.addEventListener('submit', async (event) => {
+    document.getElementById('claims-list')!.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const form = event.currentTarget as HTMLFormElement;
-      const status = document.getElementById('promo-status')!;
-      status.classList.remove('error');
-      status.textContent = 'Saving...';
-      try {
-        await postJson('/api/restaurant/promotion', {
-          description: (form.querySelector('[name="description"]') as HTMLInputElement).value,
-          dealCode: (form.querySelector('[name="dealCode"]') as HTMLInputElement).value,
-        }, 'PUT');
-        status.textContent = 'Saved — visible on the site now (code shown only to signed-in visitors).';
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
+      const form = event.target as HTMLFormElement;
+      const card = form.closest('.claim-card') as HTMLElement;
+      const venueId = Number(card.dataset.venueId);
+
+      if (form.hasAttribute('data-promo-form')) {
+        const status = card.querySelector('[data-promo-status]')!;
+        status.classList.remove('error');
+        status.textContent = 'Saving...';
+        try {
+          await postJson('/api/restaurant/promotion', {
+            venueId,
+            description: (form.querySelector('[name="description"]') as HTMLInputElement).value,
+            dealCode: (form.querySelector('[name="dealCode"]') as HTMLInputElement).value,
+          }, 'PUT');
+          status.textContent = 'Saved — visible on the site now (code shown only to signed-in visitors).';
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
+      }
+
+      if (form.hasAttribute('data-resubmit-form')) {
+        const status = card.querySelector('[data-resubmit-status]')!;
+        status.classList.remove('error');
+        status.textContent = 'Submitting...';
+        try {
+          await postJson('/api/restaurant/claim', { venueId, claimNote: (form.querySelector('[name="claimNote"]') as HTMLTextAreaElement).value });
+          status.textContent = 'Submitted for review.';
+          await loadEverything();
+        } catch (err: any) {
+          status.classList.add('error');
+          status.textContent = err.message;
+        }
       }
     });
 
-    document.getElementById('promo-remove')!.addEventListener('click', async () => {
-      const status = document.getElementById('promo-status')!;
-      status.classList.remove('error');
-      status.textContent = 'Removing...';
-      try {
-        await postJson('/api/restaurant/promotion', {}, 'DELETE');
-        (document.getElementById('promo-form') as HTMLFormElement).reset();
-        status.textContent = 'Promo removed.';
-      } catch (err: any) {
-        status.classList.add('error');
-        status.textContent = err.message;
-      }
-    });
-
-    document.getElementById('logout')!.addEventListener('click', async () => {
-      await fetch('/api/restaurant/logout', { method: 'POST' });
-      currentRestaurant = null;
-      render();
-    });
-
-    Promise.all([loadHappyHours(), loadRestaurant()]);
+    Promise.all([loadHappyHours(), loadEverything()]);
   </script>
 </Layout>

@@ -351,28 +351,33 @@ export async function hasAlertWithSource(userId: string, sourceAlertId: string):
 
 // =============================================================================
 // Sessions — replaces Redis TTL (session.ts previously used `{ ex: ... }`).
+//
+// Single role now (2026-08-12 restaurant sign-in redesign): restaurants
+// dropped their own login and their own `restaurant_id` session column —
+// see migrations/0002_venue_claims.sql. `role` stays a column (rather than
+// being deleted outright) since the CHECK constraint from 0001 still
+// permits 'restaurant' as a value; nothing writes it anymore, and every
+// session created going forward is 'user'.
 // =============================================================================
 
-export type SessionRole = 'user' | 'restaurant';
+export type SessionRole = 'user';
 
 export interface SessionRecord {
   id: string;
   role: SessionRole;
-  userId: string | null;
-  restaurantId: string | null;
+  userId: string;
   expiresAt: string;
 }
 
 interface SessionRow {
   id: string;
   role: SessionRole;
-  user_id: string | null;
-  restaurant_id: string | null;
+  user_id: string;
   expires_at: string;
 }
 
 function mapSession(row: SessionRow): SessionRecord {
-  return { id: row.id, role: row.role, userId: row.user_id, restaurantId: row.restaurant_id, expiresAt: row.expires_at };
+  return { id: row.id, role: row.role, userId: row.user_id, expiresAt: row.expires_at };
 }
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8; // 8 hours, matches the original
@@ -380,13 +385,8 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8; // 8 hours, matches the original
 export async function createSession(role: SessionRole, subjectId: string): Promise<SessionRecord> {
   const id = crypto.randomBytes(32).toString('hex');
   const rows = await sql<SessionRow>`
-    INSERT INTO sessions (id, role, user_id, restaurant_id, expires_at)
-    VALUES (
-      ${id}, ${role},
-      ${role === 'user' ? subjectId : null},
-      ${role === 'restaurant' ? subjectId : null},
-      now() + make_interval(secs => ${SESSION_MAX_AGE_SECONDS})
-    )
+    INSERT INTO sessions (id, role, user_id, expires_at)
+    VALUES (${id}, ${role}, ${subjectId}, now() + make_interval(secs => ${SESSION_MAX_AGE_SECONDS}))
     RETURNING *`;
   return mapSession(rows[0]);
 }
@@ -411,128 +411,179 @@ export async function deleteExpiredSessions(): Promise<void> {
 }
 
 // =============================================================================
-// Restaurants
+// Venue claims — replaces the old separate `restaurants` account (see the
+// 2026-08-12 restaurant sign-in redesign). Restaurants no longer have their
+// own login; a "claim" is a (user_id, venue_id) record attached to a regular
+// user's account, so the same person can manage multiple venues, and
+// verification is scoped to the specific venue being claimed rather than
+// self-reported at signup and never checked again.
 // =============================================================================
 
-export interface Restaurant {
+export interface VenueClaim {
   id: string;
-  name: string;
-  email: string;
-  passwordSalt: string | null;
-  passwordHash: string | null;
-  website: string;
-  verified: boolean;
-  verificationMethod: 'domain' | 'manual' | null;
-  verificationStatus: 'verified' | 'pending' | 'denied';
+  userId: string;
+  venueId: number;
+  status: 'verified' | 'pending' | 'denied';
+  verificationMethod: 'domain' | 'phone' | 'manual' | null;
+  phone: string;
+  phoneVerifiedAt: string | null;
   claimNote: string;
   denialReason?: string;
   plan: 'free' | 'paid';
   smsFundingEnabled: boolean;
-  venueId: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
-interface RestaurantRow {
+interface VenueClaimRow {
   id: string;
-  name: string;
-  email: string;
-  password_salt: string | null;
-  password_hash: string | null;
-  website: string;
-  verified: boolean;
-  verification_method: 'domain' | 'manual' | null;
-  verification_status: 'verified' | 'pending' | 'denied';
+  user_id: string;
+  venue_id: number;
+  status: 'verified' | 'pending' | 'denied';
+  verification_method: 'domain' | 'phone' | 'manual' | null;
+  phone: string;
+  phone_verified_at: string | null;
   claim_note: string;
   denial_reason: string | null;
   plan: 'free' | 'paid';
   sms_funding_enabled: boolean;
-  venue_id: number | null;
   created_at: string;
   updated_at: string;
 }
 
-function mapRestaurant(row: RestaurantRow): Restaurant {
+function mapVenueClaim(row: VenueClaimRow): VenueClaim {
   return {
     id: row.id,
-    name: row.name,
-    email: row.email,
-    passwordSalt: row.password_salt,
-    passwordHash: row.password_hash,
-    website: row.website,
-    verified: row.verified,
+    userId: row.user_id,
+    venueId: row.venue_id,
+    status: row.status,
     verificationMethod: row.verification_method,
-    verificationStatus: row.verification_status,
+    phone: row.phone,
+    phoneVerifiedAt: row.phone_verified_at,
     claimNote: row.claim_note,
     denialReason: row.denial_reason ?? undefined,
     plan: row.plan,
     smsFundingEnabled: row.sms_funding_enabled,
-    venueId: row.venue_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
-export async function getRestaurantById(id: string): Promise<Restaurant | null> {
-  const rows = await sql<RestaurantRow>`SELECT * FROM restaurants WHERE id = ${id}`;
-  return rows[0] ? mapRestaurant(rows[0]) : null;
+export async function getVenueClaimById(id: string): Promise<VenueClaim | null> {
+  const rows = await sql<VenueClaimRow>`SELECT * FROM venue_claims WHERE id = ${id}`;
+  return rows[0] ? mapVenueClaim(rows[0]) : null;
 }
 
-export async function getRestaurantByEmail(email: string): Promise<Restaurant | null> {
-  const rows = await sql<RestaurantRow>`SELECT * FROM restaurants WHERE lower(email) = lower(${email})`;
-  return rows[0] ? mapRestaurant(rows[0]) : null;
+export async function getVenueClaimByUserAndVenue(userId: string, venueId: number): Promise<VenueClaim | null> {
+  const rows = await sql<VenueClaimRow>`SELECT * FROM venue_claims WHERE user_id = ${userId} AND venue_id = ${venueId}`;
+  return rows[0] ? mapVenueClaim(rows[0]) : null;
 }
 
-export async function listRestaurants(): Promise<Restaurant[]> {
-  const rows = await sql<RestaurantRow>`SELECT * FROM restaurants ORDER BY created_at DESC`;
-  return rows.map(mapRestaurant);
+// A user can hold claims on more than one venue (a small restaurant group,
+// or someone who runs two spots) — the old one-restaurant-per-account model
+// couldn't express that at all.
+export async function listVenueClaimsByUser(userId: string): Promise<VenueClaim[]> {
+  const rows = await sql<VenueClaimRow>`SELECT * FROM venue_claims WHERE user_id = ${userId} ORDER BY created_at DESC`;
+  return rows.map(mapVenueClaim);
 }
 
-export interface CreateRestaurantInput {
-  name: string;
-  email: string;
-  passwordSalt: string;
-  passwordHash: string;
-  website: string;
-  verified: boolean;
-  verificationMethod: 'domain' | 'manual' | null;
-  verificationStatus: 'verified' | 'pending' | 'denied';
+// Admin review queue — every claim regardless of status, same as the old
+// listRestaurants() (the admin UI sorts pending-first client-side).
+export async function listVenueClaims(): Promise<VenueClaim[]> {
+  const rows = await sql<VenueClaimRow>`SELECT * FROM venue_claims ORDER BY created_at DESC`;
+  return rows.map(mapVenueClaim);
 }
 
-export async function createRestaurant(input: CreateRestaurantInput): Promise<Restaurant> {
-  const rows = await sql<RestaurantRow>`
-    INSERT INTO restaurants (name, email, password_salt, password_hash, website, verified, verification_method, verification_status)
-    VALUES (${input.name}, ${input.email}, ${input.passwordSalt}, ${input.passwordHash}, ${input.website}, ${input.verified}, ${input.verificationMethod}, ${input.verificationStatus})
-    RETURNING *`;
-  return mapRestaurant(rows[0]);
+// All venue_ids that currently have a verified claimant — small table,
+// cheap to fetch whole (mirrors getLiveOverrides()'s pattern). Used by the
+// venue search UI so it can show "already claimed" instead of letting
+// someone waste a claim attempt on a venue someone else already verified.
+export async function listVerifiedClaimedVenueIds(): Promise<Set<number>> {
+  const rows = await sql<{ venue_id: number }>`SELECT venue_id FROM venue_claims WHERE status = 'verified'`;
+  return new Set(rows.map((r) => r.venue_id));
 }
 
-export interface UpdateRestaurantInput {
+export interface CreateVenueClaimInput {
+  userId: string;
+  venueId: number;
+  status: 'verified' | 'pending' | 'denied';
+  verificationMethod: 'domain' | 'phone' | 'manual' | null;
   claimNote?: string;
-  verificationStatus?: 'verified' | 'pending' | 'denied';
-  verificationMethod?: 'domain' | 'manual' | null;
-  verified?: boolean;
-  denialReason?: string | null;
-  venueId?: number | null;
 }
 
-// Explicit `hasOwnProperty`-style sentinels aren't needed here because every
-// caller in Phase 3 passes a fully-formed patch for the fields it wants to
-// touch (mirroring how the old kv.ts call sites mutated specific fields on
-// the in-memory object) — undefined means "leave alone" via COALESCE, while
-// denialReason/venueId explicitly pass null to clear.
-export async function updateRestaurant(id: string, input: UpdateRestaurantInput): Promise<Restaurant | null> {
-  const rows = await sql<RestaurantRow>`
-    UPDATE restaurants SET
-      claim_note          = COALESCE(${input.claimNote ?? null}, claim_note),
-      verification_status = COALESCE(${input.verificationStatus ?? null}, verification_status),
-      verification_method = CASE WHEN ${input.verificationMethod !== undefined} THEN ${input.verificationMethod ?? null} ELSE verification_method END,
-      verified             = COALESCE(${input.verified ?? null}, verified),
-      denial_reason        = CASE WHEN ${input.denialReason !== undefined} THEN ${input.denialReason ?? null} ELSE denial_reason END,
-      venue_id              = CASE WHEN ${input.venueId !== undefined} THEN ${input.venueId ?? null} ELSE venue_id END
+// One row per (user, venue) — UNIQUE (user_id, venue_id) means a second
+// claim attempt on the same venue by the same user should go through
+// updateVenueClaim instead (callers check getVenueClaimByUserAndVenue first
+// and update-or-create accordingly, matching how a denied claim gets
+// resubmitted rather than duplicated).
+export async function createVenueClaim(input: CreateVenueClaimInput): Promise<VenueClaim> {
+  const rows = await sql<VenueClaimRow>`
+    INSERT INTO venue_claims (user_id, venue_id, status, verification_method, claim_note)
+    VALUES (${input.userId}, ${input.venueId}, ${input.status}, ${input.verificationMethod}, ${input.claimNote ?? ''})
+    RETURNING *`;
+  return mapVenueClaim(rows[0]);
+}
+
+export interface UpdateVenueClaimInput {
+  status?: 'verified' | 'pending' | 'denied';
+  verificationMethod?: 'domain' | 'phone' | 'manual' | null;
+  claimNote?: string;
+  denialReason?: string | null;
+}
+
+// Throws (Postgres unique-violation 23505) if this would create a second
+// *verified* claim on a venue that already has one — callers catch that and
+// surface "This venue has already been claimed by another account."
+export async function updateVenueClaim(id: string, input: UpdateVenueClaimInput): Promise<VenueClaim | null> {
+  const rows = await sql<VenueClaimRow>`
+    UPDATE venue_claims SET
+      status               = COALESCE(${input.status ?? null}, status),
+      verification_method  = CASE WHEN ${input.verificationMethod !== undefined} THEN ${input.verificationMethod ?? null} ELSE verification_method END,
+      claim_note           = COALESCE(${input.claimNote ?? null}, claim_note),
+      denial_reason        = CASE WHEN ${input.denialReason !== undefined} THEN ${input.denialReason ?? null} ELSE denial_reason END
     WHERE id = ${id}
     RETURNING *`;
-  return rows[0] ? mapRestaurant(rows[0]) : null;
+  return rows[0] ? mapVenueClaim(rows[0]) : null;
+}
+
+// Sends a fresh code (stores it — the actual SMS send happens in the API
+// route via lib/sms.ts, using the venue's own listed phone number from
+// venues.ts, never a claimant-supplied one — that's the whole point of
+// phone verification over a self-reported claim). `phone` here is a
+// snapshot of the number the code was actually sent to, kept for admin
+// visibility even though it's derivable from venue data at the time.
+export async function setVenueClaimPhoneCode(claimId: string, code: string, expiresAt: string, phone: string): Promise<VenueClaim | null> {
+  const rows = await sql<VenueClaimRow>`
+    UPDATE venue_claims SET
+      phone = ${phone},
+      phone_code = ${code},
+      phone_code_expires_at = ${expiresAt},
+      verification_method = 'phone'
+    WHERE id = ${claimId}
+    RETURNING *`;
+  return rows[0] ? mapVenueClaim(rows[0]) : null;
+}
+
+// Verifies the code in one atomic UPDATE (no separate read-then-check —
+// avoids a race where two requests both read a valid code before either
+// clears it). Matches only if the code is right AND unexpired; the code is
+// single-use, cleared on success either way. Returns null on any mismatch
+// (wrong code, expired, or claim doesn't exist) — callers can't distinguish
+// "wrong code" from "expired" from this alone, which is deliberate: no
+// reason to tell an attacker which one it was.
+//
+// Throws (Postgres unique-violation 23505) if this would create a second
+// *verified* claim on a venue that already has one, same as updateVenueClaim.
+export async function verifyVenueClaimPhoneCode(claimId: string, code: string): Promise<VenueClaim | null> {
+  const rows = await sql<VenueClaimRow>`
+    UPDATE venue_claims SET
+      status = 'verified',
+      phone_code = NULL,
+      phone_code_expires_at = NULL,
+      phone_verified_at = now()
+    WHERE id = ${claimId} AND phone_code = ${code} AND phone_code_expires_at > now()
+    RETURNING *`;
+  return rows[0] ? mapVenueClaim(rows[0]) : null;
 }
 
 // =============================================================================
@@ -556,6 +607,10 @@ export interface Listing {
   sourceUrl: string;
   dealTypes: string[];
   features: string[];
+  // Optional — not required at submission time (many submitters won't have
+  // it handy), but worth capturing since it's what backs phone-based claim
+  // verification (see venues.ts's Venue.phone).
+  phone?: string;
 }
 
 export interface Submission {

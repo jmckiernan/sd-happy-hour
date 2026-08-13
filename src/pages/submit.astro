@@ -139,6 +139,11 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <div class="form-field">
+        <label for="submit-phone">Phone (optional)</label>
+        <input id="submit-phone" name="phone" type="tel" placeholder="(619) 555-0100">
+      </div>
+
+      <div class="form-field">
         <label for="submit-start">Start time</label>
         <input id="submit-start" name="startTime" type="time" required>
       </div>
@@ -214,6 +219,7 @@ import Layout from '../layouts/Layout.astro';
         address: formData.get('address'),
         website,
         sourceUrl: sourceUrl || website,
+        phone: formData.get('phone'),
         startTime: formData.get('startTime'),
         endTime: formData.get('endTime'),
         days: getCheckedValues(form, 'days'),
