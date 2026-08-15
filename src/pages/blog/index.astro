@@ -33,6 +33,34 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
       flex-direction: column;
       gap: 24px;
     }
+    /* Positioning context for the admin Edit link that sits over the card. */
+    .post-card-wrap { position: relative; }
+
+    .admin-edit-link {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      /* Above the card's own stacking context so the card's anchor doesn't
+         swallow the click. */
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ocean-deep);
+      /* Nearly opaque rather than the post-page link's flat tint — this one
+         sits on top of a photo, so it needs to stay legible against whatever
+         is behind it. */
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+      padding: 6px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .admin-edit-link:hover { background: white; }
+
     .post-card {
       display: grid;
       grid-template-columns: 280px 1fr;
@@ -121,21 +149,36 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
       <p class="empty">No posts yet — check back soon.</p>
     )}
     {posts.map((post) => (
-      <a class="post-card" href={`/blog/${post.id}/`}>
-        <div class="post-thumb">
-          <img
-            src={getPostImage(post.data.heroImage, post.data.venues, 'card')}
-            alt={post.data.title}
-            loading="lazy"
-          />
-        </div>
-        <div class="post-card-body">
-          <div class="date">{post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-          <h2>{post.data.title}</h2>
-          <p>{post.data.description}</p>
-          <span class="read-more">Read more →</span>
-        </div>
-      </a>
+      /* The card itself is one big <a>, so the admin Edit link can't live
+         inside it — nesting anchors is invalid and browsers break the outer
+         one. It's a sibling positioned over the card instead. */
+      <div class="post-card-wrap">
+        <a class="post-card" href={`/blog/${post.id}/`}>
+          <div class="post-thumb">
+            <img
+              src={getPostImage(post.data.heroImage, post.data.venues, 'card')}
+              alt={post.data.title}
+              loading="lazy"
+            />
+          </div>
+          <div class="post-card-body">
+            <div class="date">{post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+            <span class="read-more">Read more →</span>
+          </div>
+        </a>
+        {/* Revealed by Layout.astro's [data-admin-only] sweep — same single
+            /api/admin/me check as the nav, so it appears on sign-in without
+            needing a refresh. */}
+        <a
+          class="admin-edit-link"
+          data-admin-only
+          style="display:none;"
+          href={`/admin/drafts/${post.id}/`}
+          aria-label={`Edit ${post.data.title}`}
+        >✎ Edit</a>
+      </div>
     ))}
   </div>
 </Layout>

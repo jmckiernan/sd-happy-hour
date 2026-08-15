@@ -190,8 +190,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
       <a href="/restaurant/" aria-current={Astro.url.pathname === '/restaurant/' ? 'page' : undefined}>For Restaurants</a>
       <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>Sign In</a>
-      <a href="/admin/new-post/" id="blog-admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
-      <a href="/admin/" id="admin-nav-link" style="display:none;" aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>
+      <a href="/admin/new-post/" id="blog-admin-nav-link" data-admin-only style="display:none;" aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
+      <a href="/admin/" id="admin-nav-link" data-admin-only style="display:none;" aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>
     </div>
   </nav>
 
@@ -236,13 +236,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         accountLink.textContent = (await isAuthenticated('/api/account/me')) ? 'My Stuff' : 'Sign In';
       }
 
-      // Single check for both admin-only links: authorized = signed in at
-      // /account/ with an email in ADMIN_EMAILS (src/lib/admins.ts) — there's
-      // no separate admin login anymore.
+      // One check covers everything admin-only on the page: authorized =
+      // signed in at /account/ with an email in ADMIN_EMAILS
+      // (src/lib/admins.ts) — there's no separate admin login anymore.
+      //
+      // Anything marked [data-admin-only] is toggled here, so a page that
+      // wants an admin-only affordance (the Edit links on blog posts and the
+      // blog index) just adds that attribute plus `style="display:none;"`
+      // and inherits this behaviour — including re-checking on sign-in
+      // without a refresh. Pages should not run their own /api/admin/me
+      // fetch; that's how those links ended up stuck in their page-load
+      // state before.
       const isAdmin = await isAuthenticated('/api/admin/me');
-      for (const id of ['admin-nav-link', 'blog-admin-nav-link']) {
-        const link = document.getElementById(id) as HTMLElement | null;
-        if (link) link.style.display = isAdmin ? '' : 'none';
+      for (const el of document.querySelectorAll<HTMLElement>('[data-admin-only]')) {
+        el.style.display = isAdmin ? '' : 'none';
       }
     }
 

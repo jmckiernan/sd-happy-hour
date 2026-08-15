@@ -54,7 +54,6 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       white-space: nowrap;
     }
     .admin-edit-link:hover { background: rgba(8, 145, 178, 0.26); }
-    .hidden { display: none; }
     .post-header h1 {
       font-family: var(--font-display);
       font-size: clamp(2rem, 5vw, 2.75rem);
@@ -122,7 +121,7 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
   <div class="post-header">
     <div class="post-header-top">
       <div class="meta">By {author} · {dateStr}{updatedDate && ` (updated ${updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`}</div>
-      <a id="admin-edit-link" class="admin-edit-link hidden" href={`/admin/drafts/${slug}/`}>✎ Edit Post</a>
+      <a id="admin-edit-link" class="admin-edit-link" data-admin-only style="display:none;" href={`/admin/drafts/${slug}/`}>✎ Edit Post</a>
     </div>
     <h1>{title}</h1>
     <p class="description">{description}</p>
@@ -155,20 +154,9 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
     </div>
   )}
 
-  <script>
-    // Shows the "Edit Post" link only for signed-in admins (same
-    // ADMIN_EMAILS check as the rest of the admin tools) — regular
-    // visitors never see it.
-    (async () => {
-      try {
-        const res = await fetch('/api/admin/me');
-        const session = await res.json();
-        if (session.authenticated) {
-          document.getElementById('admin-edit-link')?.classList.remove('hidden');
-        }
-      } catch {
-        // Not signed in as an admin — leave it hidden.
-      }
-    })();
-  </script>
+  {/* The "Edit Post" link above is revealed by Layout.astro's
+      [data-admin-only] sweep. This used to run its own /api/admin/me fetch
+      here, which both duplicated the layout's request and only ran at page
+      load — so signing in never revealed the link until a refresh, and
+      signing out never hid it again. */}
 </Layout>
