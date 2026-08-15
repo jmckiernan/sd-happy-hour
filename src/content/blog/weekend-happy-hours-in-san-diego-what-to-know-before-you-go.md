@@ -6,9 +6,8 @@ author: "SD Happy Hours"
 draft: false
 aiGenerated: true
 venues: []
-heroImage: "/api/images/best-weekend-happy-hours-1785649254989-5c676065.png"
+heroImage: "/api/images/weekend-happy-hours-in-san-diego-what-to-know-before-you-go-1786818222405-a4295c07.png"
 ---
-
 Weekend happy hour in San Diego is a different animal than your standard Tuesday-after-work special. Fewer spots run them, the ones that do tend to get packed fast, and the deals themselves can look totally different from the weekday menu. If you're used to just wandering into your go-to bar at 5pm on a Friday and expecting the same $6 margaritas, Saturday and Sunday might surprise you.
 
 Here's how to actually find a good one this weekend, without wasting a trip on a place that quietly stopped running Saturday specials two years ago.
