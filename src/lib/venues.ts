@@ -162,26 +162,37 @@ const IMAGE_SIZES = {
 } as const;
 
 /**
+ * Routes an image through Netlify Image CDN at the requested size, which
+ * resizes on demand and negotiates a modern format (AVIF/WebP), edge-caching
+ * each distinct transform. For the vibe photos that's a like-for-like
+ * replacement for the `?w=`/`?q=` params Unsplash used to handle, so only one
+ * 1600px master per vibe has to be committed rather than a variant per size.
+ *
+ * Left alone in three cases:
+ *
+ * - Outside production. `/.netlify/images` only exists on Netlify's platform;
+ *   plain `astro dev` 404s it, so dev serves the original. Unoptimized, but it
+ *   renders. `npm run dev:netlify` exercises the real path — same dev/prod
+ *   split as lib/imageStore.ts.
+ * - Anything not rooted at `/`. Remote sources need a `remote_images`
+ *   allowlist in netlify.toml, and a post's heroImage can be any URL an admin
+ *   pasted, so those pass through untouched rather than 400ing.
+ * - Already-transformed URLs, so wrapping twice is a no-op.
+ */
+function throughImageCdn(src: string, size: 'card' | 'hero'): string {
+  if (!import.meta.env.PROD) return src;
+  if (!src.startsWith('/') || src.startsWith('/.netlify/images')) return src;
+  const { w, q } = IMAGE_SIZES[size];
+  return `/.netlify/images?url=${encodeURIComponent(src)}&w=${w}&q=${q}`;
+}
+
+/**
  * Returns the URL for a venue's vibe photo, sized for the given use.
  * 'card'  -> small homepage thumbnail (800px wide)
  * 'hero'  -> large venue-page banner (1600px wide, higher quality)
- *
- * In production this routes through Netlify Image CDN, which resizes the
- * 1600px master on demand and negotiates a modern format (AVIF/WebP), then
- * edge-caches each distinct transform. That's a like-for-like replacement
- * for the `?w=`/`?q=` params Unsplash used to handle, so only one file per
- * vibe has to be committed rather than a pre-sized variant per size.
- *
- * `/.netlify/images` only exists on Netlify's platform, though — plain
- * `astro dev` would 404 it — so in dev this serves the master file
- * directly. Unoptimized, but it renders. `npm run dev:netlify` exercises
- * the real Image CDN path, same dev/prod split as lib/imageStore.ts.
  */
 export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
-  const base = vibeImages[vibe] || vibeImages['default'];
-  if (!import.meta.env.PROD) return base;
-  const { w, q } = IMAGE_SIZES[size];
-  return `/.netlify/images?url=${encodeURIComponent(base)}&w=${w}&q=${q}`;
+  return throughImageCdn(vibeImages[vibe] || vibeImages['default'], size);
 }
 
 /**
@@ -194,7 +205,11 @@ export function getPostImage(
   venueSlugs: string[] = [],
   size: 'card' | 'hero' = 'card'
 ): string {
-  if (heroImage) return heroImage;
+  // Hero images are whatever the admin generated or uploaded — typically a
+  // full-size AI PNG served from Blobs via /api/images/. Sending those
+  // through Image CDN too means the blog index isn't loading hero-resolution
+  // originals into thumbnail slots.
+  if (heroImage) return throughImageCdn(heroImage, size);
   const firstVenue = venueSlugs.map(getVenueBySlug).find((v): v is Venue => Boolean(v));
   return getVenueImage(firstVenue?.vibe || '', size);
 }
