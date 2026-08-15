@@ -119,38 +119,69 @@ export function formatTime(time: string): string {
 
 // Stock photo per "vibe" — used as a thumbnail on the homepage cards and,
 // at a higher resolution, as the hero banner on individual venue pages.
+//
+// These used to be hotlinks to images.unsplash.com, which meant every page
+// load depended on Unsplash staying up and keeping those photo IDs alive
+// (and rendered as broken images anywhere Unsplash is network-blocked).
+// They're now our own copies under public/images/vibes/, downloaded once by
+// scripts/fetch-vibe-images.js — which is also where the original Unsplash
+// photo IDs are recorded, if one ever needs re-fetching.
+//
+// Each file is a single 1600px-wide master (the largest size the site asks
+// for). The card/hero sizing that Unsplash's `?w=` params used to do now
+// happens in getVenueImage() below.
 export const vibeImages: Record<string, string> = {
-  'Upscale casual': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b',
-  'Speakeasy': 'https://images.unsplash.com/photo-1470337458703-46ad1756a187',
-  'Trendy gastropub': 'https://images.unsplash.com/photo-1538488881038-e252a119ace7',
-  'Seafood spot': 'https://images.unsplash.com/photo-1559339352-11d035aa65de',
-  'Rooftop vibes': 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205',
-  'Modern Mexican': 'https://images.unsplash.com/photo-1582169296194-e4d644c48063',
-  'Tiki bar': 'https://images.unsplash.com/photo-1536935338788-846bb9981813',
-  'Chef-driven': 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c',
-  'Wine bar': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3',
-  'Upscale Mediterranean': 'https://images.unsplash.com/photo-1544148103-0773bf10d330',
-  'Neighborhood gastropub': 'https://images.unsplash.com/photo-1575037614876-c38a4d44f5b8',
-  'Craft cocktails': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87',
-  'Dog-friendly patio': 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17',
-  'Casual chicken joint': 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58',
-  'Waterfront Mexican': 'https://images.unsplash.com/photo-1552566626-52f8b828add9',
-  'Arcade bar': 'https://images.unsplash.com/photo-1511882150382-421056c89033',
-  'All-day cafe': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085',
-  'Italian gastropub': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
-  'Vegan metal bar': 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34',
-  'Beach brewery': 'https://images.unsplash.com/photo-1559526324-593bc073d938',
-  'default': 'https://images.unsplash.com/photo-1470337458703-46ad1756a187',
+  'Upscale casual': '/images/vibes/upscale-casual.jpg',
+  'Speakeasy': '/images/vibes/speakeasy.jpg',
+  'Trendy gastropub': '/images/vibes/trendy-gastropub.jpg',
+  'Seafood spot': '/images/vibes/seafood-spot.jpg',
+  'Rooftop vibes': '/images/vibes/rooftop-vibes.jpg',
+  'Modern Mexican': '/images/vibes/modern-mexican.jpg',
+  'Tiki bar': '/images/vibes/tiki-bar.jpg',
+  'Chef-driven': '/images/vibes/chef-driven.jpg',
+  'Wine bar': '/images/vibes/wine-bar.jpg',
+  'Upscale Mediterranean': '/images/vibes/upscale-mediterranean.jpg',
+  'Neighborhood gastropub': '/images/vibes/neighborhood-gastropub.jpg',
+  'Craft cocktails': '/images/vibes/craft-cocktails.jpg',
+  'Dog-friendly patio': '/images/vibes/dog-friendly-patio.jpg',
+  'Casual chicken joint': '/images/vibes/casual-chicken-joint.jpg',
+  'Waterfront Mexican': '/images/vibes/waterfront-mexican.jpg',
+  'Arcade bar': '/images/vibes/arcade-bar.jpg',
+  'All-day cafe': '/images/vibes/all-day-cafe.jpg',
+  'Italian gastropub': '/images/vibes/italian-gastropub.jpg',
+  'Vegan metal bar': '/images/vibes/vegan-metal-bar.jpg',
+  'Beach brewery': '/images/vibes/beach-brewery.jpg',
+  // Intentionally the same photo as 'Speakeasy' — that's what the previous
+  // Unsplash map did too (both pointed at photo-1470337458703).
+  'default': '/images/vibes/speakeasy.jpg',
 };
 
+const IMAGE_SIZES = {
+  card: { w: 800, q: 80 },
+  hero: { w: 1600, q: 85 },
+} as const;
+
 /**
- * Returns the Unsplash URL for a venue's vibe, sized for the given use.
+ * Returns the URL for a venue's vibe photo, sized for the given use.
  * 'card'  -> small homepage thumbnail (800px wide)
  * 'hero'  -> large venue-page banner (1600px wide, higher quality)
+ *
+ * In production this routes through Netlify Image CDN, which resizes the
+ * 1600px master on demand and negotiates a modern format (AVIF/WebP), then
+ * edge-caches each distinct transform. That's a like-for-like replacement
+ * for the `?w=`/`?q=` params Unsplash used to handle, so only one file per
+ * vibe has to be committed rather than a pre-sized variant per size.
+ *
+ * `/.netlify/images` only exists on Netlify's platform, though — plain
+ * `astro dev` would 404 it — so in dev this serves the master file
+ * directly. Unoptimized, but it renders. `npm run dev:netlify` exercises
+ * the real Image CDN path, same dev/prod split as lib/imageStore.ts.
  */
 export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
   const base = vibeImages[vibe] || vibeImages['default'];
-  return size === 'hero' ? `${base}?w=1600&q=85` : `${base}?w=800&q=80`;
+  if (!import.meta.env.PROD) return base;
+  const { w, q } = IMAGE_SIZES[size];
+  return `/.netlify/images?url=${encodeURIComponent(base)}&w=${w}&q=${q}`;
 }
 
 /**

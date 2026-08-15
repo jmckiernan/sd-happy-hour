@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "validate:data": "node scripts/validate-data.js",
+    "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
     "test": "npm run validate:data"
   },
