@@ -206,37 +206,50 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   <script>
     // Site-wide: reflect sign-in state in the nav, and only show the Admin
-    // link when an admin session is active. Runs on every page (this layout
+    // links when an admin session is active. Runs on every page (this layout
     // wraps all of them) so login status stays consistent site-wide, unlike
     // the original single-page version which only showed this on the homepage.
-    (async () => {
+    //
+    // Signing in and out happen over fetch on /account/ without a page load,
+    // so this can't only run at startup — it would leave the nav showing the
+    // pre-login state until the visitor happened to refresh. Pages that
+    // change the session dispatch AUTH_CHANGED_EVENT (see account.astro) and
+    // this re-runs. Every branch below sets state in both directions for the
+    // same reason: a logout has to be able to undo what a login did.
+    const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
+
+    async function isAuthenticated(endpoint: string): Promise<boolean> {
       try {
-        const res = await fetch('/api/account/me');
-        const session = await res.json();
-        const link = document.getElementById('account-nav-link');
-        if (link && session.authenticated) {
-          link.textContent = 'My Stuff';
-        }
+        const res = await fetch(endpoint, { headers: { 'cache-control': 'no-cache' } });
+        if (!res.ok) return false;
+        return Boolean((await res.json()).authenticated);
       } catch {
-        // Not signed in / KV not configured yet — leave the default "Sign In".
+        // Offline, or the session store isn't reachable — treat as signed
+        // out rather than leaving whatever the nav happened to show before.
+        return false;
+      }
+    }
+
+    async function syncAuthNav() {
+      const accountLink = document.getElementById('account-nav-link');
+      if (accountLink) {
+        accountLink.textContent = (await isAuthenticated('/api/account/me')) ? 'My Stuff' : 'Sign In';
       }
 
-      try {
-        // Single check for both admin-only links: authorized = signed in
-        // at /account/ with an email in ADMIN_EMAILS (src/lib/admins.ts) —
-        // there's no separate admin login anymore.
-        const res = await fetch('/api/admin/me');
-        const session = await res.json();
-        if (session.authenticated) {
-          const adminLink = document.getElementById('admin-nav-link') as HTMLElement | null;
-          const blogAdminLink = document.getElementById('blog-admin-nav-link') as HTMLElement | null;
-          if (adminLink) adminLink.style.display = '';
-          if (blogAdminLink) blogAdminLink.style.display = '';
-        }
-      } catch {
-        // Not signed in with an authorized admin email — leave both hidden.
+      // Single check for both admin-only links: authorized = signed in at
+      // /account/ with an email in ADMIN_EMAILS (src/lib/admins.ts) — there's
+      // no separate admin login anymore.
+      const isAdmin = await isAuthenticated('/api/admin/me');
+      for (const id of ['admin-nav-link', 'blog-admin-nav-link']) {
+        const link = document.getElementById(id) as HTMLElement | null;
+        if (link) link.style.display = isAdmin ? '' : 'none';
       }
-    })();
+    }
+
+    syncAuthNav();
+    window.addEventListener(AUTH_CHANGED_EVENT, () => {
+      syncAuthNav();
+    });
   </script>
 </body>
 </html>

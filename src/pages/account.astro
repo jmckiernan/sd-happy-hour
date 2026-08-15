@@ -271,11 +271,26 @@ import Layout from '../layouts/Layout.astro';
       happyHours = await res.json();
     }
 
+    // The nav (Layout.astro) can't see this module's state, so it has to be
+    // told when the session flips — otherwise signing in leaves "Sign In" and
+    // the admin-only links showing their pre-login state until a refresh.
+    const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
+
+    function announceAuthChange() {
+      window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+    }
+
     async function loadAccount() {
       const res = await fetch('/api/account/me');
       const session = await res.json();
-      currentUser = session.authenticated ? session.user : null;
+      const nextUser = session.authenticated ? session.user : null;
+      // Only announce an actual signed-in/signed-out transition. loadAccount()
+      // also re-runs after ordinary saves (alerts, preferences, saved spots),
+      // and re-checking the nav on each of those is pure wasted round trips.
+      const signedInChanged = Boolean(currentUser) !== Boolean(nextUser);
+      currentUser = nextUser;
       render();
+      if (signedInChanged) announceAuthChange();
     }
 
     async function loadConfig() {
@@ -759,6 +774,9 @@ import Layout from '../layouts/Layout.astro';
       await fetch('/api/account/logout', { method: 'POST' });
       currentUser = null;
       render();
+      // Sets currentUser directly rather than going through loadAccount(), so
+      // the transition check there never sees this one.
+      announceAuthChange();
     });
 
     Promise.all([loadHappyHours(), loadAccount(), initGoogleLogin()]);
