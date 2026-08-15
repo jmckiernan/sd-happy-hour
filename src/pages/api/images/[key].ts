@@ -19,6 +19,14 @@ export const GET: APIRoute = async ({ params }) => {
       // Keys are unique per upload and never overwritten, so this is safe
       // to cache indefinitely.
       'cache-control': 'public, max-age=31536000, immutable',
+      // Netlify doesn't cache function responses by default, and a plain
+      // `cache-control` only gets each edge node to cache its own copy —
+      // so every node still invokes this function once per key, and again
+      // after any eviction. The `durable` directive additionally stores the
+      // response in Netlify's shared durable cache, which edge nodes check
+      // before invoking; that turns the steady state into ~zero invocations
+      // for an image that's already been served once anywhere.
+      'netlify-cdn-cache-control': 'public, durable, max-age=31536000, immutable',
     },
   });
 };

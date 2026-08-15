@@ -15,11 +15,46 @@ import crypto from 'node:crypto';
 const LOCAL_IMAGE_DIR = path.join(process.cwd(), '.data', 'images');
 const STORE_NAME = 'blog-images';
 
-// Netlify sets NETLIFY=true both for real deploys and under `netlify dev`
-// (which is what gives Blobs a sandboxed local store to use). Plain
-// `astro dev` has neither, so this is a reliable way to tell them apart.
+// Detecting whether Netlify Blobs is usable.
+//
+// This used to check `process.env.NETLIFY` alone, which was wrong in the
+// one environment that mattered most. `NETLIFY` is *build* metadata: it's
+// set while `astro build` runs (and by `netlify dev`), but Netlify exposes
+// only three read-only variables to serverless functions at runtime —
+// `URL`, `SITE_NAME`, and `SITE_ID`. `NETLIFY` is not one of them, and Vite
+// leaves `process.env.NETLIFY` as a runtime lookup rather than inlining it,
+// so in a deployed function the check returned false and every read/write
+// silently took the local-disk branch below. Uploads landed on the function
+// container's ephemeral filesystem: they served correctly while that
+// container stayed warm, then 404'd permanently once it recycled.
+//
+// `SITE_ID` is the runtime-available signal, so it's the one that decides
+// this in production; `NETLIFY` is kept for the build and `netlify dev`.
 export function isNetlifyBlobsAvailable(): boolean {
-  return Boolean(process.env.NETLIFY);
+  return Boolean(process.env.SITE_ID || process.env.NETLIFY);
+}
+
+// Whether it's legitimate to fall back to writing files under `.data/`.
+// That fallback exists for plain `astro dev`, where there's no Blobs
+// backend at all — it is never correct in a deployed build, where the
+// filesystem is ephemeral and per-container. `import.meta.env.DEV` is
+// substituted by Vite at build time, so unlike the env sniffing above it
+// can't be wrong at runtime.
+function isLocalDevFallbackAllowed(): boolean {
+  return import.meta.env.DEV === true;
+}
+
+// Guards every code path that would otherwise reach for local disk. If a
+// deployed build ever loses its Blobs signal again, this turns it into a
+// visible 502 at upload time instead of an image that quietly works until
+// the container recycles.
+function assertLocalFallbackAllowed(operation: string): void {
+  if (isLocalDevFallbackAllowed()) return;
+  throw new Error(
+    `Cannot ${operation}: Netlify Blobs is unavailable and the local-disk fallback ` +
+      `is only safe under \`astro dev\` (storage in a deployed function is ephemeral). ` +
+      `Expected SITE_ID or NETLIFY to be set.`
+  );
 }
 
 export interface StoredImage {
@@ -69,6 +104,7 @@ export async function saveImage(key: string, bytes: Uint8Array, contentType: str
     return;
   }
 
+  assertLocalFallbackAllowed('save image');
   await fs.mkdir(LOCAL_IMAGE_DIR, { recursive: true });
   await fs.writeFile(localDataPath(key), bytes);
   await fs.writeFile(localMetaPath(key), JSON.stringify({ contentType }));
@@ -82,6 +118,18 @@ export async function readImage(key: string): Promise<StoredImage | null> {
     if (!result) return null;
     const contentType = (result.metadata?.contentType as string) || 'application/octet-stream';
     return { bytes: new Uint8Array(result.data), contentType };
+  }
+
+  // Reads stay non-fatal — a missing image should 404, not 500 — but a
+  // deployed build reaching this branch means Blobs detection is broken
+  // again, which is worth saying out loud in the function logs rather than
+  // leaving as a silent 404.
+  if (!isLocalDevFallbackAllowed()) {
+    console.error(
+      '[imageStore] Netlify Blobs unavailable in a deployed build; ' +
+        'cannot read image. Expected SITE_ID or NETLIFY to be set.'
+    );
+    return null;
   }
 
   try {
@@ -105,6 +153,7 @@ export async function deleteImage(key: string): Promise<void> {
     return;
   }
 
+  assertLocalFallbackAllowed('delete image');
   await Promise.all([
     fs.rm(localDataPath(key), { force: true }),
     fs.rm(localMetaPath(key), { force: true }),
