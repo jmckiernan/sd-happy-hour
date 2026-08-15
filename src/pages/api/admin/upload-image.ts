@@ -3,6 +3,7 @@ import { getAdminUser } from '../../../lib/admins';
 import { json, errorJson } from '../../../lib/api';
 import { saveImage, makeImageKey } from '../../../lib/imageStore';
 import { readImageDimensions } from '../../../lib/imageDimensions';
+import { describeStoredImage } from '../../../lib/imageMetadata';
 
 export const prerender = false;
 
@@ -31,6 +32,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   let bytes: Uint8Array;
   let imageContentType: string;
   let slug = 'image';
+  // Which of the two ways in was used, recorded alongside the image so the
+  // provenance of a fetched-from-URL copy isn't lost the moment it stops
+  // being a hotlink.
+  let origin: 'upload' | 'url' = 'upload';
+  let sourceUrl: string | null = null;
 
   try {
     if (contentType.includes('multipart/form-data')) {
@@ -54,6 +60,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       if (typeof url !== 'string' || !/^https?:\/\//.test(url)) {
         return errorJson(['Provide a valid http(s) image URL.'], 400);
       }
+      origin = 'url';
+      sourceUrl = url;
 
       const res = await fetch(url);
       if (!res.ok) return errorJson([`Could not fetch that URL (${res.status}).`], 502);
@@ -88,6 +96,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   } catch (err: any) {
     return errorJson([`Could not save image: ${err.message}`], 502);
   }
+
+  await describeStoredImage({
+    key,
+    bytes,
+    contentType: imageContentType,
+    origin,
+    sourceUrl,
+    slugHint: slug,
+    createdBy: admin.email,
+  });
 
   return json({ success: true, url: `/api/images/${key}` });
 };

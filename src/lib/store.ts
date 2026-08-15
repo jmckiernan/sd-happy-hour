@@ -879,4 +879,107 @@ export async function listActiveAlertsForDispatch(): Promise<ActiveAlertForDispa
   }));
 }
 
+// =============================================================================
+// Images
+// =============================================================================
+
+// Metadata for what's in Netlify Blobs — the bytes themselves live there, not
+// here (see migrations/0003_images.sql for why). Recording is best-effort at
+// the call sites: the blob write has already succeeded by the time these run,
+// so a database hiccup shouldn't fail an upload the user can see worked.
+
+export interface ImageRecord {
+  key: string;
+  contentType: string;
+  byteSize: number;
+  width: number | null;
+  height: number | null;
+  origin: 'upload' | 'url' | 'generated' | 'edited';
+  sourceUrl: string | null;
+  prompt: string | null;
+  slugHint: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+interface ImageRow {
+  key: string;
+  content_type: string;
+  byte_size: number;
+  width: number | null;
+  height: number | null;
+  origin: ImageRecord['origin'];
+  source_url: string | null;
+  prompt: string | null;
+  slug_hint: string;
+  created_by: string;
+  created_at: string;
+}
+
+function mapImage(row: ImageRow): ImageRecord {
+  return {
+    key: row.key,
+    contentType: row.content_type,
+    byteSize: row.byte_size,
+    width: row.width,
+    height: row.height,
+    origin: row.origin,
+    sourceUrl: row.source_url,
+    prompt: row.prompt,
+    slugHint: row.slug_hint,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+  };
+}
+
+export interface RecordImageInput {
+  key: string;
+  contentType: string;
+  byteSize: number;
+  width?: number | null;
+  height?: number | null;
+  origin: ImageRecord['origin'];
+  sourceUrl?: string | null;
+  prompt?: string | null;
+  slugHint?: string;
+  createdBy?: string;
+}
+
+// Keys come from makeImageKey(), which is collision-resistant, so a conflict
+// here means the same upload got recorded twice rather than two different
+// images colliding — hence DO NOTHING rather than an error.
+export async function recordImage(input: RecordImageInput): Promise<ImageRecord | null> {
+  const rows = await sql<ImageRow>`
+    INSERT INTO images (
+      key, content_type, byte_size, width, height,
+      origin, source_url, prompt, slug_hint, created_by
+    )
+    VALUES (
+      ${input.key}, ${input.contentType}, ${input.byteSize},
+      ${input.width ?? null}, ${input.height ?? null},
+      ${input.origin}, ${input.sourceUrl ?? null}, ${input.prompt ?? null},
+      ${input.slugHint ?? ''}, ${input.createdBy ?? ''}
+    )
+    ON CONFLICT (key) DO NOTHING
+    RETURNING *`;
+  return rows[0] ? mapImage(rows[0]) : null;
+}
+
+export async function getImage(key: string): Promise<ImageRecord | null> {
+  const rows = await sql<ImageRow>`SELECT * FROM images WHERE key = ${key}`;
+  return rows[0] ? mapImage(rows[0]) : null;
+}
+
+export async function listImages(limit = 200): Promise<ImageRecord[]> {
+  const rows = await sql<ImageRow>`
+    SELECT * FROM images ORDER BY created_at DESC LIMIT ${limit}`;
+  return rows.map(mapImage);
+}
+
+export async function deleteImageRecord(key: string): Promise<boolean> {
+  const rows = await sql<{ key: string }>`
+    DELETE FROM images WHERE key = ${key} RETURNING key`;
+  return rows.length > 0;
+}
+
 export type { QueryExecutor };

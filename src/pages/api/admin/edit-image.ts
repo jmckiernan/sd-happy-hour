@@ -3,6 +3,7 @@ import { getAdminUser } from '../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { saveImage, makeImageKey, readImage } from '../../../lib/imageStore';
 import { callGeminiImage } from '../../../lib/aiImages';
+import { describeStoredImage } from '../../../lib/imageMetadata';
 
 export const prerender = false;
 
@@ -52,6 +53,11 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
   let prompt: string;
   let slug: string;
   let source: { bytes: Uint8Array; contentType: string };
+  // Which image this edit started from, when it started from a stored one.
+  // Recorded with the result so an edit chain stays traceable back to its
+  // original; null when the source was a freshly attached file that was never
+  // stored in its own right.
+  let editedFrom: string | null = null;
 
   try {
     if (contentType.includes('multipart/form-data')) {
@@ -80,6 +86,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       const sourceUrl = typeof body.sourceUrl === 'string' ? body.sourceUrl.trim() : '';
 
       if (!sourceUrl) return errorJson(['No current image to edit — generate or upload one first.'], 400);
+      editedFrom = sourceUrl;
       source = await loadSourceImage(sourceUrl, url);
     }
   } catch (err: any) {
@@ -104,6 +111,17 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
   } catch (err: any) {
     return errorJson([`Could not save image: ${err.message}`], 502);
   }
+
+  await describeStoredImage({
+    key,
+    bytes: edited.bytes,
+    contentType: edited.contentType,
+    origin: 'edited',
+    prompt,
+    sourceUrl: editedFrom,
+    slugHint: slug,
+    createdBy: admin.email,
+  });
 
   // Saved under a new key rather than overwriting the source — keeps the
   // original intact (matches makeImageKey()'s "never overwritten" contract

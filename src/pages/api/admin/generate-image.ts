@@ -3,6 +3,7 @@ import { getAdminUser } from '../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { saveImage, makeImageKey } from '../../../lib/imageStore';
 import { callGeminiImage } from '../../../lib/aiImages';
+import { describeStoredImage } from '../../../lib/imageMetadata';
 
 export const prerender = false;
 
@@ -42,6 +43,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   } catch (err: any) {
     return errorJson([`Could not save image: ${err.message}`], 502);
   }
+
+  await describeStoredImage({
+    key,
+    bytes: generated.bytes,
+    contentType: generated.contentType,
+    origin: 'generated',
+    // The admin's prompt, not the STYLE_SUFFIX-appended version actually sent
+    // to Gemini — the suffix is boilerplate applied to every generation and
+    // storing it on each row would just be noise.
+    prompt,
+    slugHint: slug,
+    createdBy: admin.email,
+  });
 
   return json({ success: true, url: `/api/images/${key}` });
 };
