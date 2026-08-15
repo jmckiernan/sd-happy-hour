@@ -6,7 +6,7 @@ author: "SD Happy Hours"
 draft: false
 aiGenerated: true
 venues: []
-heroImage: "/api/images/san-diego-s-classiest-happy-hours-where-to-sip-like-you-mean-1786782246623-fca5eb7f.png"
+heroImage: "/api/images/san-diego-s-classiest-happy-hours-where-to-sip-like-you-mean-1786818469207-443d9ce3.png"
 ---
 Not every happy hour needs a bucket of beer and a basket of wings. Sometimes you want the version with a proper wine list, a bartender who knows what "orange peel garnish" means, and a room that doesn't smell like fryer oil. San Diego has plenty of those spots tucked into its nicer neighborhoods — you just have to know where to look.
 
