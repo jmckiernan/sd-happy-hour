@@ -6,7 +6,7 @@ author: "SD Happy Hours"
 draft: false
 aiGenerated: true
 venues: []
-heroImage: "/api/images/paws-up-san-diego-s-best-dog-friendly-happy-hour-vibes-1785445453913-e8be1c27.jpg"
+heroImage: "/api/images/paws-up-san-diego-s-best-dog-friendly-happy-hour-vibes-1786986601943-b4c228a6.png"
 ---
 If your dog thinks "happy hour" means a car ride and a patio full of new best friends, you're not alone. San Diego's love affair with outdoor drinking and dining makes it one of the most dog-friendly happy hour cities around — you just have to know where to look (and what to ask when you get there).
 
