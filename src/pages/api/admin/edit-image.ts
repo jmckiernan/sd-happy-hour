@@ -10,6 +10,37 @@ export const prerender = false;
 const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB, same cap as upload-image.ts
 
+// Frames a bare edit request as an actual edit instruction — the same job
+// STYLE_SUFFIX does for generate-image.ts.
+//
+// What this fixes is drift, not weak edits. Sending the admin's phrase through
+// alone, the model treats the source as a reference rather than the thing being
+// modified: results came back re-cropped and re-composed (wider framing, moved
+// elements) even when the requested change itself landed. Pinning composition,
+// framing, and aspect ratio keeps the result recognizably the same photo.
+//
+// What it does NOT fix, tested directly against the model: a vague or purely
+// tonal request ("brighter lighting", "make it brighter") comes back as a
+// near-identical re-render no matter how the instruction is framed — including
+// with an explicit "a result that looks the same as the input is a failure".
+// Requests that change scene *content* ("bright midday daylight, sun through
+// the windows", "add a potted palm in the front left corner") land reliably.
+// That's a model limitation, so the admin screens steer toward end-state
+// wording and show the result rather than the endpoint pretending otherwise.
+//
+// Only the "edit the current image" path gets this. A freshly attached photo
+// (the multipart branch below) is a "make an image from this starting point"
+// request where wholesale reinterpretation is the point, and it already works.
+function buildEditPrompt(prompt: string): string {
+  return (
+    `Edit the image provided. Apply this change: ${prompt}\n\n` +
+    'Change only what that asks for. Keep the composition, subjects, framing, ' +
+    'aspect ratio, and overall style of the original image identical — this is ' +
+    'an edit of the given image, not a new image inspired by it. Return the ' +
+    'edited image. No text, logos, or watermarks anywhere in the image.'
+  );
+}
+
 // The image being edited is almost always one this app already stored
 // (served at /api/images/<key>) — read it straight out of imageStore
 // instead of looping the request back through fetch(). Anything else (a
@@ -58,6 +89,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
   // original; null when the source was a freshly attached file that was never
   // stored in its own right.
   let editedFrom: string | null = null;
+  // True for the "edit the current image" path, which is the one that needs
+  // buildEditPrompt()'s scaffolding; false when starting from an attached photo.
+  let isCurrentImageEdit = false;
 
   try {
     if (contentType.includes('multipart/form-data')) {
@@ -87,6 +121,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 
       if (!sourceUrl) return errorJson(['No current image to edit — generate or upload one first.'], 400);
       editedFrom = sourceUrl;
+      isCurrentImageEdit = true;
       source = await loadSourceImage(sourceUrl, url);
     }
   } catch (err: any) {
@@ -99,7 +134,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
   try {
     edited = await callGeminiImage([
       { inlineData: { mimeType: source.contentType, data: Buffer.from(source.bytes).toString('base64') } },
-      { text: prompt },
+      { text: isCurrentImageEdit ? buildEditPrompt(prompt) : prompt },
     ]);
   } catch (err: any) {
     return errorJson([`Image edit failed: ${err.message}`], 502);
@@ -117,6 +152,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     bytes: edited.bytes,
     contentType: edited.contentType,
     origin: 'edited',
+    // The admin's raw prompt, not buildEditPrompt()'s expanded version — the
+    // scaffolding is boilerplate on every edit, same reasoning as
+    // generate-image.ts storing the prompt without its STYLE_SUFFIX.
     prompt,
     sourceUrl: editedFrom,
     slugHint: slug,

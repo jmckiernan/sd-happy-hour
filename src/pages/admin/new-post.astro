@@ -54,26 +54,43 @@ import Layout from '../../layouts/Layout.astro';
     .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
     .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
 
-    .image-upload-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .image-upload-row .small, .file-btn {
-      display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
-      background: var(--sand-warm); color: var(--night); padding: 8px 16px; margin-top: 0;
-      font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    /* Each way to set a featured image gets its own card. They used to share
+       one prompt field and two buttons, which hid a mode switch: attaching a
+       photo silently changed what "Generate with AI" did, and "Edit current
+       image" ignored that photo entirely. One card = one prompt = one button,
+       so what a button will do is readable without knowing the endpoint. */
+    .img-sections { display: grid; gap: 10px; margin-top: 10px; }
+    .img-card { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); padding: 14px 16px; }
+    .img-card h4 {
+      font-family: inherit; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--night); margin: 0 0 6px;
     }
-    .image-upload-row .small:hover, .file-btn:hover { background: var(--sunset-end); }
-    .image-upload-row .small:disabled { opacity: 0.5; cursor: not-allowed; }
-    .ai-image-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--sand-warm); }
-    .ai-image-row input#ai-image-prompt { margin-bottom: 8px; }
-    .ai-image-row .source-file-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .ai-image-row .source-file-row span { font-size: 0.8rem; color: var(--night-soft); }
-    .ai-image-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .ai-image-actions .small {
+    .img-card .why { font-size: 0.8rem; color: var(--night-soft); margin: 0 0 10px; line-height: 1.5; }
+    .img-card .eg-good { color: #166534; font-weight: 600; }
+    .img-card .eg-bad { color: #991B1B; font-weight: 600; }
+    .img-card input:not([type="file"]) { margin-bottom: 10px; }
+    .img-card .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .img-card .row + .row { margin-top: 10px; }
+    .img-card .row span { font-size: 0.8rem; color: var(--night-soft); }
+    /* `.file-btn` is a <label>, so it has to out-specify the global label rule
+       (block, uppercase, 20px top margin) as well as the global button rule. */
+    .img-card .small, .file-btn {
       display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 100px;
-      background: var(--sand-warm); color: var(--night); padding: 8px 16px; margin-top: 0;
+      background: var(--sand-warm); color: var(--night); padding: 8px 16px; margin: 0;
       font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      text-transform: none; letter-spacing: normal;
     }
-    .ai-image-actions .small:hover { background: var(--sunset-end); }
-    .ai-image-actions .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    .img-card .small:hover, .file-btn:hover { background: var(--sunset-end); }
+    .img-card .small:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Shows the image that was just stored, so "Saved as …" can be checked
+       against the actual result instead of taken on faith — an AI edit that
+       came back barely changed is otherwise invisible until after publish. */
+    #ai-image-preview {
+      display: block; margin-top: 10px; max-width: 320px; width: 100%;
+      border-radius: var(--radius-sm); border: 2px solid var(--sand-warm);
+    }
+    /* Beats the global `.hidden` rule on specificity, so it needs its own. */
+    #ai-image-preview.hidden { display: none; }
     #image-upload-status.busy { color: var(--night-soft); }
     #image-upload-status.ok { color: #166534; font-weight: 600; }
     #image-upload-status.err { color: #991B1B; font-weight: 600; }
@@ -110,33 +127,76 @@ import Layout from '../../layouts/Layout.astro';
 
         <label for="hero-image">Featured image (optional)</label>
         <input id="hero-image" placeholder="https://images.unsplash.com/..." />
-        <div class="image-upload-row">
-          <button type="button" id="fetch-url-btn" class="small">Download &amp; store this URL</button>
-          <label class="file-btn small" for="hero-image-file">
-            Upload a file…
-            <input type="file" id="hero-image-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
-          </label>
-        </div>
-        <div class="ai-image-row">
-          <input id="ai-image-prompt" placeholder="e.g. a cozy patio bar at golden hour with string lights" />
-          <div class="source-file-row">
-            <label class="file-btn small" for="ai-source-file">
-              Start from an image…
-              <input type="file" id="ai-source-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
-            </label>
-            <span id="ai-source-file-name"></span>
-          </div>
-          <div class="ai-image-actions">
-            <button type="button" id="ai-generate-btn" class="small">Generate with AI</button>
-            <button type="button" id="ai-edit-btn" class="small">Edit current image with AI</button>
-          </div>
-        </div>
-        <p id="image-upload-status" class="hint"></p>
         <p class="hint">
-          Paste a URL and click "Download &amp; store" or upload a file directly. Or describe an image and generate one with AI —
-          optionally attach a starting photo above (e.g. a bar's real exterior) and AI will edit/update that photo to your prompt
-          instead of creating one from scratch. Leave blank to auto-pick an image based on the linked venue's vibe.
+          Whatever ends up in this field is the post's image — every button below writes its result here.
+          Leave it blank to auto-pick an image based on the linked venue's vibe.
         </p>
+
+        <div class="img-sections">
+          <section class="img-card">
+            <h4>1 · Use an image you already have</h4>
+            <p class="why">Paste a URL in the field above and store your own copy of it instead of hotlinking, or upload a file straight from your machine.</p>
+            <div class="row">
+              <button type="button" id="fetch-url-btn" class="small">Download &amp; store this URL</button>
+              <label class="file-btn small" for="hero-image-file">
+                Upload a file…
+                <input type="file" id="hero-image-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+              </label>
+            </div>
+          </section>
+
+          <section class="img-card">
+            <h4>2 · Create a new image with AI</h4>
+            <p class="why">Built from your words alone, with nothing to start from. Describe the scene you want.</p>
+            <input id="ai-create-prompt" placeholder="e.g. a cozy patio bar at golden hour with string lights" />
+            <div class="row">
+              <button type="button" id="ai-create-btn" class="small">Create image</button>
+            </div>
+          </section>
+
+          <section class="img-card">
+            <h4>3 · Create from your own photo</h4>
+            <p class="why">
+              AI uses your photo as a <strong>starting point and reinterprets it freely</strong> — expect a new image
+              in its spirit, not your photo touched up. Good for turning a real bar exterior into a polished hero shot.
+            </p>
+            <div class="row">
+              <label class="file-btn small" for="ai-source-file">
+                Choose photo…
+                <input type="file" id="ai-source-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" class="hidden" />
+              </label>
+              <span id="ai-source-file-name"></span>
+            </div>
+            <p class="why" style="margin: 10px 0 0;">Describe what to make from it:</p>
+            <input id="ai-from-photo-prompt" placeholder="e.g. this bar at golden hour, warm string lights, people at the rail" />
+            <div class="row">
+              <button type="button" id="ai-from-photo-btn" class="small">Create from photo</button>
+            </div>
+          </section>
+
+          <section class="img-card">
+            <h4>4 · Change the current image</h4>
+            <p class="why">
+              Edits whatever is in the Featured image field above, <strong>keeping the same photo, framing and crop</strong> —
+              only what you describe changes.
+            </p>
+            <p class="why">
+              Describe the finished look, not a nudge:<br />
+              <span class="eg-good">✓ "bright midday sun through the front windows"</span><br />
+              <span class="eg-good">✓ "add a potted palm in the front left corner"</span><br />
+              <span class="eg-bad">✗ "brighter", "warmer"</span> — the model applies purely tonal tweaks so weakly
+              that the result comes back looking unchanged.
+            </p>
+            <input id="ai-change-prompt" placeholder="e.g. bright midday sun through the front windows" />
+            <div class="row">
+              <button type="button" id="ai-change-btn" class="small">Apply change</button>
+            </div>
+          </section>
+        </div>
+
+        <p id="image-upload-status" class="hint"></p>
+        <img id="ai-image-preview" class="hidden" alt="The image that was just stored" />
+        <p class="hint">The preview shows what actually got stored — worth a look after a change, since a weakly-applied edit still reports success.</p>
 
         <button id="go">Generate Draft</button>
 
@@ -171,14 +231,37 @@ import Layout from '../../layouts/Layout.astro';
     const fetchUrlBtn = document.getElementById('fetch-url-btn') as HTMLButtonElement | null;
     const fileInput = document.getElementById('hero-image-file') as HTMLInputElement | null;
     const imageStatus = document.getElementById('image-upload-status');
-    const aiPromptInput = document.getElementById('ai-image-prompt') as HTMLInputElement | null;
+    // One prompt field and one button per card, rather than a shared prompt
+    // whose meaning depended on whether a file happened to be attached.
+    const aiCreatePrompt = document.getElementById('ai-create-prompt') as HTMLInputElement | null;
+    const aiCreateBtn = document.getElementById('ai-create-btn') as HTMLButtonElement | null;
     const aiSourceFileInput = document.getElementById('ai-source-file') as HTMLInputElement | null;
     const aiSourceFileName = document.getElementById('ai-source-file-name');
-    const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement | null;
-    const aiEditBtn = document.getElementById('ai-edit-btn') as HTMLButtonElement | null;
+    const aiFromPhotoPrompt = document.getElementById('ai-from-photo-prompt') as HTMLInputElement | null;
+    const aiFromPhotoBtn = document.getElementById('ai-from-photo-btn') as HTMLButtonElement | null;
+    const aiChangePrompt = document.getElementById('ai-change-prompt') as HTMLInputElement | null;
+    const aiChangeBtn = document.getElementById('ai-change-btn') as HTMLButtonElement | null;
+    const aiImagePreview = document.getElementById('ai-image-preview') as HTMLImageElement | null;
+
+    function imageError(message: string) {
+      if (!imageStatus) return;
+      imageStatus.className = 'hint err';
+      imageStatus.textContent = message;
+    }
+
+    // Every path that stores an image ends here, so the admin sees what
+    // actually landed rather than only its URL. Matters most for AI edits: a
+    // prompt the model applies weakly still reports success and still swaps in
+    // a new key, and without this there's nothing to notice that by until the
+    // post is published.
+    function showStoredImage(imageUrl: string) {
+      if (!aiImagePreview) return;
+      aiImagePreview.src = imageUrl;
+      aiImagePreview.classList.remove('hidden');
+    }
 
     function setImageBusy(busy: boolean) {
-      [fetchUrlBtn, aiGenerateBtn, aiEditBtn].forEach((btn) => {
+      [fetchUrlBtn, aiCreateBtn, aiFromPhotoBtn, aiChangeBtn].forEach((btn) => {
         if (!btn) return;
         if (busy) btn.setAttribute('disabled', 'true');
         else btn.removeAttribute('disabled');
@@ -202,6 +285,7 @@ import Layout from '../../layouts/Layout.astro';
         if (!res.ok) throw new Error((data.errors || ['Upload failed.']).join('\n'));
 
         heroImageInput.value = data.url;
+        showStoredImage(data.url);
         imageStatus.className = 'hint ok';
         imageStatus.textContent = `Saved as ${data.url}`;
       } catch (err: any) {
@@ -212,11 +296,10 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
-    // Covers all three AI paths: pure text-to-image generation
-    // (generate-image, JSON), editing the current heroImage value
-    // (edit-image, JSON sourceUrl), and generating from a freshly attached
-    // photo (edit-image, multipart file) — all land the resulting URL in
-    // the same heroImageInput field, same as uploadImage() above.
+    // Covers all three AI paths — card 2 (generate-image, JSON), card 3
+    // (edit-image, multipart file), card 4 (edit-image, JSON sourceUrl) —
+    // which all land the resulting URL in heroImageInput, same as
+    // uploadImage() above.
     async function runAIImage(input: RequestInfo, init: RequestInit, busyText: string) {
       if (!imageStatus || !heroImageInput) return;
       setImageBusy(true);
@@ -229,6 +312,7 @@ import Layout from '../../layouts/Layout.astro';
         if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
 
         heroImageInput.value = data.url;
+        showStoredImage(data.url);
         imageStatus.className = 'hint ok';
         imageStatus.textContent = `Saved as ${data.url}`;
       } catch (err: any) {
@@ -241,10 +325,7 @@ import Layout from '../../layouts/Layout.astro';
 
     fetchUrlBtn?.addEventListener('click', () => {
       const url = heroImageInput?.value.trim();
-      if (!url) {
-        if (imageStatus) { imageStatus.className = 'hint err'; imageStatus.textContent = 'Paste a URL into the field first.'; }
-        return;
-      }
+      if (!url) return imageError('Paste a URL into the Featured image field first.');
       uploadImage({ url, slug: slugHint() });
     });
 
@@ -263,49 +344,44 @@ import Layout from '../../layouts/Layout.astro';
       if (aiSourceFileName) aiSourceFileName.textContent = file ? `Starting from: ${file.name}` : '';
     });
 
-    aiGenerateBtn?.addEventListener('click', () => {
-      if (!imageStatus) return;
-      const prompt = aiPromptInput?.value.trim();
-      if (!prompt) {
-        imageStatus.className = 'hint err';
-        imageStatus.textContent = 'Describe the image you want first.';
-        return;
-      }
-
-      const sourceFile = aiSourceFileInput?.files?.[0];
-      if (sourceFile) {
-        const form = new FormData();
-        form.append('file', sourceFile);
-        form.append('prompt', prompt);
-        form.append('slug', slugHint());
-        runAIImage('/api/admin/edit-image', { method: 'POST', body: form }, 'Generating image from your photo…');
-      } else {
-        runAIImage(
-          '/api/admin/generate-image',
-          { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, slug: slugHint() }) },
-          'Generating image…'
-        );
-      }
+    // Card 2 — text only, no source image.
+    aiCreateBtn?.addEventListener('click', () => {
+      const prompt = aiCreatePrompt?.value.trim();
+      if (!prompt) return imageError('Describe the image you want first.');
+      runAIImage(
+        '/api/admin/generate-image',
+        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, slug: slugHint() }) },
+        'Creating image…'
+      );
     });
 
-    aiEditBtn?.addEventListener('click', () => {
-      if (!imageStatus) return;
-      const prompt = aiPromptInput?.value.trim();
+    // Card 3 — an attached photo as a starting point. Hits edit-image, but
+    // without buildEditPrompt()'s "preserve the original" scaffolding, since
+    // reinterpreting the photo is the point here.
+    aiFromPhotoBtn?.addEventListener('click', () => {
+      const prompt = aiFromPhotoPrompt?.value.trim();
+      const sourceFile = aiSourceFileInput?.files?.[0];
+      if (!sourceFile) return imageError('Choose a photo to start from first.');
+      if (!prompt) return imageError('Describe what to make from your photo first.');
+
+      const form = new FormData();
+      form.append('file', sourceFile);
+      form.append('prompt', prompt);
+      form.append('slug', slugHint());
+      runAIImage('/api/admin/edit-image', { method: 'POST', body: form }, 'Creating image from your photo…');
+    });
+
+    // Card 4 — modify the image already in the Featured image field, keeping
+    // its composition. The server adds that constraint to the prompt.
+    aiChangeBtn?.addEventListener('click', () => {
+      const prompt = aiChangePrompt?.value.trim();
       const sourceUrl = heroImageInput?.value.trim();
-      if (!prompt) {
-        imageStatus.className = 'hint err';
-        imageStatus.textContent = 'Describe the edit you want first.';
-        return;
-      }
-      if (!sourceUrl) {
-        imageStatus.className = 'hint err';
-        imageStatus.textContent = 'No current image to edit — generate or upload one first.';
-        return;
-      }
+      if (!sourceUrl) return imageError('No current image to change — use one of the options above first.');
+      if (!prompt) return imageError('Describe the change you want first.');
       runAIImage(
         '/api/admin/edit-image',
         { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, sourceUrl, slug: slugHint() }) },
-        'Editing image…'
+        'Applying your change…'
       );
     });
 
