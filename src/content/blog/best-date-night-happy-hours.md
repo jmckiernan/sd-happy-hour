@@ -5,7 +5,7 @@ pubDate: 2026-07-28
 author: "John & Shane"
 draft: false
 venues: ["raised-by-wolves", "false-idol", "kindred", "herb-wood"]
-heroImage: "/api/images/best-date-night-happy-hours-1785441279451-c2968c3d.jpg"
+heroImage: "/api/images/best-date-night-happy-hours-1786986955249-ea576402.png"
 ---
 A good date night doesn't have to mean an 8pm reservation and a three-figure bill. Timed right, happy hour gets you the same atmosphere — sometimes better — for a lot less.
 
