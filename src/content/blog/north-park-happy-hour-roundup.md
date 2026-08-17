@@ -5,8 +5,8 @@ pubDate: 2026-07-26
 author: "Shane"
 draft: false
 venues: ["polite-provisions", "coin-op-game-room", "neighborhood"]
+heroImage: "/api/images/north-park-happy-hour-roundup-1786987260752-82f6527e.png"
 ---
-
 North Park doesn't do one kind of happy hour — it does all of them within a few blocks of University and 30th, which is exactly why it's worth the drive from the coast.
 
 Start serious at **Polite Provisions**, one of the better cocktail bars in the city on any night, with $9 craft cocktails and $5 draft beers Tuesday through Friday from 4-6pm on the patio. It's the kind of list where the bartenders actually know what's in your glass.
