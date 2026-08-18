@@ -784,8 +784,8 @@
     ],
     "vibe": "rooftop",
     "website": "https://google.com",
-    "verified": true,
-    "lastVerifiedAt": "2026-08-18",
+    "verified": false,
+    "lastVerifiedAt": null,
     "sourceUrl": "https://google.com",
     "dealTypes": [
       "beer",
@@ -796,6 +796,7 @@
       "dog friendly",
       "date night"
     ],
-    "phone": ""
+    "phone": "",
+    "image": "/api/images/your-mother-s-house-1787033644372-6a83067a.png"
   }
 ]
