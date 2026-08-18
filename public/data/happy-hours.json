@@ -784,7 +784,7 @@
     ],
     "vibe": "rooftop",
     "website": "https://google.com",
-    "verified": false,
+    "verified": true,
     "lastVerifiedAt": null,
     "sourceUrl": "https://google.com",
     "dealTypes": [
