@@ -382,7 +382,7 @@
   },
   {
     "id": 11,
-    "name": "Neighborhood",
+    "name": "Neighborhood a",
     "neighborhood": "North Park",
     "address": "3012 University Ave",
     "lat": 32.7491,
@@ -410,7 +410,8 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "food"
+      "food",
+      "oysters"
     ],
     "features": [
       "casual",
