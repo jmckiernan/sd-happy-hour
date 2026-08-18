@@ -1,0 +1,529 @@
+---
+export const prerender = true;
+import Layout from '../../../layouts/Layout.astro';
+import ListingFormStyles from '../../../components/ListingFormStyles.astro';
+import { getVenues, slugify } from '../../../lib/venues';
+
+// The management screen a verified restaurant owner gets for their own listing:
+// hours and deals, a photo album, and a menu.
+//
+// One prerendered page per venue, mirroring /admin/venues/<slug>/ and the
+// public /venues/<slug>/, so the dashboard can link straight to it. Nothing
+// venue-specific beyond the id is baked in — every field is loaded from
+// /api/restaurant/venues/<id>/... after the page checks who you are, and each
+// of those routes re-authorizes independently (src/lib/venueManager.ts). A
+// prerendered page can't be a security boundary, so it isn't one: the page
+// shell is public, the data behind it is not.
+export async function getStaticPaths() {
+  return getVenues().map((venue) => ({
+    params: { slug: slugify(venue.name) },
+    props: { venue },
+  }));
+}
+
+const { venue } = Astro.props;
+---
+<Layout title={`Manage ${venue.name} | SD Happy Hours`} description="Manage your happy hour listing, photos, and menu.">
+  <ListingFormStyles />
+  <style is:global>
+    .mg-wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 80px; }
+    .mg-wrap h1 { font-family: var(--font-display); font-size: 1.7rem; margin-bottom: 4px; }
+    .mg-sub { color: var(--night-soft); font-size: 0.9rem; margin-bottom: 20px; }
+
+    .mg-panel {
+      background: white; border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      padding: 22px; margin-bottom: 18px;
+    }
+    .mg-panel > h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
+    .mg-panel > p.why { color: var(--night-soft); font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px; }
+
+    .mg-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+    .mg-btn {
+      background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer;
+      font: inherit; font-weight: 700; padding: 11px 20px; text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .mg-btn:hover { background: var(--sunset-start); }
+    .mg-btn.neutral { background: var(--sand-warm); color: var(--night); }
+    .mg-btn.neutral:hover { background: var(--sunset-end); }
+    .mg-btn.small { font-size: 0.82rem; padding: 8px 14px; }
+    .mg-btn.danger { background: #FEE2E2; color: #991B1B; }
+    .mg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .mg-status { color: var(--night-soft); font-weight: 600; font-size: 0.88rem; white-space: pre-wrap; }
+    .mg-status.ok { color: #166534; }
+    .mg-status.err { color: #B91C1C; }
+
+    .mg-locked { text-align: center; padding: 60px 24px; }
+    .mg-locked p { color: var(--night-soft); margin-bottom: 20px; line-height: 1.55; }
+
+    /* --- photos --- */
+    .ph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+    .ph-card { background: var(--sand); border-radius: var(--radius-sm); overflow: hidden; }
+    .ph-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--sand-warm); }
+    .ph-body { padding: 10px; display: grid; gap: 8px; }
+    .ph-body input {
+      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); font: inherit;
+      font-size: 0.85rem; padding: 8px 10px; width: 100%;
+    }
+    .ph-tag {
+      border-radius: 100px; font-size: 0.65rem; font-weight: 700; padding: 4px 9px;
+      text-transform: uppercase; letter-spacing: 0.04em; justify-self: start;
+    }
+    .ph-tag.published { background: #DCFCE7; color: #166534; }
+    .ph-tag.in_review { background: #FEF3C7; color: #92400E; }
+    .ph-tag.rejected { background: #FEE2E2; color: #991B1B; }
+    .ph-reason { color: var(--night-soft); font-size: 0.75rem; line-height: 1.45; }
+    .ph-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .ph-upload {
+      border: 2px dashed var(--sand-warm); border-radius: var(--radius-sm);
+      padding: 18px; text-align: center; margin-bottom: 16px;
+    }
+    .ph-upload p { color: var(--night-soft); font-size: 0.82rem; line-height: 1.5; margin-top: 8px; }
+    .file-btn { cursor: pointer; }
+
+    /* --- menu --- */
+    .mn-section { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 14px; }
+    .mn-section-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
+    .mn-section-head h3 { font-family: var(--font-display); font-size: 1.02rem; }
+    .mn-section-head .note { color: var(--night-soft); font-size: 0.8rem; }
+
+    .mn-item { background: white; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+    .mn-item img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--sand-warm); }
+    .mn-item-main { flex: 1; min-width: 0; }
+    .mn-item-main .nm { font-weight: 700; font-size: 0.92rem; }
+    .mn-item-main .pr { color: var(--night-soft); font-size: 0.85rem; }
+    .mn-item-main .ds { color: var(--night-soft); font-size: 0.82rem; line-height: 1.45; margin-top: 2px; }
+
+    .mn-form { display: grid; gap: 8px; margin-top: 10px; }
+    .mn-form .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mn-form input, .mn-form select, .mn-form textarea {
+      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); font: inherit;
+      font-size: 0.88rem; padding: 9px 11px; flex: 1 1 160px; min-width: 0;
+    }
+    .mn-form textarea { min-height: 60px; resize: vertical; width: 100%; }
+
+    .mg-hidden { display: none; }
+  </style>
+
+  <div class="mg-wrap">
+    <div id="mg-locked" class="mg-locked mg-hidden">
+      <h1>Manage this listing</h1>
+      <p id="mg-locked-note">
+        This page is for the restaurant that has claimed <strong>{venue.name}</strong>.
+        Sign in and claim the listing to manage it.
+      </p>
+      <a class="mg-btn" href="/restaurant/">Go to the restaurant dashboard</a>
+    </div>
+
+    <div id="mg-editor" class="mg-hidden" data-venue-id={venue.id}>
+      <h1>{venue.name}</h1>
+      <p class="mg-sub">
+        {venue.neighborhood} · <a href={`/venues/${slugify(venue.name)}/`}>view your public page</a> ·
+        <a href="/restaurant/">back to dashboard</a>
+      </p>
+
+      <!-- Listing -->
+      <section class="mg-panel">
+        <h2>Happy hour details</h2>
+        <p class="why">
+          Your changes go live on your page right away. Your restaurant name, neighbourhood and map
+          location are managed by us — email us if one of those is wrong.
+        </p>
+        <div id="mg-form"></div>
+        <div class="mg-actions">
+          <button type="button" class="mg-btn" id="mg-save">Save changes</button>
+          <span class="mg-status" id="mg-save-status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- Photos -->
+      <section class="mg-panel">
+        <h2>Photos</h2>
+        <p class="why">
+          These appear as a photo album on your venue page, and are what you can choose a featured photo
+          from above. JPEG or PNG, at least 800×500. Every photo is checked automatically before it goes
+          public; anything the check isn't sure about waits for a person, usually the same day.
+          Location data is stripped from photos on upload.
+        </p>
+
+        <div class="ph-upload">
+          <label class="mg-btn neutral file-btn" for="ph-file">
+            Add a photo…
+            <input type="file" id="ph-file" accept="image/jpeg,image/png" class="mg-hidden">
+          </label>
+          <p id="ph-upload-status" class="mg-status">Photos of your space, your food and your drinks work best.</p>
+        </div>
+
+        <div class="ph-grid" id="ph-grid"></div>
+      </section>
+
+      <!-- Menu -->
+      <section class="mg-panel">
+        <h2>Menu</h2>
+        <p class="why">
+          Group items into sections — "Happy Hour Food", "Cocktails", whatever matches your menu. Prices are
+          free text, so "$8", "6/9" and "market price" all work. Item photos come from your approved photos
+          above.
+        </p>
+        <div id="mn-body"></div>
+
+        <form class="mn-form" id="mn-add-section">
+          <div class="row">
+            <input name="title" placeholder="New section name, e.g. Happy Hour Food" maxlength="80" required>
+            <input name="note" placeholder="Optional note, e.g. served 3–6pm at the bar" maxlength="200">
+            <button type="submit" class="mg-btn small">Add section</button>
+          </div>
+          <span class="mg-status" id="mn-status" aria-live="polite"></span>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    import { listingFormHTML, readListingForm, wireListingPhotoPicker } from '../../../lib/listingForm';
+
+    const editorEl = document.getElementById('mg-editor')!;
+    const lockedEl = document.getElementById('mg-locked')!;
+    const venueId = Number(editorEl.dataset.venueId);
+
+    const formEl = document.getElementById('mg-form')!;
+    const saveBtn = document.getElementById('mg-save') as HTMLButtonElement;
+    const saveStatusEl = document.getElementById('mg-save-status')!;
+    const photoGridEl = document.getElementById('ph-grid')!;
+    const photoStatusEl = document.getElementById('ph-upload-status')!;
+    const menuBodyEl = document.getElementById('mn-body')!;
+    const menuStatusEl = document.getElementById('mn-status')!;
+
+    function esc(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'err' = '') {
+      el.className = `mg-status${kind ? ` ${kind}` : ''}`;
+      el.textContent = message;
+    }
+
+    async function api(path: string, options: RequestInit = {}) {
+      const res = await fetch(path, {
+        ...options,
+        headers: options.body instanceof FormData
+          ? (options.headers || {})
+          : { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data.errors || ['Something went wrong.']).join('\n'));
+      return data;
+    }
+
+    // Approved photos double as the featured-image options and the menu item
+    // photo options, so both panels read this one list.
+    let approvedPhotos: Array<{ id: string; url: string; caption: string }> = [];
+
+    // ---------------------------------------------------------------------
+    // Listing
+    // ---------------------------------------------------------------------
+    function paintListingForm(listing: any) {
+      formEl.innerHTML = listingFormHTML(listing, { ownerMode: true, photoOptions: approvedPhotos });
+    }
+
+    async function loadListing() {
+      const data = await api(`/api/restaurant/venues/${venueId}/listing`);
+      approvedPhotos = data.photoOptions || [];
+      paintListingForm(data.listing);
+      return data;
+    }
+
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      setStatus(saveStatusEl, 'Saving...');
+      try {
+        await api(`/api/restaurant/venues/${venueId}/listing`, {
+          method: 'PUT',
+          body: JSON.stringify({ listing: readListingForm(formEl) }),
+        });
+        setStatus(saveStatusEl, 'Saved — your page is updated.', 'ok');
+      } catch (err: any) {
+        setStatus(saveStatusEl, err.message, 'err');
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    wireListingPhotoPicker(formEl);
+
+    // ---------------------------------------------------------------------
+    // Photos
+    // ---------------------------------------------------------------------
+    const STATUS_LABEL: Record<string, string> = {
+      published: 'On your page',
+      in_review: 'Being checked',
+      rejected: 'Not approved',
+    };
+
+    function photoCardHTML(photo: any) {
+      return `
+        <div class="ph-card" data-photo-id="${esc(photo.id)}">
+          <img src="${esc(photo.url)}" alt="${esc(photo.caption || 'Your photo')}" loading="lazy">
+          <div class="ph-body">
+            <span class="ph-tag ${esc(photo.status)}">${esc(STATUS_LABEL[photo.status] || photo.status)}</span>
+            ${photo.status !== 'published' && photo.reason ? `<p class="ph-reason">${esc(photo.reason)}</p>` : ''}
+            <input type="text" data-caption placeholder="Add a caption (optional)" maxlength="200" value="${esc(photo.caption)}">
+            <div class="ph-row">
+              <button type="button" class="mg-btn small neutral" data-action="save-caption">Save caption</button>
+              <button type="button" class="mg-btn small danger" data-action="delete-photo">Delete</button>
+            </div>
+            <span class="mg-status" data-photo-status aria-live="polite"></span>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadPhotos() {
+      const { photos } = await api(`/api/restaurant/venues/${venueId}/photos`);
+      photoGridEl.innerHTML = photos.length
+        ? photos.map(photoCardHTML).join('')
+        : '<p class="mg-status">No photos yet.</p>';
+
+      // Keep the featured-photo picker and the menu photo dropdowns in step
+      // with what's actually approved right now.
+      approvedPhotos = photos
+        .filter((photo: any) => photo.status === 'published')
+        .map((photo: any) => ({ id: photo.id, url: photo.url, caption: photo.caption }));
+    }
+
+    document.getElementById('ph-file')!.addEventListener('change', async (event) => {
+      const input = event.target as HTMLInputElement;
+      const file = input.files?.[0];
+      if (!file) return;
+
+      setStatus(photoStatusEl, `Uploading and checking ${file.name}…`);
+      const form = new FormData();
+      form.append('file', file);
+
+      try {
+        const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: form });
+        setStatus(
+          photoStatusEl,
+          result.pendingReview
+            ? 'Uploaded — it needs a quick look from us before it appears on your page.'
+            : 'Uploaded and live on your page.',
+          'ok'
+        );
+        await loadPhotos();
+        // Repaint so a photo that cleared screening is immediately available as
+        // the featured one, without losing edits already typed into the form.
+        paintListingForm(readListingForm(formEl));
+      } catch (err: any) {
+        setStatus(photoStatusEl, err.message, 'err');
+      } finally {
+        input.value = '';
+      }
+    });
+
+    photoGridEl.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+
+      const card = button.closest('.ph-card') as HTMLElement;
+      const photoId = card.dataset.photoId!;
+      const statusEl = card.querySelector('[data-photo-status]') as HTMLElement;
+
+      if (button.dataset.action === 'save-caption') {
+        const caption = (card.querySelector('[data-caption]') as HTMLInputElement).value;
+        setStatus(statusEl, 'Saving...');
+        try {
+          await api(`/api/restaurant/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify({ caption }) });
+          setStatus(statusEl, 'Caption saved.', 'ok');
+        } catch (err: any) {
+          setStatus(statusEl, err.message, 'err');
+        }
+        return;
+      }
+
+      if (button.dataset.action === 'delete-photo') {
+        if (!confirm('Delete this photo?')) return;
+        setStatus(statusEl, 'Deleting...');
+        try {
+          await api(`/api/restaurant/photos/${photoId}`, { method: 'DELETE' });
+          await loadPhotos();
+          await loadMenu();
+          paintListingForm(readListingForm(formEl));
+        } catch (err: any) {
+          setStatus(statusEl, err.message, 'err');
+        }
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Menu
+    // ---------------------------------------------------------------------
+    function photoSelectHTML(selectedId: string | null) {
+      return `
+        <select data-item-photo>
+          <option value="">No photo</option>
+          ${approvedPhotos
+            .map(
+              (photo, index) =>
+                `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Photo ${index + 1}`)}</option>`
+            )
+            .join('')}
+        </select>
+      `;
+    }
+
+    function itemHTML(item: any) {
+      const photo = approvedPhotos.find((candidate) => candidate.id === item.photoId);
+      return `
+        <div class="mn-item" data-item-id="${esc(item.id)}">
+          ${photo ? `<img src="${esc(photo.url)}" alt="${esc(item.name)}" loading="lazy">` : ''}
+          <div class="mn-item-main">
+            <div class="nm">${esc(item.name)} ${item.price ? `<span class="pr">· ${esc(item.price)}</span>` : ''}</div>
+            ${item.description ? `<div class="ds">${esc(item.description)}</div>` : ''}
+          </div>
+          <button type="button" class="mg-btn small danger" data-action="delete-item">Remove</button>
+        </div>
+      `;
+    }
+
+    function sectionHTML(section: any) {
+      return `
+        <div class="mn-section" data-section-id="${esc(section.id)}">
+          <div class="mn-section-head">
+            <div>
+              <h3>${esc(section.title)}</h3>
+              ${section.note ? `<span class="note">${esc(section.note)}</span>` : ''}
+            </div>
+            <button type="button" class="mg-btn small danger" data-action="delete-section">Delete section</button>
+          </div>
+
+          ${section.items.map(itemHTML).join('')}
+
+          <form class="mn-form" data-add-item>
+            <div class="row">
+              <input name="name" placeholder="Item, e.g. Street tacos" maxlength="120" required>
+              <input name="price" placeholder="$8" maxlength="40">
+              ${photoSelectHTML(null)}
+              <button type="submit" class="mg-btn small">Add item</button>
+            </div>
+            <textarea name="description" placeholder="Optional description" maxlength="400"></textarea>
+            <span class="mg-status" data-item-status aria-live="polite"></span>
+          </form>
+        </div>
+      `;
+    }
+
+    function paintMenu(menu: any[]) {
+      menuBodyEl.innerHTML = menu.length
+        ? menu.map(sectionHTML).join('')
+        : '<p class="mg-status">No menu sections yet — add one below.</p>';
+    }
+
+    async function loadMenu() {
+      const { menu } = await api(`/api/restaurant/venues/${venueId}/menu`);
+      paintMenu(menu);
+    }
+
+    async function menuAction(payload: Record<string, unknown>) {
+      return api(`/api/restaurant/venues/${venueId}/menu`, { method: 'POST', body: JSON.stringify(payload) });
+    }
+
+    document.getElementById('mn-add-section')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.target as HTMLFormElement;
+      const title = (form.querySelector('[name="title"]') as HTMLInputElement).value.trim();
+      const note = (form.querySelector('[name="note"]') as HTMLInputElement).value.trim();
+
+      setStatus(menuStatusEl, 'Adding...');
+      try {
+        await menuAction({ action: 'create-section', title, note });
+        form.reset();
+        setStatus(menuStatusEl, 'Section added.', 'ok');
+        await loadMenu();
+      } catch (err: any) {
+        setStatus(menuStatusEl, err.message, 'err');
+      }
+    });
+
+    menuBodyEl.addEventListener('submit', async (event) => {
+      const form = (event.target as HTMLElement).closest('[data-add-item]') as HTMLFormElement | null;
+      if (!form) return;
+      event.preventDefault();
+
+      const section = form.closest('[data-section-id]') as HTMLElement;
+      const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
+
+      setStatus(statusEl, 'Adding...');
+      try {
+        await menuAction({
+          action: 'create-item',
+          sectionId: section.dataset.sectionId,
+          name: (form.querySelector('[name="name"]') as HTMLInputElement).value.trim(),
+          price: (form.querySelector('[name="price"]') as HTMLInputElement).value.trim(),
+          description: (form.querySelector('[name="description"]') as HTMLTextAreaElement).value.trim(),
+          photoId: (form.querySelector('[data-item-photo]') as HTMLSelectElement).value || '',
+        });
+        await loadMenu();
+      } catch (err: any) {
+        setStatus(statusEl, err.message, 'err');
+      }
+    });
+
+    menuBodyEl.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+
+      const section = button.closest('[data-section-id]') as HTMLElement;
+
+      if (button.dataset.action === 'delete-section') {
+        if (!confirm('Delete this section and everything in it?')) return;
+        try {
+          await menuAction({ action: 'delete-section', sectionId: section.dataset.sectionId });
+          await loadMenu();
+        } catch (err: any) {
+          setStatus(menuStatusEl, err.message, 'err');
+        }
+        return;
+      }
+
+      if (button.dataset.action === 'delete-item') {
+        const item = button.closest('[data-item-id]') as HTMLElement;
+        try {
+          await menuAction({ action: 'delete-item', itemId: item.dataset.itemId });
+          await loadMenu();
+        } catch (err: any) {
+          setStatus(menuStatusEl, err.message, 'err');
+        }
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Boot. The listing request is also the access check: it 403s unless this
+    // account holds a verified claim on this venue (or is an admin), so a
+    // failure here is what reveals the locked panel instead of the editor.
+    // ---------------------------------------------------------------------
+    (async () => {
+      try {
+        await loadListing();
+      } catch {
+        lockedEl.classList.remove('mg-hidden');
+        return;
+      }
+
+      editorEl.classList.remove('mg-hidden');
+      // Photos load after the listing so the featured-photo picker is painted
+      // from a fresh list, and the menu last since its photo dropdowns depend
+      // on it.
+      try {
+        await loadPhotos();
+        paintListingForm(readListingForm(formEl));
+        await loadMenu();
+      } catch (err: any) {
+        setStatus(photoStatusEl, err.message, 'err');
+      }
+    })();
+  </script>
+</Layout>

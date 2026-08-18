@@ -12,8 +12,10 @@
     "validate:data": "node scripts/validate-data.js",
     "pull:images": "node scripts/pull-images.js",
     "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
+    "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
-    "test": "npm run validate:data"
+    "test": "npm run validate:data && npm run test:images",
+    "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs"
   },
   "keywords": [],
   "author": "",

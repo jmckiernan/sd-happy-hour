@@ -82,18 +82,62 @@ import Layout from '../../layouts/Layout.astro';
     }
     .img-card .small:hover, .file-btn:hover { background: var(--sunset-end); }
     .img-card .small:disabled { opacity: 0.5; cursor: not-allowed; }
-    /* Shows the image that was just stored, so "Saved as …" can be checked
-       against the actual result instead of taken on faith — an AI edit that
-       came back barely changed is otherwise invisible until after publish. */
-    #ai-image-preview {
-      display: block; margin-top: 10px; max-width: 320px; width: 100%;
-      border-radius: var(--radius-sm); border: 2px solid var(--sand-warm);
+    /* Status styling is on a class, not an id, because there are two of these
+       now — one under the cards and one inside the modal. */
+    .img-status.busy { color: var(--night-soft); }
+    .img-status.ok { color: #166534; font-weight: 600; }
+    .img-status.err { color: #991B1B; font-weight: 600; }
+
+    /* A stored image opens here rather than as a thumbnail under the cards.
+       At 320px wide it was too small to judge whether an AI edit had actually
+       landed, which is the whole reason for showing it. The modal also keeps
+       the edit loop in one place: look at the result, refine it with another
+       prompt, then Save or Discard. */
+    .img-modal {
+      position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start;
+      justify-content: center; padding: 32px 16px; overflow-y: auto;
+      background: rgba(15,23,42,0.6);
     }
-    /* Beats the global `.hidden` rule on specificity, so it needs its own. */
-    #ai-image-preview.hidden { display: none; }
-    #image-upload-status.busy { color: var(--night-soft); }
-    #image-upload-status.ok { color: #166534; font-weight: 600; }
-    #image-upload-status.err { color: #991B1B; font-weight: 600; }
+    .img-modal.hidden { display: none; }
+    .img-modal-box {
+      background: white; border-radius: var(--radius); padding: 20px 22px 22px;
+      max-width: 720px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .img-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .img-modal-head h3 { font-family: var(--font-display); font-size: 1.15rem; }
+    .img-modal-x {
+      background: none; border: 0; color: var(--night-soft); cursor: pointer;
+      font-size: 1.6rem; line-height: 1; margin: 0; padding: 0 4px;
+    }
+    .img-modal-x:hover { background: none; color: var(--night); }
+    .img-modal-box img {
+      display: block; width: 100%; margin-top: 12px; border-radius: var(--radius-sm);
+      border: 2px solid var(--sand-warm); background: var(--sand-warm);
+    }
+    .img-modal-box .why { font-size: 0.8rem; color: var(--night-soft); margin: 12px 0 8px; line-height: 1.5; }
+    .img-modal-box .eg-good { color: #166534; font-weight: 600; }
+    .img-modal-box .eg-bad { color: #991B1B; font-weight: 600; }
+    /* Spelled out rather than leaning on the bare `input` rule above, so this
+       block stays identical to the one in admin/drafts/[slug].astro — where
+       the modal sits outside the panel that carries the field styling. */
+    .img-modal-box input {
+      width: 100%; margin-bottom: 12px; padding: 12px 14px;
+      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm);
+      font: inherit; font-size: 0.95rem; color: var(--night);
+    }
+    .img-modal-box input:focus {
+      border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none;
+    }
+    .img-modal-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .img-modal-actions button {
+      border: 0; border-radius: 100px; cursor: pointer; font: inherit; font-size: 0.85rem;
+      font-weight: 700; margin: 0; padding: 10px 18px;
+    }
+    .img-modal-actions .save { background: var(--night); color: white; }
+    .img-modal-actions .save:hover { background: var(--sunset-start); }
+    .img-modal-actions .neutral { background: var(--sand-warm); color: var(--night); }
+    .img-modal-actions .neutral:hover { background: var(--sunset-end); }
+    .img-modal-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 
   <div class="np-wrap">
@@ -107,7 +151,7 @@ import Layout from '../../layouts/Layout.astro';
       <nav class="admin-subnav">
         <a href="/admin/">Submissions</a>
         <a href="/admin/restaurants/">Restaurant Verifications</a>
-        <a href="/admin/new-post/" aria-current="page">Add Blog Post</a>
+        <a href="/admin/photos/">Photo Review</a>
         <a href="/admin/drafts/">Posts</a>
       </nav>
 
@@ -194,13 +238,37 @@ import Layout from '../../layouts/Layout.astro';
           </section>
         </div>
 
-        <p id="image-upload-status" class="hint"></p>
-        <img id="ai-image-preview" class="hidden" alt="The image that was just stored" />
-        <p class="hint">The preview shows what actually got stored — worth a look after a change, since a weakly-applied edit still reports success.</p>
+        <p id="image-upload-status" class="hint img-status"></p>
+        <p class="hint">Any of these opens the result full-size so you can check it and keep refining before saving.</p>
 
         <button id="go">Generate Draft</button>
 
         <div id="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="img-modal" class="img-modal hidden" role="dialog" aria-modal="true" aria-labelledby="img-modal-title">
+    <div class="img-modal-box">
+      <div class="img-modal-head">
+        <h3 id="img-modal-title">Your image</h3>
+        <button type="button" class="img-modal-x" id="img-modal-x" aria-label="Discard and close">&times;</button>
+      </div>
+
+      <img id="img-modal-img" alt="The image that was just stored" />
+      <p id="img-modal-status" class="hint img-status"></p>
+
+      <p class="why">
+        Keep refining it, or Save to use it. Describe the finished look rather than a nudge:
+        <span class="eg-good">✓ "add a potted palm in the front left corner"</span>,
+        <span class="eg-bad">✗ "brighter"</span>.
+      </p>
+      <input id="img-modal-prompt" placeholder="e.g. bright midday sun through the front windows" />
+
+      <div class="img-modal-actions">
+        <button type="button" class="neutral" id="img-modal-edit">Apply change</button>
+        <button type="button" class="save" id="img-modal-save">Save image</button>
+        <button type="button" class="neutral" id="img-modal-discard">Discard</button>
       </div>
     </div>
   </div>
@@ -241,27 +309,79 @@ import Layout from '../../layouts/Layout.astro';
     const aiFromPhotoBtn = document.getElementById('ai-from-photo-btn') as HTMLButtonElement | null;
     const aiChangePrompt = document.getElementById('ai-change-prompt') as HTMLInputElement | null;
     const aiChangeBtn = document.getElementById('ai-change-btn') as HTMLButtonElement | null;
-    const aiImagePreview = document.getElementById('ai-image-preview') as HTMLImageElement | null;
+    const imgModal = document.getElementById('img-modal');
+    const imgModalImg = document.getElementById('img-modal-img') as HTMLImageElement | null;
+    const imgModalStatus = document.getElementById('img-modal-status');
+    const imgModalPrompt = document.getElementById('img-modal-prompt') as HTMLInputElement | null;
+    const imgModalEditBtn = document.getElementById('img-modal-edit') as HTMLButtonElement | null;
+    const imgModalSaveBtn = document.getElementById('img-modal-save') as HTMLButtonElement | null;
+    const imgModalDiscardBtn = document.getElementById('img-modal-discard') as HTMLButtonElement | null;
+    const imgModalX = document.getElementById('img-modal-x') as HTMLButtonElement | null;
 
-    function imageError(message: string) {
-      if (!imageStatus) return;
-      imageStatus.className = 'hint err';
-      imageStatus.textContent = message;
+    function modalOpen(): boolean {
+      return Boolean(imgModal && !imgModal.classList.contains('hidden'));
     }
 
-    // Every path that stores an image ends here, so the admin sees what
-    // actually landed rather than only its URL. Matters most for AI edits: a
-    // prompt the model applies weakly still reports success and still swaps in
-    // a new key, and without this there's nothing to notice that by until the
-    // post is published.
+    // Status goes to whichever surface the admin is actually looking at — the
+    // line under the cards, or the one in the modal once it's covering them.
+    function statusEl(): HTMLElement | null {
+      return modalOpen() ? imgModalStatus : imageStatus;
+    }
+
+    function imageError(message: string) {
+      const el = statusEl();
+      if (!el) return;
+      el.className = 'hint img-status err';
+      el.textContent = message;
+    }
+
+    // What the Featured image field held before the current run of image work
+    // started, so Discard can put it back. Captured at the start of the first
+    // operation and held across a whole chain of in-modal refinements, so
+    // discarding after three edits still returns to the original rather than
+    // to the second-to-last attempt.
+    let imageBeforeEdit: string | null = null;
+
+    function beginImageOperation() {
+      if (imageBeforeEdit === null) imageBeforeEdit = heroImageInput?.value ?? '';
+    }
+
+    // Every path that stores an image ends here. The field is updated straight
+    // away so an in-modal "Apply change" chains off the newest version, but
+    // imageBeforeEdit means that's still reversible until Save.
     function showStoredImage(imageUrl: string) {
-      if (!aiImagePreview) return;
-      aiImagePreview.src = imageUrl;
-      aiImagePreview.classList.remove('hidden');
+      if (!imgModal || !imgModalImg) return;
+      imgModalImg.src = imageUrl;
+      imgModal.classList.remove('hidden');
+      if (imgModalPrompt) imgModalPrompt.value = '';
+    }
+
+    // Accept: keep the field as-is and drop the undo point.
+    function saveImage() {
+      imageBeforeEdit = null;
+      if (imgModal) imgModal.classList.add('hidden');
+      if (imageStatus && heroImageInput) {
+        imageStatus.className = 'hint img-status ok';
+        imageStatus.textContent = `Saved as ${heroImageInput.value}`;
+      }
+    }
+
+    // Discard: put the field back to whatever it was before this run. The
+    // generated images stay in the Blobs store — they're just not referenced,
+    // same as any superseded edit.
+    function discardImage() {
+      if (heroImageInput && imageBeforeEdit !== null) heroImageInput.value = imageBeforeEdit;
+      imageBeforeEdit = null;
+      if (imgModal) imgModal.classList.add('hidden');
+      if (imageStatus) {
+        imageStatus.className = 'hint img-status';
+        imageStatus.textContent = 'Discarded — the featured image is unchanged.';
+      }
     }
 
     function setImageBusy(busy: boolean) {
-      [fetchUrlBtn, aiCreateBtn, aiFromPhotoBtn, aiChangeBtn].forEach((btn) => {
+      [fetchUrlBtn, aiCreateBtn, aiFromPhotoBtn, aiChangeBtn,
+       imgModalEditBtn, imgModalSaveBtn, imgModalDiscardBtn].forEach((btn) => {
         if (!btn) return;
         if (busy) btn.setAttribute('disabled', 'true');
         else btn.removeAttribute('disabled');
@@ -270,8 +390,9 @@ import Layout from '../../layouts/Layout.astro';
 
     async function uploadImage(body: FormData | { url: string; slug: string }) {
       if (!imageStatus || !heroImageInput) return;
+      beginImageOperation();
       setImageBusy(true);
-      imageStatus.className = 'hint busy';
+      imageStatus.className = 'hint img-status busy';
       imageStatus.textContent = 'Saving image…';
 
       try {
@@ -285,26 +406,30 @@ import Layout from '../../layouts/Layout.astro';
         if (!res.ok) throw new Error((data.errors || ['Upload failed.']).join('\n'));
 
         heroImageInput.value = data.url;
+        imageStatus.className = 'hint img-status';
+        imageStatus.textContent = '';
         showStoredImage(data.url);
-        imageStatus.className = 'hint ok';
-        imageStatus.textContent = `Saved as ${data.url}`;
       } catch (err: any) {
-        imageStatus.className = 'hint err';
-        imageStatus.textContent = err.message;
+        imageError(err.message);
       } finally {
         setImageBusy(false);
       }
     }
 
     // Covers all three AI paths — card 2 (generate-image, JSON), card 3
-    // (edit-image, multipart file), card 4 (edit-image, JSON sourceUrl) —
-    // which all land the resulting URL in heroImageInput, same as
-    // uploadImage() above.
+    // (edit-image, multipart file), card 4 (edit-image, JSON sourceUrl) — plus
+    // the modal's own "Apply change", which is card 4 again against whatever is
+    // currently on screen. All land the resulting URL in heroImageInput, same
+    // as uploadImage() above.
     async function runAIImage(input: RequestInfo, init: RequestInit, busyText: string) {
-      if (!imageStatus || !heroImageInput) return;
+      if (!heroImageInput) return;
+      beginImageOperation();
       setImageBusy(true);
-      imageStatus.className = 'hint busy';
-      imageStatus.textContent = busyText;
+      const busyOn = statusEl();
+      if (busyOn) {
+        busyOn.className = 'hint img-status busy';
+        busyOn.textContent = busyText;
+      }
 
       try {
         const res = await fetch(input, init);
@@ -312,16 +437,45 @@ import Layout from '../../layouts/Layout.astro';
         if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
 
         heroImageInput.value = data.url;
+        // Cleared before the modal opens so a stale "Editing…" line from the
+        // previous surface isn't left sitting there.
+        if (busyOn) { busyOn.className = 'hint img-status'; busyOn.textContent = ''; }
         showStoredImage(data.url);
-        imageStatus.className = 'hint ok';
-        imageStatus.textContent = `Saved as ${data.url}`;
       } catch (err: any) {
-        imageStatus.className = 'hint err';
-        imageStatus.textContent = err.message;
+        imageError(err.message);
       } finally {
         setImageBusy(false);
       }
     }
+
+    imgModalSaveBtn?.addEventListener('click', saveImage);
+    imgModalDiscardBtn?.addEventListener('click', discardImage);
+    imgModalX?.addEventListener('click', discardImage);
+
+    // Clicking the backdrop discards too, matching the X. Guarded on the
+    // target so a click inside the box doesn't close it.
+    imgModal?.addEventListener('click', (event) => {
+      if (event.target === imgModal) discardImage();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modalOpen()) discardImage();
+    });
+
+    // Refine the image on screen without leaving the modal. Always the
+    // "edit the current image" path, so the server adds its keep-the-
+    // composition scaffolding.
+    imgModalEditBtn?.addEventListener('click', () => {
+      const prompt = imgModalPrompt?.value.trim();
+      const sourceUrl = heroImageInput?.value.trim();
+      if (!prompt) return imageError('Describe the change you want first.');
+      if (!sourceUrl) return imageError('No image to change.');
+      runAIImage(
+        '/api/admin/edit-image',
+        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, sourceUrl, slug: slugHint() }) },
+        'Applying your change…'
+      );
+    });
 
     fetchUrlBtn?.addEventListener('click', () => {
       const url = heroImageInput?.value.trim();

@@ -4,15 +4,6 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="My Stuff | SD Happy Hours" description="Saved spots, alerts, and account preferences, all in one place.">
   <style is:global>
-    .account-header {
-      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
-      color: white;
-      padding: 48px 24px 40px;
-    }
-    .account-header .inner { max-width: 1080px; margin: 0 auto; }
-    .account-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5.5vw, 3.25rem); margin-bottom: 10px; }
-    .account-header p { color: rgba(255,255,255,0.88); max-width: 620px; line-height: 1.6; }
-
     .account-main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 80px; }
 
     .panel {
@@ -52,18 +43,28 @@ import Layout from '../layouts/Layout.astro';
     .account-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* Jump nav between My Stuff sections */
+    /* Jump nav between My Stuff sections.
+       top: 0 because the site nav scrolls away (it's position: relative, not
+       pinned) — any offset here just leaves a strip of content scrolling
+       above the pills. */
     .stuff-nav {
       position: sticky;
-      top: 64px;
+      top: 0;
       z-index: 4;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      background: var(--sand);
+      background: transparent;
       padding: 10px 0 16px;
       margin-bottom: 4px;
     }
+
+    /* The sand backing exists only to hide panel content sliding under the
+       pills, so it's painted only while the nav is actually pinned. At rest,
+       above "Saved spots", the backdrop image shows through behind the pills.
+       The stuck state is set by the observer on #stuff-nav-sentinel below. */
+    .stuff-nav.is-stuck { background: var(--sand); }
+    #stuff-nav-sentinel { height: 1px; }
     .stuff-nav a {
       text-decoration: none; font-weight: 700; color: var(--night-soft); font-size: 0.85rem;
       padding: 8px 16px; border-radius: 100px; background: var(--sand-warm);
@@ -85,8 +86,21 @@ import Layout from '../layouts/Layout.astro';
       line-height: 1; color: var(--sand-warm); transition: color 0.15s;
     }
     .star-rating .star.filled { color: var(--sunset-start); }
-    .star-rating .star:hover { color: var(--sunset-start); }
+    /* Hovering (or tabbing to) a star previews the whole run you're about to
+       pick — 1..N, not just the star under the cursor. The handlers below
+       paint .preview onto that run and put .is-previewing on the group, which
+       mutes the committed .filled stars so the preview is the only thing lit.
+       Equal-specificity ordering matters here: .is-previewing has to come
+       after .filled to win. */
+    .star-rating.is-previewing .star { color: var(--sand-warm); }
+    .star-rating.is-previewing .star.preview { color: var(--sunset-start); }
     .saved-edit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* Buttons are direct children of a single-column grid form, which would
+       stretch them edge to edge. Wrapping them in a flex row keeps them at
+       their natural width, left-aligned, like the Save buttons on the saved
+       spot and alert cards. */
+    .form-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; }
 
     /* Alerts section */
@@ -110,6 +124,21 @@ import Layout from '../layouts/Layout.astro';
     .alert-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .empty { color: var(--night-soft); padding: 18px 0; }
+
+    /* Shown until /api/account/me resolves. Without it the page ships the
+       signed-out markup and visibly flips to My Stuff a beat later, so
+       everyone already logged in sees a flash of the sign-in form. */
+    .loading-panel { display: grid; gap: 14px; justify-items: center; padding: 56px 22px; color: var(--night-soft); font-weight: 600; }
+    .loading-panel .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid var(--sand-warm); border-top-color: var(--sunset-start);
+      animation: account-spin 0.8s linear infinite;
+    }
+    @keyframes account-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .loading-panel .spinner { animation-duration: 2.4s; } }
+
+    /* Last, so it beats the same-specificity display rules above (.panel,
+       .auth-grid, .loading-panel) when a section is toggled off. */
     .hidden { display: none; }
 
     @media (max-width: 820px) {
@@ -118,15 +147,18 @@ import Layout from '../layouts/Layout.astro';
     }
   </style>
 
-  <div class="account-header">
-    <div class="inner">
-      <h1 id="header-title">Sign In</h1>
-      <p id="header-subtitle">Sign in to save favorites, set up custom alerts, and manage your preferences.</p>
-    </div>
-  </div>
+  <header class="page-header hidden" id="page-header">
+    <h1 id="header-title">Sign In</h1>
+    <p id="header-subtitle">Sign in to save favorites, set up custom alerts, and manage your preferences.</p>
+  </header>
 
   <main class="account-main">
-    <section class="auth-grid password-hidden" id="auth-section">
+    <section class="panel loading-panel" id="loading-section">
+      <div class="spinner" aria-hidden="true"></div>
+      <p aria-live="polite">Loading your stuff...</p>
+    </section>
+
+    <section class="auth-grid password-hidden hidden" id="auth-section">
       <div class="panel">
         <h2>Sign in with Google</h2>
         <div class="google-box">
@@ -168,6 +200,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
+      <div id="stuff-nav-sentinel" aria-hidden="true"></div>
       <nav class="stuff-nav">
         <a href="#section-spots">Saved Spots</a>
         <a href="#section-alerts">Alerts</a>
@@ -211,8 +244,10 @@ import Layout from '../layouts/Layout.astro';
             <input type="checkbox" name="smsOptIn" style="width:16px;height:16px;">
             <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">Allow text alerts for alerts with the Text channel checked</span>
           </label>
-          <button type="submit">Save preferences</button>
-          <div class="status" id="preferences-status" aria-live="polite"></div>
+          <div class="form-actions">
+            <button type="submit">Save preferences</button>
+            <div class="status" id="preferences-status" aria-live="polite"></div>
+          </div>
         </form>
       </section>
 
@@ -221,12 +256,17 @@ import Layout from '../layouts/Layout.astro';
         <form id="profile-form">
           <label>Name <input name="name" required></label>
           <label>Email <input name="email" disabled></label>
+          <div class="form-actions">
+            <button type="submit">Save changes</button>
+          </div>
         </form>
 
         <form id="password-form" class="hidden" style="margin-top:16px;">
           <label>Current password <input type="password" name="currentPassword" autocomplete="current-password"></label>
           <label>New password <input type="password" name="newPassword" autocomplete="new-password" minlength="8"></label>
-          <button type="submit" class="secondary">Change password</button>
+          <div class="form-actions">
+            <button type="submit" class="secondary">Change password</button>
+          </div>
         </form>
         <div class="status" id="profile-status" aria-live="polite"></div>
       </section>
@@ -271,6 +311,21 @@ import Layout from '../layouts/Layout.astro';
       happyHours = await res.json();
     }
 
+    // Sticky jump nav: only give it an opaque backing once it's pinned to the
+    // top. The 1px sentinel sits just above the nav, so "sentinel has scrolled
+    // off the top" is exactly "nav is pinned". The top < 0 check matters
+    // because a sentinel that's simply below the fold (or in a hidden section)
+    // also reports isIntersecting: false.
+    function watchStuffNav() {
+      const sentinel = document.getElementById('stuff-nav-sentinel');
+      const nav = document.querySelector('.stuff-nav');
+      if (!sentinel || !nav) return;
+      new IntersectionObserver(([entry]) => {
+        const stuck = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        nav.classList.toggle('is-stuck', stuck);
+      }).observe(sentinel);
+    }
+
     // The nav (Layout.astro) can't see this module's state, so it has to be
     // told when the session flips — otherwise signing in leaves "Sign In" and
     // the admin-only links showing their pre-login state until a refresh.
@@ -281,8 +336,15 @@ import Layout from '../layouts/Layout.astro';
     }
 
     async function loadAccount() {
-      const res = await fetch('/api/account/me');
-      const session = await res.json();
+      let session: any = { authenticated: false };
+      try {
+        const res = await fetch('/api/account/me');
+        session = await res.json();
+      } catch {
+        // Treat an unreachable session store as signed out. Swallowing this
+        // also matters for the loading state: render() is what clears the
+        // spinner, so throwing here would leave the page loading forever.
+      }
       const nextUser = session.authenticated ? session.user : null;
       // Only announce an actual signed-in/signed-out transition. loadAccount()
       // also re-runs after ordinary saves (alerts, preferences, saved spots),
@@ -352,6 +414,11 @@ import Layout from '../layouts/Layout.astro';
     // ---------------------------------------------------------------------
 
     function render() {
+      // The session is known by the time anything calls render(), so this is
+      // where the spinner gives way to the real page — either half of which
+      // would otherwise have had to be guessed at in the static markup.
+      document.getElementById('loading-section')!.classList.add('hidden');
+      document.getElementById('page-header')!.classList.remove('hidden');
       document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentUser));
       document.getElementById('account-section')!.classList.toggle('hidden', !currentUser);
 
@@ -439,6 +506,47 @@ import Layout from '../layouts/Layout.astro';
       container.querySelectorAll('.star').forEach((el) => {
         const value = Number((el as HTMLElement).dataset.value);
         el.classList.toggle('filled', value <= rating);
+      });
+    }
+
+    // Light up 1..value so the visitor can see the rating a click would set,
+    // rather than only the single star under the pointer.
+    function previewStars(container: HTMLElement, value: number) {
+      container.classList.add('is-previewing');
+      container.querySelectorAll('.star').forEach((el) => {
+        el.classList.toggle('preview', Number((el as HTMLElement).dataset.value) <= value);
+      });
+    }
+
+    function clearStarPreview(container: HTMLElement) {
+      container.classList.remove('is-previewing');
+      container.querySelectorAll('.star').forEach((el) => el.classList.remove('preview'));
+    }
+
+    function starIn(target: EventTarget | null) {
+      return (target as HTMLElement | null)?.closest?.('.star-rating .star') as HTMLElement | null;
+    }
+
+    // mouseover/mouseout (not mouseenter/leave) because these are delegated
+    // off the grid, which re-renders its cards on every save.
+    for (const enterEvent of ['mouseover', 'focusin']) {
+      document.getElementById('saved-grid')!.addEventListener(enterEvent, (event) => {
+        const star = starIn(event.target);
+        if (!star) return;
+        previewStars(star.closest('.star-rating') as HTMLElement, Number(star.dataset.value));
+      });
+    }
+
+    for (const leaveEvent of ['mouseout', 'focusout']) {
+      document.getElementById('saved-grid')!.addEventListener(leaveEvent, (event) => {
+        const star = starIn(event.target);
+        if (!star) return;
+        const container = star.closest('.star-rating') as HTMLElement;
+        // Sliding from star 3 to star 4 fires mouseout on 3 before mouseover
+        // on 4; clearing here would flicker the whole row off in between.
+        const next = (event as MouseEvent | FocusEvent).relatedTarget as Node | null;
+        if (next && container.contains(next)) return;
+        clearStarPreview(container);
       });
     }
 
@@ -779,6 +887,7 @@ import Layout from '../layouts/Layout.astro';
       announceAuthChange();
     });
 
+    watchStuffNav();
     Promise.all([loadHappyHours(), loadAccount(), initGoogleLogin()]);
   </script>
 </Layout>

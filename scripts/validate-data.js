@@ -53,6 +53,13 @@ function validateListing(listing, label) {
   if (!isUrl(listing.sourceUrl)) errors.push(`${label}: sourceUrl must be an http(s) URL.`);
   if (!hasStringArray(listing.dealTypes)) errors.push(`${label}: dealTypes must be a non-empty string array.`);
   if (!hasStringArray(listing.features)) errors.push(`${label}: features must be a non-empty string array.`);
+  // Optional admin-set featured photo. Absent means the site falls back to the
+  // vibe stock photo, so only its shape is checked — same rule as
+  // validateListing() in src/lib/validation.ts, since this value is rendered
+  // straight into an <img src> on public pages.
+  if ('image' in listing && !(hasString(listing.image) && /^(\/[^/]|https?:\/\/)/i.test(listing.image))) {
+    errors.push(`${label}: image must be a stored image path or an http(s) URL when present.`);
+  }
   return errors;
 }
 

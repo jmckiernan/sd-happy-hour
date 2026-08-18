@@ -4,15 +4,6 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Restaurant Dashboard | SD Happy Hours" description="Claim your listing and let it live when your happy hour is live.">
   <style is:global>
-    .restaurant-header {
-      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
-      color: white;
-      padding: 48px 24px 40px;
-    }
-    .restaurant-header .inner { max-width: 1080px; margin: 0 auto; }
-    .restaurant-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5.5vw, 3.25rem); margin-bottom: 10px; }
-    .restaurant-header p { color: rgba(255,255,255,0.88); max-width: 640px; line-height: 1.6; }
-
     .restaurant-main { max-width: 760px; margin: 0 auto; padding: 28px 24px 80px; }
 
     .panel {
@@ -56,6 +47,7 @@ import Layout from '../layouts/Layout.astro';
     .venue-result .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--night-soft); }
 
     .claim-card { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
+    .manage-link { color: var(--night); font-weight: 700; font-size: 0.9rem; }
     .claim-card-head { align-items: center; display: flex; gap: 10px; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
     .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; }
     .claim-card > .status { margin-bottom: 8px; }
@@ -71,21 +63,48 @@ import Layout from '../layouts/Layout.astro';
     details form { margin-top: 10px; }
     .hidden { display: none; }
 
+    .loading-row { align-items: center; display: flex; gap: 12px; }
+    .loading-row .status { margin: 0; }
+    .spinner {
+      width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%;
+      border: 2px solid var(--sand-warm); border-top-color: var(--sunset-start);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Respects a reduced-motion preference — the row still reads as "working"
+       from its text, so the animation is safe to drop entirely. */
+    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
     @media (max-width: 600px) { .dash-head { align-items: stretch; flex-direction: column; } }
   </style>
 
-  <div class="restaurant-header">
-    <div class="inner">
-      <h1>Restaurant Dashboard</h1>
-      <p>Claim your listing, and toggle it live the moment your happy hour starts so matching alerts go out.</p>
-    </div>
-  </div>
+  <header class="page-header">
+    <h1>Restaurant Dashboard</h1>
+    <p>Claim your listing, and toggle it live the moment your happy hour starts so matching alerts go out.</p>
+  </header>
 
   <main class="restaurant-main">
-    <section class="panel" id="signin-panel">
-      <h2>Sign in to get started</h2>
-      <p class="status">Restaurants sign in the same way visitors do — no separate account. Sign in, then come back here to claim your listing.</p>
-      <a href="/account/"><button type="button">Sign in at /account/</button></a>
+    {/* Starts visible, because whether to show the dashboard can't be known
+        until /api/account/me answers. This used to be a sign-in panel that
+        started visible and was only hidden once that call came back, so
+        already-signed-in owners saw a sign-in prompt flash before their
+        listings appeared. Anyone genuinely signed out is now redirected to
+        /account/ instead of being offered a second, differently styled
+        sign-in prompt here. */}
+    <section class="panel" id="loading-panel">
+      <div class="loading-row" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <p class="status">Loading your listings…</p>
+      </div>
+    </section>
+
+    {/* Only for the case where we can't tell: /api/account/me or the claims
+        call failed outright. Redirecting on a network blip would look like
+        being signed out when you aren't. */}
+    <section class="panel hidden" id="error-panel">
+      <h2>Couldn't load your dashboard</h2>
+      <p class="status" id="error-text"></p>
+      <button type="button" id="retry-btn">Try again</button>
     </section>
 
     <div id="dashboard" class="hidden">
@@ -134,22 +153,42 @@ import Layout from '../layouts/Layout.astro';
       happyHours = await res.json();
     }
 
-    async function loadEverything() {
-      const meRes = await fetch('/api/account/me');
-      const me = await meRes.json();
-      currentUser = me.authenticated ? me.user : null;
-
-      if (!currentUser) {
-        claims = [];
-        render();
-        return;
-      }
-
-      const claimsRes = await fetch('/api/restaurant/claims');
-      const claimsData = await claimsRes.json();
-      claims = claimsData.claims || [];
-      render();
+    function showLoadError(message: string) {
+      document.getElementById('loading-panel')!.classList.add('hidden');
+      document.getElementById('dashboard')!.classList.add('hidden');
+      document.getElementById('error-panel')!.classList.remove('hidden');
+      document.getElementById('error-text')!.textContent = message;
     }
+
+    async function loadEverything() {
+      try {
+        const meRes = await fetch('/api/account/me');
+        const me = await meRes.json();
+        currentUser = me.authenticated ? me.user : null;
+
+        // Signed out: hand off to the normal sign-in page rather than offering
+        // a second one here. `replace` rather than `href` so the back button
+        // doesn't bounce straight back into this redirect.
+        if (!currentUser) {
+          window.location.replace(`/account/?next=${encodeURIComponent('/restaurant/')}`);
+          return;
+        }
+
+        const claimsRes = await fetch('/api/restaurant/claims');
+        const claimsData = await claimsRes.json();
+        if (!claimsRes.ok) throw new Error((claimsData.errors || ['Could not load your listings.']).join(' '));
+        claims = claimsData.claims || [];
+        render();
+      } catch (err: any) {
+        showLoadError(err.message || 'Something went wrong loading this page.');
+      }
+    }
+
+    document.getElementById('retry-btn')?.addEventListener('click', () => {
+      document.getElementById('error-panel')!.classList.add('hidden');
+      document.getElementById('loading-panel')!.classList.remove('hidden');
+      loadEverything();
+    });
 
     // Phone verification + manual review, shared by both a fresh pending
     // claim and a denied one that's trying again. Verifying by phone always
@@ -189,6 +228,17 @@ import Layout from '../layouts/Layout.astro';
         : underManualReview ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
         : 'Verify this listing to finish claiming it.';
 
+      // Everything a verified owner can now manage themselves lives on its own
+      // page, one per venue, rather than inline here — it's three panels' worth
+      // of editing (hours/deals, photo album, menu).
+      const manageLink = claim.status === 'verified' && claim.venueSlug ? `
+        <p style="margin-top:10px;">
+          <a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/">
+            Manage listing, photos &amp; menu →
+          </a>
+        </p>
+      ` : '';
+
       const liveAndPromo = claim.status === 'verified' ? `
         <div class="live-toggle" data-live-toggle>
           <span class="live-dot"></span>
@@ -216,16 +266,22 @@ import Layout from '../layouts/Layout.astro';
             <span class="pill ${escapeHTML(claim.status)}">${escapeHTML(claim.status)}</span>
           </div>
           <p class="status">${statusNote}</p>
+          ${manageLink}
           ${liveAndPromo}
           ${verifyOptions}
         </article>
       `;
     }
 
+    // Only reached with a signed-in user now — signed-out visitors are
+    // redirected before this runs. The dashboard is revealed here rather than
+    // when the session check returns, so it appears with its listings already
+    // in place instead of as an empty shell that fills in.
     function render() {
-      document.getElementById('signin-panel')!.classList.toggle('hidden', Boolean(currentUser));
-      document.getElementById('dashboard')!.classList.toggle('hidden', !currentUser);
       if (!currentUser) return;
+      document.getElementById('loading-panel')!.classList.add('hidden');
+      document.getElementById('error-panel')!.classList.add('hidden');
+      document.getElementById('dashboard')!.classList.remove('hidden');
 
       document.getElementById('who')!.textContent = `Signed in as ${currentUser.email}`;
 

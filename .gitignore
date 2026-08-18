@@ -13,6 +13,10 @@ dist/
 # Local Netlify folder
 .netlify
 
+# Backdrop art directions to compare by eye before promoting one to
+# public/images/backdrop.webp — see scripts/generate-backdrop.js.
+.backdrop-candidates/
+
 # Dev-server output (e.g. `astro dev > server.stdout.log 2> server.stderr.log`).
 # Local runtime noise, not source — and it can capture request paths.
 *.log

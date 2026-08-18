@@ -4,15 +4,22 @@ import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { getPostImage } from '../../lib/venues';
 
+// Newest first, matching /blog/ — so the prev/next arrows on a post walk the
+// index in the order the visitor saw it there.
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({
+  const posts = (await getCollection('blog', ({ data }) => !data.draft))
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  const link = (entry: (typeof posts)[number] | undefined) =>
+    entry ? { slug: entry.id, title: entry.data.title } : null;
+
+  return posts.map((post, index) => ({
     params: { slug: post.id },
-    props: { post },
+    props: { post, prev: link(posts[index - 1]), next: link(posts[index + 1]) },
   }));
 }
 
-const { post } = Astro.props;
+const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 ---
 <BlogPost
@@ -24,6 +31,8 @@ const { Content } = await render(post);
   heroImage={getPostImage(post.data.heroImage, post.data.venues, 'hero')}
   venues={post.data.venues}
   slug={post.id}
+  prev={prev}
+  next={next}
 >
   <Content />
 </BlogPost>

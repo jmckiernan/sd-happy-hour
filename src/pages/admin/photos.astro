@@ -1,0 +1,213 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+
+// The human half of owner photo moderation. Photos reach this queue when
+// automated screening (src/lib/imageModeration.ts) flagged them as off-topic,
+// returned something unreadable, or couldn't run at all — it fails closed, so
+// "nothing screened it" means "a person looks at it" rather than "publish it".
+//
+// Clearly unsafe photos never appear here: the upload route refuses those
+// outright and doesn't store them.
+---
+<Layout title="Photo Review | SD Happy Hours Admin" description="Review restaurant-submitted photos before they appear publicly.">
+  <style is:global>
+    .admin-bar {
+      background: white; border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px; position: sticky; top: 0; z-index: 5;
+    }
+    .admin-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; }
+    .admin-user { color: var(--night-soft); font-size: 0.85rem; font-weight: 700; }
+    button.secondary {
+      background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night);
+      cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px;
+    }
+    button.secondary:hover { background: var(--sunset-end); }
+
+    .admin-subnav { display: flex; gap: 8px; max-width: 1100px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; flex-wrap: wrap; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
+    .admin-status { margin-bottom: 16px; color: var(--night-soft); font-weight: 600; }
+
+    .photo-queue { display: grid; gap: 16px; }
+    .photo-row {
+      background: white; border-radius: var(--radius-sm); box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      padding: 16px; display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 18px;
+    }
+    .photo-row img { width: 100%; border-radius: var(--radius-sm); display: block; background: var(--sand-warm); }
+    .photo-meta h2 { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 4px; }
+    .photo-meta .sub { color: var(--night-soft); font-size: 0.85rem; margin-bottom: 12px; }
+    .photo-caption { font-size: 0.9rem; margin-bottom: 12px; }
+
+    /* Why it's in the queue, in the model's own words. */
+    .verdict {
+      background: var(--sand); border-radius: var(--radius-sm); padding: 12px 14px;
+      font-size: 0.85rem; line-height: 1.5; margin-bottom: 14px;
+    }
+    .verdict strong { display: block; margin-bottom: 4px; }
+    .verdict .cats { color: var(--night-soft); font-size: 0.78rem; margin-top: 6px; }
+    .verdict.unavailable { background: #FEF3C7; color: #92400E; }
+
+    .photo-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .photo-actions button { border: 0; border-radius: 100px; padding: 10px 16px; cursor: pointer; font: inherit; font-weight: 700; }
+    .photo-actions .good { background: var(--palm); color: white; }
+    .photo-actions .bad { background: #B91C1C; color: white; }
+    .photo-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .row-error { color: #B91C1C; font-weight: 600; font-size: 0.85rem; margin-top: 8px; }
+
+    @media (max-width: 760px) {
+      .photo-row { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="admin-bar">
+    <div class="admin-bar-inner">
+      <div>
+        <h1>Photo Review</h1>
+        <p>Restaurant-submitted photos held for a human decision.</p>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="admin-user" id="admin-user"></span>
+        <button class="secondary" id="refresh">Refresh</button>
+      </div>
+    </div>
+    <nav class="admin-subnav">
+      <a href="/admin/">Submissions</a>
+      <a href="/admin/restaurants/">Restaurant Verifications</a>
+      <a href="/admin/photos/" aria-current="page">Photo Review</a>
+      <a href="/admin/drafts/">Posts</a>
+    </nav>
+  </div>
+
+  <main class="admin-main">
+    <div class="admin-status" id="status">Checking login...</div>
+    <div class="photo-queue" id="queue"></div>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById('status')!;
+    const queueEl = document.getElementById('queue')!;
+    const adminUserEl = document.getElementById('admin-user')!;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    async function api(path: string, options: RequestInit = {}) {
+      const res = await fetch(path, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+      return data;
+    }
+
+    /** The screening verdict, rendered so the decision is explainable rather
+     * than a bare "flagged". An unavailable screen gets its own treatment —
+     * that's a config problem, not a judgement about the photo. */
+    function verdictHTML(moderation: any) {
+      if (!moderation) {
+        return `<div class="verdict unavailable"><strong>Not screened</strong>No automated verdict was recorded for this photo.</div>`;
+      }
+      const unavailable = moderation.screeningUnavailable;
+      const categories = Array.isArray(moderation.categories) && moderation.categories.length
+        ? `<div class="cats">Flagged: ${escapeHTML(moderation.categories.join(', '))}</div>`
+        : '';
+      return `
+        <div class="verdict${unavailable ? ' unavailable' : ''}">
+          <strong>${unavailable ? 'Screening unavailable' : `Automated verdict: ${escapeHTML(moderation.decision || 'review')}`}</strong>
+          ${escapeHTML(moderation.reason || 'No reason given.')}
+          ${moderation.relevant === false ? '<div class="cats">Model did not think this looked like a venue photo.</div>' : ''}
+          ${categories}
+        </div>
+      `;
+    }
+
+    function rowHTML(photo: any) {
+      return `
+        <article class="photo-row" data-id="${escapeHTML(photo.id)}">
+          <a href="${escapeHTML(photo.url)}" target="_blank" rel="noopener">
+            <img src="${escapeHTML(photo.url)}" alt="" loading="lazy">
+          </a>
+          <div class="photo-meta">
+            <h2>${escapeHTML(photo.venueName)}</h2>
+            <p class="sub">Venue #${escapeHTML(photo.venueId)} · uploaded ${new Date(photo.createdAt).toLocaleString()}</p>
+            ${photo.caption ? `<p class="photo-caption"><strong>Caption:</strong> ${escapeHTML(photo.caption)}</p>` : ''}
+            ${verdictHTML(photo.moderation)}
+            <div class="photo-actions">
+              <button class="good" data-action="approve">Publish</button>
+              <button class="bad" data-action="reject">Reject</button>
+              <button class="secondary" data-action="delete">Delete entirely</button>
+            </div>
+            <div class="row-error" aria-live="polite"></div>
+          </div>
+        </article>
+      `;
+    }
+
+    async function load() {
+      statusEl.textContent = 'Loading photos...';
+      try {
+        const { photos } = await api('/api/admin/photos');
+        queueEl.innerHTML = photos.map(rowHTML).join('');
+        statusEl.textContent = photos.length
+          ? `${photos.length} photo${photos.length === 1 ? '' : 's'} waiting on a decision`
+          : 'Nothing waiting — every submitted photo has been decided.';
+      } catch {
+        window.location.href = '/account/';
+      }
+    }
+
+    queueEl.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+
+      const row = button.closest('.photo-row') as HTMLElement;
+      const errorEl = row.querySelector('.row-error') as HTMLElement;
+      const action = button.dataset.action!;
+      errorEl.textContent = '';
+
+      // Rejecting tells the owner something; the reason is optional but it's
+      // the only feedback they get, so it's prompted for rather than skipped.
+      let note = '';
+      if (action === 'reject') note = prompt('Reason (shown to the restaurant):') || '';
+      if (action === 'delete' && !confirm('Delete this photo from the album entirely?')) return;
+
+      row.querySelectorAll('button').forEach((el) => ((el as HTMLButtonElement).disabled = true));
+      try {
+        await api('/api/admin/photos', {
+          method: 'PATCH',
+          body: JSON.stringify({ photoId: row.dataset.id, action, note }),
+        });
+        await load();
+      } catch (err: any) {
+        errorEl.textContent = err.message;
+        row.querySelectorAll('button').forEach((el) => ((el as HTMLButtonElement).disabled = false));
+      }
+    });
+
+    document.getElementById('refresh')!.addEventListener('click', load);
+
+    (async () => {
+      const res = await fetch('/api/admin/me');
+      const session = await res.json();
+      if (!session.authenticated) {
+        window.location.href = '/account/';
+        return;
+      }
+      adminUserEl.textContent = `Logged in as ${session.email}`;
+      await load();
+    })();
+  </script>
+</Layout>

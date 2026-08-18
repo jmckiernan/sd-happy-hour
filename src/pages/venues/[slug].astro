@@ -2,7 +2,8 @@
 export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import { getVenues, slugify, formatTime, getVenueImage } from '../../lib/venues';
+import { getVenues, slugify, formatTime, getListingImage } from '../../lib/venues';
+
 
 export async function getStaticPaths() {
   const venues = getVenues();
@@ -18,7 +19,9 @@ const posts = await getCollection('blog', ({ data }) => !data.draft && data.venu
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venue.deals.slice(0, 2).join(', ')}. ${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
-const heroImage = getVenueImage(venue.vibe, 'hero');
+// The venue's own featured photo if an admin has set one, else the vibe stock
+// photo. Also the page's social/OG image, via the Layout prop below.
+const heroImage = getListingImage(venue, 'hero');
 ---
 <Layout title={`${venue.name} Happy Hour — ${venue.neighborhood} | SD Happy Hours`} description={description} image={heroImage}>
   <style>
@@ -34,6 +37,33 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
+    /* Same green ring + badge the homepage card gets (see .card.is-live in
+       index.astro), so a spot that's live reads as live from here too.
+       Applied by the script below rather than at build time — these pages
+       are prerendered, so "now" is only knowable in the browser. */
+    .venue-hero .hero-frame.is-live {
+      box-shadow: 0 0 0 3px var(--palm), 0 12px 32px rgba(34, 197, 94, 0.2);
+    }
+    .venue-hero .live-badge {
+      position: absolute; top: 16px; left: 16px;
+      display: none; align-items: center; gap: 6px;
+      background: var(--palm); color: white;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 5px 12px; border-radius: 100px;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+    .venue-hero .hero-frame.is-live .live-badge { display: inline-flex; }
+    .venue-hero .live-badge .dot {
+      width: 5px; height: 5px; background: white; border-radius: 50%;
+      animation: venue-live-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes venue-live-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .venue-hero .live-badge .dot { animation: none; }
     }
     .venue-hero img {
       width: 100%;
@@ -99,7 +129,14 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       margin-bottom: 12px;
     }
     .deal-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .deal {
+    /* :global because these are the chips applyOwnerEdits() rebuilds from the
+       owner's live edits. Astro's scoped styles work by stamping a
+       data-astro-cid attribute onto elements in the template and matching on
+       it — an element created by client script never has that attribute, so a
+       scoped `.deal` would silently stop applying the moment the repaint ran.
+       The containers (.deal-grid, .day-row, .tag-row) stay scoped: those come
+       from the template and are never replaced. */
+    :global(.deal) {
       background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%);
       color: var(--night);
       font-size: 0.85rem;
@@ -108,7 +145,7 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       border-radius: var(--radius-sm);
     }
     .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .day-pill {
+    :global(.day-pill) {
       font-size: 0.75rem;
       font-weight: 600;
       padding: 6px 12px;
@@ -116,7 +153,7 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       background: var(--sand-warm);
       color: var(--night-soft);
     }
-    .day-pill.active { background: var(--sunset-start); color: white; }
+    :global(.day-pill.active) { background: var(--sunset-start); color: white; }
 
     .venue-actions {
       max-width: 800px;
@@ -144,11 +181,17 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
     .btn-save.saved { background: var(--sunset-start); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
+    /* Revealed by Layout.astro's [data-admin-only] sweep, which sets
+       display:'' — hence inline-flex has to come from the .venue-actions a
+       rule above rather than from here. */
+    .btn-admin-edit { background: rgba(8, 145, 178, 0.14); color: var(--ocean-deep); }
+    .btn-admin-edit:hover { background: rgba(8, 145, 178, 0.26); }
 
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
     .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
     .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-    .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
+    /* Also rebuilt client-side by applyOwnerEdits() — see the note on .deal. */
+    :global(.feature-tag) { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
 
     .promo-card {
       max-width: 800px;
@@ -176,6 +219,67 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       color: var(--violet); font-weight: 700; text-decoration: none; font-size: 0.85rem;
     }
     .promo-card-inner .promo-signin:hover { text-decoration: underline; }
+
+    /* --- Owner-managed sections: photo album and menu -------------------- */
+    .venue-album, .venue-menu {
+      max-width: 800px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+    }
+    .venue-album.hidden, .venue-menu.hidden { display: none; }
+    .venue-album h3, .venue-menu h3 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
+    .section-note { color: var(--night-soft); font-size: 0.82rem; margin-bottom: 14px; }
+
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    /* The album's tiles and the whole menu are painted by client script from
+       /api/venue-content/<id>, so — like .deal and .day-pill above — their
+       styles have to be :global to survive Astro's scoping. The section
+       wrappers themselves are in the template and stay scoped. */
+    .album-grid :global(button) {
+      border: 0; padding: 0; cursor: zoom-in; background: var(--sand-warm);
+      border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 4 / 3; display: block;
+    }
+    .album-grid :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    :global(.menu-section) { margin-bottom: 22px; }
+    :global(.menu-section h4) {
+      font-family: var(--font-display); font-size: 1rem; margin-bottom: 2px;
+      border-bottom: 2px solid var(--sand-warm); padding-bottom: 6px;
+    }
+    :global(.menu-section .menu-note) { color: var(--night-soft); font-size: 0.8rem; margin: 6px 0 10px; }
+    :global(.menu-item) { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(15,23,42,0.06); }
+    :global(.menu-item:last-child) { border-bottom: 0; }
+    :global(.menu-item-thumb) {
+      width: 68px; height: 68px; flex-shrink: 0; border: 0; padding: 0; cursor: zoom-in;
+      border-radius: var(--radius-sm); overflow: hidden; background: var(--sand-warm);
+    }
+    :global(.menu-item-thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+    :global(.menu-item-text) { flex: 1; min-width: 0; }
+    :global(.menu-item-head) { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    :global(.menu-item-head .name) { font-weight: 700; }
+    :global(.menu-item-head .price) { color: var(--night); font-weight: 700; white-space: nowrap; }
+    :global(.menu-item-desc) { color: var(--night-soft); font-size: 0.85rem; line-height: 1.45; margin-top: 3px; }
+
+    /* Lightbox — a plain overlay rather than a library; it only has to show
+       one photo at a time. */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 50; background: rgba(15,23,42,0.88);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .lightbox[hidden] { display: none; }
+    .lightbox-figure { max-width: min(1000px, 100%); max-height: 100%; margin: 0; text-align: center; }
+    .lightbox-figure img {
+      max-width: 100%; max-height: 80vh; border-radius: var(--radius-sm); display: block; margin: 0 auto;
+    }
+    .lightbox-figure figcaption { color: white; font-size: 0.88rem; margin-top: 12px; }
+    .lightbox-close {
+      position: absolute; top: 16px; right: 20px; background: none; border: 0; color: white;
+      font-size: 2.2rem; line-height: 1; cursor: pointer; padding: 4px 10px;
+    }
 
     .related-posts {
       max-width: 800px;
@@ -208,43 +312,67 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
   <a class="back-link" href="/">← Back to all happy hours</a>
 
   <div class="venue-hero">
-    <div class="hero-frame">
+    <div
+      class="hero-frame"
+      id="hero-frame"
+      data-venue-id={venue.id}
+      data-days={venue.days.join('|')}
+      data-start={venue.startTime}
+      data-end={venue.endTime}
+    >
       <img
         src={heroImage}
-        alt={`${venue.name}, a ${venue.vibe.toLowerCase()} in ${venue.neighborhood}`}
+        alt={venue.image
+          ? `${venue.name} in ${venue.neighborhood}`
+          : `${venue.name}, a ${venue.vibe.toLowerCase()} in ${venue.neighborhood}`}
         width="1600"
         height="1000"
         fetchpriority="high"
       />
       <div class="scrim"></div>
+      <div class="live-badge"><span class="dot"></span> Live Now</div>
       <span class="tag">{venue.neighborhood}</span>
       <span class={`tag trust-badge ${venue.verified ? '' : 'unverified'}`} style="top: 52px;">
         {venue.verified ? 'Verified' : 'Needs verification'}
       </span>
       <div class="hero-text">
         <h1>{venue.name}</h1>
-        <p class="vibe">{venue.vibe}</p>
+        <p class="vibe" id="venue-vibe">{venue.vibe}</p>
       </div>
     </div>
   </div>
 
   <div class="venue-actions">
-    <a class="btn-primary" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
+    <a class="btn-primary" id="venue-website" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
     <a class="btn-secondary" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
-    {venue.phone && <a class="btn-secondary" href={`tel:${venue.phone.replace(/[^0-9+]/g, '')}`}>Call {venue.phone}</a>}
+    <a
+      class="btn-secondary"
+      id="venue-call"
+      href={venue.phone ? `tel:${venue.phone.replace(/[^0-9+]/g, '')}` : '#'}
+      style={venue.phone ? '' : 'display:none;'}
+    >Call {venue.phone}</a>
     <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
       </svg>
       <span id="save-label">Save</span>
     </button>
+    <a
+      class="btn-admin-edit"
+      data-admin-only
+      style="display:none;"
+      href={`/admin/venues/${slugify(venue.name)}/`}
+    >✎ Edit venue</a>
   </div>
 
+  <!-- Rendered from the build-time happy-hours.json, then repainted by
+       applyOwnerEdits() below if the venue's verified owner has since changed
+       any of it. The ids exist for that repaint. -->
   <div class="venue-details">
     <div class="venue-card">
       <h3>Happy Hour Times</h3>
-      <p><strong>{formatTime(venue.startTime)} – {formatTime(venue.endTime)}</strong></p>
-      <div class="day-row" style="margin-top: 12px;">
+      <p id="hh-times"><strong>{formatTime(venue.startTime)} – {formatTime(venue.endTime)}</strong></p>
+      <div class="day-row" id="hh-days" style="margin-top: 12px;">
         {dayNames.map((day) => (
           <span class={`day-pill ${venue.days.includes(day) ? 'active' : ''}`}>{day.slice(0, 3)}</span>
         ))}
@@ -252,15 +380,13 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
     </div>
     <div class="venue-card">
       <h3>Deals</h3>
-      <div class="deal-grid">
+      <div class="deal-grid" id="hh-deals">
         {venue.deals.map((deal) => <span class="deal">{deal}</span>)}
       </div>
-      {venue.features && venue.features.length > 0 && (
-        <div class="tag-row">
-          {venue.features.map((f) => <span class="feature-tag">{f}</span>)}
-        </div>
-      )}
-      <p style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
+      <div class="tag-row" id="hh-features" style={venue.features && venue.features.length > 0 ? '' : 'display:none;'}>
+        {(venue.features || []).map((f) => <span class="feature-tag">{f}</span>)}
+      </div>
+      <p id="hh-address" style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
     </div>
   </div>
 
@@ -269,6 +395,30 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       <span class="promo-desc" id="promo-desc"></span>
       <span id="promo-code-area"></span>
     </div>
+  </div>
+
+  <!-- Owner-managed content. Both start hidden and are revealed only if
+       /api/venue-content/<id> returns something: a venue whose owner hasn't
+       uploaded anything looks exactly as it did before this feature. -->
+  <section class="venue-album hidden" id="venue-album" aria-labelledby="venue-album-heading">
+    <h3 id="venue-album-heading">Photos</h3>
+    <p class="section-note">Shared by the restaurant.</p>
+    <div class="album-grid" id="album-grid"></div>
+  </section>
+
+  <section class="venue-menu hidden" id="venue-menu" aria-labelledby="venue-menu-heading">
+    <h3 id="venue-menu-heading">Menu</h3>
+    <p class="section-note">Prices and items as listed by the restaurant.</p>
+    <div id="menu-body"></div>
+  </section>
+
+  <!-- One lightbox, reused by every album thumbnail and menu item photo. -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close photo">&times;</button>
+    <figure class="lightbox-figure">
+      <img id="lightbox-img" alt="">
+      <figcaption id="lightbox-caption"></figcaption>
+    </figure>
   </div>
 
   {posts.length > 0 && (
@@ -281,6 +431,59 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
   )}
 
   <script>
+    // ---------------------------------------------------------------------
+    // "Live Now" ring on the hero — the venue-page counterpart of the
+    // homepage's .card.is-live treatment.
+    // ---------------------------------------------------------------------
+    const heroFrame = document.getElementById('hero-frame')!;
+    const heroVenueId = Number(heroFrame.dataset.venueId);
+    const scheduleDays = (heroFrame.dataset.days || '').split('|').filter(Boolean);
+    // Set once /api/live-status answers: a restaurant can flip itself live
+    // outside its posted hours from src/pages/restaurant.astro.
+    let liveOverride = false;
+
+    function minutesInto(time: string) {
+      const [hours, mins] = time.split(':').map(Number);
+      return hours * 60 + mins;
+    }
+
+    // Pinned to San Diego time rather than the device clock, so the ring
+    // doesn't lie to someone browsing from another timezone.
+    function sanDiegoNow() {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: false,
+      }).formatToParts(new Date());
+      const get = (type: string) => parts.find((p) => p.type === type)?.value || '0';
+      return {
+        weekday: parts.find((p) => p.type === 'weekday')?.value || '',
+        minutes: (Number(get('hour')) % 24) * 60 + Number(get('minute')),
+      };
+    }
+
+    function paintLiveState() {
+      const { weekday, minutes } = sanDiegoNow();
+      const onSchedule = scheduleDays.includes(weekday)
+        && minutes >= minutesInto(heroFrame.dataset.start!)
+        && minutes <= minutesInto(heroFrame.dataset.end!);
+      heroFrame.classList.toggle('is-live', liveOverride || onSchedule);
+    }
+
+    async function initLiveState() {
+      paintLiveState();
+      try {
+        const res = await fetch('/api/live-status');
+        const data = await res.json();
+        liveOverride = (data.liveVenueIds || []).includes(heroVenueId);
+        paintLiveState();
+      } catch {
+        // Non-critical — the posted schedule still drives the ring.
+      }
+      // Cheap local recheck so a page left open picks up the window opening
+      // or closing without a refresh.
+      setInterval(paintLiveState, 60_000);
+    }
+
     const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     const saveLabel = document.getElementById('save-label')!;
     const venueId = Number(saveBtn.dataset.venueId);
@@ -347,7 +550,212 @@ const heroImage = getVenueImage(venue.vibe, 'hero');
       renderSaveState();
     });
 
+
+    // ---------------------------------------------------------------------
+    // Owner-managed content: the verified restaurant's own listing edits,
+    // photo album and menu.
+    //
+    // This page is prerendered from happy-hours.json, so anything the owner
+    // has changed since the last deploy is fetched here and painted over the
+    // static markup. /api/venue-content/<id> only ever returns photos that
+    // have cleared screening, so nothing unreviewed can appear even briefly.
+    // ---------------------------------------------------------------------
+    const albumSection = document.getElementById('venue-album')!;
+    const albumGrid = document.getElementById('album-grid')!;
+    const menuSection = document.getElementById('venue-menu')!;
+    const menuBody = document.getElementById('menu-body')!;
+    const lightbox = document.getElementById('lightbox') as HTMLElement;
+    const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const lightboxCaption = document.getElementById('lightbox-caption')!;
+
+    function esc(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    /** Same 12-hour formatting as formatTime() in lib/venues.ts, reimplemented
+     * here because that module imports the whole venue dataset. */
+    function formatClock(time: string) {
+      const [hours, mins] = String(time).split(':').map(Number);
+      if (!Number.isFinite(hours) || !Number.isFinite(mins)) return String(time);
+      const suffix = hours >= 12 ? 'PM' : 'AM';
+      return `${hours % 12 || 12}:${String(mins).padStart(2, '0')} ${suffix}`;
+    }
+
+    /** Photos are full-size originals in Blobs; the CDN sizes them per slot.
+     * Mirrors throughImageCdn() in lib/venues.ts — dev has no /.netlify/images,
+     * so it serves the original there. */
+    function sized(url: string, width: number) {
+      if (!url.startsWith('/') || url.startsWith('/.netlify/images')) return url;
+      if (!import.meta.env.PROD) return url;
+      return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=80`;
+    }
+
+    function openLightbox(url: string, caption: string) {
+      lightboxImg.src = url;
+      lightboxCaption.textContent = caption;
+      lightbox.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.hidden = true;
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-close')!.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
+    });
+
+    /** Repaints the parts of the page an owner is allowed to change. Only
+     * fields the response actually carries are touched, so a venue with no
+     * owner edits keeps its build-time markup untouched. */
+    function applyOwnerEdits(listing: any) {
+      if (!listing) return;
+
+      if (listing.startTime && listing.endTime) {
+        document.getElementById('hh-times')!.innerHTML =
+          `<strong>${esc(formatClock(listing.startTime))} – ${esc(formatClock(listing.endTime))}</strong>`;
+        // The live ring reads its window off these, so they have to move too or
+        // the badge would follow the old hours.
+        heroFrame.dataset.start = listing.startTime;
+        heroFrame.dataset.end = listing.endTime;
+      }
+
+      if (Array.isArray(listing.days) && listing.days.length) {
+        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        document.getElementById('hh-days')!.innerHTML = names
+          .map((day) => `<span class="day-pill ${listing.days.includes(day) ? 'active' : ''}">${day.slice(0, 3)}</span>`)
+          .join('');
+        heroFrame.dataset.days = listing.days.join('|');
+        scheduleDays.length = 0;
+        scheduleDays.push(...listing.days);
+      }
+
+      if (Array.isArray(listing.deals) && listing.deals.length) {
+        document.getElementById('hh-deals')!.innerHTML = listing.deals
+          .map((deal: string) => `<span class="deal">${esc(deal)}</span>`)
+          .join('');
+      }
+
+      if (Array.isArray(listing.features)) {
+        const features = document.getElementById('hh-features') as HTMLElement;
+        features.innerHTML = listing.features
+          .map((feature: string) => `<span class="feature-tag">${esc(feature)}</span>`)
+          .join('');
+        features.style.display = listing.features.length ? '' : 'none';
+      }
+
+      if (listing.address) document.getElementById('hh-address')!.textContent = listing.address;
+      if (listing.vibe) document.getElementById('venue-vibe')!.textContent = listing.vibe;
+
+      if (listing.website) {
+        (document.getElementById('venue-website') as HTMLAnchorElement).href = listing.website;
+      }
+
+      const callLink = document.getElementById('venue-call') as HTMLAnchorElement;
+      if (listing.phone) {
+        callLink.href = `tel:${String(listing.phone).replace(/[^0-9+]/g, '')}`;
+        callLink.textContent = `Call ${listing.phone}`;
+        callLink.style.display = '';
+      } else if (listing.phone === '') {
+        callLink.style.display = 'none';
+      }
+
+      // A featured photo the owner picked replaces the hero image.
+      if (listing.image) {
+        const heroImg = heroFrame.querySelector('img') as HTMLImageElement | null;
+        if (heroImg) heroImg.src = sized(listing.image, 1600);
+      }
+
+      // The schedule may have moved, so recompute the live ring.
+      paintLiveState();
+    }
+
+    function renderAlbum(photos: any[]) {
+      if (!photos.length) return;
+      albumGrid.innerHTML = photos
+        .map(
+          (photo) => `
+            <button type="button" data-full="${esc(photo.url)}" data-caption="${esc(photo.caption)}">
+              <img src="${esc(sized(photo.url, 400))}" alt="${esc(photo.caption || 'Photo of this venue')}" loading="lazy">
+            </button>`
+        )
+        .join('');
+      albumSection.classList.remove('hidden');
+    }
+
+    function renderMenu(sections: any[]) {
+      // A section with nothing in it is the owner mid-edit, not content —
+      // skip those rather than showing an empty heading.
+      const withItems = sections.filter((section) => section.items.length);
+      if (!withItems.length) return;
+
+      menuBody.innerHTML = withItems
+        .map(
+          (section) => `
+            <div class="menu-section">
+              <h4>${esc(section.title)}</h4>
+              ${section.note ? `<p class="menu-note">${esc(section.note)}</p>` : ''}
+              ${section.items
+                .map(
+                  (item: any) => `
+                    <div class="menu-item">
+                      ${item.photo
+                        ? `<button type="button" class="menu-item-thumb" data-full="${esc(item.photo.url)}" data-caption="${esc(item.photo.caption || item.name)}">
+                             <img src="${esc(sized(item.photo.url, 200))}" alt="${esc(item.name)}" loading="lazy">
+                           </button>`
+                        : ''}
+                      <div class="menu-item-text">
+                        <div class="menu-item-head">
+                          <span class="name">${esc(item.name)}</span>
+                          ${item.price ? `<span class="price">${esc(item.price)}</span>` : ''}
+                        </div>
+                        ${item.description ? `<p class="menu-item-desc">${esc(item.description)}</p>` : ''}
+                      </div>
+                    </div>`
+                )
+                .join('')}
+            </div>`
+        )
+        .join('');
+      menuSection.classList.remove('hidden');
+    }
+
+    // One delegated handler covers album thumbnails and menu item photos.
+    document.addEventListener('click', (event) => {
+      const trigger = (event.target as HTMLElement).closest('[data-full]') as HTMLElement | null;
+      if (!trigger) return;
+      openLightbox(trigger.dataset.full!, trigger.dataset.caption || '');
+    });
+
+    async function initOwnerContent() {
+      try {
+        const res = await fetch(`/api/venue-content/${venueId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        // Only repaint when there's actually something different to show. The
+        // static markup is already correct for a venue nobody has edited, so
+        // repainting it identically just risks a flash of relayout and hides
+        // styling mistakes behind "it works on the happy path".
+        if (data.hasOwnerEdits) applyOwnerEdits(data.listing);
+        renderAlbum(data.photos || []);
+        renderMenu(data.menu || []);
+      } catch {
+        // Non-critical: the statically rendered listing is still correct as of
+        // the last deploy, so a failure here degrades rather than breaks.
+      }
+    }
+
     init();
     initPromo();
+    initLiveState();
+    initOwnerContent();
   </script>
 </Layout>

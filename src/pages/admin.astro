@@ -1,8 +1,10 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import ListingFormStyles from '../components/ListingFormStyles.astro';
 ---
 <Layout title="Submission Review | SD Happy Hours Admin" description="Review, approve, or deny happy hour submissions.">
+  <ListingFormStyles />
   <style is:global>
     .admin-bar {
       background: white;
@@ -34,6 +36,18 @@ import Layout from '../layouts/Layout.astro';
     .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
     .admin-status { margin-bottom: 16px; color: var(--night-soft); font-weight: 600; }
 
+    /* Filter bar. Counts live on the chips so it's obvious there are denied
+       submissions sitting behind a filter rather than gone. */
+    .admin-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .admin-filters button {
+      background: white; border: 2px solid var(--sand-warm); border-radius: 100px;
+      color: var(--night-soft); cursor: pointer; font: inherit; font-size: 0.85rem;
+      font-weight: 700; padding: 8px 16px;
+    }
+    .admin-filters button:hover { border-color: var(--sunset-end); color: var(--night); }
+    .admin-filters button[aria-pressed="true"] { background: var(--night); border-color: var(--night); color: white; }
+    .admin-filters .count { opacity: 0.7; font-weight: 600; }
+
     .submission {
       background: white;
       border-radius: var(--radius-sm);
@@ -41,25 +55,66 @@ import Layout from '../layouts/Layout.astro';
       padding: 20px;
       margin-bottom: 16px;
     }
-    .submission-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    /* Pending work is what this page is for, so it gets an edge the settled
+       ones don't. */
+    .submission.pending { box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 3px 0 0 var(--sunset-start); }
+
+    .submission-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .submission-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
     .submission-head p { color: var(--night-soft); font-size: 0.85rem; }
+    .submission-head-main { display: flex; gap: 14px; align-items: flex-start; min-width: 0; }
+    .submission-head-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    /* Above the toggle, so a published listing's page is one click away
+       without expanding the card. */
+    .submission-venue-link { color: var(--night); font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+
+    /* Collapsed view: the whole header row is the toggle, so there's a big
+       click target rather than just the caret. */
+    .submission-toggle {
+      background: none; border: 0; cursor: pointer; font: inherit; padding: 0;
+      color: var(--night-soft); display: flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; font-weight: 700;
+    }
+    .submission-toggle .caret { transition: transform 0.15s ease; display: inline-block; }
+    .submission[data-expanded="true"] .submission-toggle .caret { transform: rotate(90deg); }
+
+    /* A thumbnail in the collapsed row so it's clear at a glance which
+       listings still need a photo. */
+    .submission-thumb {
+      width: 84px; height: 60px; border-radius: var(--radius-sm); flex-shrink: 0;
+      background: var(--sand-warm); object-fit: cover; display: block;
+    }
+    .submission-thumb-wrap { position: relative; flex-shrink: 0; line-height: 0; }
+    .submission-thumb-tag {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(15,23,42,0.72); color: white; font-size: 0.55rem;
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      text-align: center; padding: 2px; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      line-height: 1.4;
+    }
+
+    /* Contact details stay visible while collapsed — they're how you chase a
+       submitter without opening the whole listing. */
+    .submission-summary {
+      display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px;
+      color: var(--night-soft); font-size: 0.85rem;
+    }
+    .submission-body[hidden] { display: none; }
+    .submission-body { margin-top: 18px; }
+
+    .submission-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 0.85rem; }
+    .submission-links a { color: var(--night); font-weight: 700; }
 
     .pill { align-self: flex-start; border-radius: 100px; background: #FEF3C7; color: #92400E; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
     .pill.approved { background: #DCFCE7; color: #166534; }
     .pill.denied { background: #FEE2E2; color: #991B1B; }
 
-    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 14px; color: var(--night-soft); font-size: 0.85rem; }
+    /* Who sent it in — submission metadata, not part of the listing. The
+       listing's own fields live in the editable form below it. */
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 16px; color: var(--night-soft); font-size: 0.85rem; }
+    .meta .full { grid-column: 1 / -1; }
 
-    textarea {
-      width: 100%; min-height: 260px; resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.82rem; line-height: 1.5;
-      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); padding: 12px; color: var(--night);
-    }
-    textarea:focus { border-color: var(--sunset-start); outline: none; }
-
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .actions button { border: 0; border-radius: 100px; padding: 10px 16px; cursor: pointer; font: inherit; font-weight: 700; }
     .actions button.good { background: var(--palm); color: white; }
     .actions button.bad { background: #B91C1C; color: white; }
@@ -68,6 +123,7 @@ import Layout from '../layouts/Layout.astro';
 
     @media (max-width: 760px) {
       .admin-bar-inner, .submission-head { flex-direction: column; align-items: stretch; }
+      .submission-head-side { flex-direction: row; align-items: center; justify-content: space-between; }
     }
   </style>
 
@@ -87,20 +143,45 @@ import Layout from '../layouts/Layout.astro';
     <nav class="admin-subnav">
       <a href="/admin/" aria-current="page">Submissions</a>
       <a href="/admin/restaurants/">Restaurant Verifications</a>
-      <a href="/admin/new-post/">Add Blog Post</a>
+      <a href="/admin/photos/">Photo Review</a>
       <a href="/admin/drafts/">Posts</a>
     </nav>
   </div>
 
   <main class="admin-main">
     <div class="admin-status" id="status">Checking login...</div>
+    <!-- Nothing leaves this page once it's been decided on: approved and
+         denied submissions stay here as the record of what happened, behind
+         a filter. "All" is the default. -->
+    <div class="admin-filters" id="filters" role="group" aria-label="Filter submissions by status" hidden>
+      <button type="button" data-filter="all" aria-pressed="true">All <span class="count" data-count="all"></span></button>
+      <button type="button" data-filter="pending" aria-pressed="false">Pending <span class="count" data-count="pending"></span></button>
+      <button type="button" data-filter="approved" aria-pressed="false">Approved <span class="count" data-count="approved"></span></button>
+      <button type="button" data-filter="denied" aria-pressed="false">Denied <span class="count" data-count="denied"></span></button>
+    </div>
     <div id="submissions"></div>
   </main>
 
   <script>
+    import { listingFormHTML, readListingForm, wireListingImageControls, previewSrc } from '../lib/listingForm';
+    import { vibeImageFor } from '../lib/vibeImages';
+
     const statusEl = document.getElementById('status')!;
     const submissionsEl = document.getElementById('submissions')!;
     const adminUserEl = document.getElementById('admin-user')!;
+    const filtersEl = document.getElementById('filters')!;
+
+    type StatusFilter = 'all' | 'pending' | 'approved' | 'denied';
+    let activeFilter: StatusFilter = 'all';
+
+    // Everything the admin has open, kept out of the DOM so it survives the
+    // full repaint that follows every save/approve/deny. Without this,
+    // hitting "Save edit" on a card would collapse it out from under you.
+    const expandedIds = new Set<string>();
+
+    // The last fetch, so switching filters or toggling a card is a repaint
+    // rather than a round trip.
+    let allSubmissions: any[] = [];
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -122,44 +203,145 @@ import Layout from '../layouts/Layout.astro';
       return data;
     }
 
-    function renderSubmissions(submissions: any[]) {
-      if (!submissions.length) {
+    /** Same rule as lib/venues.ts's slugify(), duplicated rather than imported
+     * so this script doesn't pull the whole venue data file into the admin
+     * bundle just to build two links. */
+    function slugify(name: string) {
+      return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    /** Pending first — they're the only ones that need a decision — then
+     * everything else newest-first, so the settled records read as a log. */
+    function sortForReview(items: any[]) {
+      const rank = (status: string) => (status === 'pending' ? 0 : 1);
+      return [...items].sort(
+        (a, b) =>
+          rank(a.status) - rank(b.status) ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+
+    /** The buttons a submission gets depend on where it already is. An
+     * approved one has a live venue behind it, so its edit button updates that
+     * venue too (see api/admin/submissions/[id].ts), and there's no Deny:
+     * denying something already published would leave this page saying
+     * "denied" while the venue stayed up on the site. */
+    function actionsFor(item: any) {
+      if (item.status === 'approved') {
+        return '<button class="good" data-action="edit">Save changes &amp; update venue</button>';
+      }
+      return `
+        <button class="secondary" data-action="edit">Save edit</button>
+        <button class="good" data-action="approve">${item.status === 'denied' ? 'Approve after all' : 'Approve'}</button>
+        ${item.status === 'denied' ? '' : '<button class="bad" data-action="deny">Deny</button>'}
+      `;
+    }
+
+    /** Collapsed by default: name, neighborhood, submitted date, status,
+     * contact and email — enough to triage without scrolling past a full form
+     * for every record. The listing itself, the submitter's notes and the
+     * action buttons live in .submission-body, which the toggle reveals. */
+    function submissionCard(item: any) {
+      const expanded = expandedIds.has(item.id);
+      const slug = slugify(item.listing.name);
+      const image = item.listing.image;
+
+      return `
+        <article class="submission ${escapeHTML(item.status)}" data-id="${escapeHTML(item.id)}" data-expanded="${expanded}">
+          <div class="submission-head">
+            <div class="submission-head-main">
+              <!-- Always a picture, because the site always shows one: the
+                   listing's own photo, or the vibe stock photo it falls back
+                   to, tagged so it's obvious which listings still need a real
+                   photo. -->
+              <span class="submission-thumb-wrap">
+                <img class="submission-thumb" src="${escapeHTML(previewSrc(image || vibeImageFor(item.listing.vibe), 200))}" alt="" loading="lazy">
+                ${image ? '' : '<span class="submission-thumb-tag">Stock</span>'}
+              </span>
+              <div>
+                <h2>${escapeHTML(item.listing.name)}</h2>
+                <p>${escapeHTML(item.listing.neighborhood)} · submitted ${new Date(item.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+            <div class="submission-head-side">
+              <span class="pill ${escapeHTML(item.status)}">${escapeHTML(item.status)}</span>
+              ${item.status === 'approved' ? `
+                <a class="submission-venue-link" href="/venues/${escapeHTML(slug)}/">View venue page &rarr;</a>
+              ` : ''}
+              <button type="button" class="submission-toggle" data-action="toggle" aria-expanded="${expanded}">
+                <span class="caret" aria-hidden="true">&#9654;</span>
+                ${expanded ? 'Hide listing' : 'Show listing'}
+              </button>
+            </div>
+          </div>
+
+          <div class="submission-summary">
+            <div><strong>Contact:</strong> ${escapeHTML(item.contact.contactName)}</div>
+            <div><strong>Email:</strong> <a href="mailto:${escapeHTML(item.contact.contactEmail)}">${escapeHTML(item.contact.contactEmail)}</a></div>
+          </div>
+
+          <div class="submission-body" ${expanded ? '' : 'hidden'}>
+            ${item.contact.notes || item.denialReason ? `
+              <div class="meta">
+                ${item.contact.notes ? `<div class="full"><strong>Notes from submitter:</strong> ${escapeHTML(item.contact.notes)}</div>` : ''}
+                ${item.denialReason ? `<div class="full"><strong>Denial reason:</strong> ${escapeHTML(item.denialReason)}</div>` : ''}
+              </div>
+            ` : ''}
+
+            ${item.status === 'approved' ? `
+              <div class="submission-links">
+                <span>Live as venue #${escapeHTML(item.approvedListingId ?? '?')} —</span>
+                <a href="/venues/${escapeHTML(slug)}/">view public page</a>
+                <a href="/admin/venues/${escapeHTML(slug)}/">open venue editor</a>
+              </div>
+            ` : ''}
+
+            ${listingFormHTML(item.listing)}
+            <div class="actions">${actionsFor(item)}</div>
+            <div class="error" aria-live="polite"></div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSubmissions() {
+      const counts = {
+        all: allSubmissions.length,
+        pending: allSubmissions.filter((item) => item.status === 'pending').length,
+        approved: allSubmissions.filter((item) => item.status === 'approved').length,
+        denied: allSubmissions.filter((item) => item.status === 'denied').length,
+      };
+      filtersEl.querySelectorAll('[data-count]').forEach((el) => {
+        el.textContent = `(${counts[(el as HTMLElement).dataset.count as StatusFilter]})`;
+      });
+      filtersEl.querySelectorAll('[data-filter]').forEach((el) => {
+        el.setAttribute('aria-pressed', String((el as HTMLElement).dataset.filter === activeFilter));
+      });
+      filtersEl.hidden = allSubmissions.length === 0;
+
+      if (!allSubmissions.length) {
         submissionsEl.innerHTML = '';
         setStatus('No submissions yet.');
         return;
       }
 
-      setStatus(`${submissions.length} submission${submissions.length === 1 ? '' : 's'}`);
-      submissionsEl.innerHTML = submissions.map((item) => `
-        <article class="submission" data-id="${escapeHTML(item.id)}">
-          <div class="submission-head">
-            <div>
-              <h2>${escapeHTML(item.listing.name)}</h2>
-              <p>${escapeHTML(item.listing.neighborhood)} · submitted ${new Date(item.createdAt).toLocaleString()}</p>
-            </div>
-            <span class="pill ${escapeHTML(item.status)}">${escapeHTML(item.status)}</span>
-          </div>
-          <div class="meta">
-            <div><strong>Contact:</strong> ${escapeHTML(item.contact.contactName)}</div>
-            <div><strong>Email:</strong> ${escapeHTML(item.contact.contactEmail)}</div>
-            <div><strong>Website:</strong> ${escapeHTML(item.listing.website)}</div>
-            <div><strong>Source:</strong> ${escapeHTML(item.listing.sourceUrl)}</div>
-          </div>
-          <textarea spellcheck="false">${escapeHTML(JSON.stringify(item.listing, null, 2))}</textarea>
-          <div class="actions">
-            <button class="secondary" data-action="edit">Save edit</button>
-            <button class="good" data-action="approve">Approve</button>
-            <button class="bad" data-action="deny">Deny</button>
-          </div>
-          <div class="error" aria-live="polite"></div>
-        </article>
-      `).join('');
+      const visible = sortForReview(
+        activeFilter === 'all' ? allSubmissions : allSubmissions.filter((item) => item.status === activeFilter)
+      );
+
+      const summary = `${counts.pending} pending, ${counts.approved} approved, ${counts.denied} denied`;
+      setStatus(activeFilter === 'all' ? summary : `${summary} — showing ${visible.length} ${activeFilter}`);
+
+      submissionsEl.innerHTML = visible.length
+        ? visible.map(submissionCard).join('')
+        : `<p>No ${escapeHTML(activeFilter)} submissions.</p>`;
     }
 
     async function loadSubmissions() {
       setStatus('Loading submissions...');
       try {
-        renderSubmissions(await api('/api/admin/submissions'));
+        allSubmissions = await api('/api/admin/submissions');
+        renderSubmissions();
       } catch {
         window.location.href = '/account/';
       }
@@ -181,24 +363,45 @@ import Layout from '../layouts/Layout.astro';
       window.location.href = '/';
     }
 
+    /** Expand/collapse in place — no refetch and no repaint, so an edit typed
+     * into one card's form survives collapsing and reopening it. */
+    function toggleCard(card: HTMLElement) {
+      const id = card.dataset.id!;
+      const nowExpanded = !expandedIds.has(id);
+      if (nowExpanded) expandedIds.add(id);
+      else expandedIds.delete(id);
+
+      const body = card.querySelector('.submission-body') as HTMLElement;
+      const toggle = card.querySelector('.submission-toggle') as HTMLButtonElement;
+      body.hidden = !nowExpanded;
+      card.dataset.expanded = String(nowExpanded);
+      toggle.setAttribute('aria-expanded', String(nowExpanded));
+      toggle.innerHTML = `<span class="caret" aria-hidden="true">&#9654;</span> ${nowExpanded ? 'Hide listing' : 'Show listing'}`;
+    }
+
     async function handleAction(event: MouseEvent) {
       const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
 
       const card = button.closest('.submission') as HTMLElement;
+
+      if (button.dataset.action === 'toggle') {
+        toggleCard(card);
+        return;
+      }
+
       const errorEl = card.querySelector('.error') as HTMLElement;
       const action = button.dataset.action;
       errorEl.textContent = '';
 
-      let listing;
-      try {
-        listing = JSON.parse((card.querySelector('textarea') as HTMLTextAreaElement).value);
-      } catch {
-        errorEl.textContent = 'Listing JSON is invalid.';
-        return;
-      }
-
-      const body: Record<string, any> = { action, listing };
+      // Read straight off the form fields. There's no client-side validation
+      // step anymore — the same validateListing() that guards approval
+      // returns 422 with a per-field list, which lands in errorEl below.
+      // (The deny branch on the server ignores the listing entirely.)
+      const body: Record<string, any> = {
+        action,
+        listing: readListingForm(card.querySelector('.lf-form') as HTMLElement),
+      };
       if (action === 'deny') {
         body.denialReason = prompt('Reason for denial?') || '';
       }
@@ -217,6 +420,19 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('refresh')!.addEventListener('click', loadSubmissions);
     document.getElementById('logout')!.addEventListener('click', logout);
     submissionsEl.addEventListener('click', handleAction);
+
+    // Filtering is purely a repaint of what's already fetched.
+    filtersEl.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest('[data-filter]') as HTMLElement | null;
+      if (!button) return;
+      activeFilter = button.dataset.filter as StatusFilter;
+      renderSubmissions();
+    });
+
+    // One delegated wiring for every featured-image control on the page,
+    // including the forms that don't exist yet — cards are repainted on every
+    // filter change and after every save.
+    wireListingImageControls(submissionsEl);
 
     document.getElementById('dispatch-alerts')!.addEventListener('click', async () => {
       const button = document.getElementById('dispatch-alerts') as HTMLButtonElement;

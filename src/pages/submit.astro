@@ -7,19 +7,6 @@ import Layout from '../layouts/Layout.astro';
   description="Submit a San Diego restaurant happy hour for review by SD Happy Hours."
 >
   <style>
-    .submit-header {
-      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
-      color: white;
-      padding: 56px 24px 44px;
-    }
-    .submit-header .inner { max-width: 900px; margin: 0 auto; }
-    .submit-header h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.25rem, 6vw, 3.5rem);
-      margin-bottom: 12px;
-    }
-    .submit-header p { color: rgba(255,255,255,0.88); font-size: 1.05rem; max-width: 640px; line-height: 1.6; }
-
     .submit-main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
 
     .submit-form {
@@ -97,12 +84,10 @@ import Layout from '../layouts/Layout.astro';
     }
   </style>
 
-  <div class="submit-header">
-    <div class="inner">
-      <h1>Submit a Happy Hour</h1>
-      <p>Own or manage a San Diego spot? Send us your happy hour details and our team will review and verify it before it goes live.</p>
-    </div>
-  </div>
+  <header class="page-header">
+    <h1>Submit a Happy Hour</h1>
+    <p>Own or manage a San Diego spot? Send us your happy hour details and our team will review and verify it before it goes live.</p>
+  </header>
 
   <main class="submit-main">
     <form class="submit-form" id="submit-form">

@@ -4,15 +4,6 @@ import Layout from '../../layouts/Layout.astro';
 ---
 <Layout title="Shared Alert | SD Happy Hours" description="A shared San Diego happy hour alert filter.">
   <style is:global>
-    .shared-alert-header {
-      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
-      color: white;
-      padding: 44px 24px 36px;
-    }
-    .shared-alert-header .inner { max-width: 700px; margin: 0 auto; }
-    .shared-alert-header h1 { font-family: var(--font-display); font-size: clamp(1.9rem, 5vw, 2.75rem); margin-bottom: 8px; }
-    .shared-alert-header p { color: rgba(255,255,255,0.88); }
-
     .shared-alert-main { max-width: 700px; margin: 0 auto; padding: 28px 24px 80px; }
     .shared-alert-panel {
       background: white; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
@@ -33,12 +24,10 @@ import Layout from '../../layouts/Layout.astro';
     .cta-link:hover { background: var(--sunset-start); }
   </style>
 
-  <div class="shared-alert-header">
-    <div class="inner">
-      <h1 id="title">Shared Alert</h1>
-      <p id="subtitle">Loading...</p>
-    </div>
-  </div>
+  <header class="page-header">
+    <h1 id="title">Shared Alert</h1>
+    <p id="subtitle">Loading...</p>
+  </header>
 
   <main class="shared-alert-main">
     <div class="shared-alert-panel" id="panel">

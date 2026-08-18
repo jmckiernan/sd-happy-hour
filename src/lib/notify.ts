@@ -8,7 +8,8 @@ import {
   type NotificationLogEntry,
 } from './store';
 import { getEnv } from './env';
-import { getVenues, isVenueLive, alertMatchesVenue, formatTime, type Venue } from './venues';
+import { isVenueLive, alertMatchesVenue, formatTime, type Venue } from './venues';
+import { getMergedVenues } from './venueContent';
 import { sendEmail } from './email';
 import { sendSms } from './sms';
 
@@ -88,8 +89,16 @@ interface UserAlertGroup {
 export async function runAlertDispatch(): Promise<DispatchSummary> {
   const now = new Date();
   const nowIso = now.toISOString();
-  const [activeAlerts, overrides] = await Promise.all([listActiveAlertsForDispatch(), getLiveOverrides()]);
-  const liveVenues = getVenues().filter((v) => isVenueLive(v, overrides, now));
+  // Venues come through getMergedVenues() rather than getVenues() so a
+  // verified owner's own corrections count here too. Without the merge this
+  // job would text people the happy-hour window from the last deploy —
+  // exactly the hours the owner just fixed.
+  const [activeAlerts, overrides, venues] = await Promise.all([
+    listActiveAlertsForDispatch(),
+    getLiveOverrides(),
+    getMergedVenues(),
+  ]);
+  const liveVenues = venues.filter((v) => isVenueLive(v, overrides, now));
 
   const summary: DispatchSummary = { liveVenueCount: liveVenues.length, usersNotified: 0, emailsSent: 0, textsSent: 0, simulated: false };
 

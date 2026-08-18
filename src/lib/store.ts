@@ -611,6 +611,11 @@ export interface Listing {
   // it handy), but worth capturing since it's what backs phone-based claim
   // verification (see venues.ts's Venue.phone).
   phone?: string;
+  // Featured photo for the listing, set by an admin in the review queue or
+  // the venue editor — normally `/api/images/<key>`, our own stored copy
+  // (lib/imageStore.ts). Absent/empty means the public pages fall back to the
+  // vibe stock photo, which is what every venue did before this existed.
+  image?: string;
 }
 
 export interface Submission {
@@ -894,7 +899,10 @@ export interface ImageRecord {
   byteSize: number;
   width: number | null;
   height: number | null;
-  origin: 'upload' | 'url' | 'generated' | 'edited';
+  // 'owner' is a restaurant owner's upload through the dashboard, as opposed
+  // to the four admin-screen origins — the one kind of image that was never
+  // looked at by a human before being stored (migrations/0004).
+  origin: 'upload' | 'url' | 'generated' | 'edited' | 'owner';
   sourceUrl: string | null;
   prompt: string | null;
   slugHint: string;
@@ -983,3 +991,431 @@ export async function deleteImageRecord(key: string): Promise<boolean> {
 }
 
 export type { QueryExecutor };
+
+// ---------------------------------------------------------------------------
+// Owner-managed venue content (migrations/0004_venue_content.sql)
+//
+// Everything below backs the restaurant dashboard's management screens. It is
+// deliberately separate from happy-hours.json: that file is the admin-curated
+// base record, committed to the repo and only live after a deploy, whereas an
+// owner fixing their hours or adding a photo has to take effect immediately.
+// src/lib/venueContent.ts is where the two get merged.
+// ---------------------------------------------------------------------------
+
+/** A verified claimant's edits to their own listing, as a partial patch over
+ * the happy-hours.json row. Only the fields in OWNER_EDITABLE_FIELDS
+ * (venueContent.ts) are ever stored here. */
+export interface VenueOverride {
+  venueId: number;
+  patch: Record<string, unknown>;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+interface VenueOverrideRow {
+  venue_id: number;
+  patch: Record<string, unknown>;
+  updated_by: string;
+  updated_at: string;
+}
+
+function mapVenueOverride(row: VenueOverrideRow): VenueOverride {
+  return {
+    venueId: row.venue_id,
+    patch: row.patch || {},
+    updatedBy: row.updated_by,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function getVenueOverride(venueId: number): Promise<VenueOverride | null> {
+  const rows = await sql<VenueOverrideRow>`SELECT * FROM venue_overrides WHERE venue_id = ${venueId}`;
+  return rows[0] ? mapVenueOverride(rows[0]) : null;
+}
+
+/** Every override, keyed by venue id — one query for the homepage/list pages,
+ * which need to merge overrides across every venue at once. */
+export async function getVenueOverrides(): Promise<Record<number, VenueOverride>> {
+  const rows = await sql<VenueOverrideRow>`SELECT * FROM venue_overrides`;
+  const byVenue: Record<number, VenueOverride> = {};
+  for (const row of rows) byVenue[row.venue_id] = mapVenueOverride(row);
+  return byVenue;
+}
+
+/** Replaces the whole patch rather than merging into the stored one: the
+ * dashboard always submits the complete set of owner-editable fields, so a
+ * merge would make it impossible to clear a field back to the base value. */
+export async function setVenueOverride(
+  venueId: number,
+  patch: Record<string, unknown>,
+  updatedBy: string
+): Promise<VenueOverride> {
+  const rows = await sql<VenueOverrideRow>`
+    INSERT INTO venue_overrides (venue_id, patch, updated_by)
+    VALUES (${venueId}, ${JSON.stringify(patch)}::jsonb, ${updatedBy})
+    ON CONFLICT (venue_id) DO UPDATE
+      SET patch = ${JSON.stringify(patch)}::jsonb,
+          updated_by = ${updatedBy},
+          updated_at = now()
+    RETURNING *`;
+  return mapVenueOverride(rows[0]);
+}
+
+/** A photo in a venue's album. Also the moderation record for that photo:
+ * menu item photos point at one of these rather than at a raw image key, so
+ * one screening decision governs everywhere the photo is shown. */
+export interface VenuePhoto {
+  id: string;
+  venueId: number;
+  imageKey: string;
+  caption: string;
+  status: 'published' | 'in_review' | 'rejected';
+  /** Verbatim result of the automated screen, or null if it never ran. */
+  moderation: Record<string, unknown> | null;
+  reviewNote: string;
+  reviewedBy: string;
+  reviewedAt: string | null;
+  sortOrder: number;
+  uploadedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface VenuePhotoRow {
+  id: string;
+  venue_id: number;
+  image_key: string;
+  caption: string;
+  status: VenuePhoto['status'];
+  moderation: Record<string, unknown> | null;
+  review_note: string;
+  reviewed_by: string;
+  reviewed_at: string | null;
+  sort_order: number;
+  uploaded_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+function mapVenuePhoto(row: VenuePhotoRow): VenuePhoto {
+  return {
+    id: row.id,
+    venueId: row.venue_id,
+    imageKey: row.image_key,
+    caption: row.caption,
+    status: row.status,
+    moderation: row.moderation,
+    reviewNote: row.review_note,
+    reviewedBy: row.reviewed_by,
+    reviewedAt: row.reviewed_at,
+    sortOrder: row.sort_order,
+    uploadedBy: row.uploaded_by,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/** The public album: published photos only, in the owner's chosen order. */
+export async function listPublishedVenuePhotos(venueId: number): Promise<VenuePhoto[]> {
+  const rows = await sql<VenuePhotoRow>`
+    SELECT * FROM venue_photos
+    WHERE venue_id = ${venueId} AND status = 'published'
+    ORDER BY sort_order, created_at`;
+  return rows.map(mapVenuePhoto);
+}
+
+/** Everything the owner has uploaded for this venue, including photos still in
+ * review or rejected — they need to see why something isn't showing. */
+export async function listVenuePhotos(venueId: number): Promise<VenuePhoto[]> {
+  const rows = await sql<VenuePhotoRow>`
+    SELECT * FROM venue_photos
+    WHERE venue_id = ${venueId} AND status <> 'rejected'
+    ORDER BY sort_order, created_at`;
+  return rows.map(mapVenuePhoto);
+}
+
+/** Includes rejected ones — the owner-facing list, so a rejection and its
+ * reason are visible rather than the photo silently vanishing. */
+export async function listVenuePhotosForOwner(venueId: number): Promise<VenuePhoto[]> {
+  const rows = await sql<VenuePhotoRow>`
+    SELECT * FROM venue_photos
+    WHERE venue_id = ${venueId}
+    ORDER BY sort_order, created_at`;
+  return rows.map(mapVenuePhoto);
+}
+
+export async function getVenuePhoto(id: string): Promise<VenuePhoto | null> {
+  const rows = await sql<VenuePhotoRow>`SELECT * FROM venue_photos WHERE id = ${id}`;
+  return rows[0] ? mapVenuePhoto(rows[0]) : null;
+}
+
+/** The admin moderation queue: everything held for review, oldest first, so
+ * the owner who has been waiting longest gets looked at first. */
+export async function listVenuePhotosForReview(limit = 200): Promise<VenuePhoto[]> {
+  const rows = await sql<VenuePhotoRow>`
+    SELECT * FROM venue_photos
+    WHERE status = 'in_review'
+    ORDER BY created_at
+    LIMIT ${limit}`;
+  return rows.map(mapVenuePhoto);
+}
+
+/** How many photos this venue has that aren't rejected — what the per-venue
+ * upload cap is enforced against. */
+export async function countVenuePhotos(venueId: number): Promise<number> {
+  const rows = await sql<{ count: string }>`
+    SELECT count(*)::text AS count FROM venue_photos
+    WHERE venue_id = ${venueId} AND status <> 'rejected'`;
+  return Number(rows[0]?.count || 0);
+}
+
+export interface CreateVenuePhotoInput {
+  venueId: number;
+  imageKey: string;
+  caption?: string;
+  status: VenuePhoto['status'];
+  moderation?: Record<string, unknown> | null;
+  uploadedBy: string;
+}
+
+export async function createVenuePhoto(input: CreateVenuePhotoInput): Promise<VenuePhoto> {
+  // New photos land at the end of the album: one past the current highest
+  // sort_order rather than 0, so an upload doesn't jump ahead of photos the
+  // owner has already arranged.
+  const rows = await sql<VenuePhotoRow>`
+    INSERT INTO venue_photos (venue_id, image_key, caption, status, moderation, uploaded_by, sort_order)
+    VALUES (
+      ${input.venueId}, ${input.imageKey}, ${input.caption ?? ''}, ${input.status},
+      ${input.moderation ? JSON.stringify(input.moderation) : null}::jsonb,
+      ${input.uploadedBy},
+      COALESCE((SELECT max(sort_order) + 1 FROM venue_photos WHERE venue_id = ${input.venueId}), 0)
+    )
+    RETURNING *`;
+  return mapVenuePhoto(rows[0]);
+}
+
+export interface UpdateVenuePhotoInput {
+  caption?: string;
+  status?: VenuePhoto['status'];
+  sortOrder?: number;
+  reviewNote?: string;
+  reviewedBy?: string;
+  /** Set alongside reviewedBy when an admin decides; left alone otherwise. */
+  markReviewed?: boolean;
+}
+
+export async function updateVenuePhoto(id: string, input: UpdateVenuePhotoInput): Promise<VenuePhoto | null> {
+  const rows = await sql<VenuePhotoRow>`
+    UPDATE venue_photos SET
+      caption     = COALESCE(${input.caption ?? null}, caption),
+      status      = COALESCE(${input.status ?? null}, status),
+      sort_order  = COALESCE(${input.sortOrder ?? null}, sort_order),
+      review_note = COALESCE(${input.reviewNote ?? null}, review_note),
+      reviewed_by = COALESCE(${input.reviewedBy ?? null}, reviewed_by),
+      reviewed_at = CASE WHEN ${input.markReviewed ?? false} THEN now() ELSE reviewed_at END,
+      updated_at  = now()
+    WHERE id = ${id}
+    RETURNING *`;
+  return rows[0] ? mapVenuePhoto(rows[0]) : null;
+}
+
+/** Removes the album row. The blob and its `images` record are left alone:
+ * they're the evidence of what was uploaded, and menu items referencing this
+ * photo are set to null by the FK rather than breaking. */
+export async function deleteVenuePhoto(id: string): Promise<boolean> {
+  const rows = await sql<{ id: string }>`DELETE FROM venue_photos WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
+}
+
+/** A menu section plus its items, which is the only shape either the public
+ * venue page or the dashboard ever wants. */
+export interface MenuSection {
+  id: string;
+  venueId: number;
+  title: string;
+  note: string;
+  sortOrder: number;
+  items: MenuItem[];
+}
+
+export interface MenuItem {
+  id: string;
+  sectionId: string;
+  name: string;
+  price: string;
+  description: string;
+  /** venue_photos.id, so the item's photo carries the same moderation status
+   * as an album photo. Null when the owner hasn't attached one. */
+  photoId: string | null;
+  sortOrder: number;
+}
+
+interface MenuSectionRow {
+  id: string;
+  venue_id: number;
+  title: string;
+  note: string;
+  sort_order: number;
+}
+
+interface MenuItemRow {
+  id: string;
+  section_id: string;
+  name: string;
+  price: string;
+  description: string;
+  photo_id: string | null;
+  sort_order: number;
+}
+
+function mapMenuItem(row: MenuItemRow): MenuItem {
+  return {
+    id: row.id,
+    sectionId: row.section_id,
+    name: row.name,
+    price: row.price,
+    description: row.description,
+    photoId: row.photo_id,
+    sortOrder: row.sort_order,
+  };
+}
+
+/** The whole menu for a venue, sections in order with their items in order.
+ * Two queries rather than a join so an empty section doesn't need
+ * null-row handling, and the item mapping stays trivial. */
+export async function getVenueMenu(venueId: number): Promise<MenuSection[]> {
+  const sectionRows = await sql<MenuSectionRow>`
+    SELECT * FROM menu_sections WHERE venue_id = ${venueId} ORDER BY sort_order, created_at`;
+  if (!sectionRows.length) return [];
+
+  const itemRows = await sql<MenuItemRow>`
+    SELECT i.* FROM menu_items i
+    JOIN menu_sections s ON s.id = i.section_id
+    WHERE s.venue_id = ${venueId}
+    ORDER BY i.sort_order, i.created_at`;
+
+  return sectionRows.map((section) => ({
+    id: section.id,
+    venueId: section.venue_id,
+    title: section.title,
+    note: section.note,
+    sortOrder: section.sort_order,
+    items: itemRows.filter((item) => item.section_id === section.id).map(mapMenuItem),
+  }));
+}
+
+/** Which venue a section belongs to — the ownership check every mutating
+ * menu route runs before touching it. */
+export async function getMenuSection(id: string): Promise<{ id: string; venueId: number } | null> {
+  const rows = await sql<{ id: string; venue_id: number }>`
+    SELECT id, venue_id FROM menu_sections WHERE id = ${id}`;
+  return rows[0] ? { id: rows[0].id, venueId: rows[0].venue_id } : null;
+}
+
+/** Same, for an item — resolved through its section, since items have no
+ * venue_id of their own. */
+export async function getMenuItemVenue(id: string): Promise<{ id: string; venueId: number } | null> {
+  const rows = await sql<{ id: string; venue_id: number }>`
+    SELECT i.id, s.venue_id FROM menu_items i
+    JOIN menu_sections s ON s.id = i.section_id
+    WHERE i.id = ${id}`;
+  return rows[0] ? { id: rows[0].id, venueId: rows[0].venue_id } : null;
+}
+
+export async function countMenuSections(venueId: number): Promise<number> {
+  const rows = await sql<{ count: string }>`
+    SELECT count(*)::text AS count FROM menu_sections WHERE venue_id = ${venueId}`;
+  return Number(rows[0]?.count || 0);
+}
+
+export async function countMenuItems(sectionId: string): Promise<number> {
+  const rows = await sql<{ count: string }>`
+    SELECT count(*)::text AS count FROM menu_items WHERE section_id = ${sectionId}`;
+  return Number(rows[0]?.count || 0);
+}
+
+export async function createMenuSection(venueId: number, title: string, note = ''): Promise<MenuSection> {
+  const rows = await sql<MenuSectionRow>`
+    INSERT INTO menu_sections (venue_id, title, note, sort_order)
+    VALUES (
+      ${venueId}, ${title}, ${note},
+      COALESCE((SELECT max(sort_order) + 1 FROM menu_sections WHERE venue_id = ${venueId}), 0)
+    )
+    RETURNING *`;
+  const row = rows[0];
+  return { id: row.id, venueId: row.venue_id, title: row.title, note: row.note, sortOrder: row.sort_order, items: [] };
+}
+
+export interface UpdateMenuSectionInput {
+  title?: string;
+  note?: string;
+  sortOrder?: number;
+}
+
+export async function updateMenuSection(id: string, input: UpdateMenuSectionInput): Promise<boolean> {
+  const rows = await sql<{ id: string }>`
+    UPDATE menu_sections SET
+      title      = COALESCE(${input.title ?? null}, title),
+      note       = COALESCE(${input.note ?? null}, note),
+      sort_order = COALESCE(${input.sortOrder ?? null}, sort_order),
+      updated_at = now()
+    WHERE id = ${id}
+    RETURNING id`;
+  return rows.length > 0;
+}
+
+/** Items go with it — ON DELETE CASCADE on menu_items.section_id. */
+export async function deleteMenuSection(id: string): Promise<boolean> {
+  const rows = await sql<{ id: string }>`DELETE FROM menu_sections WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
+}
+
+export interface CreateMenuItemInput {
+  sectionId: string;
+  name: string;
+  price?: string;
+  description?: string;
+  photoId?: string | null;
+}
+
+export async function createMenuItem(input: CreateMenuItemInput): Promise<MenuItem> {
+  const rows = await sql<MenuItemRow>`
+    INSERT INTO menu_items (section_id, name, price, description, photo_id, sort_order)
+    VALUES (
+      ${input.sectionId}, ${input.name}, ${input.price ?? ''}, ${input.description ?? ''},
+      ${input.photoId ?? null},
+      COALESCE((SELECT max(sort_order) + 1 FROM menu_items WHERE section_id = ${input.sectionId}), 0)
+    )
+    RETURNING *`;
+  return mapMenuItem(rows[0]);
+}
+
+export interface UpdateMenuItemInput {
+  name?: string;
+  price?: string;
+  description?: string;
+  /** `null` clears the photo; `undefined` leaves it alone. */
+  photoId?: string | null;
+  sortOrder?: number;
+  clearPhoto?: boolean;
+}
+
+export async function updateMenuItem(id: string, input: UpdateMenuItemInput): Promise<boolean> {
+  const rows = await sql<{ id: string }>`
+    UPDATE menu_items SET
+      name        = COALESCE(${input.name ?? null}, name),
+      price       = COALESCE(${input.price ?? null}, price),
+      description = COALESCE(${input.description ?? null}, description),
+      photo_id    = CASE WHEN ${input.clearPhoto ?? false} THEN NULL
+                         ELSE COALESCE(${input.photoId ?? null}::uuid, photo_id) END,
+      sort_order  = COALESCE(${input.sortOrder ?? null}, sort_order),
+      updated_at  = now()
+    WHERE id = ${id}
+    RETURNING id`;
+  return rows.length > 0;
+}
+
+export async function deleteMenuItem(id: string): Promise<boolean> {
+  const rows = await sql<{ id: string }>`DELETE FROM menu_items WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
+}

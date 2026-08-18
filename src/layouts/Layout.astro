@@ -14,6 +14,11 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// The homepage owns its own full-bleed sunset scene (stars, sun, ocean) from
+// the very top of the page, so the site-wide backdrop is suppressed there —
+// layering faint contours and sun rays over that hero would only muddy it.
+const isHome = Astro.url.pathname === '/';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -97,6 +102,87 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     .page-content {
       flex: 1 0 auto;
       width: 100%;
+    }
+
+    /* ---------------------------------------------------------------------
+       Site backdrop (every page except the homepage).
+
+       A single semi-transparent San Diego beach-and-happy-hour scene sits
+       behind all content, in place of the old per-page gradient header
+       bands. The image itself is generated and promoted by
+       scripts/generate-backdrop.js — see that file for the prompt and for
+       the other art directions.
+
+       It's a <body> child and it's positioned, which matters twice over: it
+       keeps it out of body's column flex flow (an unpositioned div would
+       become a flex item and take up real space), and negative z-index puts
+       it behind every page's content while still painting on top of the sand
+       canvas background. It isn't interactive, so it's aria-hidden with
+       pointer-events: none.
+
+       Fixed rather than scrolling, so the horizon in the scene stays put and
+       the page reads as a translucent sheet laid over a poster.
+       --------------------------------------------------------------------- */
+    .sd-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      /* Checked by compositing the image over --sand with real header text
+         and a form card over it: legible with room to spare at 0.30, a bare
+         whisper at 0.18. This sits between the two. */
+      opacity: 0.26;
+      background-image: url('/images/backdrop.webp');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+    }
+
+    /* On a portrait viewport, `cover` on a 16:9 scene crops so hard that the
+       palms and the glasses — the whole point of the image — fall outside
+       the frame entirely. Show the full width instead and let it sit as a
+       band in the upper part of the page, with plain sand below it. */
+    @media (max-aspect-ratio: 1 / 1) {
+      .sd-backdrop {
+        background-size: 100% auto;
+        background-position: center 24%;
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+       Shared page header.
+
+       One centred, background-free header for every page, matching the blog
+       index (which is where this treatment started). Defined once here
+       rather than copied per page so the pages can't drift apart again the
+       way the five gradient headers did.
+       --------------------------------------------------------------------- */
+    .page-header {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 8px;
+      text-align: center;
+      position: relative;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 6vw, 3.25rem);
+      line-height: 1.12;
+      margin-bottom: 14px;
+    }
+
+    .page-header p {
+      color: var(--night-soft);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .page-header { padding: 28px 20px 4px; }
+      .page-header p { font-size: 1rem; }
     }
 
     .site-nav .brand {
@@ -183,6 +269,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </style>
 </head>
 <body>
+  {!isHome && <div class="sd-backdrop" aria-hidden="true"></div>}
+
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
     <a class="brand" href="/">SD Happy Hours</a>
     <div class="links">

@@ -541,7 +541,7 @@ import Layout from '../layouts/Layout.astro';
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
-    import { getVenueImage } from '../lib/venues';
+    import { getListingImage } from '../lib/venues';
 
     let happyHours: any[] = [];
     let userLocation: { lat: number; lng: number } | null = null;
@@ -782,9 +782,36 @@ import Layout from '../layouts/Layout.astro';
       `;
     }
 
+    /** Lays each verified owner's own edits over the build-time record.
+     *
+     * happy-hours.json is a static asset baked at deploy time; an owner
+     * correcting their hours writes to venue_overrides instead and it takes
+     * effect immediately (see src/lib/venueContent.ts). Without this merge the
+     * cards here would disagree with the venue page, which does apply them.
+     *
+     * A plain spread is the whole merge: a stored patch only ever holds
+     * complete values for owner-editable fields, and the endpoint filters it
+     * to those fields on the way out.
+     */
+    async function mergeOwnerEdits(venues: any[]) {
+      try {
+        const res = await fetch('/api/venue-overrides');
+        if (!res.ok) return venues;
+        const { overrides } = await res.json();
+        if (!overrides) return venues;
+        return venues.map((venue) => {
+          const patch = overrides[String(venue.id)];
+          return patch ? { ...venue, ...patch } : venue;
+        });
+      } catch {
+        // The static record is still valid as of the last deploy.
+        return venues;
+      }
+    }
+
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
-      happyHours = await res.json();
+      happyHours = await mergeOwnerEdits(await res.json());
 
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
@@ -816,8 +843,10 @@ import Layout from '../layouts/Layout.astro';
       return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
     }
 
-    function getImage(vibe: string) {
-      return getVenueImage(vibe, 'card');
+    // The venue's own featured photo when an admin has set one, otherwise the
+    // vibe stock photo — same fallback the venue page and OG image use.
+    function getImage(hh: any) {
+      return getListingImage(hh, 'card');
     }
 
     function getTrustLabel(h: any) {
@@ -898,7 +927,7 @@ import Layout from '../layouts/Layout.astro';
 
       grid.innerHTML = filtered.map((h) => {
         const isLive = isHappeningNow(h);
-        const img = getImage(h.vibe);
+        const img = getImage(h);
         const hasDistance = h.distance !== undefined;
         const slug = slugify(h.name);
 

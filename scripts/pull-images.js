@@ -23,6 +23,10 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const BLOG_DIR = path.join(process.cwd(), 'src', 'content', 'blog');
+// Venues can carry an admin-set featured photo too (see the `image` field in
+// src/lib/venues.ts), stored in the same Blobs store, so those keys need
+// pulling as well or every venue with a real photo renders broken in dev.
+const VENUE_DATA = path.join(process.cwd(), 'public', 'data', 'happy-hours.json');
 const IMAGE_DIR = path.join(process.cwd(), '.data', 'images');
 const STORE_NAME = 'blog-images';
 
@@ -58,6 +62,22 @@ async function referencedKeys() {
     const key = match[1];
     if (!found.has(key)) found.set(key, []);
     found.get(key).push(file.replace(/\.md$/, ''));
+  }
+
+  // Venue featured photos, from the same store. Read tolerantly: a checkout
+  // without the data file (or with an older one that has no `image` fields) is
+  // a normal state, not an error.
+  try {
+    const venues = JSON.parse(await fs.readFile(VENUE_DATA, 'utf-8'));
+    for (const venue of venues) {
+      const match = String(venue.image || '').match(OWN_IMAGE_RE);
+      if (!match) continue;
+      const key = match[1];
+      if (!found.has(key)) found.set(key, []);
+      found.get(key).push(`venue: ${venue.name}`);
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
   }
 
   return found;
@@ -111,7 +131,7 @@ async function main() {
 
   const keys = await referencedKeys();
   if (keys.size === 0) {
-    console.log('No /api/images/ hero images referenced by any post — nothing to pull.');
+    console.log('No /api/images/ images referenced by any post or venue — nothing to pull.');
     return;
   }
 
@@ -157,12 +177,12 @@ async function main() {
     console.log(
       `\n${missing.length} referenced image(s) could not be fetched after ${FETCH_ATTEMPTS} attempts.\n` +
         `Cross-check with \`npx netlify blobs:list ${STORE_NAME}\`: absent from that list means the\n` +
-        `bytes are genuinely gone and the post needs a new image; present means the CLI is\n` +
+        `bytes are genuinely gone and that post/venue needs a new image; present means the CLI is\n` +
         `still flaking and re-running this should pick it up.`
     );
-    for (const { key, posts, output } of missing) {
+    for (const { key, posts: referencedBy, output } of missing) {
       console.log(`  FAILED   ${key}`);
-      console.log(`           referenced by: ${posts.join(', ')}`);
+      console.log(`           referenced by: ${referencedBy.join(', ')}`);
       if (output) console.log(`           ${output.replace(/\n/g, '\n           ')}`);
     }
     // Non-zero so this is usable as a check, not just a fetch.

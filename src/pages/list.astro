@@ -4,15 +4,6 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Shared Happy Hour List | SD Happy Hours" description="A shared list of favorite San Diego happy hour spots.">
   <style is:global>
-    .list-header {
-      background: linear-gradient(135deg, #1A0A2E, #8B4B6B 60%, #F4C05C);
-      color: white;
-      padding: 44px 24px 36px;
-    }
-    .list-header .inner { max-width: 900px; margin: 0 auto; }
-    .list-header h1 { font-family: var(--font-display); font-size: clamp(1.9rem, 5vw, 2.75rem); margin-bottom: 8px; }
-    .list-header p { color: rgba(255,255,255,0.88); }
-
     .list-main { max-width: 900px; margin: 0 auto; padding: 28px 24px 80px; }
     .list-grid { display: grid; gap: 14px; }
 
@@ -32,12 +23,10 @@ import Layout from '../layouts/Layout.astro';
     @media (max-width: 680px) { .list-card-head { flex-direction: column; } }
   </style>
 
-  <div class="list-header">
-    <div class="inner">
-      <h1 id="title">Shared Happy Hour List</h1>
-      <p id="subtitle">Loading saved spots...</p>
-    </div>
-  </div>
+  <header class="page-header">
+    <h1 id="title">Shared Happy Hour List</h1>
+    <p id="subtitle">Loading saved spots...</p>
+  </header>
 
   <main class="list-main">
     <div class="list-grid" id="list"></div>

@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { listVenueClaimsByUser } from '../../../lib/store';
 import { getSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
-import { getVenues } from '../../../lib/venues';
+import { getVenues, slugify } from '../../../lib/venues';
 
 export const prerender = false;
 
@@ -21,6 +21,9 @@ export const GET: APIRoute = async ({ cookies }) => {
     return {
       ...claim,
       venueName: venue?.name ?? null,
+      // For linking to /restaurant/manage/<slug>/ and /venues/<slug>/ — the
+      // same slug rule those routes are generated with.
+      venueSlug: venue ? slugify(venue.name) : null,
       venueNeighborhood: venue?.neighborhood ?? null,
       venuePhoneAvailable: Boolean(venue?.phone),
     };

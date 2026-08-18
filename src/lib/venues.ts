@@ -1,4 +1,5 @@
 import happyHours from '../../public/data/happy-hours.json';
+import { vibeImageFor } from './vibeImages';
 import type { AlertFilters, LiveOverride } from './store';
 
 export interface Venue {
@@ -27,6 +28,10 @@ export interface Venue {
   // looked up a number for yet; phone verification just isn't offered for
   // those, falling back to domain-match/manual review.
   phone?: string;
+  // Admin-chosen featured photo, overriding the vibe stock photo everywhere
+  // this venue is shown. Set in the submission review queue or the venue
+  // editor; see getListingImage() for the fallback chain.
+  image?: string;
 }
 
 export function slugify(name: string): string {
@@ -117,44 +122,10 @@ export function formatTime(time: string): string {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
-// Stock photo per "vibe" — used as a thumbnail on the homepage cards and,
-// at a higher resolution, as the hero banner on individual venue pages.
-//
-// These used to be hotlinks to images.unsplash.com, which meant every page
-// load depended on Unsplash staying up and keeping those photo IDs alive
-// (and rendered as broken images anywhere Unsplash is network-blocked).
-// They're now our own copies under public/images/vibes/, downloaded once by
-// scripts/fetch-vibe-images.js — which is also where the original Unsplash
-// photo IDs are recorded, if one ever needs re-fetching.
-//
-// Each file is a single 1600px-wide master (the largest size the site asks
-// for). The card/hero sizing that Unsplash's `?w=` params used to do now
-// happens in getVenueImage() below.
-export const vibeImages: Record<string, string> = {
-  'Upscale casual': '/images/vibes/upscale-casual.jpg',
-  'Speakeasy': '/images/vibes/speakeasy.jpg',
-  'Trendy gastropub': '/images/vibes/trendy-gastropub.jpg',
-  'Seafood spot': '/images/vibes/seafood-spot.jpg',
-  'Rooftop vibes': '/images/vibes/rooftop-vibes.jpg',
-  'Modern Mexican': '/images/vibes/modern-mexican.jpg',
-  'Tiki bar': '/images/vibes/tiki-bar.jpg',
-  'Chef-driven': '/images/vibes/chef-driven.jpg',
-  'Wine bar': '/images/vibes/wine-bar.jpg',
-  'Upscale Mediterranean': '/images/vibes/upscale-mediterranean.jpg',
-  'Neighborhood gastropub': '/images/vibes/neighborhood-gastropub.jpg',
-  'Craft cocktails': '/images/vibes/craft-cocktails.jpg',
-  'Dog-friendly patio': '/images/vibes/dog-friendly-patio.jpg',
-  'Casual chicken joint': '/images/vibes/casual-chicken-joint.jpg',
-  'Waterfront Mexican': '/images/vibes/waterfront-mexican.jpg',
-  'Arcade bar': '/images/vibes/arcade-bar.jpg',
-  'All-day cafe': '/images/vibes/all-day-cafe.jpg',
-  'Italian gastropub': '/images/vibes/italian-gastropub.jpg',
-  'Vegan metal bar': '/images/vibes/vegan-metal-bar.jpg',
-  'Beach brewery': '/images/vibes/beach-brewery.jpg',
-  // Intentionally the same photo as 'Speakeasy' — that's what the previous
-  // Unsplash map did too (both pointed at photo-1470337458703).
-  'default': '/images/vibes/speakeasy.jpg',
-};
+// Re-exported from lib/vibeImages.ts, where the map itself now lives so the
+// admin listing form can share it without dragging this module (and the venue
+// dataset it imports) into a browser bundle.
+export { vibeImages, vibeImageFor } from './vibeImages';
 
 const IMAGE_SIZES = {
   card: { w: 800, q: 80 },
@@ -192,7 +163,29 @@ function throughImageCdn(src: string, size: 'card' | 'hero'): string {
  * 'hero'  -> large venue-page banner (1600px wide, higher quality)
  */
 export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
-  return throughImageCdn(vibeImages[vibe] || vibeImages['default'], size);
+  return throughImageCdn(vibeImageFor(vibe), size);
+}
+
+/**
+ * The image to show for a venue: its own admin-set featured photo if it has
+ * one, otherwise the vibe stock photo. Every surface that shows a venue photo
+ * (homepage cards, venue hero, OG image) goes through this, so setting a
+ * featured image in the admin updates all of them at once and clearing it
+ * falls straight back to the stock photo.
+ *
+ * Takes a venue-shaped object rather than a Venue so the homepage's client
+ * script — which works off parsed happy-hours.json, not the typed import —
+ * can call it too.
+ */
+export function getListingImage(
+  venue: { image?: string; vibe?: string },
+  size: 'card' | 'hero' = 'card'
+): string {
+  // Featured photos are usually full-size originals served from Blobs via
+  // /api/images/, so they need the same Image CDN pass the vibe photos get —
+  // otherwise a card thumbnail downloads a hero-resolution file.
+  if (venue.image) return throughImageCdn(venue.image, size);
+  return getVenueImage(venue.vibe || '', size);
 }
 
 /**

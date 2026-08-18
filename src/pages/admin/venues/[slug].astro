@@ -1,0 +1,156 @@
+---
+export const prerender = true;
+import Layout from '../../../layouts/Layout.astro';
+import ListingFormStyles from '../../../components/ListingFormStyles.astro';
+import { getVenues, slugify } from '../../../lib/venues';
+
+// One editor page per published venue, mirroring the public /venues/[slug]/
+// route so the Edit button there is a straight slug swap. The values below
+// come from the same build-time happy-hours.json the public page renders
+// from, so the two can't drift.
+export async function getStaticPaths() {
+  return getVenues().map((venue) => ({
+    params: { slug: slugify(venue.name) },
+    props: { venue },
+  }));
+}
+
+const { venue } = Astro.props;
+---
+<Layout title={`Edit ${venue.name} | SD Happy Hours Admin`} description="Edit a published happy hour listing.">
+  <ListingFormStyles />
+  <style is:global>
+    .ve-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+    .ve-wrap h1 { font-family: var(--font-display); font-size: 1.75rem; margin-bottom: 6px; }
+    .ve-wrap p.sub { color: var(--night-soft); margin-bottom: 24px; line-height: 1.5; }
+
+    .ve-panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      padding: 24px;
+    }
+
+    .ve-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .ve-actions button, .ve-actions a {
+      border: 0; border-radius: 100px; cursor: pointer; font: inherit; font-weight: 700;
+      padding: 12px 22px; text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .ve-actions .save { background: var(--night); color: white; }
+    .ve-actions .save:hover { background: var(--sunset-start); }
+    .ve-actions .neutral { background: var(--sand-warm); color: var(--night); }
+    .ve-actions .neutral:hover { background: var(--sunset-end); }
+    .ve-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ve-status { color: var(--night-soft); font-weight: 600; white-space: pre-wrap; font-size: 0.9rem; }
+    .ve-status.ok { color: #166534; }
+    .ve-status.err { color: #B91C1C; }
+
+    .ve-note {
+      background: #FEF3C7; color: #92400E; border-radius: var(--radius-sm);
+      font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; padding: 12px 16px;
+    }
+
+    .ve-locked { text-align: center; padding: 60px 24px; }
+    .ve-locked p { color: var(--night-soft); margin-bottom: 20px; }
+    .ve-locked a {
+      display: inline-flex; background: var(--night); color: white; padding: 12px 22px;
+      border-radius: 100px; text-decoration: none; font-weight: 700;
+    }
+
+    .admin-subnav { display: flex; gap: 8px; margin: 0 0 24px; font-size: 0.85rem; flex-wrap: wrap; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+
+    .ve-hidden { display: none; }
+  </style>
+
+  <div class="ve-wrap">
+    <div id="ve-locked" class="ve-locked ve-hidden">
+      <h1>Edit Venue</h1>
+      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+      <a href="/account/">Sign In</a>
+    </div>
+
+    <!-- Venue data rides on a data attribute rather than a JSON <script>
+         block: Astro escapes attribute values, so a name containing
+         "</script>" (venue names originate from public submissions) can't
+         break out and inject. -->
+    <div id="ve-editor" class="ve-hidden" data-venue={JSON.stringify(venue)}>
+      <nav class="admin-subnav">
+        <a href="/admin/">Submissions</a>
+        <a href="/admin/restaurants/">Restaurant Verifications</a>
+        <a href="/admin/photos/">Photo Review</a>
+        <a href="/admin/drafts/">Posts</a>
+        <a href={`/venues/${slugify(venue.name)}/`}>View public page</a>
+      </nav>
+
+      <h1>Edit {venue.name}</h1>
+      <p class="sub">{venue.neighborhood} · venue #{venue.id}</p>
+
+      <p class="ve-note">
+        Saving commits straight to <code>public/data/happy-hours.json</code> in the repo. The change goes
+        live on the next deploy — usually a couple of minutes — not instantly on this page.
+      </p>
+
+      <div class="ve-panel">
+        <div id="ve-form"></div>
+        <div class="ve-actions">
+          <button type="button" class="save" id="ve-save">Save changes</button>
+          <a class="neutral" href={`/venues/${slugify(venue.name)}/`}>Cancel</a>
+          <span class="ve-status" id="ve-status" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { listingFormHTML, readListingForm, wireListingImageControls } from '../../../lib/listingForm';
+
+    const editorEl = document.getElementById('ve-editor')!;
+    const venue = JSON.parse(editorEl.dataset.venue!);
+    const formEl = document.getElementById('ve-form')!;
+    const statusEl = document.getElementById('ve-status')!;
+    const saveBtn = document.getElementById('ve-save') as HTMLButtonElement;
+
+    function setStatus(message: string, kind: '' | 'ok' | 'err' = '') {
+      statusEl.className = `ve-status${kind ? ` ${kind}` : ''}`;
+      statusEl.textContent = message;
+    }
+
+    // Verification fields are shown here but not in the submission queue —
+    // on a published venue they drive the badge on the public page, whereas
+    // approving a submission is what sets them in the first place.
+    formEl.innerHTML = listingFormHTML(venue, { includeVerification: true });
+    // Upload / paste-a-URL / AI touch-up for the featured image, shared with
+    // the submission queue. Delegated, so it survives a form repaint.
+    wireListingImageControls(formEl);
+
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      setStatus('Saving...');
+      try {
+        const res = await fetch(`/api/admin/venues/${venue.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listing: readListingForm(formEl) }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Save failed.']).join('\n'));
+        setStatus('Saved — live on the next deploy.', 'ok');
+      } catch (err: any) {
+        setStatus(err.message, 'err');
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    (async () => {
+      const res = await fetch('/api/admin/me');
+      const session = await res.json();
+      (session.authenticated ? editorEl : document.getElementById('ve-locked')!).classList.remove('ve-hidden');
+    })();
+  </script>
+</Layout>

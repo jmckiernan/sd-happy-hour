@@ -12,19 +12,6 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
   description="Guides, roundups, and news about San Diego's happy hour scene — from Little Italy to Pacific Beach."
 >
   <style>
-    .blog-header {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 48px 24px 24px;
-      text-align: center;
-    }
-    .blog-header h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.25rem, 6vw, 3.25rem);
-      margin-bottom: 12px;
-    }
-    .blog-header p { color: var(--night-soft); font-size: 1.1rem; }
-
     .post-list {
       max-width: 920px;
       margin: 0 auto;
@@ -139,10 +126,10 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
     }
   </style>
 
-  <div class="blog-header">
+  <header class="page-header">
     <h1>The SD Happy Hours Blog</h1>
     <p>Roundups, neighborhood guides, and what's new on the San Diego happy hour scene.</p>
-  </div>
+  </header>
 
   <div class="post-list">
     {posts.length === 0 && (

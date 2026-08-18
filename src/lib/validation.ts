@@ -128,6 +128,10 @@ export function validateListing(
     // security-critical at submission time (it only matters later, when a
     // claim actually gets verified against it).
     phone: cleanString(input.phone).slice(0, 20),
+    // Admin-only field (the public submit form doesn't render it), so an
+    // absent value is normal and means "no featured photo, use the vibe
+    // stock one" rather than a validation failure.
+    image: cleanString(input.image),
   };
 
   const errors: string[] = [];
@@ -148,6 +152,13 @@ export function validateListing(
   }
   if (listing.lat != null && Number.isFinite(listing.lat) && (listing.lat < -90 || listing.lat > 90)) errors.push('Latitude is invalid.');
   if (listing.lng != null && Number.isFinite(listing.lng) && (listing.lng < -180 || listing.lng > 180)) errors.push('Longitude is invalid.');
+  // Either one of our own stored/committed images (a root-relative path) or a
+  // remote http(s) URL. Anything else — a bare filename, a javascript: or
+  // data: URI — is rejected rather than written into happy-hours.json, since
+  // this value goes straight into an <img src> on a public page.
+  if (listing.image && !/^(\/[^/]|https?:\/\/)/i.test(listing.image)) {
+    errors.push('Featured image must be a stored image path or an http(s) URL.');
+  }
 
   return { listing, errors };
 }

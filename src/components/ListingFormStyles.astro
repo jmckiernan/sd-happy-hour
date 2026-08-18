@@ -1,0 +1,174 @@
+---
+/**
+ * Styling for the venue listing form built by src/lib/listingForm.ts.
+ *
+ * Global because both callers inject the markup from client script, so
+ * Astro's scoped-style attributes would never land on it. Drop this
+ * component into any page that renders listingFormHTML().
+ *
+ * Deliberately mirrors the public submit form (src/pages/submit.astro): a
+ * two-column grid of stacked label + control, full-width rows for the long
+ * ones, and tag-style checkbox grids.
+ */
+---
+<style is:global>
+  .lf-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .lf-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .lf-field.full { grid-column: 1 / -1; }
+  .lf-field > label {
+    color: var(--night-soft);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Element selectors alone would lose to the page-level `textarea` rules on
+     admin.astro (a 260px monospace JSON box), so these stay class-qualified. */
+  .lf-field input,
+  .lf-field textarea {
+    width: 100%;
+    border: 2px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    color: var(--night);
+    font: inherit;
+    font-size: 0.95rem;
+    padding: 11px 14px;
+    background: white;
+  }
+  .lf-field input:focus,
+  .lf-field textarea:focus {
+    border-color: var(--sunset-start);
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
+    outline: none;
+  }
+  .lf-field textarea {
+    min-height: 90px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+
+  .lf-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .lf-checks label,
+  .lf-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--sand-warm);
+    border-radius: var(--radius-sm);
+    color: var(--night);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 12px;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+  }
+  .lf-checks input,
+  .lf-inline input { width: 16px; height: 16px; flex-shrink: 0; margin: 0; padding: 0; }
+
+  /* Featured image block — preview on the left, the stack of ways to set it
+     on the right, collapsing to one column on narrow screens. */
+  .lf-image-body {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .lf-image-preview {
+    background: var(--sand-warm);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .lf-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Sits over the preview rather than replacing it: the image shown is the
+     vibe stock photo, and this says so. */
+  .lf-image-empty {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 23, 42, 0.72);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 5px 8px;
+  }
+  .lf-image-controls { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .lf-image-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lf-image-row input { flex: 1 1 200px; min-width: 0; }
+
+  /* Buttons and the file-picker <label> share one look, since to the admin
+     they're the same kind of control. */
+  .lf-image-btn {
+    background: var(--sand-warm);
+    border: 0;
+    border-radius: 100px;
+    color: var(--night);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 9px 15px;
+    white-space: nowrap;
+    text-transform: none;
+    letter-spacing: normal;
+    display: inline-flex;
+    align-items: center;
+  }
+  .lf-image-btn:hover { background: var(--sunset-end); }
+  .lf-image.busy { opacity: 0.75; }
+  .lf-image-btn:disabled { cursor: not-allowed; opacity: 0.55; }
+
+  .lf-image-hint {
+    color: var(--night-soft);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 2px 0 0;
+  }
+  .lf-image-hint.busy { color: var(--night); font-weight: 600; }
+  .lf-image-hint.ok { color: #166534; font-weight: 600; }
+  .lf-image-hint.err { color: #B91C1C; font-weight: 600; white-space: pre-wrap; }
+
+  /* Owner's featured-photo picker (ownerMode) — chooses among already-approved
+     photos rather than uploading. */
+  .lf-pick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+  .lf-pick {
+    background: var(--sand-warm); border: 3px solid transparent; border-radius: var(--radius-sm);
+    cursor: pointer; padding: 0; overflow: hidden; aspect-ratio: 4 / 3; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .lf-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lf-pick.selected { border-color: var(--sunset-start); }
+  .lf-pick-none {
+    color: var(--night-soft); font-size: 0.72rem; font-weight: 700; text-align: center;
+    padding: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 720px) {
+    .lf-form { grid-template-columns: 1fr; }
+    .lf-image-body { grid-template-columns: 1fr; }
+  }
+</style>
