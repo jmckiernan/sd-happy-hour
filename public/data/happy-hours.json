@@ -783,8 +783,8 @@
       "$4 you call its"
     ],
     "vibe": "rooftop",
-    "website": "https://google.com",
-    "verified": true,
+    "website": "https://gmail.com",
+    "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://google.com",
     "dealTypes": [
