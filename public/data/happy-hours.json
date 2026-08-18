@@ -410,7 +410,8 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "food"
+      "food",
+      "wine"
     ],
     "features": [
       "casual",
@@ -763,5 +764,39 @@
       "brewery",
       "group friendly"
     ]
+  },
+  {
+    "id": 21,
+    "name": "Your Mother's House",
+    "neighborhood": "your mom's neighborhood",
+    "address": "123 Your Mother's House rd",
+    "lat": 32.7157,
+    "lng": -117.1611,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday"
+    ],
+    "startTime": "19:57",
+    "endTime": "20:57",
+    "deals": [
+      "$4 you call its"
+    ],
+    "vibe": "rooftop",
+    "website": "https://google.com",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://google.com",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
+    "features": [
+      "dog friendly",
+      "date night"
+    ],
+    "phone": "",
+    "image": "/api/images/your-mother-s-house-1787033644372-6a83067a.png"
   }
 ]
