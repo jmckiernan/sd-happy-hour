@@ -497,11 +497,21 @@ export function wireListingImageControls(container: HTMLElement) {
 
   container.addEventListener('change', (event) => {
     const input = event.target as HTMLInputElement;
-    if (!input.matches?.('[data-lf-image-file]')) return;
+    console.log('[Image Upload] Change event fired', input);
+    if (!input.matches?.('[data-lf-image-file]')) {
+      console.log('[Image Upload] Input does not match selector');
+      return;
+    }
+    console.log('[Image Upload] Input matched file selector');
     const ui = imageBlockFor(input);
     const file = input.files?.[0];
-    if (!ui || !file) return;
+    console.log('[Image Upload] UI block:', ui, 'File:', file);
+    if (!ui || !file) {
+      console.log('[Image Upload] Missing UI block or file, aborting');
+      return;
+    }
 
+    console.log('[Image Upload] Starting upload for:', file.name);
     const form = new FormData();
     form.append('file', file);
     form.append('slug', slugHintFor(ui));
