@@ -97,17 +97,37 @@ function localMetaPath(key: string): string {
 }
 
 export async function saveImage(key: string, bytes: Uint8Array, contentType: string): Promise<void> {
+  console.log('[imageStore] saveImage called for key:', key);
+  console.log('[imageStore] Environment check - SITE_ID:', process.env.SITE_ID, 'NETLIFY:', process.env.NETLIFY);
+  console.log('[imageStore] isNetlifyBlobsAvailable():', isNetlifyBlobsAvailable());
+
   if (isNetlifyBlobsAvailable()) {
-    const { getStore } = await import('@netlify/blobs');
-    const store = getStore(STORE_NAME);
-    await store.set(key, bytes, { metadata: { contentType } });
-    return;
+    console.log('[imageStore] Using Netlify Blobs storage');
+    try {
+      const { getStore } = await import('@netlify/blobs');
+      console.log('[imageStore] Imported getStore from @netlify/blobs');
+      const store = getStore(STORE_NAME);
+      console.log('[imageStore] Got store for:', STORE_NAME);
+      const result = await store.set(key, bytes, { metadata: { contentType } });
+      console.log('[imageStore] store.set() result:', result);
+      console.log('[imageStore] Successfully saved to Netlify Blobs');
+
+      // Verify it was actually saved
+      const verification = await store.get(key);
+      console.log('[imageStore] Verification - blob exists after save:', !!verification);
+      return;
+    } catch (err) {
+      console.error('[imageStore] ERROR saving to Netlify Blobs:', err);
+      throw err;
+    }
   }
 
+  console.log('[imageStore] Using local file storage fallback');
   assertLocalFallbackAllowed('save image');
   await fs.mkdir(LOCAL_IMAGE_DIR, { recursive: true });
   await fs.writeFile(localDataPath(key), bytes);
   await fs.writeFile(localMetaPath(key), JSON.stringify({ contentType }));
+  console.log('[imageStore] Successfully saved to local storage');
 }
 
 export async function readImage(key: string): Promise<StoredImage | null> {
