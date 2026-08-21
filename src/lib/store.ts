@@ -1070,6 +1070,7 @@ export interface VenuePhoto {
   imageKey: string;
   caption: string;
   status: 'published' | 'in_review' | 'rejected';
+  photoType: 'venue' | 'menu_item';
   /** Verbatim result of the automated screen, or null if it never ran. */
   moderation: Record<string, unknown> | null;
   reviewNote: string;
@@ -1087,6 +1088,7 @@ interface VenuePhotoRow {
   image_key: string;
   caption: string;
   status: VenuePhoto['status'];
+  photo_type: VenuePhoto['photoType'];
   moderation: Record<string, unknown> | null;
   review_note: string;
   reviewed_by: string;
@@ -1104,6 +1106,7 @@ function mapVenuePhoto(row: VenuePhotoRow): VenuePhoto {
     imageKey: row.image_key,
     caption: row.caption,
     status: row.status,
+    photoType: row.photo_type,
     moderation: row.moderation,
     reviewNote: row.review_note,
     reviewedBy: row.reviewed_by,
@@ -1119,7 +1122,7 @@ function mapVenuePhoto(row: VenuePhotoRow): VenuePhoto {
 export async function listPublishedVenuePhotos(venueId: number): Promise<VenuePhoto[]> {
   const rows = await sql<VenuePhotoRow>`
     SELECT * FROM venue_photos
-    WHERE venue_id = ${venueId} AND status = 'published'
+    WHERE venue_id = ${venueId} AND status = 'published' AND photo_type = 'venue'
     ORDER BY sort_order, created_at`;
   return rows.map(mapVenuePhoto);
 }
@@ -1174,6 +1177,7 @@ export interface CreateVenuePhotoInput {
   imageKey: string;
   caption?: string;
   status: VenuePhoto['status'];
+  photoType?: VenuePhoto['photoType'];
   moderation?: Record<string, unknown> | null;
   uploadedBy: string;
 }
@@ -1183,9 +1187,10 @@ export async function createVenuePhoto(input: CreateVenuePhotoInput): Promise<Ve
   // sort_order rather than 0, so an upload doesn't jump ahead of photos the
   // owner has already arranged.
   const rows = await sql<VenuePhotoRow>`
-    INSERT INTO venue_photos (venue_id, image_key, caption, status, moderation, uploaded_by, sort_order)
+    INSERT INTO venue_photos (venue_id, image_key, caption, status, photo_type, moderation, uploaded_by, sort_order)
     VALUES (
       ${input.venueId}, ${input.imageKey}, ${input.caption ?? ''}, ${input.status},
+      ${input.photoType ?? 'venue'},
       ${input.moderation ? JSON.stringify(input.moderation) : null}::jsonb,
       ${input.uploadedBy},
       COALESCE((SELECT max(sort_order) + 1 FROM venue_photos WHERE venue_id = ${input.venueId}), 0)

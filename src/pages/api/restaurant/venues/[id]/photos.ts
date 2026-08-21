@@ -64,6 +64,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
       url: `/api/images/${photo.imageKey}`,
       caption: photo.caption,
       status: photo.status,
+      photoType: photo.photoType,
       reason: (photo.moderation?.reason as string) || photo.reviewNote || '',
       sortOrder: photo.sortOrder,
       createdAt: photo.createdAt,
@@ -100,12 +101,15 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 
   let file: File;
   let caption: string;
+  let photoType: 'venue' | 'menu_item';
   try {
     const form = await request.formData();
     const candidate = form.get('file');
     if (!(candidate instanceof File)) return errorJson(['No photo was attached.'], 400);
     file = candidate;
     caption = cleanString(form.get('caption')).slice(0, 200);
+    const typeParam = cleanString(form.get('photoType'));
+    photoType = typeParam === 'menu_item' ? 'menu_item' : 'venue';
   } catch (err: any) {
     return errorJson([`Could not read the upload: ${err.message}`], 400);
   }
@@ -167,6 +171,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     imageKey: key,
     caption,
     status,
+    photoType,
     moderation: verdict ? moderationRecord(verdict) : null,
     uploadedBy: manager.user.id,
   });
@@ -178,6 +183,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         url: `/api/images/${key}`,
         caption: photo.caption,
         status: photo.status,
+        photoType: photo.photoType,
         reason: verdict?.reason || '',
         sortOrder: photo.sortOrder,
       },

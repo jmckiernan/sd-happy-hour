@@ -284,15 +284,17 @@ const { venue } = Astro.props;
 
     async function loadPhotos() {
       const { photos } = await api(`/api/restaurant/venues/${venueId}/photos`);
-      photoGridEl.innerHTML = photos.length
-        ? photos.map(photoCardHTML).join('')
+      // Filter to only show venue gallery photos in the Photos section
+      const venuePhotos = photos.filter((photo: any) => photo.photoType === 'venue');
+      photoGridEl.innerHTML = venuePhotos.length
+        ? venuePhotos.map(photoCardHTML).join('')
         : '<p class="mg-status">No photos yet.</p>';
 
       // Keep the featured-photo picker and the menu photo dropdowns in step
       // with what's actually approved right now.
       approvedPhotos = photos
         .filter((photo: any) => photo.status === 'published')
-        .map((photo: any) => ({ id: photo.id, url: photo.url, caption: photo.caption }));
+        .map((photo: any) => ({ id: photo.id, url: photo.url, caption: photo.caption, photoType: photo.photoType }));
     }
 
     document.getElementById('ph-file')!.addEventListener('change', async (event) => {
@@ -303,6 +305,7 @@ const { venue } = Astro.props;
       setStatus(photoStatusEl, `Uploading and checking ${file.name}…`);
       const form = new FormData();
       form.append('file', file);
+      form.append('photoType', 'venue');
 
       try {
         const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: form });
@@ -362,17 +365,33 @@ const { venue } = Astro.props;
     // Menu
     // ---------------------------------------------------------------------
     function photoSelectHTML(selectedId: string | null) {
-      return `
-        <select data-item-photo>
-          <option value="">No photo</option>
-          ${approvedPhotos
-            .map(
-              (photo, index) =>
-                `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Photo ${index + 1}`)}</option>`
-            )
-            .join('')}
-        </select>
-      `;
+      // Separate photos by type - menu_item photos first, then venue photos
+      const menuPhotos = approvedPhotos.filter((p: any) => p.photoType === 'menu_item');
+      const venuePhotos = approvedPhotos.filter((p: any) => p.photoType === 'venue');
+
+      let options = '<option value="">No photo</option>';
+
+      if (menuPhotos.length > 0) {
+        options += '<optgroup label="Menu Item Photos">';
+        options += menuPhotos
+          .map((photo: any, index: number) =>
+            `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Menu photo ${index + 1}`)}</option>`
+          )
+          .join('');
+        options += '</optgroup>';
+      }
+
+      if (venuePhotos.length > 0) {
+        options += '<optgroup label="Venue Gallery Photos">';
+        options += venuePhotos
+          .map((photo: any, index: number) =>
+            `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Venue photo ${index + 1}`)}</option>`
+          )
+          .join('');
+        options += '</optgroup>';
+      }
+
+      return `<select data-item-photo>${options}</select>`;
     }
 
     function itemHTML(item: any) {
@@ -406,11 +425,21 @@ const { venue } = Astro.props;
             <div class="row">
               <input name="name" placeholder="Item, e.g. Street tacos" maxlength="120" required>
               <input name="price" placeholder="$8" maxlength="40">
-              ${photoSelectHTML(null)}
+              <div class="photo-picker">
+                ${photoSelectHTML(null)}
+                <label class="mg-btn small" style="margin: 0;">
+                  Upload photo
+                  <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
+                </label>
+              </div>
               <button type="submit" class="mg-btn small">Add item</button>
             </div>
             <textarea name="description" placeholder="Optional description" maxlength="400"></textarea>
             <span class="mg-status" data-item-status aria-live="polite"></span>
+            <div data-photo-preview style="margin-top: 0.5rem; display: none;">
+              <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+              <span style="margin-left: 0.5rem; color: #28a745;"></span>
+            </div>
           </form>
         </div>
       `;
@@ -497,6 +526,64 @@ const { venue } = Astro.props;
         } catch (err: any) {
           setStatus(menuStatusEl, err.message, 'err');
         }
+      }
+    });
+
+    // Handle menu item photo uploads
+    menuBodyEl.addEventListener('change', async (event) => {
+      const input = (event.target as HTMLElement).closest('[data-item-photo-upload]') as HTMLInputElement | null;
+      if (!input || !input.files?.[0]) return;
+
+      const file = input.files[0];
+      const form = input.closest('[data-add-item]') as HTMLFormElement;
+      const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
+      const photoSelect = form.querySelector('[data-item-photo]') as HTMLSelectElement;
+      const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
+      const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
+      const previewText = previewContainer.querySelector('span') as HTMLElement;
+
+      setStatus(statusEl, `Uploading ${file.name}...`);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('photoType', 'menu_item');
+      formData.append('caption', ''); // Menu item photos don't need captions
+
+      try {
+        const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: formData });
+
+        // Add the new photo to approvedPhotos if it's published
+        if (result.photo.status === 'published') {
+          approvedPhotos.push({
+            id: result.photo.id,
+            url: result.photo.url,
+            caption: result.photo.caption || 'Menu item photo',
+            photoType: result.photo.photoType
+          });
+
+          // Update the dropdown to include the new photo
+          const newOption = document.createElement('option');
+          newOption.value = result.photo.id;
+          newOption.textContent = 'Menu item photo';
+          newOption.selected = true;
+          photoSelect.appendChild(newOption);
+
+          // Show preview
+          previewImg.src = result.photo.url;
+          previewText.textContent = result.pendingReview
+            ? 'Photo uploaded, pending review'
+            : 'Photo uploaded';
+          previewContainer.style.display = 'block';
+
+          setStatus(statusEl, result.pendingReview
+            ? 'Photo uploaded — pending review'
+            : 'Photo uploaded and ready', 'ok');
+        } else {
+          setStatus(statusEl, 'Photo uploaded but needs review before use', 'ok');
+        }
+      } catch (err: any) {
+        setStatus(statusEl, err.message, 'err');
+      } finally {
+        input.value = '';
       }
     });
 
