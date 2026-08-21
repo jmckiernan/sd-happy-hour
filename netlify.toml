@@ -13,7 +13,8 @@
 
 # Tells `netlify dev` how to start the underlying app it wraps (proxying
 # in Netlify Blobs, env vars, redirects, etc. on top of plain `astro dev`).
+# Using wrapper script to work around Astro 7's daemon mode
 [dev]
-  command = "astro dev"
+  command = "./scripts/dev-server.sh"
   targetPort = 4321
   port = 8888
