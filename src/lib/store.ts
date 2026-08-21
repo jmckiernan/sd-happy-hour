@@ -1118,8 +1118,17 @@ function mapVenuePhoto(row: VenuePhotoRow): VenuePhoto {
   };
 }
 
-/** The public album: published photos only, in the owner's chosen order. */
+/** All published photos for a venue (both gallery and menu item photos). */
 export async function listPublishedVenuePhotos(venueId: number): Promise<VenuePhoto[]> {
+  const rows = await sql<VenuePhotoRow>`
+    SELECT * FROM venue_photos
+    WHERE venue_id = ${venueId} AND status = 'published'
+    ORDER BY sort_order, created_at`;
+  return rows.map(mapVenuePhoto);
+}
+
+/** Just the venue gallery photos (for the public album/modal), excluding menu item photos. */
+export async function listPublishedVenueGalleryPhotos(venueId: number): Promise<VenuePhoto[]> {
   const rows = await sql<VenuePhotoRow>`
     SELECT * FROM venue_photos
     WHERE venue_id = ${venueId} AND status = 'published' AND photo_type = 'venue'

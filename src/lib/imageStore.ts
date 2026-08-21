@@ -32,11 +32,13 @@ const STORE_NAME = 'blog-images';
 // this in production; `NETLIFY` is kept for the build and `netlify dev`.
 //
 // UPDATE: netlify dev sets SITE_ID but Netlify Blobs doesn't work reliably
-// in local dev (connection refused errors). Check for NETLIFY_DEV to distinguish
-// between netlify dev (where blobs are broken) and actual deployed functions.
+// in local dev (connection refused errors). Check for NETLIFY_DEV and DEV to distinguish
+// between netlify dev (where we want local storage) and actual deployed functions.
 export function isNetlifyBlobsAvailable(): boolean {
-  // If NETLIFY_DEV is set, we're in netlify dev (local) where Blobs is broken
-  if (process.env.NETLIFY_DEV === 'true') return false;
+  // If we're in dev mode (either Vite DEV or NETLIFY_DEV), use local storage
+  if (import.meta.env.DEV) return false;
+  if (process.env.NETLIFY_DEV) return false;
+  if (process.env.CONTEXT === 'dev') return false;
 
   // Otherwise use SITE_ID as the signal - it's set in deployed functions but not plain astro dev
   return Boolean(process.env.SITE_ID);

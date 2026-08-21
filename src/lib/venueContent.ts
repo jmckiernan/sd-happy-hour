@@ -5,6 +5,7 @@ import {
   getVenueOverrides,
   getVenueMenu,
   listPublishedVenuePhotos,
+  listPublishedVenueGalleryPhotos,
   type VenueOverride,
   type VenuePhoto,
 } from './store';
@@ -173,11 +174,18 @@ export function publicPhoto(photo: VenuePhoto): PublicPhoto {
  * photo is approved with no further action from the owner.
  */
 export async function getVenueContent(venueId: number): Promise<PublicVenueContent> {
-  const [photos, menu] = await Promise.all([listPublishedVenuePhotos(venueId), getVenueMenu(venueId)]);
-  const publishedById = new Map(photos.map((photo) => [photo.id, publicPhoto(photo)]));
+  const [galleryPhotos, allPhotos, menu] = await Promise.all([
+    listPublishedVenueGalleryPhotos(venueId),
+    listPublishedVenuePhotos(venueId),
+    getVenueMenu(venueId)
+  ]);
+
+  // Create a map of ALL photos (gallery + menu item) for menu item linking
+  const publishedById = new Map(allPhotos.map((photo) => [photo.id, publicPhoto(photo)]));
 
   return {
-    photos: photos.map(publicPhoto),
+    // Only return gallery photos for the album/modal
+    photos: galleryPhotos.map(publicPhoto),
     menu: menu.map((section) => ({
       id: section.id,
       title: section.title,
@@ -187,6 +195,7 @@ export async function getVenueContent(venueId: number): Promise<PublicVenueConte
         name: item.name,
         price: item.price,
         description: item.description,
+        // Menu items can reference any published photo (gallery or menu_item type)
         photo: (item.photoId && publishedById.get(item.photoId)) || null,
       })),
     })),

@@ -529,6 +529,30 @@ const { venue } = Astro.props;
       }
     });
 
+    // Handle menu item photo dropdown changes
+    menuBodyEl.addEventListener('change', (event) => {
+      const select = event.target as HTMLSelectElement;
+      if (!select.matches('[data-item-photo]')) return;
+
+      const form = select.closest('[data-add-item]') as HTMLFormElement;
+      const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
+      const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
+      const previewText = previewContainer.querySelector('span') as HTMLElement;
+
+      const photoId = select.value;
+      if (!photoId) {
+        previewContainer.style.display = 'none';
+        return;
+      }
+
+      const photo = approvedPhotos.find((p: any) => p.id === photoId);
+      if (photo) {
+        previewImg.src = photo.url;
+        previewText.textContent = photo.caption || 'Selected photo';
+        previewContainer.style.display = 'block';
+      }
+    });
+
     // Handle menu item photo uploads
     menuBodyEl.addEventListener('change', async (event) => {
       const input = (event.target as HTMLElement).closest('[data-item-photo-upload]') as HTMLInputElement | null;
