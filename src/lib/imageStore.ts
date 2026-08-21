@@ -32,11 +32,14 @@ const STORE_NAME = 'blog-images';
 // this in production; `NETLIFY` is kept for the build and `netlify dev`.
 //
 // UPDATE: netlify dev sets SITE_ID but Netlify Blobs doesn't work reliably
-// in local dev (connection refused errors). Use CONTEXT='production' as the
-// signal - it's only set in deployed functions, not in netlify dev.
+// in local dev (connection refused errors). Check for NETLIFY_DEV to distinguish
+// between netlify dev (where blobs are broken) and actual deployed functions.
 export function isNetlifyBlobsAvailable(): boolean {
-  // Only use Netlify Blobs in actual deployed production/deploy-preview contexts
-  return process.env.CONTEXT === 'production' || process.env.CONTEXT === 'deploy-preview' || process.env.CONTEXT === 'branch-deploy';
+  // If NETLIFY_DEV is set, we're in netlify dev (local) where Blobs is broken
+  if (process.env.NETLIFY_DEV === 'true') return false;
+
+  // Otherwise use SITE_ID as the signal - it's set in deployed functions but not plain astro dev
+  return Boolean(process.env.SITE_ID);
 }
 
 // Whether it's legitimate to fall back to writing files under `.data/`.
