@@ -136,23 +136,37 @@ export async function saveImage(key: string, bytes: Uint8Array, contentType: str
 }
 
 export async function readImage(key: string): Promise<StoredImage | null> {
+  console.log('[imageStore] readImage called for key:', key);
+  console.log('[imageStore] Environment check - CONTEXT:', process.env.CONTEXT, 'SITE_ID:', process.env.SITE_ID);
+  console.log('[imageStore] isNetlifyBlobsAvailable():', isNetlifyBlobsAvailable());
+
   if (isNetlifyBlobsAvailable()) {
-    const { getStore } = await import('@netlify/blobs');
-    const store = getStore(STORE_NAME);
-    const result = await store.getWithMetadata(key, { type: 'arrayBuffer' });
-    if (!result) return null;
-    const contentType = (result.metadata?.contentType as string) || 'application/octet-stream';
-    return { bytes: new Uint8Array(result.data), contentType };
+    console.log('[imageStore] Reading from Netlify Blobs');
+    try {
+      const { getStore } = await import('@netlify/blobs');
+      const store = getStore(STORE_NAME);
+      console.log('[imageStore] Got store for:', STORE_NAME);
+      const result = await store.getWithMetadata(key, { type: 'arrayBuffer' });
+      console.log('[imageStore] getWithMetadata result:', result ? 'found' : 'not found');
+      if (!result) return null;
+      const contentType = (result.metadata?.contentType as string) || 'application/octet-stream';
+      console.log('[imageStore] Successfully read from Netlify Blobs, contentType:', contentType);
+      return { bytes: new Uint8Array(result.data), contentType };
+    } catch (err) {
+      console.error('[imageStore] ERROR reading from Netlify Blobs:', err);
+      return null;
+    }
   }
 
   // Reads stay non-fatal — a missing image should 404, not 500 — but a
   // deployed build reaching this branch means Blobs detection is broken
   // again, which is worth saying out loud in the function logs rather than
   // leaving as a silent 404.
+  console.log('[imageStore] Netlify Blobs not available, checking if local fallback is allowed');
   if (!isLocalDevFallbackAllowed()) {
     console.error(
       '[imageStore] Netlify Blobs unavailable in a deployed build; ' +
-        'cannot read image. Expected SITE_ID or NETLIFY to be set.'
+        'cannot read image. CONTEXT=' + process.env.CONTEXT + ' isLocalDevFallbackAllowed=' + isLocalDevFallbackAllowed()
     );
     return null;
   }
