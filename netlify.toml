@@ -1,6 +1,7 @@
 [build]
   command = "astro build"
   publish = "dist"
+  ignore = "exit 0"
 
 # Standalone function (not part of the Astro app) that checks for live
 # happy hours and dispatches matching alerts. See
