@@ -1,12 +1,15 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import LiveDealStyles from '../components/LiveDealStyles.astro';
 ---
 <Layout
   title="SD Happy Hours — Where San Diego Drinks"
   description="Find happy hours happening right now in San Diego. Real-time deals from Little Italy to Pacific Beach."
   transparentNav={true}
 >
+  <LiveDealStyles />
+
   <style is:global>
     /* ===== HERO ===== */
     .hero {
@@ -274,32 +277,44 @@ import Layout from '../layouts/Layout.astro';
     .map-popup .vibe { font-size: 0.75rem; color: var(--ocean); margin-bottom: 8px; }
     .map-popup .time { font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; }
     .map-popup .deals { font-size: 0.75rem; color: var(--night-soft); margin-bottom: 8px; }
+    .map-popup .map-status { margin-bottom: 10px; }
+    .map-popup .map-live-headline { color: var(--night); font-size: 0.82rem; font-weight: 800; margin: 7px 0 0; }
+    .map-popup .map-secondary-status { color: var(--night-soft); font-size: 0.75rem; font-weight: 650; margin: 5px 0 0; }
     .map-popup a { display: inline-block; background: var(--night); color: white; padding: 6px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
 
     /* ===== MAIN GRID ===== */
     .main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
+    .live-deals-section { margin-bottom: 42px; min-width: 0; }
+    .live-deals-section[hidden] { display: none; }
+    .live-deals-header { align-items: end; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; margin-bottom: 20px; }
+    .live-deals-header h2 { color: var(--night); font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); line-height: 1; margin: 0; }
+    .live-deals-header p { color: var(--night-soft); margin: 7px 0 0; max-width: 620px; }
+    .live-deals-count { background: rgba(139, 92, 246, 0.1); border-radius: 100px; color: var(--violet); font-size: 0.78rem; font-weight: 800; padding: 8px 13px; }
+    .live-deals-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); min-width: 0; }
+    .live-deal-discovery-card { display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr); overflow: hidden; padding: 0; }
+    .live-deal-discovery-image { min-height: 100%; overflow: hidden; position: relative; }
+    .live-deal-discovery-image img { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
+    .live-deal-discovery-image::after { background: linear-gradient(to top, rgba(15, 23, 42, 0.4), transparent 60%); content: ''; inset: 0; position: absolute; }
+    .live-deal-discovery-body { min-width: 0; padding: clamp(18px, 3vw, 26px); }
+    .live-deal-venue { color: var(--night); font-size: 0.9rem; font-weight: 800; text-decoration: none; }
+    .live-deal-venue:hover { color: var(--sunset-start); }
+    .live-deal-type { color: var(--night-soft); font-size: 0.75rem; font-weight: 750; }
+    .live-deal-code { max-width: 100%; overflow-wrap: anywhere; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px; }
     .grid.hidden { display: none; }
 
     /* ===== CARD ===== */
     .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; }
     .card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 24px 60px rgba(0,0,0,0.08); }
-    .card.is-live { box-shadow: 0 0 0 3px var(--palm), 0 12px 32px rgba(34, 197, 94, 0.2); }
+    .card.is-happy-hour { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55), 0 10px 28px rgba(34, 197, 94, 0.12); }
+    .card.has-live-deal { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.7), 0 18px 42px rgba(139, 92, 246, 0.2); }
     .card-image { position: relative; height: 200px; overflow: hidden; }
     .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
     .card:hover .card-image img { transform: scale(1.05); }
     .card-image .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); }
 
-    .card-image .live-badge {
-      position: absolute; top: 12px; left: 12px;
-      display: flex; align-items: center; gap: 6px;
-      background: var(--palm); color: white;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 5px 12px; border-radius: 100px;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-    }
-    .card-image .live-badge .dot { width: 5px; height: 5px; background: white; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; }
-    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 52px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .card-status-badge { left: 12px; position: absolute; top: 12px; }
+    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .card-image .distance-tag { position: absolute; top: 12px; right: 52px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
     .card-image .time-overlay { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
     .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
@@ -343,37 +358,9 @@ import Layout from '../layouts/Layout.astro';
 
     .card-deals h3 { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--night-soft); margin-bottom: 8px; }
 
-    .promo-banner {
-      align-items: center;
-      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(255,107,53,0.12));
-      border: 1px dashed var(--violet);
-      border-radius: var(--radius-sm);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
-      margin-top: 10px;
-      font-size: 0.82rem;
-      flex-wrap: wrap;
-    }
-    .promo-desc { color: var(--night); font-weight: 600; }
-    .promo-code {
-      background: var(--night);
-      color: white;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      padding: 4px 10px;
-      border-radius: 100px;
-      font-size: 0.78rem;
-    }
-    .promo-signin {
-      color: var(--violet);
-      font-weight: 700;
-      text-decoration: none;
-      font-size: 0.78rem;
-      white-space: nowrap;
-    }
-    .promo-signin:hover { text-decoration: underline; }
+    .card-live-summary { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(255,107,53,0.08)); border-left: 3px solid var(--violet); border-radius: var(--radius-sm); margin: 0 0 16px; min-width: 0; padding: 11px 13px; }
+    .card-live-summary strong { color: var(--night); display: block; font-size: 0.9rem; overflow-wrap: anywhere; }
+    .card-live-summary span { color: var(--night-soft); display: block; font-size: 0.76rem; font-weight: 650; margin-top: 4px; }
     .deal-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .deal { display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%); color: var(--night); font-size: 0.75rem; font-weight: 600; padding: 6px 10px; border-radius: var(--radius-sm); }
 
@@ -394,6 +381,11 @@ import Layout from '../layouts/Layout.astro';
     .empty-state h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 12px; }
     .empty-state p { color: var(--night-soft); font-size: 1.125rem; }
 
+    :is(.filter-btn, .view-btn, .location-btn, .search-input, .save-action):focus-visible {
+      outline: 3px solid var(--ocean);
+      outline-offset: 3px;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .hero { min-height: 70vh; padding: 100px 20px 80px; }
@@ -401,10 +393,21 @@ import Layout from '../layouts/Layout.astro';
       .filters { flex-wrap: wrap; }
       .search-input { width: 100%; }
       .filter-btn { flex: 1; min-width: 100px; }
+      .live-deal-discovery-card { grid-template-columns: minmax(0, 1fr); }
+      .live-deal-discovery-image { min-height: 180px; }
       .grid { grid-template-columns: 1fr; }
       .map-container { height: 400px; border-radius: var(--radius-sm); }
       .live-counter { flex-direction: column; text-align: center; padding: 16px 28px; }
       .live-counter .label { text-align: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cocktail-icon,
+      .hero-badge .pulse { animation: none; }
+      .card,
+      .card-image img { transition: none; }
+      .card:hover { transform: none; }
+      .card:hover .card-image img { transform: none; }
     }
   </style>
 
@@ -419,7 +422,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="hero-content">
       <div class="hero-badge">
         <span class="pulse"></span>
-        <span id="current-time">4:32 PM</span> in San Diego
+        <span id="current-time">Loading time…</span> in San Diego
       </div>
 
       <h1>
@@ -444,7 +447,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="live-counter">
         <span class="number" id="live-count-big">0</span>
         <div class="label">
-          <strong>spots live right now</strong>
+          <strong>happy hours happening now</strong>
           <span>Scroll to explore</span>
         </div>
       </div>
@@ -455,9 +458,9 @@ import Layout from '../layouts/Layout.astro';
   <section class="filters-section">
     <div class="filters-container">
       <div class="filters">
-        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" />
+        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" aria-label="Search venues and Live Deals" />
 
-        <select class="filter-btn" id="day-filter">
+        <select class="filter-btn" id="day-filter" aria-label="Filter by happy hour day">
           <option value="">All days</option>
           <option value="Monday">Monday</option>
           <option value="Tuesday">Tuesday</option>
@@ -468,30 +471,31 @@ import Layout from '../layouts/Layout.astro';
           <option value="Sunday">Sunday</option>
         </select>
 
-        <select class="filter-btn" id="neighborhood-filter">
+        <select class="filter-btn" id="neighborhood-filter" aria-label="Filter by neighborhood">
           <option value="">All neighborhoods</option>
         </select>
 
-        <select class="filter-btn" id="deal-filter">
+        <select class="filter-btn" id="deal-filter" aria-label="Filter by recurring happy hour deal">
           <option value="">All deals</option>
         </select>
 
-        <select class="filter-btn" id="feature-filter">
+        <select class="filter-btn" id="feature-filter" aria-label="Filter by venue vibe">
           <option value="">All vibes</option>
         </select>
 
-        <select class="filter-btn" id="status-filter">
+        <select class="filter-btn" id="status-filter" aria-label="Filter directory by current status">
           <option value="">All spots</option>
-          <option value="now">Live now</option>
+          <option value="happy-hour-now">Happy Hour Now</option>
+          <option value="live-deals">Live Deals</option>
         </select>
 
-        <select class="filter-btn" id="trust-filter">
+        <select class="filter-btn" id="trust-filter" aria-label="Filter by trust status">
           <option value="">Any trust status</option>
           <option value="verified">Verified only</option>
           <option value="unverified">Needs verification</option>
         </select>
 
-        <button class="location-btn" id="location-btn">
+        <button class="location-btn" id="location-btn" type="button" aria-pressed="false">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
             <circle cx="12" cy="9" r="2.5"/>
@@ -500,8 +504,8 @@ import Layout from '../layouts/Layout.astro';
         </button>
 
         <div class="view-toggle">
-          <button class="view-btn active" id="list-view-btn">List</button>
-          <button class="view-btn" id="map-view-btn">Map</button>
+          <button class="view-btn active" id="list-view-btn" type="button" aria-pressed="true">List</button>
+          <button class="view-btn" id="map-view-btn" type="button" aria-pressed="false">Map</button>
         </div>
 
         <button class="location-btn" id="save-alert-btn" type="button">Save as Alert</button>
@@ -525,8 +529,19 @@ import Layout from '../layouts/Layout.astro';
 
   <!-- MAIN -->
   <main class="main">
+    <section class="live-deals-section" id="live-deals-section" aria-labelledby="live-deals-heading" hidden>
+      <div class="live-deals-header">
+        <div>
+          <h2 id="live-deals-heading">Live Deals</h2>
+          <p>Limited-time offers happening now at San Diego venues.</p>
+        </div>
+        <span class="live-deals-count" id="live-deals-count" aria-live="polite"></span>
+      </div>
+      <div class="live-deals-grid" id="live-deals-grid"></div>
+    </section>
+
     <div class="map-container" id="map-container">
-      <div id="map"></div>
+      <div id="map" aria-label="Map of filtered happy hour venues"></div>
     </div>
 
     <div class="grid" id="grid"></div>
@@ -541,16 +556,50 @@ import Layout from '../layouts/Layout.astro';
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
+    import {
+      classifyDealCode,
+      deriveConsumerPromotionState,
+      filterLiveDealsForDiscovery,
+      type ConsumerPromotionState,
+      type PublicLivePromotion,
+    } from '../lib/consumerPromotionState';
+    import {
+      createLivePromotionFeed,
+      type LivePromotionFeedSnapshot,
+    } from '../lib/livePromotionFeed';
+    import {
+      formatCountdown,
+      formatSanDiegoDateTime,
+      formatSanDiegoTime,
+    } from '../lib/promotionClientTime';
+    import {
+      getHappyHourOccurrenceForDate,
+      getSanDiegoDayBounds,
+      getSanDiegoParts,
+    } from '../lib/sanDiegoTime';
     import { getListingImage } from '../lib/venues';
 
     let happyHours: any[] = [];
     let userLocation: { lat: number; lng: number } | null = null;
     let map: any = null;
     let markers: any[] = [];
-    let isSignedIn = false;
-    let savedSpotIds = new Set<number>();
     let accountUser: any = null;
     let saveConfirmation: { spotId: number; text: string } | null = null;
+    let dayFilterInitialized = false;
+    let dayFilterTouched = false;
+    let automaticDayFilter = '';
+    let recurringBoundaryTimer: number | null = null;
+    let lastRenderedHadFeedData = false;
+    let lastRenderedPromotionSignature = '';
+    let lastRenderedVenueStateSignature = '';
+
+    const livePromotionFeed = createLivePromotionFeed();
+    let feedSnapshot: LivePromotionFeedSnapshot = livePromotionFeed.getSnapshot();
+    const EMPTY_CONSUMER_STATE: ConsumerPromotionState = {
+      state: 'neither',
+      happyHourOccurrence: null,
+      liveDeals: [],
+    };
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -564,26 +613,72 @@ import Layout from '../layouts/Layout.astro';
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayAbbrev = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const today = dayNames[new Date().getDay()];
-    const todayIndex = new Date().getDay();
 
     function slugify(name: string) {
       return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
 
     const dayFilterEl = document.getElementById('day-filter') as HTMLSelectElement;
-    dayFilterEl.value = today;
 
-    function updateTime() {
-      const now = new Date();
-      const h = now.getHours();
-      const m = now.getMinutes();
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      const hour = h % 12 || 12;
-      document.getElementById('current-time')!.textContent = `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+    function getServerNow() {
+      return feedSnapshot.data?.clock.now() ?? null;
     }
-    updateTime();
-    setInterval(updateTime, 30000);
+
+    function syncServerTimePresentation(now: Date) {
+      const sanDiego = getSanDiegoParts(now);
+      document.getElementById('current-time')!.textContent = formatSanDiegoTime(now);
+      if (!dayFilterInitialized || (!dayFilterTouched && dayFilterEl.value === automaticDayFilter)) {
+        dayFilterEl.value = sanDiego.weekday;
+        automaticDayFilter = sanDiego.weekday;
+        dayFilterInitialized = true;
+      }
+      return dayNames.indexOf(sanDiego.weekday);
+    }
+
+    function refreshTimedPresentation(now: Date) {
+      document.getElementById('current-time')!.textContent = formatSanDiegoTime(now);
+      for (const element of document.querySelectorAll<HTMLElement>('[data-live-deal-countdown]')) {
+        const target = element.dataset.liveDealCountdown;
+        const countdown = target ? formatCountdown(target, now) : null;
+        element.hidden = countdown === null;
+        element.textContent = countdown ? `Ends in ${countdown}` : '';
+      }
+    }
+
+    function dateKeyAfter(dateKey: string, days: number) {
+      const [year, month, day] = dateKey.split('-').map(Number);
+      const value = new Date(Date.UTC(year, month - 1, day + days));
+      return [
+        value.getUTCFullYear(),
+        String(value.getUTCMonth() + 1).padStart(2, '0'),
+        String(value.getUTCDate()).padStart(2, '0'),
+      ].join('-');
+    }
+
+    function scheduleRecurringBoundaryRefresh(now: Date) {
+      if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
+      const nowMilliseconds = now.getTime();
+      let nextBoundary = getSanDiegoDayBounds(now).end.getTime();
+      const todayKey = getSanDiegoDayBounds(now).dateKey;
+
+      for (const venue of happyHours) {
+        for (let offset = 0; offset <= 7; offset += 1) {
+          const occurrence = getHappyHourOccurrenceForDate(venue, dateKeyAfter(todayKey, offset));
+          if (!occurrence) continue;
+          for (const boundary of [occurrence.startsAt, occurrence.endsAt]) {
+            const boundaryMilliseconds = boundary.getTime();
+            if (boundaryMilliseconds > nowMilliseconds && boundaryMilliseconds < nextBoundary) {
+              nextBoundary = boundaryMilliseconds;
+            }
+          }
+        }
+      }
+
+      recurringBoundaryTimer = window.setTimeout(() => {
+        const anchoredNow = getServerNow();
+        if (anchoredNow) render(anchoredNow);
+      }, Math.max(25, nextBoundary - nowMilliseconds + 25));
+    }
 
     function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
       const R = 3959;
@@ -609,6 +704,7 @@ import Layout from '../layouts/Layout.astro';
       if (userLocation) {
         userLocation = null;
         btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
         text.textContent = 'Near me';
         (document.getElementById('distance-info') as HTMLElement).style.display = 'none';
         render();
@@ -621,6 +717,7 @@ import Layout from '../layouts/Layout.astro';
         (pos) => {
           userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
           text.textContent = 'Sorted by distance';
           document.getElementById('distance-info')!.textContent = 'Sorted by distance';
           (document.getElementById('distance-info') as HTMLElement).style.display = 'inline';
@@ -639,6 +736,8 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('list-view-btn')!.addEventListener('click', () => {
       document.getElementById('list-view-btn')!.classList.add('active');
       document.getElementById('map-view-btn')!.classList.remove('active');
+      document.getElementById('list-view-btn')!.setAttribute('aria-pressed', 'true');
+      document.getElementById('map-view-btn')!.setAttribute('aria-pressed', 'false');
       document.getElementById('map-container')!.classList.remove('active');
       document.getElementById('grid')!.classList.remove('hidden');
     });
@@ -646,6 +745,8 @@ import Layout from '../layouts/Layout.astro';
     document.getElementById('map-view-btn')!.addEventListener('click', () => {
       document.getElementById('map-view-btn')!.classList.add('active');
       document.getElementById('list-view-btn')!.classList.remove('active');
+      document.getElementById('map-view-btn')!.setAttribute('aria-pressed', 'true');
+      document.getElementById('list-view-btn')!.setAttribute('aria-pressed', 'false');
       document.getElementById('map-container')!.classList.add('active');
       document.getElementById('grid')!.classList.add('hidden');
 
@@ -667,29 +768,59 @@ import Layout from '../layouts/Layout.astro';
       }).addTo(map);
     }
 
-    function updateMapMarkers() {
+    function renderMapStatus(state: ConsumerPromotionState) {
+      const primaryDeal = state.liveDeals[0];
+      if (primaryDeal) {
+        return `
+          <div class="map-status">
+            <span class="live-deal-badge live-deal-badge--secondary"><span class="live-deal-status-dot"></span>Live Deal</span>
+            <p class="map-live-headline">${escapeHTML(primaryDeal.title)}</p>
+            ${state.state === 'both' ? '<p class="map-secondary-status">Happy hour also happening now</p>' : ''}
+          </div>
+        `;
+      }
+      if (state.state === 'happy-hour-only') {
+        return '<div class="map-status"><span class="happy-hour-now-badge happy-hour-now-badge--secondary">Happy Hour Now</span></div>';
+      }
+      return '';
+    }
+
+    function updateMapMarkers(
+      now = getServerNow(),
+      venueStates = buildVenueStates(now)
+    ) {
       if (!map) return;
       markers.forEach((m) => map.removeLayer(m));
       markers = [];
 
-      const filtered = getFilteredData();
+      const filtered = getFilteredData(now, venueStates);
 
       filtered.forEach((h) => {
-        const isLive = isHappeningNow(h);
+        const state = venueStates.get(h.id) ?? EMPTY_CONSUMER_STATE;
+        const hasLiveDeal = state.state === 'live-deal-only' || state.state === 'both';
+        const hasHappyHour = state.state === 'happy-hour-only' || state.state === 'both';
+        const markerLabel = hasLiveDeal ? 'LD' : hasHappyHour ? 'HH' : '•';
+        const statusLabel = state.state === 'both'
+          ? 'Live Deal; Happy Hour Now also happening'
+          : hasLiveDeal
+            ? 'Live Deal'
+            : hasHappyHour
+              ? 'Happy Hour Now'
+              : 'No current offer status';
         // @ts-ignore
         const icon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="
-            background: ${isLive ? '#22C55E' : '#FF6B35'};
-            width: 32px; height: 32px;
+          html: `<div role="img" aria-label="${escapeHTML(h.name)} — ${statusLabel}" style="
+            background: ${hasLiveDeal ? '#8B5CF6' : hasHappyHour ? '#16A34A' : '#FF6B35'};
+            width: 36px; height: 36px;
             border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 3px solid ${state.state === 'both' ? '#22C55E' : 'white'};
+            box-shadow: 0 0 0 2px white, 0 2px 8px rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 12px;
-          ">${isLive ? '!' : ''}</div>`,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16]
+            color: white; font-weight: 800; font-size: ${hasLiveDeal ? '10px' : '12px'};
+          ">${markerLabel}</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
         });
 
         // @ts-ignore
@@ -698,7 +829,8 @@ import Layout from '../layouts/Layout.astro';
             <div class="map-popup">
               <h3>${escapeHTML(h.name)}</h3>
               <div class="vibe">${escapeHTML(h.vibe)} · ${h.verified ? 'Verified' : 'Needs verification'}</div>
-              <div class="time">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</div>
+              ${renderMapStatus(state)}
+              <div class="time">Regular happy hour: ${formatTime(h.startTime)} – ${formatTime(h.endTime)}</div>
               <div class="deals">${h.deals.slice(0, 2).map(escapeHTML).join(' • ')}</div>
               <a href="/venues/${slugify(h.name)}/">View details</a>
             </div>
@@ -714,12 +846,8 @@ import Layout from '../layouts/Layout.astro';
         const res = await fetch('/api/account/me');
         const session = await res.json();
         accountUser = session.authenticated ? session.user : null;
-        isSignedIn = Boolean(accountUser);
-        savedSpotIds = new Set((accountUser?.savedSpots || []).map((s: any) => s.spotId));
       } catch {
         accountUser = null;
-        isSignedIn = false;
-        savedSpotIds = new Set();
       }
 
       render();
@@ -737,49 +865,6 @@ import Layout from '../layouts/Layout.astro';
         opt.textContent = formatter(n);
         select.appendChild(opt);
       });
-    }
-
-    let liveOverrideIds = new Set<number>();
-
-    async function loadLiveOverrides() {
-      try {
-        const res = await fetch('/api/live-status');
-        const data = await res.json();
-        liveOverrideIds = new Set<number>(data.liveVenueIds || []);
-      } catch {
-        // Non-critical — worst case a restaurant's manual "live now" toggle
-        // just doesn't show a badge until the next poll.
-      }
-    }
-
-    // Every happy hour stays visible to everyone regardless of login —
-    // only a promoted deal's *code* is gated. /api/promotions itself never
-    // sends the code down for an anonymous request (see that route), so
-    // there's nothing to hide here client-side; this is just rendering
-    // whatever the server already decided to include.
-    let promotions: Record<number, { description: string; dealCode?: string }> = {};
-
-    async function loadPromotions() {
-      try {
-        const res = await fetch('/api/promotions');
-        promotions = await res.json();
-      } catch {
-        // Non-critical — cards just render without a promo banner.
-      }
-    }
-
-    function renderPromoBanner(venueId: number) {
-      const promo = promotions[venueId];
-      if (!promo) return '';
-      const codePart = promo.dealCode
-        ? `<span class="promo-code">${escapeHTML(promo.dealCode)}</span>`
-        : `<a class="promo-signin" href="/account/?next=${encodeURIComponent('/')}">Sign in to see code</a>`;
-      return `
-        <div class="promo-banner">
-          <span class="promo-desc">${escapeHTML(promo.description)}</span>
-          ${codePart}
-        </div>
-      `;
     }
 
     /** Lays each verified owner's own edits over the build-time record.
@@ -817,23 +902,189 @@ import Layout from '../layouts/Layout.astro';
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
       populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
 
-      await Promise.all([loadAccount(), loadLiveOverrides(), loadPromotions()]);
+      await loadAccount();
       render();
     }
 
-    // Combines the normal weekly schedule with a restaurant's manual
-    // "we're live now" toggle (src/pages/restaurant.astro), so a manual
-    // override shows the same Live Now badge as a scheduled happy hour.
-    // Polled via loadLiveOverrides() rather than computed purely from
-    // hh.days/startTime/endTime like the rest of this check.
-    function isHappeningNow(hh: any) {
-      if (liveOverrideIds.has(hh.id)) return true;
-      if (!hh.days.includes(today)) return false;
-      const now = new Date();
-      const mins = now.getHours() * 60 + now.getMinutes();
-      const [sh, sm] = hh.startTime.split(':').map(Number);
-      const [eh, em] = hh.endTime.split(':').map(Number);
-      return mins >= (sh * 60 + sm) && mins <= (eh * 60 + em);
+    function buildVenueStates(now: Date | null) {
+      const states = new Map<number, ConsumerPromotionState>();
+      for (const venue of happyHours) {
+        states.set(
+          venue.id,
+          now && feedSnapshot.data
+            ? deriveConsumerPromotionState({
+                venueId: venue.id,
+                schedule: venue,
+                promotions: feedSnapshot.data.promotions,
+                now,
+              })
+            : EMPTY_CONSUMER_STATE
+        );
+      }
+      return states;
+    }
+
+    function promotionSignature() {
+      return JSON.stringify(feedSnapshot.data?.promotions ?? []);
+    }
+
+    function venueStateSignature(states: Map<number, ConsumerPromotionState>) {
+      return JSON.stringify([...states.entries()].map(([venueId, state]) => [
+        venueId,
+        state.state,
+        state.happyHourOccurrence?.startsAt.toISOString() ?? null,
+        state.liveDeals.map((promotion) => promotion.id),
+      ]));
+    }
+
+    function directoryVenue(venueId: number) {
+      return happyHours.find((venue) => venue.id === venueId);
+    }
+
+    function activeLiveDeals(now: Date | null) {
+      if (!now || !feedSnapshot.data) return [];
+      return feedSnapshot.data.promotions.filter((promotion) =>
+        deriveConsumerPromotionState({
+          venueId: promotion.venueId,
+          schedule: null,
+          promotions: [promotion],
+          now,
+        }).liveDeals.length > 0
+      );
+    }
+
+    function getDiscoveryLiveDeals(now: Date | null) {
+      const query = (document.getElementById('search-input') as HTMLInputElement).value.trim();
+      const neighborhood = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
+      const filtered = filterLiveDealsForDiscovery(
+        activeLiveDeals(now),
+        {
+          query,
+          neighborhood,
+          // Near Me currently means distance sorting, not a radius boundary.
+          // Supplying coordinates here keeps an explicit radius a safe future addition.
+          radius: null,
+        },
+        {
+          venueSearchText: (venueId) => {
+            const venue = directoryVenue(venueId);
+            return venue
+              ? [
+                  venue.address,
+                  venue.vibe,
+                  ...(venue.deals || []),
+                  ...(venue.dealTypes || []),
+                  ...(venue.features || []),
+                ]
+              : null;
+          },
+          venueCoordinates: (venueId) => {
+            const venue = directoryVenue(venueId);
+            return venue && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)
+              ? { latitude: venue.lat, longitude: venue.lng }
+              : null;
+          },
+          distanceMiles: (from, to) =>
+            getDistance(from.latitude, from.longitude, to.latitude, to.longitude),
+        }
+      );
+
+      return filtered.sort((left, right) => {
+        if (userLocation) {
+          const leftVenue = directoryVenue(left.venueId);
+          const rightVenue = directoryVenue(right.venueId);
+          const leftDistance = leftVenue
+            ? getDistance(userLocation.lat, userLocation.lng, leftVenue.lat, leftVenue.lng)
+            : Number.POSITIVE_INFINITY;
+          const rightDistance = rightVenue
+            ? getDistance(userLocation.lat, userLocation.lng, rightVenue.lat, rightVenue.lng)
+            : Number.POSITIVE_INFINITY;
+          if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+        }
+        return left.effectiveEndsAt.localeCompare(right.effectiveEndsAt);
+      });
+    }
+
+    function renderDealCode(promotion: PublicLivePromotion) {
+      const codeState = classifyDealCode(promotion);
+      if (codeState.kind === 'none') return '';
+      if (codeState.kind === 'gated') {
+        const next = encodeURIComponent(`/venues/${promotion.venue.slug}/`);
+        return `
+          <div class="live-deal-code-row">
+            <span>Deal code available</span>
+            <a class="live-deal-link" href="/account/?next=${next}">Sign in to see deal code</a>
+          </div>
+        `;
+      }
+      return `
+        <div class="live-deal-code-row">
+          <span>Deal code</span>
+          <code class="live-deal-code">${escapeHTML(codeState.code)}</code>
+        </div>
+      `;
+    }
+
+    function renderLiveDeals(now: Date | null) {
+      const section = document.getElementById('live-deals-section') as HTMLElement;
+      const grid = document.getElementById('live-deals-grid')!;
+      const count = document.getElementById('live-deals-count')!;
+      const promotions = getDiscoveryLiveDeals(now);
+
+      if (!now || promotions.length === 0) {
+        section.hidden = true;
+        grid.innerHTML = '';
+        count.textContent = '';
+        return;
+      }
+
+      section.hidden = false;
+      count.textContent = `${promotions.length} ${promotions.length === 1 ? 'deal' : 'deals'} happening now`;
+      grid.innerHTML = promotions.map((promotion) => {
+        const venue = directoryVenue(promotion.venueId);
+        const state = deriveConsumerPromotionState({
+          venueId: promotion.venueId,
+          schedule: venue ?? null,
+          promotions: feedSnapshot.data?.promotions ?? [promotion],
+          now,
+        });
+        const countdown = formatCountdown(promotion.effectiveEndsAt, now);
+        const distance = userLocation && venue
+          ? getDistance(userLocation.lat, userLocation.lng, venue.lat, venue.lng)
+          : null;
+        const venuePath = `/venues/${promotion.venue.slug}/`;
+        const promotionType = labelize(promotion.type.replaceAll('_', ' '));
+
+        return `
+          <article class="live-deal-panel live-deal-discovery-card">
+            <a class="live-deal-discovery-image" href="${venuePath}" aria-label="View ${escapeHTML(promotion.venue.name)}">
+              <img src="${escapeHTML(promotion.venue.image)}" alt="${escapeHTML(promotion.venue.name)}" loading="lazy">
+            </a>
+            <div class="live-deal-discovery-body">
+              <div class="live-deal-heading-row">
+                <span class="live-deal-badge"><span class="live-deal-status-dot"></span>Live Deal</span>
+                <span class="live-deal-type">${escapeHTML(promotionType)}</span>
+              </div>
+              <h3 class="live-deal-title">${escapeHTML(promotion.title)}</h3>
+              <div class="live-deal-meta">
+                <a class="live-deal-venue" href="${venuePath}">${escapeHTML(promotion.venue.name)}</a>
+                <span>${escapeHTML(promotion.venue.neighborhood)}</span>
+                ${distance === null ? '' : `<span>${formatDistance(distance)}</span>`}
+              </div>
+              <div class="live-deal-meta">
+                ${countdown ? `<span class="live-deal-countdown" data-live-deal-countdown="${escapeHTML(promotion.effectiveEndsAt)}">Ends in ${escapeHTML(countdown)}</span>` : ''}
+                <span>Ends ${escapeHTML(formatSanDiegoDateTime(promotion.effectiveEndsAt))}</span>
+              </div>
+              ${state.state === 'both' ? '<p class="live-deal-details"><strong>Happy hour also happening now</strong></p>' : ''}
+              ${promotion.description ? `<p class="live-deal-details">${escapeHTML(promotion.description)}</p>` : ''}
+              ${renderDealCode(promotion)}
+              <div class="live-deal-meta">
+                <a class="live-deal-link" href="${venuePath}">View venue details →</a>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
     }
 
     function formatTime(time: string) {
@@ -865,7 +1116,16 @@ import Layout from '../layouts/Layout.astro';
       return haystack.includes(query);
     }
 
-    function getFilteredData() {
+    function stateSortRank(state: ConsumerPromotionState) {
+      if (state.state === 'live-deal-only' || state.state === 'both') return 0;
+      if (state.state === 'happy-hour-only') return 1;
+      return 2;
+    }
+
+    function getFilteredData(
+      now = getServerNow(),
+      venueStates = buildVenueStates(now)
+    ) {
       const searchQuery = (document.getElementById('search-input') as HTMLInputElement).value.trim().toLowerCase();
       const dayFilter = (document.getElementById('day-filter') as HTMLSelectElement).value;
       const neighborhoodFilter = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
@@ -881,7 +1141,12 @@ import Layout from '../layouts/Layout.astro';
       if (neighborhoodFilter) filtered = filtered.filter((h) => h.neighborhood === neighborhoodFilter);
       if (dealFilter) filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
       if (featureFilter) filtered = filtered.filter((h) => (h.features || []).includes(featureFilter));
-      if (statusFilter === 'now') filtered = filtered.filter((h) => isHappeningNow(h));
+      if (statusFilter === 'happy-hour-now') {
+        filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.happyHourOccurrence));
+      }
+      if (statusFilter === 'live-deals') {
+        filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.liveDeals.length));
+      }
       if (trustFilter === 'verified') filtered = filtered.filter((h) => h.verified);
       if (trustFilter === 'unverified') filtered = filtered.filter((h) => !h.verified);
 
@@ -890,129 +1155,153 @@ import Layout from '../layouts/Layout.astro';
           ...h,
           distance: getDistance(userLocation!.lat, userLocation!.lng, h.lat, h.lng)
         }));
-        filtered.sort((a, b) => a.distance - b.distance);
-      } else {
-        filtered.sort((a, b) => {
-          const aLive = isHappeningNow(a);
-          const bLive = isHappeningNow(b);
-          if (aLive && !bLive) return -1;
-          if (!aLive && bLive) return 1;
-          return a.startTime.localeCompare(b.startTime);
-        });
       }
+
+      filtered.sort((left, right) => {
+        const stateDifference =
+          stateSortRank(venueStates.get(left.id) ?? EMPTY_CONSUMER_STATE) -
+          stateSortRank(venueStates.get(right.id) ?? EMPTY_CONSUMER_STATE);
+        if (stateDifference !== 0) return stateDifference;
+        if (userLocation && left.distance !== right.distance) return left.distance - right.distance;
+        return left.startTime.localeCompare(right.startTime);
+      });
 
       return filtered;
     }
 
-    function render() {
-      const filtered = getFilteredData();
+    function render(now = getServerNow()) {
+      const todayIndex = now ? syncServerTimePresentation(now) : -1;
+      const venueStates = buildVenueStates(now);
+      const filtered = getFilteredData(now, venueStates);
 
       const grid = document.getElementById('grid')!;
       const empty = document.getElementById('empty-state')!;
       const countEl = document.getElementById('result-count')!;
       const liveCountBig = document.getElementById('live-count-big')!;
 
-      const liveNow = happyHours.filter((h) => isHappeningNow(h)).length;
+      const happyHoursNow = [...venueStates.values()]
+        .filter((state) => state.happyHourOccurrence !== null)
+        .length;
       countEl.textContent = String(filtered.length);
-      liveCountBig.textContent = String(liveNow);
+      liveCountBig.textContent = String(happyHoursNow);
+      renderLiveDeals(now);
 
       if (filtered.length === 0) {
         (grid as HTMLElement).style.display = 'none';
+        grid.innerHTML = '';
         (empty as HTMLElement).style.display = 'block';
-        return;
+      } else {
+        (grid as HTMLElement).style.display = '';
+        (empty as HTMLElement).style.display = 'none';
+
+        grid.innerHTML = filtered.map((h) => {
+          const state = venueStates.get(h.id) ?? EMPTY_CONSUMER_STATE;
+          const primaryDeal = state.liveDeals[0];
+          const hasLiveDeal = Boolean(primaryDeal);
+          const hasHappyHour = state.happyHourOccurrence !== null;
+          const img = getImage(h);
+          const hasDistance = h.distance !== undefined;
+          const slug = slugify(h.name);
+          const statusBadge = hasLiveDeal
+            ? '<div class="card-status-badge"><span class="live-deal-badge"><span class="live-deal-status-dot"></span>Live Deal</span></div>'
+            : hasHappyHour
+              ? '<div class="card-status-badge"><span class="happy-hour-now-badge">Happy Hour Now</span></div>'
+              : '';
+          const stateClass = hasLiveDeal ? 'has-live-deal' : hasHappyHour ? 'is-happy-hour' : '';
+
+          const weekDots = dayNames.map((day, i) => {
+            const active = h.days.includes(day);
+            const isToday = i === todayIndex;
+            let cls = 'week-dot';
+            if (active) cls += ' active';
+            if (isToday) cls += ' today';
+            return `<span class="${cls}">${dayAbbrev[i]}</span>`;
+          }).join('');
+
+          const trustClass = h.verified ? '' : ' unverified';
+          const featureTags = (h.features || []).slice(0, 3)
+            .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
+            .join('');
+
+          return `
+            <article class="card ${stateClass}">
+              <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
+                <div class="card-image">
+                  <img src="${escapeHTML(img)}" alt="${escapeHTML(h.name)}" loading="lazy">
+                  <div class="overlay"></div>
+                  ${statusBadge}
+                  ${hasDistance
+                    ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
+                    : `<span class="neighborhood-tag">${escapeHTML(h.neighborhood)}</span>`
+                  }
+                  <div class="time-overlay">
+                    <span class="venue-name">${escapeHTML(h.name)}</span>
+                    <span class="time-badge">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</span>
+                  </div>
+                </div>
+              </a>
+
+              <div class="card-body">
+                <div class="card-meta">
+                  <span class="card-vibe">${escapeHTML(h.vibe)}</span>
+                  <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
+                  ${h.phone ? `<a class="card-phone" href="tel:${h.phone.replace(/[^0-9+]/g, '')}">${escapeHTML(h.phone)}</a>` : ''}
+                  ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
+                </div>
+
+                ${primaryDeal ? `
+                  <div class="card-live-summary">
+                    <strong>${escapeHTML(primaryDeal.title)}</strong>
+                    ${state.state === 'both' ? '<span>Happy hour also happening now</span>' : ''}
+                  </div>
+                ` : ''}
+
+                <div class="tag-row">${featureTags}</div>
+
+                <div class="trust-row">
+                  <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
+                  <a href="/submit/">Report update</a>
+                </div>
+
+                ${renderSavePanel(h)}
+
+                <div class="week-row">${weekDots}</div>
+
+                <div class="card-deals">
+                  <h3>Deals</h3>
+                  <div class="deal-grid">
+                    ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <a class="card-address" href="https://maps.google.com/?q=${encodeURIComponent(h.address + ', San Diego, CA')}" target="_blank" rel="noopener">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span>${escapeHTML(h.address)}</span>
+                  </a>
+                  <a class="card-cta" href="/venues/${slug}/">
+                    Details
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
       }
 
-      (grid as HTMLElement).style.display = 'grid';
-      (empty as HTMLElement).style.display = 'none';
-
-      grid.innerHTML = filtered.map((h) => {
-        const isLive = isHappeningNow(h);
-        const img = getImage(h);
-        const hasDistance = h.distance !== undefined;
-        const slug = slugify(h.name);
-
-        const weekDots = dayNames.map((day, i) => {
-          const active = h.days.includes(day);
-          const isToday = i === todayIndex;
-          let cls = 'week-dot';
-          if (active) cls += ' active';
-          if (isToday) cls += ' today';
-          return `<span class="${cls}">${dayAbbrev[i]}</span>`;
-        }).join('');
-
-        const trustClass = h.verified ? '' : ' unverified';
-        const featureTags = (h.features || []).slice(0, 3)
-          .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
-          .join('');
-
-        return `
-          <article class="card ${isLive ? 'is-live' : ''}">
-            <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
-              <div class="card-image">
-                <img src="${img}" alt="${escapeHTML(h.name)}" loading="lazy">
-                <div class="overlay"></div>
-                ${isLive ? '<div class="live-badge"><span class="dot"></span> Live Now</div>' : ''}
-                ${hasDistance
-                  ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
-                  : `<span class="neighborhood-tag">${escapeHTML(h.neighborhood)}</span>`
-                }
-                <div class="time-overlay">
-                  <span class="venue-name">${escapeHTML(h.name)}</span>
-                  <span class="time-badge">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</span>
-                </div>
-              </div>
-            </a>
-
-            <div class="card-body">
-              <div class="card-meta">
-                <span class="card-vibe">${escapeHTML(h.vibe)}</span>
-                <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
-                ${h.phone ? `<a class="card-phone" href="tel:${h.phone.replace(/[^0-9+]/g, '')}">${escapeHTML(h.phone)}</a>` : ''}
-                ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
-              </div>
-
-              <div class="tag-row">${featureTags}</div>
-
-              <div class="trust-row">
-                <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
-                <a href="/submit/">Report update</a>
-              </div>
-
-              ${renderSavePanel(h)}
-
-              <div class="week-row">${weekDots}</div>
-
-              <div class="card-deals">
-                <h3>Deals</h3>
-                <div class="deal-grid">
-                  ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
-                </div>
-              </div>
-
-              ${renderPromoBanner(h.id)}
-
-              <div class="card-footer">
-                <a class="card-address" href="https://maps.google.com/?q=${encodeURIComponent(h.address + ', San Diego, CA')}" target="_blank" rel="noopener">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  <span>${escapeHTML(h.address)}</span>
-                </a>
-                <a class="card-cta" href="/venues/${slug}/">
-                  Details
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join('');
+      lastRenderedHadFeedData = feedSnapshot.data !== null;
+      lastRenderedPromotionSignature = promotionSignature();
+      lastRenderedVenueStateSignature = venueStateSignature(venueStates);
+      if (now) scheduleRecurringBoundaryRefresh(now);
 
       if (document.getElementById('map-container')!.classList.contains('active')) {
-        updateMapMarkers();
+        updateMapMarkers(now, venueStates);
       }
     }
 
@@ -1057,13 +1346,17 @@ import Layout from '../layouts/Layout.astro';
       `;
     }
 
-    document.getElementById('search-input')!.addEventListener('input', render);
-    document.getElementById('day-filter')!.addEventListener('change', render);
-    document.getElementById('neighborhood-filter')!.addEventListener('change', render);
-    document.getElementById('deal-filter')!.addEventListener('change', render);
-    document.getElementById('feature-filter')!.addEventListener('change', render);
-    document.getElementById('status-filter')!.addEventListener('change', render);
-    document.getElementById('trust-filter')!.addEventListener('change', render);
+    document.getElementById('search-input')!.addEventListener('input', () => render());
+    document.getElementById('day-filter')!.addEventListener('change', () => {
+      dayFilterInitialized = true;
+      dayFilterTouched = true;
+      render();
+    });
+    document.getElementById('neighborhood-filter')!.addEventListener('change', () => render());
+    document.getElementById('deal-filter')!.addEventListener('change', () => render());
+    document.getElementById('feature-filter')!.addEventListener('change', () => render());
+    document.getElementById('status-filter')!.addEventListener('change', () => render());
+    document.getElementById('trust-filter')!.addEventListener('change', () => render());
 
     // "Save as Alert" — captures whatever's currently in the filter bar
     // (day/neighborhood/deal/feature/search) as a named, saved alert. Full
@@ -1177,6 +1470,50 @@ import Layout from '../layouts/Layout.astro';
       }
     });
 
+    const unsubscribeFromLivePromotions = livePromotionFeed.subscribe((snapshot) => {
+      feedSnapshot = snapshot;
+      const now = getServerNow();
+      const venueStates = buildVenueStates(now);
+      const presentationChanged =
+        (snapshot.data !== null) !== lastRenderedHadFeedData ||
+        promotionSignature() !== lastRenderedPromotionSignature ||
+        venueStateSignature(venueStates) !== lastRenderedVenueStateSignature;
+
+      if (presentationChanged) {
+        render(now);
+      } else if (now) {
+        refreshTimedPresentation(now);
+        scheduleRecurringBoundaryRefresh(now);
+      }
+    });
+
+    window.addEventListener('sdhh:auth-changed', () => {
+      void livePromotionFeed.authenticationChanged();
+      void loadAccount();
+    });
+
+    window.addEventListener('pageshow', (event) => {
+      if (!(event as PageTransitionEvent).persisted) return;
+      // A different page may have signed the visitor out while this DOM was
+      // in the back/forward cache. Redact first, then reconcile the session.
+      void livePromotionFeed.authenticationChanged();
+      void loadAccount();
+    });
+
+    const timedPresentationInterval = window.setInterval(() => {
+      const now = getServerNow();
+      if (now) refreshTimedPresentation(now);
+    }, 30_000);
+
+    window.addEventListener('pagehide', (event) => {
+      if ((event as PageTransitionEvent).persisted) return;
+      window.clearInterval(timedPresentationInterval);
+      if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
+      unsubscribeFromLivePromotions();
+      livePromotionFeed.stop();
+    });
+
+    livePromotionFeed.start();
     loadData();
   </script>
 </Layout>
