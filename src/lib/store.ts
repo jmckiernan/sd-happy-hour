@@ -1172,6 +1172,14 @@ export async function listVenuePhotosForReview(limit = 200): Promise<VenuePhoto[
   return rows.map(mapVenuePhoto);
 }
 
+/** Publish legacy photos left waiting by the former manual-review workflow. */
+export async function publishVenuePhotosAwaitingReview(venueId: number): Promise<void> {
+  await sql`
+    UPDATE venue_photos
+    SET status = 'published', updated_at = now()
+    WHERE venue_id = ${venueId} AND status = 'in_review'`;
+}
+
 /** How many photos this venue has that aren't rejected — what the per-venue
  * upload cap is enforced against. */
 export async function countVenuePhotos(venueId: number): Promise<number> {

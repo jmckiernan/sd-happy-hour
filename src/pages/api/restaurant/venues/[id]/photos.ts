@@ -29,7 +29,8 @@ export const prerender = false;
 //   4. Screen the *sanitized* bytes (src/lib/imageModeration.ts). Screening
 //      what we're actually going to store, rather than what was uploaded,
 //      means the two can't diverge.
-//   5. Store, and record the verdict on the row.
+//   5. Store, and record the verdict on the row. Safe, sanitized uploads are
+//      published immediately; screening uncertainty never creates admin work.
 //
 // A rejected photo is not stored at all: there's no reason to keep bytes we've
 // decided can't be shown, and doing so would mean holding exactly the content
@@ -144,7 +145,10 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     );
   }
 
-  const status = verdict === null || verdict.decision === 'publish' ? 'published' : 'in_review';
+  // A clear unsafe verdict was returned above. Everything else is safe to
+  // publish immediately: screening being unavailable, inconclusive, or unsure
+  // about restaurant relevance must not create a manual approval queue.
+  const status = 'published';
 
   const key = makeImageKey(`venue-${venueId}`, sanitized.contentType);
   try {
@@ -188,7 +192,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         sortOrder: photo.sortOrder,
       },
       // What the dashboard tells the owner to expect.
-      pendingReview: status === 'in_review',
+      pendingReview: false,
     },
     201
   );

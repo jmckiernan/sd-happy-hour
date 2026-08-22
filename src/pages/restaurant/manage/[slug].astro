@@ -219,7 +219,7 @@ const { venue } = Astro.props;
       return data;
     }
 
-    // Approved photos double as the featured-image options and the menu item
+    // Uploaded photos double as the featured-image options and the menu item
     // photo options, so both panels read this one list.
     let approvedPhotos: Array<{ id: string; url: string; caption: string }> = [];
 
@@ -311,9 +311,7 @@ const { venue } = Astro.props;
         const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: form });
         setStatus(
           photoStatusEl,
-          result.pendingReview
-            ? 'Uploaded — it needs a quick look from us before it appears on your page.'
-            : 'Uploaded and live on your page.',
+          'Uploaded and live on your page.',
           'ok'
         );
         await loadPhotos();

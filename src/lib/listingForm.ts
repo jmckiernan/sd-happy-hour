@@ -121,16 +121,13 @@ export interface ListingFormOptions {
    *   can only ever be something screening has cleared.
    */
   ownerMode?: boolean;
-  /** Approved album photos to choose a featured image from, in ownerMode. */
+  /** Uploaded album photos to choose a featured image from, in ownerMode. */
   photoOptions?: OwnerPhotoOption[];
 }
 
 /**
- * The owner's featured-image control: pick one of your approved photos, or
- * none. Deliberately not an uploader — a featured image goes on the homepage
- * card and the venue hero, so it can only be a photo that has already cleared
- * screening. Uploading happens in the Photos panel, and a photo shows up here
- * once it's approved.
+ * The owner's featured-image control: pick one of the venue's uploaded photos,
+ * or none. Uploading happens in the Photos panel.
  *
  * The chosen URL lives in a hidden `data-lf="image"` input so readListingForm()
  * picks it up with no special casing.
@@ -152,8 +149,8 @@ function featuredPhotoPicker(photos: OwnerPhotoOption[], current: string) {
              ${tile('', 'No featured photo', 'Fall back to the stock photo for this vibe')}
              ${photos.map((photo) => tile(photo.url, 'Photo', photo.caption)).join('')}
            </div>
-           <p class="lf-image-hint">This is the photo shown on the homepage card and at the top of your venue page. Only approved photos can be featured.</p>`
-        : `<p class="lf-image-hint">Upload photos in the Photos section below — once one is approved you can feature it here.</p>`}
+           <p class="lf-image-hint">This is the photo shown on the homepage card and at the top of your venue page.</p>`
+        : `<p class="lf-image-hint">Upload photos in the Photos section below to feature one here.</p>`}
     </div>
   `;
 }

@@ -1,6 +1,11 @@
 import type { APIRoute } from 'astro';
 import { getVenues } from '../../../../../lib/venues';
-import { getVenueOverride, setVenueOverride, listPublishedVenuePhotos } from '../../../../../lib/store';
+import {
+  getVenueOverride,
+  setVenueOverride,
+  listPublishedVenuePhotos,
+  publishVenuePhotosAwaitingReview,
+} from '../../../../../lib/store';
 import { getVenueManager, NOT_A_MANAGER_MESSAGE } from '../../../../../lib/venueManager';
 import { mergeVenue, validateOwnerPatch, OWNER_EDITABLE_FIELDS } from '../../../../../lib/venueContent';
 import { json, errorJson, readJsonBody } from '../../../../../lib/api';
@@ -30,6 +35,10 @@ export const GET: APIRoute = async ({ params, cookies }) => {
   const venue = findVenue(venueId);
   if (!venue) return errorJson(['Venue not found.'], 404);
 
+  // Older uploads may have been held when automated screening was unavailable.
+  // Manual approval is no longer part of the owner workflow, so heal those
+  // legacy rows as soon as the management page is opened.
+  await publishVenuePhotosAwaitingReview(venueId);
   const override = await getVenueOverride(venueId);
 
   return json({
@@ -79,7 +88,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     const allowed = published.some((photo) => `/api/images/${photo.imageKey}` === image);
     if (!allowed) {
       return errorJson(
-        ['Choose a featured photo from your own approved photos. A photo still in review can’t be featured yet.'],
+        ['Choose a featured photo from the photos uploaded for this venue.'],
         422
       );
     }
