@@ -157,7 +157,10 @@ export async function listLegacyPublicPromotions(
   const result: Record<number, PromotionCampaign> = {};
   for (const promotion of legacy) {
     const state = getPromotionState(promotion, serverNow);
-    if (state !== 'ended' && state !== 'cancelled') result[promotion.venueId] = promotion;
+    // Only the unpublished draft imported from the old table is a legacy
+    // baseline. Once published, it must obey canonical time-derived
+    // visibility and can re-enter this map only through the live query.
+    if (state === 'draft') result[promotion.venueId] = promotion;
   }
   for (const promotion of live) result[promotion.venueId] = promotion;
   return result;
@@ -167,7 +170,12 @@ export function legacyPublicPromotionDto(
   promotion: PromotionCampaign,
   includeDealCode: boolean
 ): { description: string; dealCode?: string } {
+  // The legacy card has only one text slot. Preserve old draft copy, but
+  // represent an active canonical Live Deal by its primary headline.
+  const description = promotion.publishedAt && promotion.title
+    ? promotion.title
+    : promotion.description;
   return includeDealCode
-    ? { description: promotion.description, dealCode: promotion.dealCode || '' }
-    : { description: promotion.description };
+    ? { description, dealCode: promotion.dealCode || '' }
+    : { description };
 }

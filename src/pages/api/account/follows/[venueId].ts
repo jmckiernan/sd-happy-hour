@@ -68,8 +68,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   if (errors.length) return errorJson(errors, 422);
 
   try {
-    const follow = await saveVenueFollow(session.userId, Number(params.venueId), patch);
-    return json({ follow });
+    return json(await saveVenueFollow(session.userId, Number(params.venueId), patch));
   } catch (error) {
     const response = serviceErrorResponse(error);
     if (response) return response;

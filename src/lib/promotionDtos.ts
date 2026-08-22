@@ -35,6 +35,7 @@ export interface MerchantPromotionDto {
 
 export interface PublicPromotionDto {
   id: string;
+  venueId: number;
   venue: {
     id: number;
     name: string;
@@ -109,6 +110,7 @@ export function toPublicPromotionDto(
 
   const result: PublicPromotionDto = {
     id: promotion.id,
+    venueId: promotion.venueId,
     venue: {
       id: venue.id,
       name: venue.name,

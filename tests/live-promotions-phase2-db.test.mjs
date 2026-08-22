@@ -172,6 +172,7 @@ async function main() {
       VALUES ($1, 3, 'pending', NULL, 'paid')
     `, [pendingUserId]);
     const paidToken = await seedSession(admin, paidUserId);
+    const freeToken = await seedSession(admin, freeUserId);
     const consumerToken = await seedSession(admin, consumerUserId);
     const adminWithoutClaimToken = await seedSession(admin, adminWithoutClaimUserId);
     const pendingToken = await seedSession(admin, pendingUserId);
@@ -388,11 +389,54 @@ async function main() {
       0
     );
 
+    async function callLegacyPublic(token = null) {
+      const response = await legacyPublicRoute.GET({ cookies: cookies(token) });
+      return { response, body: await response.json() };
+    }
+
+    const anonymousLegacyDraft = await callLegacyPublic();
+    const authenticatedLegacyDraft = await callLegacyPublic(consumerToken);
+    assert.equal(anonymousLegacyDraft.body[1].description, 'Legacy campaign adapter');
+    assert.equal(Object.hasOwn(anonymousLegacyDraft.body[1], 'dealCode'), false);
+    assert.equal(authenticatedLegacyDraft.body[1].description, 'Legacy campaign adapter');
+    assert.equal(authenticatedLegacyDraft.body[1].dealCode, 'LEGACY32');
+
+    const scheduledLegacyPutResponse = await legacyMerchantRoute.PUT({
+      request: jsonRequest('http://test/api/restaurant/promotion', 'PUT', {
+        venueId: 2,
+        description: 'Legacy scheduled draft details',
+        dealCode: 'SCHEDULED-SECRET',
+      }),
+      cookies: cookies(freeToken),
+    });
+    assert.equal(scheduledLegacyPutResponse.status, 200);
+    const scheduledLegacyId = (await admin.query(`
+      SELECT id FROM promotion_campaigns
+      WHERE legacy_promotion_venue_id = 2
+    `)).rows[0].id;
+    await service.updatePromotion(freeUserId, scheduledLegacyId, {
+      title: 'Future scheduled headline',
+      description: 'Future scheduled secondary details',
+      ...futureWindow(2036, 6, 10, 18, 20),
+    });
+    await service.publishPromotion(freeUserId, scheduledLegacyId);
+
+    const anonymousWhileScheduled = await callLegacyPublic();
+    const authenticatedWhileScheduled = await callLegacyPublic(consumerToken);
+    assert.equal(Object.hasOwn(anonymousWhileScheduled.body, '2'), false);
+    assert.equal(Object.hasOwn(authenticatedWhileScheduled.body, '2'), false);
+    assert.doesNotMatch(JSON.stringify(authenticatedWhileScheduled.body), /SCHEDULED-SECRET/);
+
+    await service.cancelPromotion(freeUserId, scheduledLegacyId);
+    const afterScheduledCancellation = await callLegacyPublic(consumerToken);
+    assert.equal(Object.hasOwn(afterScheduledCancellation.body, '2'), false);
+    assert.doesNotMatch(JSON.stringify(afterScheduledCancellation.body), /SCHEDULED-SECRET/);
+
     const livePrivateDraft = await service.createPromotionDraft(paidUserId, {
       venueId: 1,
       type: 'special_deal',
-      title: 'Authenticated deal code isolation',
-      description: 'Visible to every visitor.',
+      title: 'Live Deal headline',
+      description: 'Secondary Live Deal details.',
       dealCode: 'PRIVATE32',
       startsAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
       endsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
@@ -417,6 +461,10 @@ async function main() {
       assert.equal(result.response.headers.get('cache-control'), 'private, no-store');
       assert.equal(result.response.headers.get('vary'), 'Cookie');
       assert.equal(result.promotion.id, livePrivate.promotion.id);
+      assert.equal(result.promotion.venueId, 1);
+      assert.equal(result.promotion.venue.id, 1);
+      assert.equal(result.promotion.title, 'Live Deal headline');
+      assert.equal(result.promotion.description, 'Secondary Live Deal details.');
       assert.equal(result.promotion.hasDealCode, true);
     }
     assert.equal(Object.hasOwn(anonymousLive.promotion, 'dealCode'), false);
@@ -426,21 +474,25 @@ async function main() {
       assert.equal(Object.hasOwn(authenticatedLive.promotion, privateField), false);
     }
 
-    async function callLegacyPublic(token = null) {
-      const response = await legacyPublicRoute.GET({ cookies: cookies(token) });
-      return { response, body: await response.json() };
-    }
     const anonymousLegacy = await callLegacyPublic();
     const authenticatedLegacy = await callLegacyPublic(consumerToken);
     const anonymousLegacyAgain = await callLegacyPublic();
     for (const result of [anonymousLegacy, authenticatedLegacy, anonymousLegacyAgain]) {
       assert.equal(result.response.headers.get('cache-control'), 'private, no-store');
       assert.equal(result.response.headers.get('vary'), 'Cookie');
-      assert.equal(result.body[1].description, 'Visible to every visitor.');
+      assert.equal(result.body[1].description, 'Live Deal headline');
+      assert.notEqual(result.body[1].description, 'Secondary Live Deal details.');
     }
     assert.equal(Object.hasOwn(anonymousLegacy.body[1], 'dealCode'), false);
     assert.equal(authenticatedLegacy.body[1].dealCode, 'PRIVATE32');
     assert.equal(Object.hasOwn(anonymousLegacyAgain.body[1], 'dealCode'), false);
+
+    await service.endPromotion(paidUserId, livePrivate.promotion.id);
+    const legacyAfterLiveEnded = await callLegacyPublic(consumerToken);
+    assert.equal(legacyAfterLiveEnded.body[1].description, 'Legacy campaign adapter');
+    assert.equal(legacyAfterLiveEnded.body[1].dealCode, 'LEGACY32');
+    assert.doesNotMatch(JSON.stringify(legacyAfterLiveEnded.body), /Live Deal headline|PRIVATE32/);
+    assert.equal(Object.hasOwn(legacyAfterLiveEnded.body, '2'), false);
 
     const legacyDeleteResponse = await legacyMerchantRoute.DELETE({
       request: jsonRequest('http://test/api/restaurant/promotion', 'DELETE', { venueId: 1 }),
@@ -565,6 +617,13 @@ async function main() {
     assert.equal(dispatchAlertIds.has(promotionOnlyAlert.id), false);
     assert.equal(dispatchAlertIds.has(legacyDefaultAlert.id), false);
 
+    const emptyFollowsResponse = await followsRoute.GET({ cookies: cookies(consumerToken) });
+    assert.equal(emptyFollowsResponse.status, 200);
+    assert.deepEqual(await emptyFollowsResponse.json(), {
+      follows: [],
+      smsTextEligible: false,
+    });
+
     await admin.query(`
       INSERT INTO saved_spots (user_id, venue_id, status, note)
       VALUES ($1, 1, 'favorite', 'Saved independently')
@@ -576,11 +635,12 @@ async function main() {
       cookies: cookies(consumerToken),
     });
     assert.equal(defaultFollowResponse.status, 200);
-    let follow = (await defaultFollowResponse.json()).follow;
+    let followResponseBody = await defaultFollowResponse.json();
+    let follow = followResponseBody.follow;
+    assert.equal(followResponseBody.smsTextEligible, false);
     assert.equal(follow.happyHourAlertsEnabled, false);
     assert.equal(follow.promotionAlertsEnabled, true);
     assert.deepEqual(follow.channels, { email: true, text: false });
-    assert.equal(follow.smsTextEligible, false);
 
     const independentTogglesResponse = await followItemRoute.PATCH({
       params: { venueId: '1' },
@@ -591,7 +651,9 @@ async function main() {
       cookies: cookies(consumerToken),
     });
     assert.equal(independentTogglesResponse.status, 200);
-    follow = (await independentTogglesResponse.json()).follow;
+    followResponseBody = await independentTogglesResponse.json();
+    follow = followResponseBody.follow;
+    assert.equal(followResponseBody.smsTextEligible, false);
     assert.equal(follow.happyHourAlertsEnabled, true);
     assert.equal(follow.promotionAlertsEnabled, false);
 
@@ -609,9 +671,10 @@ async function main() {
       cookies: cookies(consumerToken),
     });
     assert.equal(noConsentTextPreferenceResponse.status, 200);
-    follow = (await noConsentTextPreferenceResponse.json()).follow;
+    followResponseBody = await noConsentTextPreferenceResponse.json();
+    follow = followResponseBody.follow;
     assert.equal(follow.channels.text, true);
-    assert.equal(follow.smsTextEligible, false);
+    assert.equal(followResponseBody.smsTextEligible, false);
 
     const smsStateAfterPreference = (await admin.query(`
       SELECT phone, sms_consent_at FROM users WHERE id = $1
@@ -631,9 +694,10 @@ async function main() {
       cookies: cookies(consumerToken),
     });
     assert.equal(consentedTextResponse.status, 200);
-    follow = (await consentedTextResponse.json()).follow;
+    followResponseBody = await consentedTextResponse.json();
+    follow = followResponseBody.follow;
     assert.deepEqual(follow.channels, { email: false, text: true });
-    assert.equal(follow.smsTextEligible, true);
+    assert.equal(followResponseBody.smsTextEligible, true);
     assert.equal(follow.happyHourAlertsEnabled, true);
     assert.equal(follow.promotionAlertsEnabled, false);
 
@@ -642,10 +706,11 @@ async function main() {
     `, [consumerUserId]);
     const followsResponse = await followsRoute.GET({ cookies: cookies(consumerToken) });
     assert.equal(followsResponse.status, 200);
-    const followsAfterConsentRevocation = (await followsResponse.json()).follows;
+    const followsResponseBody = await followsResponse.json();
+    assert.equal(followsResponseBody.smsTextEligible, false);
+    const followsAfterConsentRevocation = followsResponseBody.follows;
     assert.deepEqual(followsAfterConsentRevocation.map((item) => item.venueId), [1]);
     assert.equal(followsAfterConsentRevocation[0].channels.text, true);
-    assert.equal(followsAfterConsentRevocation[0].smsTextEligible, false);
     const persistedFollowAfterRevocation = (await admin.query(`
       SELECT channel_text FROM venue_follows
       WHERE user_id = $1 AND venue_id = 1

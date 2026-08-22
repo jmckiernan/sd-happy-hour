@@ -35,8 +35,13 @@ export interface VenueFollowPatch {
   };
 }
 
-export interface AccountVenueFollow extends VenueFollow {
-  /** Current delivery eligibility, separate from the stored text preference. */
+export interface AccountVenueFollowsResult {
+  follows: VenueFollow[];
+  smsTextEligible: boolean;
+}
+
+export interface SaveVenueFollowResult {
+  follow: VenueFollow;
   smsTextEligible: boolean;
 }
 
@@ -45,14 +50,8 @@ interface SmsEligibilityRow {
   sms_consent_at: Date | string | null;
 }
 
-function withSmsEligibility(
-  follow: VenueFollow,
-  user: SmsEligibilityRow | undefined
-): AccountVenueFollow {
-  return {
-    ...follow,
-    smsTextEligible: Boolean(user?.phone.trim() && user.sms_consent_at),
-  };
+function smsTextEligible(user: SmsEligibilityRow | undefined): boolean {
+  return Boolean(user?.phone.trim() && user.sms_consent_at);
 }
 
 function requireVenue(venueId: number): void {
@@ -64,13 +63,13 @@ function requireVenue(venueId: number): void {
   }
 }
 
-export async function listAccountVenueFollows(userId: string): Promise<AccountVenueFollow[]> {
+export async function listAccountVenueFollows(userId: string): Promise<AccountVenueFollowsResult> {
   return withTransaction(async (tx) => {
     const users = await tx<SmsEligibilityRow>`
       SELECT phone, sms_consent_at FROM users
       WHERE id = ${userId}`;
     const follows = await listVenueFollows(userId, tx);
-    return follows.map((follow) => withSmsEligibility(follow, users[0]));
+    return { follows, smsTextEligible: smsTextEligible(users[0]) };
   });
 }
 
@@ -78,7 +77,7 @@ export async function saveVenueFollow(
   userId: string,
   venueId: number,
   patch: VenueFollowPatch
-): Promise<AccountVenueFollow> {
+): Promise<SaveVenueFollowResult> {
   requireVenue(venueId);
   return withTransaction(async (tx) => {
     const users = await tx<SmsEligibilityRow>`
@@ -98,7 +97,7 @@ export async function saveVenueFollow(
       channelText: patch.channels?.text ?? existing?.channels.text ?? false,
     };
     const follow = await replaceVenueFollow(userId, venueId, next, tx);
-    return withSmsEligibility(follow, user);
+    return { follow, smsTextEligible: smsTextEligible(user) };
   });
 }
 
