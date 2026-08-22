@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
+import { PROMOTION_TYPES, type PromotionType } from './promotionState';
+import { parseInstant, type InstantInput } from './sanDiegoTime';
 
 // ---------------------------------------------------------------------------
 // Pure helpers with nothing to do with storage (README-NEON-MIGRATION.md §6
@@ -75,9 +77,126 @@ export function cleanList(value: unknown): string[] {
     .filter(Boolean);
 }
 
+export const ALERT_KINDS = ['happy_hour', 'promotion'] as const;
+export type AlertKind = (typeof ALERT_KINDS)[number];
+
+/**
+ * Omitted legacy input keeps the pre-redesign behavior (happy-hour alerts
+ * only). An explicitly supplied empty/invalid list remains empty so an API
+ * validator can reject it instead of silently changing the user's choice.
+ */
+export function cleanAlertKinds(
+  value: unknown,
+  omittedDefault: readonly AlertKind[] = ['happy_hour']
+): AlertKind[] {
+  if (value === undefined) return [...omittedDefault];
+  const supplied = cleanList(value);
+  return ALERT_KINDS.filter((kind) => supplied.includes(kind));
+}
+
+export function validateAlertKinds(value: unknown): { alertKinds: AlertKind[]; errors: string[] } {
+  const alertKinds = cleanAlertKinds(value);
+  if (value === undefined) return { alertKinds, errors: [] };
+
+  const supplied = cleanList(value);
+  const unknown = supplied.filter((kind) => !ALERT_KINDS.includes(kind as AlertKind));
+  const errors: string[] = [];
+  if (!supplied.length) errors.push('Choose at least one alert kind.');
+  if (unknown.length) errors.push('Alert kinds may only include happy_hour or promotion.');
+  return { alertKinds, errors };
+}
+
 export function isValidTime(value: string): boolean {
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
+
+export const PROMOTION_TITLE_MAX_LENGTH = 80;
+export const PROMOTION_DESCRIPTION_MAX_LENGTH = 200;
+export const PROMOTION_DEAL_CODE_MAX_LENGTH = 30;
+export const MAX_PROMOTION_DURATION_MS = 24 * 60 * 60 * 1000;
+
+export type PromotionValidationMode = 'draft' | 'publish';
+
+export interface CleanPromotionInput {
+  type: PromotionType;
+  title: string;
+  description: string;
+  dealCode: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+}
+
+export interface ValidatePromotionOptions {
+  mode?: PromotionValidationMode;
+}
+
+function cleanPromotionInstant(value: unknown): Date | null {
+  if (value instanceof Date || typeof value === 'number' || typeof value === 'string') {
+    return parseInstant(value as InstantInput);
+  }
+  return null;
+}
+
+/**
+ * Shared server-side validation for new/edited promotion content. Merchant
+ * San Diego-local form values must be converted with
+ * parseSanDiegoLocalDateTime() before reaching this function; offsetless
+ * strings are never interpreted in the runtime machine's timezone.
+ */
+export function validatePromotionInput(
+  input: Record<string, any>,
+  options: ValidatePromotionOptions = {}
+): { promotion: CleanPromotionInput; errors: string[] } {
+  const mode = options.mode ?? 'draft';
+  const type = cleanString(input.type) as PromotionType;
+  const title = cleanString(input.title);
+  const description = cleanString(input.description);
+  const rawDealCode = cleanString(input.dealCode);
+  const startsAt = cleanPromotionInstant(input.startsAt);
+  const endsAt = cleanPromotionInstant(input.endsAt);
+  const hasStartInput = input.startsAt !== undefined && input.startsAt !== null && input.startsAt !== '';
+  const hasEndInput = input.endsAt !== undefined && input.endsAt !== null && input.endsAt !== '';
+
+  const promotion: CleanPromotionInput = {
+    type,
+    title,
+    description,
+    dealCode: rawDealCode || null,
+    startsAt: startsAt?.toISOString() ?? null,
+    endsAt: endsAt?.toISOString() ?? null,
+  };
+  const errors: string[] = [];
+
+  if (!PROMOTION_TYPES.includes(type)) errors.push('Choose a supported promotion type.');
+  if (mode === 'publish' && !title) errors.push('Promotion headline is required before publishing.');
+  else if (title.length > PROMOTION_TITLE_MAX_LENGTH) {
+    errors.push(`Promotion headline must be ${PROMOTION_TITLE_MAX_LENGTH} characters or fewer.`);
+  }
+  if (description.length > PROMOTION_DESCRIPTION_MAX_LENGTH) {
+    errors.push(`Promotion details must be ${PROMOTION_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
+  }
+  if (rawDealCode.length > PROMOTION_DEAL_CODE_MAX_LENGTH) {
+    errors.push(`Deal code must be ${PROMOTION_DEAL_CODE_MAX_LENGTH} characters or fewer.`);
+  }
+
+  if (hasStartInput && !startsAt) errors.push('Promotion start must be a valid absolute timestamp.');
+  if (hasEndInput && !endsAt) errors.push('Promotion end must be a valid absolute timestamp.');
+  if (mode === 'publish' && !hasStartInput) errors.push('Promotion start is required before publishing.');
+  if (mode === 'publish' && !hasEndInput) errors.push('Promotion end is required before publishing.');
+  if (hasStartInput !== hasEndInput) errors.push('Promotion start and end must be provided together.');
+
+  if (startsAt && endsAt) {
+    const duration = endsAt.getTime() - startsAt.getTime();
+    if (duration <= 0) errors.push('Promotion end must be later than its start.');
+    else if (duration > MAX_PROMOTION_DURATION_MS) {
+      errors.push('Promotion duration cannot exceed 24 hours.');
+    }
+  }
+
+  return { promotion, errors };
+}
+
+export const validatePromotion = validatePromotionInput;
 
 const VALID_DAYS = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
 
