@@ -72,6 +72,40 @@ async function seedUserAndClaim(client, { email, venueId, plan }) {
   return userId;
 }
 
+async function seedUser(client, email) {
+  const user = await client.query(`
+    INSERT INTO users (name, email, password_salt, password_hash, share_id)
+    VALUES ($1, $2, 'salt', 'hash', $3)
+    RETURNING id
+  `, ['Phase 2 Consumer', email, crypto.randomUUID()]);
+  return user.rows[0].id;
+}
+
+async function seedSession(client, userId) {
+  const token = crypto.randomBytes(32).toString('hex');
+  await client.query(`
+    INSERT INTO sessions (id, role, user_id, expires_at)
+    VALUES ($1, 'user', $2, now() + interval '1 hour')
+  `, [token, userId]);
+  return token;
+}
+
+function cookies(token = null) {
+  return {
+    get(name) {
+      return name === 'sdhh_session' && token ? { value: token } : undefined;
+    },
+  };
+}
+
+function jsonRequest(url, method, body = {}) {
+  return new Request(url, {
+    method,
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 function futureWindow(year, month, day, startHour, endHour) {
   const pad = (value) => String(value).padStart(2, '0');
   return {
@@ -124,6 +158,23 @@ async function main() {
       venueId: 2,
       plan: 'free',
     });
+    const consumerUserId = await seedUser(
+      admin,
+      `phase2-consumer-${crypto.randomUUID()}@example.test`
+    );
+    const adminWithoutClaimUserId = await seedUser(admin, 'jmckiernan86@gmail.com');
+    const pendingUserId = await seedUser(
+      admin,
+      `phase2-pending-${crypto.randomUUID()}@example.test`
+    );
+    await admin.query(`
+      INSERT INTO venue_claims (user_id, venue_id, status, verification_method, plan)
+      VALUES ($1, 3, 'pending', NULL, 'paid')
+    `, [pendingUserId]);
+    const paidToken = await seedSession(admin, paidUserId);
+    const consumerToken = await seedSession(admin, consumerUserId);
+    const adminWithoutClaimToken = await seedSession(admin, adminWithoutClaimUserId);
+    const pendingToken = await seedSession(admin, pendingUserId);
 
     const serviceUrl = new URL(raw);
     serviceUrl.searchParams.set('options', `-csearch_path=${schema}`);
@@ -230,6 +281,179 @@ async function main() {
 
     const deliveryCount = Number((await admin.query('SELECT count(*) AS count FROM notification_deliveries')).rows[0].count);
     assert.equal(deliveryCount, 0);
+
+    const collectionRoute = await import('../src/pages/api/restaurant/promotions/index.ts');
+    const itemRoute = await import('../src/pages/api/restaurant/promotions/[id].ts');
+    const publishRoute = await import('../src/pages/api/restaurant/promotions/[id]/publish.ts');
+    const cancelRoute = await import('../src/pages/api/restaurant/promotions/[id]/cancel.ts');
+    const liveRoute = await import('../src/pages/api/promotions/live.ts');
+    const legacyPublicRoute = await import('../src/pages/api/promotions.ts');
+    const legacyMerchantRoute = await import('../src/pages/api/restaurant/promotion.ts');
+
+    const offsetlessApiResponse = await collectionRoute.POST({
+      request: jsonRequest('http://test/api/restaurant/promotions', 'POST', {
+        venueId: 1,
+        type: 'special_deal',
+        title: 'Offsetless API schedule',
+        startsAt: '2032-04-10T17:30',
+        endsAt: '2032-04-10T19:00',
+      }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(offsetlessApiResponse.status, 422);
+    assert.match((await offsetlessApiResponse.json()).errors.join(' '), /absolute timestamp/);
+
+    const pendingClaimResponse = await collectionRoute.POST({
+      request: jsonRequest('http://test/api/restaurant/promotions', 'POST', {
+        venueId: 3,
+        type: 'special_deal',
+        title: 'Pending claim cannot create this',
+      }),
+      cookies: cookies(pendingToken),
+    });
+    assert.equal(pendingClaimResponse.status, 403);
+
+    const createApiResponse = await collectionRoute.POST({
+      request: jsonRequest('http://test/api/restaurant/promotions', 'POST', {
+        venueId: 1,
+        type: 'event',
+        title: 'API-scheduled event',
+        description: 'A route-level contract test.',
+        dealCode: 'ROUTE32',
+        ...futureWindow(2032, 4, 10, 18, 20),
+      }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(createApiResponse.status, 201);
+    const createdViaApi = await createApiResponse.json();
+    assert.equal(createdViaApi.promotion.state, 'draft');
+    assert.equal(createdViaApi.promotion.venueId, 1);
+    assert.equal(typeof createdViaApi.serverNow, 'string');
+    assert.ok(createdViaApi.entitlement);
+
+    const replacementVenueResponse = await itemRoute.PATCH({
+      params: { id: createdViaApi.promotion.id },
+      request: jsonRequest('http://test/item', 'PATCH', { venueId: 2 }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(replacementVenueResponse.status, 400);
+
+    const adminMutationResponse = await itemRoute.PATCH({
+      params: { id: createdViaApi.promotion.id },
+      request: jsonRequest('http://test/item', 'PATCH', { title: 'Admin replacement' }),
+      cookies: cookies(adminWithoutClaimToken),
+    });
+    assert.equal(adminMutationResponse.status, 403);
+    assert.equal((await adminMutationResponse.json()).code, 'promotion_forbidden');
+
+    const publishApiResponse = await publishRoute.POST({
+      params: { id: createdViaApi.promotion.id },
+      request: jsonRequest('http://test/publish', 'POST'),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(publishApiResponse.status, 200);
+    assert.equal((await publishApiResponse.json()).promotion.state, 'scheduled');
+
+    const collectionResponse = await collectionRoute.GET({
+      url: new URL('http://test/api/restaurant/promotions?venueId=1'),
+      cookies: cookies(paidToken),
+    });
+    const collection = await collectionResponse.json();
+    assert.equal(collection.venueId, 1);
+    assert.ok(collection.promotions.some((promotion) => promotion.id === createdViaApi.promotion.id));
+
+    const cancelApiResponse = await cancelRoute.POST({
+      params: { id: createdViaApi.promotion.id },
+      request: jsonRequest('http://test/cancel', 'POST'),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(cancelApiResponse.status, 200);
+    assert.equal((await cancelApiResponse.json()).promotion.state, 'cancelled');
+
+    const legacyPutResponse = await legacyMerchantRoute.PUT({
+      request: jsonRequest('http://test/api/restaurant/promotion', 'PUT', {
+        venueId: 1,
+        description: 'Legacy campaign adapter',
+        dealCode: 'LEGACY32',
+      }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(legacyPutResponse.status, 200);
+    assert.deepEqual(
+      Object.keys(await legacyPutResponse.json()).sort(),
+      ['dealCode', 'description', 'updatedAt']
+    );
+    assert.equal(
+      Number((await admin.query('SELECT count(*) AS count FROM promotions')).rows[0].count),
+      0
+    );
+
+    const livePrivateDraft = await service.createPromotionDraft(paidUserId, {
+      venueId: 1,
+      type: 'special_deal',
+      title: 'Authenticated deal code isolation',
+      description: 'Visible to every visitor.',
+      dealCode: 'PRIVATE32',
+      startsAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      endsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    });
+    const livePrivate = await service.startPromotionNow(paidUserId, livePrivateDraft.promotion.id, {
+      endsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    });
+
+    async function callLive(token = null) {
+      const response = await liveRoute.GET({
+        url: new URL('http://test/api/promotions/live?venueId=1'),
+        cookies: cookies(token),
+      });
+      const body = await response.json();
+      return { response, body, promotion: body.promotions[0] };
+    }
+
+    const anonymousLive = await callLive();
+    const authenticatedLive = await callLive(consumerToken);
+    const anonymousLiveAgain = await callLive();
+    for (const result of [anonymousLive, authenticatedLive, anonymousLiveAgain]) {
+      assert.equal(result.response.headers.get('cache-control'), 'private, no-store');
+      assert.equal(result.response.headers.get('vary'), 'Cookie');
+      assert.equal(result.promotion.id, livePrivate.promotion.id);
+      assert.equal(result.promotion.hasDealCode, true);
+    }
+    assert.equal(Object.hasOwn(anonymousLive.promotion, 'dealCode'), false);
+    assert.equal(authenticatedLive.promotion.dealCode, 'PRIVATE32');
+    assert.equal(Object.hasOwn(anonymousLiveAgain.promotion, 'dealCode'), false);
+    for (const privateField of ['createdByUserId', 'publishedAt', 'legacyPromotionVenueId']) {
+      assert.equal(Object.hasOwn(authenticatedLive.promotion, privateField), false);
+    }
+
+    async function callLegacyPublic(token = null) {
+      const response = await legacyPublicRoute.GET({ cookies: cookies(token) });
+      return { response, body: await response.json() };
+    }
+    const anonymousLegacy = await callLegacyPublic();
+    const authenticatedLegacy = await callLegacyPublic(consumerToken);
+    const anonymousLegacyAgain = await callLegacyPublic();
+    for (const result of [anonymousLegacy, authenticatedLegacy, anonymousLegacyAgain]) {
+      assert.equal(result.response.headers.get('cache-control'), 'private, no-store');
+      assert.equal(result.response.headers.get('vary'), 'Cookie');
+      assert.equal(result.body[1].description, 'Visible to every visitor.');
+    }
+    assert.equal(Object.hasOwn(anonymousLegacy.body[1], 'dealCode'), false);
+    assert.equal(authenticatedLegacy.body[1].dealCode, 'PRIVATE32');
+    assert.equal(Object.hasOwn(anonymousLegacyAgain.body[1], 'dealCode'), false);
+
+    const legacyDeleteResponse = await legacyMerchantRoute.DELETE({
+      request: jsonRequest('http://test/api/restaurant/promotion', 'DELETE', { venueId: 1 }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(legacyDeleteResponse.status, 200);
+    assert.equal(
+      Number((await admin.query(`
+        SELECT count(*) AS count FROM promotion_campaigns
+        WHERE legacy_promotion_venue_id = 1
+      `)).rows[0].count),
+      0
+    );
 
     console.log('phase2 postgres: all checks passed');
   } catch (error) {

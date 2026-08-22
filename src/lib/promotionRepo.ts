@@ -124,6 +124,37 @@ export async function getPromotionCampaignByIdForUpdate(
   return rows[0] ? mapPromotionCampaign(rows[0]) : null;
 }
 
+export async function getLegacyLinkedPromotionCampaign(
+  venueId: number,
+  executor: QueryExecutor = sql
+): Promise<PromotionCampaign | null> {
+  const rows = await executor<PromotionCampaignRow>`
+    SELECT * FROM promotion_campaigns
+    WHERE legacy_promotion_venue_id = ${venueId}`;
+  return rows[0] ? mapPromotionCampaign(rows[0]) : null;
+}
+
+export async function getLegacyLinkedPromotionCampaignForUpdate(
+  venueId: number,
+  executor: QueryExecutor
+): Promise<PromotionCampaign | null> {
+  const rows = await executor<PromotionCampaignRow>`
+    SELECT * FROM promotion_campaigns
+    WHERE legacy_promotion_venue_id = ${venueId}
+    FOR UPDATE`;
+  return rows[0] ? mapPromotionCampaign(rows[0]) : null;
+}
+
+export async function listLegacyLinkedPromotionCampaigns(
+  executor: QueryExecutor = sql
+): Promise<PromotionCampaign[]> {
+  const rows = await executor<PromotionCampaignRow>`
+    SELECT * FROM promotion_campaigns
+    WHERE legacy_promotion_venue_id IS NOT NULL
+    ORDER BY updated_at ASC, id ASC`;
+  return rows.map(mapPromotionCampaign);
+}
+
 export async function listPromotionCampaignsByVenue(
   venueId: number,
   executor: QueryExecutor = sql

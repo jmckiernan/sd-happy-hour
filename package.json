@@ -19,8 +19,8 @@
     "test:live-promotions": "esbuild tests/live-promotions.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions.bundle.mjs && node .data/tests/live-promotions.bundle.mjs",
     "test:live-promotions:migration:guard": "node tests/live-promotions-migration.test.mjs --guard-only",
     "test:live-promotions:migration": "node tests/live-promotions-migration.test.mjs",
-    "test:live-promotions:phase2:db:guard": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs --guard-only",
-    "test:live-promotions:phase2:db": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs"
+    "test:live-promotions:phase2:db:guard": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs --guard-only",
+    "test:live-promotions:phase2:db": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs"
   },
   "keywords": [],
   "author": "",

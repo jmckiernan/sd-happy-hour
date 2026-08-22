@@ -1,7 +1,11 @@
 import type { APIRoute } from 'astro';
-import { getPromotions } from '../../lib/store';
+import {
+  legacyPublicPromotionDto,
+  listLegacyPublicPromotions,
+} from '../../lib/legacyPromotionAdapter';
+import { authenticationSensitivePromotionJson } from '../../lib/promotionDtos';
+import { getDatabaseNow } from '../../lib/promotionRepo';
 import { getSession } from '../../lib/session';
-import { json } from '../../lib/api';
 
 export const prerender = false;
 
@@ -13,14 +17,13 @@ export const prerender = false;
 // sending the code to every client and hiding it with CSS, which anyone
 // could inspect around.
 export const GET: APIRoute = async ({ cookies }) => {
-  const [promotions, session] = await Promise.all([getPromotions(), getSession(cookies)]);
+  const [serverNow, session] = await Promise.all([getDatabaseNow(), getSession(cookies)]);
+  const promotions = await listLegacyPublicPromotions(serverNow);
   const signedIn = session?.role === 'user';
 
   const result: Record<number, { description: string; dealCode?: string }> = {};
-  for (const [venueId, promo] of Object.entries(promotions)) {
-    result[Number(venueId)] = signedIn
-      ? { description: promo.description, dealCode: promo.dealCode }
-      : { description: promo.description };
+  for (const [venueId, promotion] of Object.entries(promotions)) {
+    result[Number(venueId)] = legacyPublicPromotionDto(promotion, signedIn);
   }
-  return json(result);
+  return authenticationSensitivePromotionJson(result);
 };
