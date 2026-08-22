@@ -296,14 +296,24 @@ import Layout from '../layouts/Layout.astro';
     }
 
     async function postJson(path: string, body: unknown, method = 'POST') {
-      const res = await fetch(path, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error((json.errors || ['Request failed.']).join(' '));
-      return json;
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
+      try {
+        const res = await fetch(path, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error((json.errors || ['Request failed.']).join(' '));
+        return json;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') throw new Error('The sign-in request timed out. Please try again.');
+        throw err;
+      } finally {
+        window.clearTimeout(timeout);
+      }
     }
 
     async function loadHappyHours() {
@@ -408,6 +418,55 @@ import Layout from '../layouts/Layout.astro';
       });
       document.getElementById('google-note')!.textContent = 'Use Google to save and share your happy hour list.';
     }
+
+    document.getElementById('login-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const button = form.querySelector('button') as HTMLButtonElement;
+      const status = document.getElementById('login-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Signing in...';
+      button.disabled = true;
+      try {
+        await postJson('/api/account/login', {
+          email: (form.elements.namedItem('email') as HTMLInputElement).value,
+          password: (form.elements.namedItem('password') as HTMLInputElement).value,
+        });
+        form.reset();
+        status.textContent = '';
+        await loadAccount();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('register-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const button = form.querySelector('button') as HTMLButtonElement;
+      const status = document.getElementById('register-status')!;
+      status.classList.remove('error');
+      status.textContent = 'Creating account...';
+      button.disabled = true;
+      try {
+        await postJson('/api/account/register', {
+          name: (form.elements.namedItem('name') as HTMLInputElement).value,
+          email: (form.elements.namedItem('email') as HTMLInputElement).value,
+          password: (form.elements.namedItem('password') as HTMLInputElement).value,
+        });
+        form.reset();
+        status.textContent = '';
+        await loadAccount();
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
 
     // ---------------------------------------------------------------------
     // Rendering: top-level dispatch, then one render*() per section.

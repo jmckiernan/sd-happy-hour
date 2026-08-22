@@ -38,12 +38,17 @@ const heroImage = getListingImage(venue, 'hero');
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
     }
+    .venue-hero .hero-frame.has-gallery { cursor: zoom-in; }
+    .venue-hero .hero-frame:focus-visible {
+      outline: 3px solid var(--violet); outline-offset: 4px;
+    }
     /* Same green ring + badge the homepage card gets (see .card.is-live in
        index.astro), so a spot that's live reads as live from here too.
        Applied by the script below rather than at build time — these pages
        are prerendered, so "now" is only knowable in the browser. */
     .venue-hero .hero-frame.is-live {
       box-shadow: 0 0 0 3px var(--palm), 0 12px 32px rgba(34, 197, 94, 0.2);
+      animation: venue-live-glow 2.4s ease-in-out infinite;
     }
     .venue-hero .live-badge {
       position: absolute; top: 16px; left: 16px;
@@ -62,8 +67,13 @@ const heroImage = getListingImage(venue, 'hero');
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
     }
+    @keyframes venue-live-glow {
+      0%, 100% { box-shadow: 0 0 0 3px var(--palm), 0 10px 26px rgba(34, 197, 94, 0.18); }
+      50% { box-shadow: 0 0 0 3px var(--palm), 0 7px 22px rgba(34, 197, 94, 0.64), 0 0 10px rgba(34, 197, 94, 0.52); }
+    }
     @media (prefers-reduced-motion: reduce) {
       .venue-hero .live-badge .dot { animation: none; }
+      .venue-hero .hero-frame.is-live { animation: none; }
     }
     .venue-hero img {
       width: 100%;
@@ -220,30 +230,46 @@ const heroImage = getListingImage(venue, 'hero');
     }
     .promo-card-inner .promo-signin:hover { text-decoration: underline; }
 
-    /* --- Owner-managed sections: photo album and menu -------------------- */
-    .venue-album, .venue-menu {
+    /* --- Owner-managed menu ---------------------------------------------- */
+    .venue-menu {
       max-width: 800px;
-      margin: 28px auto 0;
+      margin: 28px auto 36px;
       padding: 0 24px;
     }
-    .venue-album.hidden, .venue-menu.hidden { display: none; }
-    .venue-album h3, .venue-menu h3 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
+    .venue-menu.hidden { display: none; }
+    .menu-open {
+      width: 100%; border: 0; border-radius: var(--radius-sm); padding: 16px 20px;
+      background: #e8f5f7; color: var(--night);
+      cursor: pointer; text-align: left;
+      font-family: var(--font-display); font-size: 1.05rem;
+      box-shadow: 0 2px 10px rgba(20, 116, 135, 0.1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .menu-open:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(20, 116, 135, 0.16); }
+    .menu-open::after { content: '→'; float: right; color: #147487; }
     .section-note { color: var(--night-soft); font-size: 0.82rem; margin-bottom: 14px; }
 
-    .album-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
+    .menu-modal {
+      position: fixed; inset: 0; z-index: 45; padding: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(15,23,42,0.78);
     }
-    /* The album's tiles and the whole menu are painted by client script from
-       /api/venue-content/<id>, so — like .deal and .day-pill above — their
-       styles have to be :global to survive Astro's scoping. The section
-       wrappers themselves are in the template and stay scoped. */
-    .album-grid :global(button) {
-      border: 0; padding: 0; cursor: zoom-in; background: var(--sand-warm);
-      border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 4 / 3; display: block;
+    .menu-modal[hidden] { display: none; }
+    .menu-dialog {
+      position: relative; width: min(760px, 100%); max-height: min(86vh, 900px);
+      overflow-y: auto; overscroll-behavior: contain; background: var(--sand);
+      border-radius: var(--radius); padding: 28px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.3);
     }
-    .album-grid :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .menu-dialog > h2 { font-family: var(--font-display); margin: 0 48px 4px 0; }
+    .menu-modal-close {
+      position: absolute; top: 14px; right: 16px; border: 0; background: none;
+      color: var(--night); font-size: 2rem; line-height: 1; cursor: pointer;
+    }
+    @media (max-width: 640px) {
+      .menu-modal { padding: 0; align-items: flex-end; }
+      .menu-dialog { width: 100%; max-height: 92vh; border-radius: var(--radius) var(--radius) 0 0; padding: 24px 18px; }
+    }
 
     :global(.menu-section) { margin-bottom: 22px; }
     :global(.menu-section h4) {
@@ -251,11 +277,15 @@ const heroImage = getListingImage(venue, 'hero');
       border-bottom: 2px solid var(--sand-warm); padding-bottom: 6px;
     }
     :global(.menu-section .menu-note) { color: var(--night-soft); font-size: 0.8rem; margin: 6px 0 10px; }
-    :global(.menu-item) { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(15,23,42,0.06); }
+    :global(.menu-item) {
+      display: flex; gap: 18px; align-items: center; padding: 16px 0;
+      border-bottom: 1px solid rgba(15,23,42,0.06);
+    }
     :global(.menu-item:last-child) { border-bottom: 0; }
     :global(.menu-item-thumb) {
-      width: 68px; height: 68px; flex-shrink: 0; border: 0; padding: 0; cursor: zoom-in;
+      width: 150px; height: 112px; flex-shrink: 0; border: 0; padding: 0; cursor: zoom-in;
       border-radius: var(--radius-sm); overflow: hidden; background: var(--sand-warm);
+      box-shadow: 0 3px 12px rgba(15,23,42,0.12);
     }
     :global(.menu-item-thumb img) { width: 100%; height: 100%; object-fit: cover; display: block; }
     :global(.menu-item-text) { flex: 1; min-width: 0; }
@@ -263,11 +293,15 @@ const heroImage = getListingImage(venue, 'hero');
     :global(.menu-item-head .name) { font-weight: 700; }
     :global(.menu-item-head .price) { color: var(--night); font-weight: 700; white-space: nowrap; }
     :global(.menu-item-desc) { color: var(--night-soft); font-size: 0.85rem; line-height: 1.45; margin-top: 3px; }
+    @media (max-width: 520px) {
+      :global(.menu-item) { gap: 12px; align-items: flex-start; }
+      :global(.menu-item-thumb) { width: 112px; height: 96px; }
+    }
 
     /* Lightbox — a plain overlay rather than a library; it only has to show
        one photo at a time. */
     .lightbox {
-      position: fixed; inset: 0; z-index: 50; background: rgba(15,23,42,0.88);
+      position: fixed; inset: 0; z-index: 60; background: rgba(15,23,42,0.88);
       display: flex; align-items: center; justify-content: center; padding: 24px;
     }
     .lightbox[hidden] { display: none; }
@@ -279,6 +313,20 @@ const heroImage = getListingImage(venue, 'hero');
     .lightbox-close {
       position: absolute; top: 16px; right: 20px; background: none; border: 0; color: white;
       font-size: 2.2rem; line-height: 1; cursor: pointer; padding: 4px 10px;
+    }
+    .lightbox-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 48px; height: 48px; border: 0; border-radius: 50%;
+      background: rgba(255,255,255,0.92); color: var(--night);
+      font-size: 2rem; line-height: 1; cursor: pointer;
+    }
+    .lightbox-nav.prev { left: 18px; }
+    .lightbox-nav.next { right: 18px; }
+    .lightbox-nav[hidden] { display: none; }
+    .lightbox-count { color: rgba(255,255,255,0.75); font-size: 0.78rem; margin-top: 6px; }
+    @media (max-width: 640px) {
+      .lightbox { padding: 60px 12px; }
+      .lightbox-nav { top: auto; bottom: 18px; transform: none; }
     }
 
     .related-posts {
@@ -319,6 +367,9 @@ const heroImage = getListingImage(venue, 'hero');
       data-days={venue.days.join('|')}
       data-start={venue.startTime}
       data-end={venue.endTime}
+      role="button"
+      tabindex="0"
+      aria-label={`View photos of ${venue.name}`}
     >
       <img
         src={heroImage}
@@ -397,28 +448,29 @@ const heroImage = getListingImage(venue, 'hero');
     </div>
   </div>
 
-  <!-- Owner-managed content. Both start hidden and are revealed only if
-       /api/venue-content/<id> returns something: a venue whose owner hasn't
-       uploaded anything looks exactly as it did before this feature. -->
-  <section class="venue-album hidden" id="venue-album" aria-labelledby="venue-album-heading">
-    <h3 id="venue-album-heading">Photos</h3>
-    <p class="section-note">Shared by the restaurant.</p>
-    <div class="album-grid" id="album-grid"></div>
+  <section class="venue-menu hidden" id="venue-menu" aria-label="Restaurant menu">
+    <button type="button" class="menu-open" id="menu-open" aria-haspopup="dialog">View menu</button>
   </section>
 
-  <section class="venue-menu hidden" id="venue-menu" aria-labelledby="venue-menu-heading">
-    <h3 id="venue-menu-heading">Menu</h3>
-    <p class="section-note">Prices and items as listed by the restaurant.</p>
-    <div id="menu-body"></div>
-  </section>
+  <div class="menu-modal" id="menu-modal" hidden>
+    <div class="menu-dialog" role="dialog" aria-modal="true" aria-labelledby="venue-menu-heading">
+      <button type="button" class="menu-modal-close" id="menu-modal-close" aria-label="Close menu">&times;</button>
+      <h2 id="venue-menu-heading">Menu</h2>
+      <p class="section-note">Prices and items as listed by the restaurant.</p>
+      <div id="menu-body"></div>
+    </div>
+  </div>
 
-  <!-- One lightbox, reused by every album thumbnail and menu item photo. -->
+  <!-- The featured image opens the venue gallery; menu photos reuse it. -->
   <div class="lightbox" id="lightbox" hidden>
     <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close photo">&times;</button>
+    <button type="button" class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous photo">&#8249;</button>
     <figure class="lightbox-figure">
       <img id="lightbox-img" alt="">
       <figcaption id="lightbox-caption"></figcaption>
+      <div class="lightbox-count" id="lightbox-count"></div>
     </figure>
+    <button type="button" class="lightbox-nav next" id="lightbox-next" aria-label="Next photo">&#8250;</button>
   </div>
 
   {posts.length > 0 && (
@@ -560,13 +612,21 @@ const heroImage = getListingImage(venue, 'hero');
     // static markup. /api/venue-content/<id> only ever returns photos that
     // have cleared screening, so nothing unreviewed can appear even briefly.
     // ---------------------------------------------------------------------
-    const albumSection = document.getElementById('venue-album')!;
-    const albumGrid = document.getElementById('album-grid')!;
     const menuSection = document.getElementById('venue-menu')!;
     const menuBody = document.getElementById('menu-body')!;
+    const menuModal = document.getElementById('menu-modal') as HTMLElement;
+    const menuOpen = document.getElementById('menu-open') as HTMLButtonElement;
+    const menuClose = document.getElementById('menu-modal-close') as HTMLButtonElement;
     const lightbox = document.getElementById('lightbox') as HTMLElement;
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
     const lightboxCaption = document.getElementById('lightbox-caption')!;
+    const lightboxCount = document.getElementById('lightbox-count')!;
+    const lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement;
+    const lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement;
+    let lightboxPhotos: Array<{ url: string; caption: string }> = [];
+    let lightboxIndex = 0;
+    let venueGallery: Array<{ url: string; caption: string }> = [];
+    let menuPhotoGallery: Array<{ url: string; caption: string }> = [];
 
     function esc(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -592,25 +652,84 @@ const heroImage = getListingImage(venue, 'hero');
       return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=80`;
     }
 
-    function openLightbox(url: string, caption: string) {
-      lightboxImg.src = url;
-      lightboxCaption.textContent = caption;
+    function paintLightbox() {
+      const photo = lightboxPhotos[lightboxIndex];
+      if (!photo) return;
+      lightboxImg.src = photo.url;
+      lightboxImg.alt = photo.caption;
+      lightboxCaption.textContent = photo.caption;
+      lightboxCount.textContent = lightboxPhotos.length > 1
+        ? `${lightboxIndex + 1} of ${lightboxPhotos.length}`
+        : '';
+      lightboxPrev.hidden = lightboxPhotos.length < 2;
+      lightboxNext.hidden = lightboxPhotos.length < 2;
+    }
+
+    function openLightbox(photos: Array<{ url: string; caption: string }>, index = 0) {
+      if (!photos.length) return;
+      lightboxPhotos = photos;
+      lightboxIndex = index;
+      paintLightbox();
       lightbox.hidden = false;
       document.body.style.overflow = 'hidden';
+    }
+
+    function moveLightbox(offset: number) {
+      lightboxIndex = (lightboxIndex + offset + lightboxPhotos.length) % lightboxPhotos.length;
+      paintLightbox();
     }
 
     function closeLightbox() {
       lightbox.hidden = true;
       lightboxImg.src = '';
-      document.body.style.overflow = '';
+      document.body.style.overflow = menuModal.hidden ? '' : 'hidden';
     }
 
+    function openMenu() {
+      menuModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      menuClose.focus();
+    }
+
+    function closeMenu() {
+      menuModal.hidden = true;
+      document.body.style.overflow = '';
+      menuOpen.focus();
+    }
+
+    menuOpen.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    menuModal.addEventListener('click', (event) => {
+      if (event.target === menuModal) closeMenu();
+    });
+
     document.getElementById('lightbox-close')!.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', () => moveLightbox(-1));
+    lightboxNext.addEventListener('click', () => moveLightbox(1));
+    let touchStartX = 0;
+    lightbox.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0]?.clientX || 0;
+    }, { passive: true });
+    lightbox.addEventListener('touchend', (event) => {
+      const distance = (event.changedTouches[0]?.clientX || 0) - touchStartX;
+      if (lightboxPhotos.length > 1 && Math.abs(distance) > 45) moveLightbox(distance > 0 ? -1 : 1);
+    }, { passive: true });
     lightbox.addEventListener('click', (event) => {
       if (event.target === lightbox) closeLightbox();
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
+      else if (event.key === 'Escape' && !menuModal.hidden) closeMenu();
+      if (event.key === 'ArrowLeft' && !lightbox.hidden && lightboxPhotos.length > 1) moveLightbox(-1);
+      if (event.key === 'ArrowRight' && !lightbox.hidden && lightboxPhotos.length > 1) moveLightbox(1);
+    });
+
+    heroFrame.addEventListener('click', () => openLightbox(venueGallery));
+    heroFrame.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openLightbox(venueGallery);
+      }
     });
 
     /** Repaints the parts of the page an owner is allowed to change. Only
@@ -678,24 +797,33 @@ const heroImage = getListingImage(venue, 'hero');
       paintLiveState();
     }
 
-    function renderAlbum(photos: any[]) {
-      if (!photos.length) return;
-      albumGrid.innerHTML = photos
-        .map(
-          (photo) => `
-            <button type="button" data-full="${esc(photo.url)}" data-caption="${esc(photo.caption)}">
-              <img src="${esc(sized(photo.url, 400))}" alt="${esc(photo.caption || 'Photo of this venue')}" loading="lazy">
-            </button>`
-        )
-        .join('');
-      albumSection.classList.remove('hidden');
+    function setVenueGallery(photos: any[]) {
+      const heroImg = heroFrame.querySelector('img') as HTMLImageElement;
+      const featured = heroImg.getAttribute('src') || heroImg.src;
+      venueGallery = [
+        { url: featured, caption: heroImg.alt },
+        ...photos.map((photo) => ({ url: photo.url, caption: photo.caption || heroImg.alt })),
+      ].filter((photo, index, all) => all.findIndex((candidate) => candidate.url === photo.url) === index);
+      heroFrame.classList.toggle('has-gallery', venueGallery.length > 0);
     }
+
+    // The featured image is always available, even before owner content loads.
+    setVenueGallery([]);
 
     function renderMenu(sections: any[]) {
       // A section with nothing in it is the owner mid-edit, not content —
       // skip those rather than showing an empty heading.
       const withItems = sections.filter((section) => section.items.length);
       if (!withItems.length) return;
+
+      menuPhotoGallery = withItems.flatMap((section) =>
+        section.items
+          .filter((item: any) => item.photo)
+          .map((item: any) => ({
+            url: item.photo.url,
+            caption: item.photo.caption || item.name,
+          }))
+      );
 
       menuBody.innerHTML = withItems
         .map(
@@ -708,7 +836,7 @@ const heroImage = getListingImage(venue, 'hero');
                   (item: any) => `
                     <div class="menu-item">
                       ${item.photo
-                        ? `<button type="button" class="menu-item-thumb" data-full="${esc(item.photo.url)}" data-caption="${esc(item.photo.caption || item.name)}">
+                        ? `<button type="button" class="menu-item-thumb" data-full="${esc(item.photo.url)}" data-caption="${esc(item.photo.caption || item.name)}" data-menu-photo-index="${menuPhotoGallery.findIndex((photo) => photo.url === item.photo.url)}">
                              <img src="${esc(sized(item.photo.url, 200))}" alt="${esc(item.name)}" loading="lazy">
                            </button>`
                         : ''}
@@ -728,11 +856,16 @@ const heroImage = getListingImage(venue, 'hero');
       menuSection.classList.remove('hidden');
     }
 
-    // One delegated handler covers album thumbnails and menu item photos.
+    // Menu photos share one navigable gallery; the hero uses the venue gallery.
     document.addEventListener('click', (event) => {
       const trigger = (event.target as HTMLElement).closest('[data-full]') as HTMLElement | null;
       if (!trigger) return;
-      openLightbox(trigger.dataset.full!, trigger.dataset.caption || '');
+      const menuIndex = Number(trigger.dataset.menuPhotoIndex);
+      if (Number.isInteger(menuIndex) && menuIndex >= 0) {
+        openLightbox(menuPhotoGallery, menuIndex);
+      } else {
+        openLightbox([{ url: trigger.dataset.full!, caption: trigger.dataset.caption || '' }]);
+      }
     });
 
     async function initOwnerContent() {
@@ -745,7 +878,7 @@ const heroImage = getListingImage(venue, 'hero');
         // repainting it identically just risks a flash of relayout and hides
         // styling mistakes behind "it works on the happy path".
         if (data.hasOwnerEdits) applyOwnerEdits(data.listing);
-        renderAlbum(data.photos || []);
+        setVenueGallery(data.photos || []);
         renderMenu(data.menu || []);
       } catch {
         // Non-critical: the statically rendered listing is still correct as of

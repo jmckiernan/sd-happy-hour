@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 ---
 <Layout title="Add Blog Post | SD Happy Hours Admin" description="Generate a new SD Happy Hours blog post draft.">
   <style is:global>
-    .np-wrap { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+    .np-wrap { max-width: 720px; margin: 0 auto; padding: 24px 24px 80px; }
     .np-wrap h1 { font-family: var(--font-display); font-size: 1.75rem; margin-bottom: 6px; }
     .np-wrap p.sub { color: var(--night-soft); margin-bottom: 28px; line-height: 1.5; }
 
@@ -46,7 +46,24 @@ import Layout from '../../layouts/Layout.astro';
     .np-locked a:hover { background: var(--sunset-start); }
     .hidden { display: none; }
 
-    .admin-subnav { display: flex; gap: 8px; margin: 0 0 28px; font-size: 0.85rem; }
+    .admin-bar {
+      background: white;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .admin-bar-inner {
+      max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between;
+      gap: 16px; align-items: center; flex-wrap: wrap;
+    }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; }
+    .admin-subnav {
+      display: flex; gap: 8px; max-width: 1100px; margin: 12px auto 0;
+      padding: 0 24px; font-size: 0.85rem;
+    }
     .admin-subnav a {
       text-decoration: none; font-weight: 600; color: var(--night-soft);
       padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
@@ -140,21 +157,29 @@ import Layout from '../../layouts/Layout.astro';
     .img-modal-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 
-  <div class="np-wrap">
-    <div id="np-locked" class="np-locked hidden">
-      <h1>Add Blog Post</h1>
-      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
-      <a href="/account/">Sign In</a>
-    </div>
+  <div id="np-locked" class="np-locked hidden">
+    <h1>Add Blog Post</h1>
+    <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+    <a href="/account/">Sign In</a>
+  </div>
 
-    <div id="np-form" class="hidden">
+  <div id="np-form" class="hidden">
+    <div class="admin-bar">
+      <div class="admin-bar-inner">
+        <div>
+          <h1>Add Blog Post</h1>
+          <p>Generate a new SD Happy Hours post for review and publishing.</p>
+        </div>
+      </div>
       <nav class="admin-subnav">
         <a href="/admin/">Submissions</a>
         <a href="/admin/restaurants/">Restaurant Verifications</a>
         <a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/">Posts</a>
+        <a href="/admin/drafts/" aria-current="page">Posts</a>
       </nav>
+    </div>
 
+    <main class="np-wrap">
       <h1>Add Blog Post</h1>
       <p class="sub">Drop in your idea, any source material, and the venues it's about. Claude drafts it as a real post — review and publish it right here on the site, no GitHub needed.</p>
 
@@ -245,7 +270,7 @@ import Layout from '../../layouts/Layout.astro';
 
         <div id="result"></div>
       </div>
-    </div>
+    </main>
   </div>
 
   <div id="img-modal" class="img-modal hidden" role="dialog" aria-modal="true" aria-labelledby="img-modal-title">

@@ -48,6 +48,8 @@ import Layout from '../layouts/Layout.astro';
 
     .claim-card { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
     .manage-link { color: var(--night); font-weight: 700; font-size: 0.9rem; }
+    .listing-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+    .live-page-link { color: var(--ocean-deep); font-weight: 700; font-size: 0.9rem; }
     .claim-card-head { align-items: center; display: flex; gap: 10px; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
     .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; }
     .claim-card > .status { margin-bottom: 8px; }
@@ -232,11 +234,14 @@ import Layout from '../layouts/Layout.astro';
       // page, one per venue, rather than inline here — it's three panels' worth
       // of editing (hours/deals, photo album, menu).
       const manageLink = claim.status === 'verified' && claim.venueSlug ? `
-        <p style="margin-top:10px;">
+        <div class="listing-links">
           <a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/">
             Manage listing, photos &amp; menu →
           </a>
-        </p>
+          <a class="live-page-link" href="/venues/${encodeURIComponent(claim.venueSlug)}/">
+            View live page →
+          </a>
+        </div>
       ` : '';
 
       const liveAndPromo = claim.status === 'verified' ? `
