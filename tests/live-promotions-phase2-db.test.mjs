@@ -580,6 +580,7 @@ async function main() {
     assert.equal(follow.happyHourAlertsEnabled, false);
     assert.equal(follow.promotionAlertsEnabled, true);
     assert.deepEqual(follow.channels, { email: true, text: false });
+    assert.equal(follow.smsTextEligible, false);
 
     const independentTogglesResponse = await followItemRoute.PATCH({
       params: { venueId: '1' },
@@ -594,15 +595,29 @@ async function main() {
     assert.equal(follow.happyHourAlertsEnabled, true);
     assert.equal(follow.promotionAlertsEnabled, false);
 
-    const noConsentTextResponse = await followItemRoute.PUT({
+    const smsStateBeforePreference = (await admin.query(`
+      SELECT phone, sms_consent_at FROM users WHERE id = $1
+    `, [consumerUserId])).rows[0];
+    assert.equal(smsStateBeforePreference.phone, '');
+    assert.equal(smsStateBeforePreference.sms_consent_at, null);
+
+    const noConsentTextPreferenceResponse = await followItemRoute.PUT({
       params: { venueId: '1' },
       request: jsonRequest('http://test/api/account/follows/1', 'PUT', {
         channels: { text: true },
       }),
       cookies: cookies(consumerToken),
     });
-    assert.equal(noConsentTextResponse.status, 422);
-    assert.equal((await noConsentTextResponse.json()).code, 'sms_consent_required');
+    assert.equal(noConsentTextPreferenceResponse.status, 200);
+    follow = (await noConsentTextPreferenceResponse.json()).follow;
+    assert.equal(follow.channels.text, true);
+    assert.equal(follow.smsTextEligible, false);
+
+    const smsStateAfterPreference = (await admin.query(`
+      SELECT phone, sms_consent_at FROM users WHERE id = $1
+    `, [consumerUserId])).rows[0];
+    assert.equal(smsStateAfterPreference.phone, smsStateBeforePreference.phone);
+    assert.equal(smsStateAfterPreference.sms_consent_at, null);
 
     await admin.query(`
       UPDATE users SET phone = '+16195550123', sms_consent_at = now()
@@ -618,12 +633,24 @@ async function main() {
     assert.equal(consentedTextResponse.status, 200);
     follow = (await consentedTextResponse.json()).follow;
     assert.deepEqual(follow.channels, { email: false, text: true });
+    assert.equal(follow.smsTextEligible, true);
     assert.equal(follow.happyHourAlertsEnabled, true);
     assert.equal(follow.promotionAlertsEnabled, false);
 
+    await admin.query(`
+      UPDATE users SET sms_consent_at = NULL WHERE id = $1
+    `, [consumerUserId]);
     const followsResponse = await followsRoute.GET({ cookies: cookies(consumerToken) });
     assert.equal(followsResponse.status, 200);
-    assert.deepEqual((await followsResponse.json()).follows.map((item) => item.venueId), [1]);
+    const followsAfterConsentRevocation = (await followsResponse.json()).follows;
+    assert.deepEqual(followsAfterConsentRevocation.map((item) => item.venueId), [1]);
+    assert.equal(followsAfterConsentRevocation[0].channels.text, true);
+    assert.equal(followsAfterConsentRevocation[0].smsTextEligible, false);
+    const persistedFollowAfterRevocation = (await admin.query(`
+      SELECT channel_text FROM venue_follows
+      WHERE user_id = $1 AND venue_id = 1
+    `, [consumerUserId])).rows[0];
+    assert.equal(persistedFollowAfterRevocation.channel_text, true);
 
     const deleteFollowResponse = await followItemRoute.DELETE({
       params: { venueId: '1' },

@@ -10,7 +10,7 @@ import { getVenueById } from './venues';
 
 export class VenueFollowServiceError extends Error {
   status: number;
-  code: 'invalid_request' | 'venue_not_found' | 'user_not_found' | 'sms_consent_required';
+  code: 'invalid_request' | 'venue_not_found' | 'user_not_found';
   errors: string[];
 
   constructor(
@@ -35,6 +35,26 @@ export interface VenueFollowPatch {
   };
 }
 
+export interface AccountVenueFollow extends VenueFollow {
+  /** Current delivery eligibility, separate from the stored text preference. */
+  smsTextEligible: boolean;
+}
+
+interface SmsEligibilityRow {
+  phone: string;
+  sms_consent_at: Date | string | null;
+}
+
+function withSmsEligibility(
+  follow: VenueFollow,
+  user: SmsEligibilityRow | undefined
+): AccountVenueFollow {
+  return {
+    ...follow,
+    smsTextEligible: Boolean(user?.phone.trim() && user.sms_consent_at),
+  };
+}
+
 function requireVenue(venueId: number): void {
   if (!Number.isSafeInteger(venueId) || venueId <= 0) {
     throw new VenueFollowServiceError(400, 'invalid_request', ['Invalid venue id.']);
@@ -44,18 +64,24 @@ function requireVenue(venueId: number): void {
   }
 }
 
-export async function listAccountVenueFollows(userId: string): Promise<VenueFollow[]> {
-  return listVenueFollows(userId);
+export async function listAccountVenueFollows(userId: string): Promise<AccountVenueFollow[]> {
+  return withTransaction(async (tx) => {
+    const users = await tx<SmsEligibilityRow>`
+      SELECT phone, sms_consent_at FROM users
+      WHERE id = ${userId}`;
+    const follows = await listVenueFollows(userId, tx);
+    return follows.map((follow) => withSmsEligibility(follow, users[0]));
+  });
 }
 
 export async function saveVenueFollow(
   userId: string,
   venueId: number,
   patch: VenueFollowPatch
-): Promise<VenueFollow> {
+): Promise<AccountVenueFollow> {
   requireVenue(venueId);
   return withTransaction(async (tx) => {
-    const users = await tx<{ phone: string; sms_consent_at: Date | string | null }>`
+    const users = await tx<SmsEligibilityRow>`
       SELECT phone, sms_consent_at FROM users
       WHERE id = ${userId}
       FOR SHARE`;
@@ -71,14 +97,8 @@ export async function saveVenueFollow(
       channelEmail: patch.channels?.email ?? existing?.channels.email ?? true,
       channelText: patch.channels?.text ?? existing?.channels.text ?? false,
     };
-    if (next.channelText && (!user.phone.trim() || !user.sms_consent_at)) {
-      throw new VenueFollowServiceError(
-        422,
-        'sms_consent_required',
-        ['Add a mobile number and consent to text alerts before enabling text notifications.']
-      );
-    }
-    return replaceVenueFollow(userId, venueId, next, tx);
+    const follow = await replaceVenueFollow(userId, venueId, next, tx);
+    return withSmsEligibility(follow, user);
   });
 }
 
