@@ -372,7 +372,7 @@ const heroImage = getListingImage(venue, 'hero');
       />
       <div class="scrim"></div>
       <div class="hero-primary-badge" id="hero-primary-badge" aria-live="polite" hidden>
-        <span class="live-deal-status-dot" aria-hidden="true"></span>
+        <span class="live-deal-status-dot" id="hero-live-deal-dot" aria-hidden="true" hidden></span>
         <span id="hero-primary-label"></span>
       </div>
       <span class="tag">{venue.neighborhood}</span>
@@ -423,7 +423,7 @@ const heroImage = getListingImage(venue, 'hero');
       <div class="live-deal-meta">
         <span>Ends in San Diego <time id="live-deal-end-time"></time></span>
         <span aria-hidden="true">•</span>
-        <span class="live-deal-countdown" id="live-deal-countdown" role="status" aria-live="polite" aria-atomic="true"></span>
+        <span class="live-deal-countdown" id="live-deal-countdown"></span>
       </div>
       <div class="live-deal-code-row" id="live-deal-code-row" hidden>
         <span class="live-deal-code-label">Deal code</span>
@@ -503,6 +503,10 @@ const heroImage = getListingImage(venue, 'hero');
     } from '../../lib/consumerPromotionState';
     import { createLivePromotionFeed } from '../../lib/livePromotionFeed';
     import { formatCountdown, formatSanDiegoDateTime } from '../../lib/promotionClientTime';
+    import {
+      getHappyHourOccurrenceForDate,
+      getSanDiegoDayBounds,
+    } from '../../lib/sanDiegoTime';
 
     // ---------------------------------------------------------------------
     // Canonical venue activity. Both the Live Deal and recurring happy-hour
@@ -511,6 +515,7 @@ const heroImage = getListingImage(venue, 'hero');
     const heroFrame = document.getElementById('hero-frame')!;
     const venueId = Number(heroFrame.dataset.venueId);
     const heroPrimaryBadge = document.getElementById('hero-primary-badge')!;
+    const heroLiveDealDot = document.getElementById('hero-live-deal-dot') as HTMLElement;
     const heroPrimaryLabel = document.getElementById('hero-primary-label')!;
     const liveDealSection = document.getElementById('live-deal-section') as HTMLElement;
     const liveDealTitle = document.getElementById('live-deal-title')!;
@@ -523,6 +528,7 @@ const heroImage = getListingImage(venue, 'hero');
     const liveDealSignIn = document.getElementById('live-deal-signin') as HTMLAnchorElement;
     const promotionFeed = createLivePromotionFeed({ venueId });
     let promotionSnapshot = promotionFeed.getSnapshot();
+    let recurringBoundaryTimer: number | null = null;
 
     function currentSchedule() {
       return {
@@ -541,6 +547,7 @@ const heroImage = getListingImage(venue, 'hero');
       heroFrame.classList.toggle('is-live-deal', hasLiveDeal);
       heroFrame.classList.toggle('is-happy-hour-now', !hasLiveDeal && hasHappyHour);
       heroPrimaryBadge.classList.remove('live-deal-badge', 'happy-hour-now-badge');
+      heroLiveDealDot.hidden = !hasLiveDeal;
 
       if (hasLiveDeal) {
         heroPrimaryBadge.classList.add('live-deal-badge');
@@ -579,9 +586,32 @@ const heroImage = getListingImage(venue, 'hero');
       liveDealSignIn.hidden = true;
     }
 
+    function scheduleRecurringBoundary(now: Date) {
+      if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
+      const dayBounds = getSanDiegoDayBounds(now);
+      const occurrence = getHappyHourOccurrenceForDate(currentSchedule(), dayBounds.dateKey);
+      const nowMilliseconds = now.getTime();
+      const boundaries = [
+        dayBounds.end.getTime(),
+        occurrence?.startsAt.getTime(),
+        occurrence?.endsAt.getTime(),
+      ].filter((value): value is number => Number.isFinite(value) && Number(value) > nowMilliseconds);
+      if (!boundaries.length) {
+        recurringBoundaryTimer = null;
+        return;
+      }
+      const nextBoundary = Math.min(...boundaries);
+      recurringBoundaryTimer = window.setTimeout(() => {
+        recurringBoundaryTimer = null;
+        paintConsumerState();
+      }, Math.max(25, nextBoundary - nowMilliseconds + 25));
+    }
+
     function paintConsumerState() {
       const data = promotionSnapshot.data;
       if (!data) {
+        if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
+        recurringBoundaryTimer = null;
         paintHeroPrimary(false, false);
         clearLiveDeal();
         return;
@@ -594,6 +624,7 @@ const heroImage = getListingImage(venue, 'hero');
         promotions: data.promotions,
         now,
       });
+      scheduleRecurringBoundary(now);
       const promotion = consumerState.liveDeals[0];
       paintHeroPrimary(Boolean(promotion), Boolean(consumerState.happyHourOccurrence));
 
@@ -955,6 +986,8 @@ const heroImage = getListingImage(venue, 'hero');
     }
     function handlePageHide(event: PageTransitionEvent) {
       promotionFeed.stop();
+      if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
+      recurringBoundaryTimer = null;
       // A cached page must never retain a session-only code across a login or
       // logout on another page. This redacts synchronously while the feed is
       // stopped; the persisted page reconciles from the API when restored.

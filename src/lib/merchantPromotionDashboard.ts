@@ -237,6 +237,21 @@ function pluralize(count: number, singular: string, plural = `${singular}s`): st
   return count === 1 ? singular : plural;
 }
 
+const MONTH_KEY = /^(\d{4})-(\d{2})$/;
+
+function formatEntitlementMonth(monthKey: string): string {
+  const match = MONTH_KEY.exec(monthKey);
+  if (!match) return monthKey;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) return monthKey;
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    timeZone: 'UTC',
+    year: 'numeric',
+  }).format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
 /** Format only the usage values supplied by the entitlement API. */
 export function formatMerchantEntitlement(entitlement: MerchantPromotionEntitlementDto): string {
   const remaining = entitlement.remainingThisMonth;
@@ -252,6 +267,29 @@ export function formatMerchantEntitlement(entitlement: MerchantPromotionEntitlem
     entitlement.reserved,
     'promotion'
   )} reserved`;
+}
+
+/**
+ * Describe the exact target-month allowance returned with a quota conflict.
+ * This intentionally contains no inferred billing or upgrade recommendation.
+ */
+export function formatMerchantQuotaEntitlement(
+  entitlement: MerchantPromotionEntitlementDto
+): string {
+  const month = formatEntitlementMonth(entitlement.monthKey);
+  const remaining = entitlement.remainingThisMonth;
+  const remainingSummary = entitlement.isUnlimited || remaining === null
+    ? `Unlimited promotions included for ${month}`
+    : remaining === 0
+      ? `No included promotions remaining for ${month}`
+      : `${remaining} included ${pluralize(remaining, 'promotion')} remaining for ${month}`;
+  const allowanceSummary = entitlement.allowance === null
+    ? 'unlimited allowance'
+    : `${entitlement.allowance} included total`;
+  return `${remainingSummary}. Allowance: ${allowanceSummary} · ${entitlement.consumed} used · ${entitlement.reserved} scheduled ${pluralize(
+    entitlement.reserved,
+    'promotion'
+  )} reserved.`;
 }
 
 const PROMOTION_TYPE_LABELS: Readonly<Record<PromotionType, string>> = {

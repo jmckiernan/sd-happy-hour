@@ -1495,8 +1495,9 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     window.addEventListener('pageshow', (event) => {
       if (!(event as PageTransitionEvent).persisted) return;
       // A different page may have signed the visitor out while this DOM was
-      // in the back/forward cache. Redact first, then reconcile the session.
-      void livePromotionFeed.authenticationChanged();
+      // in the back/forward cache. pagehide already redacted synchronously;
+      // restarting the feed reconciles the canonical session-scoped payload.
+      livePromotionFeed.start();
       void loadAccount();
     });
 
@@ -1506,11 +1507,14 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     }, 30_000);
 
     window.addEventListener('pagehide', (event) => {
+      livePromotionFeed.stop();
+      // A cached document must not retain session-only codes. This call
+      // redacts synchronously before its promise waits for an aborted request.
+      void livePromotionFeed.authenticationChanged();
       if ((event as PageTransitionEvent).persisted) return;
       window.clearInterval(timedPresentationInterval);
       if (recurringBoundaryTimer !== null) window.clearTimeout(recurringBoundaryTimer);
       unsubscribeFromLivePromotions();
-      livePromotionFeed.stop();
     });
 
     livePromotionFeed.start();

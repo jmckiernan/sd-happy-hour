@@ -18,6 +18,7 @@
     "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs",
     "test:live-promotions": "esbuild tests/live-promotions.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions.bundle.mjs && node .data/tests/live-promotions.bundle.mjs",
     "test:live-promotions:phase3:ui": "esbuild tests/live-promotions-phase3-ui.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions-phase3-ui.bundle.mjs && node .data/tests/live-promotions-phase3-ui.bundle.mjs",
+    "test:live-promotions:phase3:e2e": "playwright test",
     "test:live-promotions:migration:guard": "node tests/live-promotions-migration.test.mjs --guard-only",
     "test:live-promotions:migration": "node tests/live-promotions-migration.test.mjs",
     "test:live-promotions:phase2:db:guard": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs --guard-only",
@@ -38,6 +39,7 @@
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/pg": "^8.21.0",
     "netlify-cli": "^27.0.1",
     "nodemon": "^3.1.14"

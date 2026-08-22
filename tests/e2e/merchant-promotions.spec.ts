@@ -392,6 +392,182 @@ test('Launch Live Promotion confirms, creates an untimed draft, starts it with o
   expect(calls.slice(startIndex + 1).some((call) => call.method === 'GET')).toBe(true);
 });
 
+test('quota conflict reports the canonical target month, preserves the draft, and refetches current state', async ({
+  page,
+}) => {
+  const currentEntitlement = entitlement(1, 0, 1);
+  const targetEntitlement: MerchantPromotionEntitlementDto = {
+    ...entitlement(1, 2, 3),
+    monthKey: '2026-09',
+  };
+  const savedDraft = promotion('draft', {
+    id: 'promotion-quota-draft',
+    title: 'September sunset menu',
+    startsAt: '2026-09-02T01:00:00.000Z',
+    endsAt: '2026-09-02T03:00:00.000Z',
+    effectiveEndsAt: '2026-09-02T03:00:00.000Z',
+  });
+  const calls: Array<{ method: string; pathname: string }> = [];
+  let draftCreated = false;
+  let quotaConflictIndex = -1;
+
+  await mockDashboard(page, {
+    handlePromotions: async (route) => {
+      const request = route.request();
+      const method = request.method();
+      const pathname = new URL(request.url()).pathname;
+      calls.push({ method, pathname });
+
+      if (method === 'GET' && pathname === '/api/restaurant/promotions') {
+        await fulfillJson(route, {
+          serverNow: SERVER_NOW,
+          venueId: VENUE_ID,
+          promotions: draftCreated ? [savedDraft] : [],
+          entitlement: currentEntitlement,
+        });
+        return;
+      }
+      if (method === 'POST' && pathname === '/api/restaurant/promotions') {
+        draftCreated = true;
+        await fulfillJson(route, {
+          serverNow: SERVER_NOW,
+          promotion: savedDraft,
+          entitlement: currentEntitlement,
+        }, 201);
+        return;
+      }
+      if (
+        method === 'POST' &&
+        pathname === '/api/restaurant/promotions/promotion-quota-draft/publish'
+      ) {
+        quotaConflictIndex = calls.length - 1;
+        await fulfillJson(route, {
+          code: 'promotion_quota_exhausted',
+          errors: ['No included promotion is available for 2026-09.'],
+          details: { entitlement: targetEntitlement },
+        }, 409);
+        return;
+      }
+      await fulfillJson(route, { errors: [`Unexpected ${method} ${pathname}.`] }, 500);
+    },
+  });
+
+  await page.goto('/restaurant/');
+  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
+  await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toBeDisabled();
+  await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toBeEnabled();
+
+  await claim.getByRole('button', { name: 'Schedule Promotion' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Schedule Promotion' });
+  await expect(dialog.getByRole('button', { name: 'Save Draft' })).toBeEnabled();
+  await dialog.getByLabel('Headline').fill('September sunset menu');
+  await dialog.getByLabel('Start in San Diego').fill('2026-09-01T18:00');
+  await dialog.getByLabel('End in San Diego').fill('2026-09-01T20:00');
+  await dialog.getByRole('button', { name: 'Review promotion' }).click();
+  await dialog.getByRole('button', { name: 'SCHEDULE PROMOTION', exact: true }).click();
+
+  await expect(dialog).not.toBeVisible();
+  const status = claim.locator('.merchant-promotion-load-status');
+  await expect(status).toContainText('No included promotions remaining for September 2026.');
+  await expect(status).toContainText(
+    'Allowance: 3 included total · 1 used · 2 scheduled promotions reserved.'
+  );
+  await expect(status).toContainText('drafts remain available');
+  await expect(status).not.toContainText(/upgrade|billing|paid/i);
+  await expect(
+    claim.locator('[data-promotion-id="promotion-quota-draft"]')
+  ).toContainText('September sunset menu');
+  await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toBeEnabled();
+  await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toBeDisabled();
+
+  expect(calls.filter((call) =>
+    call.method === 'POST' && call.pathname === '/api/restaurant/promotions'
+  )).toHaveLength(1);
+  expect(quotaConflictIndex).toBeGreaterThan(-1);
+  expect(calls.slice(quotaConflictIndex + 1).some((call) =>
+    call.method === 'GET' && call.pathname === '/api/restaurant/promotions'
+  )).toBe(true);
+});
+
+test('silent canonical refresh preserves keyboard focus on a promotion action', async ({ page }) => {
+  await mockDashboard(page, { promotions: [], entitlement: entitlement(0, 0, 3) });
+  await page.goto('/restaurant/');
+
+  const schedule = page
+    .locator(`.claim-card[data-venue-id="${VENUE_ID}"]`)
+    .getByRole('button', { name: 'Schedule Promotion' });
+  await schedule.focus();
+  await expect(schedule).toBeFocused();
+
+  await Promise.all([
+    page.waitForResponse((response) =>
+      new URL(response.url()).pathname === '/api/restaurant/promotions' &&
+      response.request().method() === 'GET'
+    ),
+    page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow'))),
+  ]);
+  await expect(schedule).toBeFocused();
+});
+
+test('merchant deal codes clear before bfcache and on claim authorization failure', async ({
+  page,
+}) => {
+  const privateDraft = promotion('draft', {
+    id: 'promotion-private-draft',
+    title: 'Owner-only draft',
+    dealCode: 'OWNER-ONLY',
+  });
+  let authorized = true;
+  await mockDashboard(page, {
+    handlePromotions: async (route) => {
+      if (route.request().method() !== 'GET') {
+        await fulfillJson(route, { errors: ['Unexpected mutation.'] }, 500);
+        return;
+      }
+      if (!authorized) {
+        await fulfillJson(route, { errors: ['Verified claim required.'] }, 403);
+        return;
+      }
+      await fulfillJson(route, {
+        serverNow: SERVER_NOW,
+        venueId: VENUE_ID,
+        promotions: [privateDraft],
+        entitlement: entitlement(0, 0, 3),
+      });
+    },
+  });
+
+  await page.goto('/restaurant/');
+  await expect(page.getByText('Deal code: OWNER-ONLY')).toBeVisible();
+
+  const cachedState = await page.evaluate(() => {
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    return {
+      hasCode: document.body.textContent?.includes('OWNER-ONLY') ?? false,
+      dashboardHidden: document.getElementById('dashboard')?.classList.contains('hidden') ?? false,
+    };
+  });
+  expect(cachedState).toEqual({ hasCode: false, dashboardHidden: true });
+
+  await page.evaluate(() =>
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))
+  );
+  await expect(page.getByText('Deal code: OWNER-ONLY')).toBeVisible();
+
+  authorized = false;
+  await Promise.all([
+    page.waitForResponse((response) =>
+      new URL(response.url()).pathname === '/api/restaurant/promotions' &&
+      response.status() === 403
+    ),
+    page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow'))),
+  ]);
+  await expect(page.getByText('Deal code: OWNER-ONLY')).toHaveCount(0);
+  await expect(page.locator('.merchant-promotion-load-status')).toContainText(
+    'Verified claim required.'
+  );
+});
+
 test('San Diego DST gap is rejected and fall-back fold offers both occurrences', async ({ page }) => {
   await mockDashboard(page, { promotions: [], entitlement: entitlement(0, 0, 3) });
   await page.goto('/restaurant/');

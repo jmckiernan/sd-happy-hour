@@ -179,12 +179,17 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       formatMerchantEntitlement,
       formatMerchantPromotionState,
       formatMerchantPromotionType,
+      formatMerchantQuotaEntitlement,
       getTodayHappyHourPresentation,
       groupMerchantPromotions,
       type MerchantPromotionDto,
       type MerchantPromotionEntitlementDto,
     } from '../lib/merchantPromotionDashboard';
-    import { parseInstant } from '../lib/sanDiegoTime';
+    import {
+      getHappyHourOccurrenceForDate,
+      getSanDiegoDateKey,
+      parseInstant,
+    } from '../lib/sanDiegoTime';
 
     interface DashboardClaim {
       id: string;
@@ -253,9 +258,38 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       }
     }
 
+    function quotaEntitlementFromError(
+      error: unknown
+    ): MerchantPromotionEntitlementDto | null {
+      if (!(error instanceof MerchantApiError) || error.code !== 'promotion_quota_exhausted') {
+        return null;
+      }
+      const value = error.details?.entitlement;
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+      const entitlement = value as Partial<MerchantPromotionEntitlementDto>;
+      const allowanceIsValid = entitlement.allowance === null ||
+        (Number.isSafeInteger(entitlement.allowance) && Number(entitlement.allowance) > 0);
+      const remainingIsValid = entitlement.remainingThisMonth === null ||
+        (Number.isSafeInteger(entitlement.remainingThisMonth) && Number(entitlement.remainingThisMonth) >= 0);
+      if (
+        typeof entitlement.monthKey !== 'string' ||
+        !allowanceIsValid ||
+        !remainingIsValid ||
+        !Number.isSafeInteger(entitlement.consumed) ||
+        Number(entitlement.consumed) < 0 ||
+        !Number.isSafeInteger(entitlement.reserved) ||
+        Number(entitlement.reserved) < 0 ||
+        typeof entitlement.isUnlimited !== 'boolean'
+      ) {
+        return null;
+      }
+      return value as MerchantPromotionEntitlementDto;
+    }
+
     let currentUser: any = null;
     let claims: DashboardClaim[] = [];
     let claimsClock: ServerAnchoredClock | null = null;
+    let dashboardRequestVersion = 0;
     const promotionStates = new Map<number, VenuePromotionState>();
 
     let editorContext: EditorContext | null = null;
@@ -571,7 +605,24 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       const card = claimsListEl.querySelector(`.claim-card[data-venue-id="${venueId}"]`);
       const current = card?.querySelector('[data-promotion-command]');
       if (!claim || !current) return;
+      const activeElement = document.activeElement instanceof HTMLElement && current.contains(document.activeElement)
+        ? document.activeElement
+        : null;
+      const focusedAction = activeElement?.closest<HTMLElement>('[data-promotion-action]')?.dataset.promotionAction || '';
+      const focusedPromotionId = activeElement?.closest<HTMLElement>('[data-promotion-id]')?.dataset.promotionId || '';
       current.outerHTML = promotionCommandHTML(claim);
+      if (focusedAction) {
+        const updated = card!.querySelector('[data-promotion-command]')!;
+        const matchingAction = [...updated.querySelectorAll<HTMLElement>('[data-promotion-action]')]
+          .find((candidate) =>
+            candidate.dataset.promotionAction === focusedAction &&
+            (candidate.closest<HTMLElement>('[data-promotion-id]')?.dataset.promotionId || '') === focusedPromotionId
+          );
+        const fallback = updated.querySelector<HTMLElement>(
+          '[data-promotion-action="schedule-new"], [data-promotion-action="launch"]:not(:disabled)'
+        );
+        (matchingAction || fallback)?.focus();
+      }
     }
 
     function scheduleBoundaryRefresh(venueId: number): void {
@@ -580,22 +631,41 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       state.boundaryTimer = null;
       if (!state.clock || document.hidden) return;
 
-      const nowMs = state.clock.now().getTime();
+      const anchoredNow = state.clock.now();
+      const nowMs = anchoredNow.getTime();
       const boundaries = state.promotions.flatMap((promotion) => {
         if (promotion.state === 'scheduled' && promotion.startsAt) return [promotion.startsAt];
         if (promotion.state === 'live' && (promotion.effectiveEndsAt || promotion.endsAt)) {
           return [promotion.effectiveEndsAt || promotion.endsAt!];
         }
         return [];
-      }).map((value) => parseInstant(value)?.getTime() ?? Number.NaN)
+      });
+      const claim = claimForVenue(venueId);
+      const happyHourOccurrence = claim?.happyHourSchedule
+        ? getHappyHourOccurrenceForDate(claim.happyHourSchedule, getSanDiegoDateKey(anchoredNow))
+        : null;
+      if (happyHourOccurrence) {
+        boundaries.push(
+          happyHourOccurrence.startsAt.toISOString(),
+          happyHourOccurrence.endsAt.toISOString()
+        );
+      }
+      const boundaryTimes = boundaries.map((value) => parseInstant(value)?.getTime() ?? Number.NaN)
         .filter((value) => Number.isFinite(value) && value > nowMs)
         .sort((left, right) => left - right);
-      if (!boundaries.length) return;
+      if (!boundaryTimes.length) return;
 
-      const delay = Math.min(Math.max(boundaries[0] - nowMs + 250, 250), 2_147_000_000);
+      const delay = Math.min(Math.max(boundaryTimes[0] - nowMs + 25, 25), 2_147_000_000);
       state.boundaryTimer = window.setTimeout(() => {
         state.boundaryTimer = null;
-        if (!document.hidden) void loadPromotions(venueId, true);
+        if (!document.hidden) {
+          // Recurring Happy Hour is presentation-only, so repaint it from the
+          // anchored clock at the exact boundary. Promotion lifecycle still
+          // comes from the canonical backend refresh below.
+          renderVenueCommand(venueId);
+          scheduleBoundaryRefresh(venueId);
+          void loadPromotions(venueId, true);
+        }
       }, delay);
     }
 
@@ -620,18 +690,34 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         state.loading = false;
         state.error = '';
         renderVenueCommand(venueId);
+        state.message = '';
+        state.messageKind = '';
         scheduleBoundaryRefresh(venueId);
       } catch (error: any) {
         if (requestVersion !== state.requestVersion) return;
         state.loading = false;
+        if (error instanceof MerchantApiError && (error.status === 401 || error.status === 403)) {
+          // Merchant DTOs may contain private deal codes. Never retain them
+          // after the session or verified-claim authorization stops matching.
+          state.promotions = [];
+          state.entitlement = null;
+          state.clock = null;
+          if (editorContext?.venueId === venueId && promotionDialog.open) {
+            promotionForm.reset();
+            promotionDialog.close();
+          }
+          if (actionContext?.venueId === venueId && actionDialog.open) actionDialog.close();
+        }
         state.error = error?.message || 'Could not load promotions.';
         renderVenueCommand(venueId);
       }
     }
 
     async function loadEverything(): Promise<void> {
+      const requestVersion = ++dashboardRequestVersion;
       try {
         const me = (await api('/api/account/me')).data;
+        if (requestVersion !== dashboardRequestVersion) return;
         currentUser = me.authenticated ? me.user : null;
         if (!currentUser) {
           window.location.replace(`/account/?next=${encodeURIComponent('/restaurant/')}`);
@@ -639,6 +725,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         }
 
         const claimsResult = await api('/api/restaurant/claims');
+        if (requestVersion !== dashboardRequestVersion) return;
         const claimsData = claimsResult.data;
         claimsClock = anchorClock(claimsResult, claimsData.serverNow) || claimsClock;
         claims = claimsData.claims || [];
@@ -650,8 +737,27 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           if (claim.status === 'verified') void loadPromotions(claim.venueId);
         }
       } catch (error: any) {
+        if (requestVersion !== dashboardRequestVersion) return;
         showLoadError(error?.message || 'Something went wrong loading this page.');
       }
+    }
+
+    function clearMerchantSensitiveState(): void {
+      dashboardRequestVersion += 1;
+      for (const state of promotionStates.values()) {
+        state.requestVersion += 1;
+        if (state.boundaryTimer !== null) window.clearTimeout(state.boundaryTimer);
+      }
+      promotionStates.clear();
+      currentUser = null;
+      claims = [];
+      claimsClock = null;
+      claimsListEl.innerHTML = '';
+      document.getElementById('dashboard')!.classList.add('hidden');
+      document.getElementById('error-panel')!.classList.add('hidden');
+      document.getElementById('loading-panel')!.classList.remove('hidden');
+      if (promotionDialog.open) promotionDialog.close();
+      if (actionDialog.open) actionDialog.close();
     }
 
     function rememberFocus(source: HTMLElement, selector: string): void {
@@ -1051,6 +1157,28 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       return false;
     }
 
+    async function reconcileQuotaFailure(venueId: number, error: unknown): Promise<boolean> {
+      if (!(error instanceof MerchantApiError) || error.status !== 409 || error.code !== 'promotion_quota_exhausted') {
+        return false;
+      }
+      const state = ensurePromotionState(venueId);
+      const targetEntitlement = quotaEntitlementFromError(error);
+      state.message = targetEntitlement
+        ? `${formatMerchantQuotaEntitlement(targetEntitlement)} The latest promotion list has been refreshed; drafts remain available.`
+        : `${error.message} The latest promotion list has been refreshed; drafts remain available.`;
+      state.messageKind = 'error';
+      // The error entitlement is for the attempted promotion's target month.
+      // Refetch the collection and dashboard entitlement so a current-month
+      // conflict never disables scheduling in a different month.
+      await loadPromotions(venueId, true);
+      return true;
+    }
+
+    async function reconcileMutationConflict(venueId: number, error: unknown): Promise<boolean> {
+      return await reconcileQuotaFailure(venueId, error) ||
+        await reconcileInvalidTransition(venueId, error);
+    }
+
     async function runEditorMutation(data: CompleteFormData): Promise<void> {
       if (!editorContext) return;
       const context = editorContext;
@@ -1058,9 +1186,11 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       confirmButton.disabled = true;
       setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), 'Saving…');
 
+      let createdDraftThisAttempt = false;
       try {
+        const operationIntent = context.intent;
         let promotionId = context.promotionId;
-        if (context.intent === 'create') {
+        if (operationIntent === 'create') {
           const draftBody: Record<string, unknown> = {
             venueId: context.venueId,
             ...data.content,
@@ -1079,7 +1209,10 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           );
           promotionId = draft.data.promotion.id;
           editorContext.promotionId = promotionId;
-        } else if (context.intent === 'edit') {
+          editorContext.intent = data.when === 'now' ? 'start-now' : 'publish';
+          editorContext.stateAtOpen = 'draft';
+          createdDraftThisAttempt = true;
+        } else if (operationIntent === 'edit') {
           const patch: Record<string, unknown> = { ...data.content };
           if (data.when === 'schedule') {
             patch.startsAt = data.startsAt;
@@ -1096,7 +1229,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           );
         } else {
           const patch: Record<string, unknown> = { ...data.content };
-          if (context.intent === 'publish') {
+          if (operationIntent === 'publish') {
             patch.startsAt = data.startsAt;
             patch.endsAt = data.endsAt;
           }
@@ -1108,8 +1241,8 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           );
         }
 
-        if (context.intent === 'create' || context.intent === 'publish' || context.intent === 'start-now') {
-          const goLive = context.intent === 'start-now' || (context.intent === 'create' && data.when === 'now');
+        if (operationIntent === 'create' || operationIntent === 'publish' || operationIntent === 'start-now') {
+          const goLive = operationIntent === 'start-now' || (operationIntent === 'create' && data.when === 'now');
           const action = goLive ? 'start-now' : 'publish';
           // Start Now accepts only endsAt. No client start is ever supplied.
           const body = goLive ? { endsAt: data.endsAt } : {};
@@ -1124,11 +1257,11 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), 'Saved.', 'success');
         promotionDialog.close();
       } catch (error: any) {
-        if (await reconcileInvalidTransition(context.venueId, error)) {
+        if (await reconcileMutationConflict(context.venueId, error)) {
           promotionDialog.close();
           return;
         }
-        const suffix = context.intent === 'create' && editorContext?.promotionId
+        const suffix = createdDraftThisAttempt && editorContext?.promotionId
           ? ' Your draft is saved and appears in Drafts.'
           : '';
         setDialogStatus(
@@ -1197,7 +1330,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         }
         promotionDialog.close();
       } catch (error: any) {
-        if (await reconcileInvalidTransition(context.venueId, error)) {
+        if (await reconcileMutationConflict(context.venueId, error)) {
           promotionDialog.close();
           return;
         }
@@ -1268,7 +1401,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         }
         actionDialog.close();
       } catch (error: any) {
-        if (await reconcileInvalidTransition(context.venueId, error)) {
+        if (await reconcileMutationConflict(context.venueId, error)) {
           actionDialog.close();
           return;
         }
@@ -1500,7 +1633,19 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         if (claim.status === 'verified') void loadPromotions(claim.venueId, true);
       }
     });
-    window.addEventListener('pageshow', () => {
+    const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
+    window.addEventListener(AUTH_CHANGED_EVENT, () => {
+      clearMerchantSensitiveState();
+      void loadEverything();
+    });
+    window.addEventListener('pagehide', (event) => {
+      if ((event as PageTransitionEvent).persisted) clearMerchantSensitiveState();
+    });
+    window.addEventListener('pageshow', (event) => {
+      if ((event as PageTransitionEvent).persisted) {
+        void loadEverything();
+        return;
+      }
       for (const claim of claims) {
         if (claim.status === 'verified') void loadPromotions(claim.venueId, true);
       }

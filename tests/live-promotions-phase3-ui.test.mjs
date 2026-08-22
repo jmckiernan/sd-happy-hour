@@ -15,6 +15,10 @@ import {
   createLivePromotionFeed,
 } from '../src/lib/livePromotionFeed.ts';
 import {
+  formatMerchantEntitlement,
+  formatMerchantQuotaEntitlement,
+} from '../src/lib/merchantPromotionDashboard.ts';
+import {
   createServerAnchoredClock,
   formatCountdown,
   formatSanDiegoDateTime,
@@ -212,6 +216,31 @@ test('San Diego formatters are timezone-fixed and countdown boundaries are expli
   assert.equal(formatCountdown(FEED_NOW, FEED_NOW), null);
   assert.equal(formatCountdown('2026-08-22T00:59:59Z', FEED_NOW), null);
   assert.throws(() => formatSanDiegoTime('2026-08-21T12:00'), /absolute instant/);
+});
+
+test('merchant quota copy uses the backend target month without billing language', () => {
+  const entitlement = {
+    plan: 'pro',
+    allowance: 3,
+    monthlyAllowance: 3,
+    monthKey: '2026-09',
+    consumed: 1,
+    reserved: 2,
+    usedThisMonth: 1,
+    remainingThisMonth: 0,
+    freePromotionsRemaining: 0,
+    canLaunchPromotion: false,
+    isUnlimited: false,
+  };
+
+  assert.equal(
+    formatMerchantEntitlement(entitlement),
+    'No included promotions remaining this month · 2 scheduled promotions reserved'
+  );
+  const quotaCopy = formatMerchantQuotaEntitlement(entitlement);
+  assert.match(quotaCopy, /No included promotions remaining for September 2026/);
+  assert.match(quotaCopy, /3 included total · 1 used · 2 scheduled promotions reserved/);
+  assert.doesNotMatch(quotaCopy, /upgrade|billing|paid/i);
 });
 
 test('consumer state distinguishes HH only, Live Deal only, both, and neither', () => {
