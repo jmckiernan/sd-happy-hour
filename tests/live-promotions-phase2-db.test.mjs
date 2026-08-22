@@ -455,6 +455,196 @@ async function main() {
       0
     );
 
+    const alertsRoute = await import('../src/pages/api/account/alerts/index.ts');
+    const alertItemRoute = await import('../src/pages/api/account/alerts/[id].ts');
+    const alertCloneRoute = await import('../src/pages/api/account/alerts/clone.ts');
+    const sharedAlertRoute = await import('../src/pages/api/shared-alerts/[shareId]/[alertId].ts');
+    const followsRoute = await import('../src/pages/api/account/follows/index.ts');
+    const followItemRoute = await import('../src/pages/api/account/follows/[venueId].ts');
+    const store = await import('../src/lib/store.ts');
+
+    async function createConsumerAlert(name, extra = {}) {
+      const response = await alertsRoute.POST({
+        request: jsonRequest('http://test/api/account/alerts', 'POST', {
+          name,
+          filters: {},
+          channels: { email: true, text: false },
+          ...extra,
+        }),
+        cookies: cookies(consumerToken),
+      });
+      assert.equal(response.status, 201);
+      const user = await response.json();
+      return user.alerts.find((alert) => alert.name === name);
+    }
+
+    const legacyDefaultAlert = await createConsumerAlert('Legacy default alert');
+    assert.deepEqual(legacyDefaultAlert.alertKinds, ['happy_hour']);
+    const sharedBothAlert = await createConsumerAlert('Shared both alert', {
+      alertKinds: ['promotion', 'happy_hour', 'promotion'],
+      channels: { email: true, text: true },
+    });
+    assert.deepEqual(sharedBothAlert.alertKinds, ['happy_hour', 'promotion']);
+    const promotionOnlyAlert = await createConsumerAlert('Promotion only alert', {
+      alertKinds: ['promotion'],
+    });
+    assert.deepEqual(promotionOnlyAlert.alertKinds, ['promotion']);
+
+    const invalidKindsResponse = await alertsRoute.POST({
+      request: jsonRequest('http://test/api/account/alerts', 'POST', {
+        name: 'Invalid alert',
+        filters: {},
+        alertKinds: [],
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(invalidKindsResponse.status, 422);
+
+    const omittedKindsUpdate = await alertItemRoute.PUT({
+      params: { id: legacyDefaultAlert.id },
+      request: jsonRequest('http://test/api/account/alerts/item', 'PUT', {
+        name: 'Renamed legacy default alert',
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(omittedKindsUpdate.status, 200);
+    let updatedUser = await omittedKindsUpdate.json();
+    assert.deepEqual(
+      updatedUser.alerts.find((alert) => alert.id === legacyDefaultAlert.id).alertKinds,
+      ['happy_hour']
+    );
+
+    const explicitKindsUpdate = await alertItemRoute.PUT({
+      params: { id: legacyDefaultAlert.id },
+      request: jsonRequest('http://test/api/account/alerts/item', 'PUT', {
+        alertKinds: ['promotion'],
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(explicitKindsUpdate.status, 200);
+    updatedUser = await explicitKindsUpdate.json();
+    assert.deepEqual(
+      updatedUser.alerts.find((alert) => alert.id === legacyDefaultAlert.id).alertKinds,
+      ['promotion']
+    );
+
+    const consumerShareId = (await admin.query(
+      'SELECT share_id FROM users WHERE id = $1',
+      [consumerUserId]
+    )).rows[0].share_id;
+    const sharedResponse = await sharedAlertRoute.GET({
+      params: { shareId: consumerShareId, alertId: sharedBothAlert.id },
+    });
+    assert.equal(sharedResponse.status, 200);
+    assert.deepEqual((await sharedResponse.json()).alertKinds, ['happy_hour', 'promotion']);
+
+    const cloneResponse = await alertCloneRoute.POST({
+      request: jsonRequest('http://test/api/account/alerts/clone', 'POST', {
+        shareId: consumerShareId,
+        alertId: sharedBothAlert.id,
+      }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(cloneResponse.status, 201);
+    const clonedUser = await cloneResponse.json();
+    const clonedAlert = clonedUser.alerts.find((alert) => alert.sourceAlertId === sharedBothAlert.id);
+    assert.deepEqual(clonedAlert.alertKinds, ['happy_hour', 'promotion']);
+    assert.deepEqual(clonedAlert.channels, { email: true, text: false });
+    const duplicateCloneResponse = await alertCloneRoute.POST({
+      request: jsonRequest('http://test/api/account/alerts/clone', 'POST', {
+        shareId: consumerShareId,
+        alertId: sharedBothAlert.id,
+      }),
+      cookies: cookies(paidToken),
+    });
+    assert.equal(duplicateCloneResponse.status, 409);
+
+    const dispatchAlerts = await store.listActiveAlertsForDispatch();
+    const dispatchAlertIds = new Set(dispatchAlerts.map((alert) => alert.alertId));
+    assert.equal(dispatchAlertIds.has(sharedBothAlert.id), true);
+    assert.equal(dispatchAlertIds.has(promotionOnlyAlert.id), false);
+    assert.equal(dispatchAlertIds.has(legacyDefaultAlert.id), false);
+
+    await admin.query(`
+      INSERT INTO saved_spots (user_id, venue_id, status, note)
+      VALUES ($1, 1, 'favorite', 'Saved independently')
+    `, [consumerUserId]);
+
+    const defaultFollowResponse = await followItemRoute.PUT({
+      params: { venueId: '1' },
+      request: jsonRequest('http://test/api/account/follows/1', 'PUT'),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(defaultFollowResponse.status, 200);
+    let follow = (await defaultFollowResponse.json()).follow;
+    assert.equal(follow.happyHourAlertsEnabled, false);
+    assert.equal(follow.promotionAlertsEnabled, true);
+    assert.deepEqual(follow.channels, { email: true, text: false });
+
+    const independentTogglesResponse = await followItemRoute.PATCH({
+      params: { venueId: '1' },
+      request: jsonRequest('http://test/api/account/follows/1', 'PATCH', {
+        happyHourAlertsEnabled: true,
+        promotionAlertsEnabled: false,
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(independentTogglesResponse.status, 200);
+    follow = (await independentTogglesResponse.json()).follow;
+    assert.equal(follow.happyHourAlertsEnabled, true);
+    assert.equal(follow.promotionAlertsEnabled, false);
+
+    const noConsentTextResponse = await followItemRoute.PUT({
+      params: { venueId: '1' },
+      request: jsonRequest('http://test/api/account/follows/1', 'PUT', {
+        channels: { text: true },
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(noConsentTextResponse.status, 422);
+    assert.equal((await noConsentTextResponse.json()).code, 'sms_consent_required');
+
+    await admin.query(`
+      UPDATE users SET phone = '+16195550123', sms_consent_at = now()
+      WHERE id = $1
+    `, [consumerUserId]);
+    const consentedTextResponse = await followItemRoute.PUT({
+      params: { venueId: '1' },
+      request: jsonRequest('http://test/api/account/follows/1', 'PUT', {
+        channels: { email: false, text: true },
+      }),
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(consentedTextResponse.status, 200);
+    follow = (await consentedTextResponse.json()).follow;
+    assert.deepEqual(follow.channels, { email: false, text: true });
+    assert.equal(follow.happyHourAlertsEnabled, true);
+    assert.equal(follow.promotionAlertsEnabled, false);
+
+    const followsResponse = await followsRoute.GET({ cookies: cookies(consumerToken) });
+    assert.equal(followsResponse.status, 200);
+    assert.deepEqual((await followsResponse.json()).follows.map((item) => item.venueId), [1]);
+
+    const deleteFollowResponse = await followItemRoute.DELETE({
+      params: { venueId: '1' },
+      cookies: cookies(consumerToken),
+    });
+    assert.equal(deleteFollowResponse.status, 200);
+    assert.equal(
+      Number((await admin.query(
+        'SELECT count(*) AS count FROM venue_follows WHERE user_id = $1',
+        [consumerUserId]
+      )).rows[0].count),
+      0
+    );
+    assert.equal(
+      Number((await admin.query(
+        'SELECT count(*) AS count FROM saved_spots WHERE user_id = $1 AND venue_id = 1',
+        [consumerUserId]
+      )).rows[0].count),
+      1
+    );
+
     console.log('phase2 postgres: all checks passed');
   } catch (error) {
     failure = error;

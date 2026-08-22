@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { sql, withTransaction, type QueryExecutor } from './db';
+import type { AlertKind } from './validation';
 
 // ---------------------------------------------------------------------------
 // Granular Postgres accessors (README-NEON-MIGRATION.md §6 step 6), replacing
@@ -253,6 +254,7 @@ export interface Alert {
   name: string;
   filters: AlertFilters;
   channels: AlertChannels;
+  alertKinds: AlertKind[];
   active: boolean;
   sourceAlertId?: string;
   createdAt: string;
@@ -267,6 +269,7 @@ interface AlertRow {
   filters: AlertFilters;
   channel_email: boolean;
   channel_text: boolean;
+  alert_kinds: AlertKind[];
   active: boolean;
   source_alert_id: string | null;
   created_at: string;
@@ -279,6 +282,7 @@ function mapAlert(row: AlertRow): Alert {
     name: row.name,
     filters: row.filters,
     channels: { email: row.channel_email, text: row.channel_text },
+    alertKinds: row.alert_kinds,
     active: row.active,
     sourceAlertId: row.source_alert_id ?? undefined,
     createdAt: row.created_at,
@@ -300,6 +304,7 @@ export interface CreateAlertInput {
   name: string;
   filters: AlertFilters;
   channels: AlertChannels;
+  alertKinds?: AlertKind[];
   sourceAlertId?: string;
 }
 
@@ -308,8 +313,8 @@ export interface CreateAlertInput {
 // concurrent requests. Returns null when the cap is hit (zero rows back).
 export async function createAlert(userId: string, input: CreateAlertInput): Promise<Alert | null> {
   const rows = await sql<AlertRow>`
-    INSERT INTO alerts (user_id, name, filters, channel_email, channel_text, source_alert_id)
-    SELECT ${userId}, ${input.name}, ${JSON.stringify(input.filters)}::jsonb, ${input.channels.email}, ${input.channels.text}, ${input.sourceAlertId ?? null}
+    INSERT INTO alerts (user_id, name, filters, channel_email, channel_text, alert_kinds, source_alert_id)
+    SELECT ${userId}, ${input.name}, ${JSON.stringify(input.filters)}::jsonb, ${input.channels.email}, ${input.channels.text}, ${input.alertKinds ?? ['happy_hour']}::text[], ${input.sourceAlertId ?? null}
     WHERE (SELECT count(*) FROM alerts WHERE user_id = ${userId}) < ${MAX_ALERTS_PER_USER}
     RETURNING *`;
   return rows[0] ? mapAlert(rows[0]) : null;
@@ -319,6 +324,7 @@ export interface UpdateAlertInput {
   name?: string;
   filters?: AlertFilters;
   channels?: AlertChannels;
+  alertKinds?: AlertKind[];
   active?: boolean;
 }
 
@@ -331,6 +337,7 @@ export async function updateAlert(userId: string, alertId: string, input: Update
       filters       = COALESCE(${input.filters ? JSON.stringify(input.filters) : null}::jsonb, filters),
       channel_email = COALESCE(${input.channels ? input.channels.email : null}, channel_email),
       channel_text  = COALESCE(${input.channels ? input.channels.text : null}, channel_text),
+      alert_kinds   = COALESCE(${input.alertKinds ?? null}::text[], alert_kinds),
       active        = COALESCE(${input.active ?? null}, active)
     WHERE user_id = ${userId} AND id = ${alertId}
     RETURNING *`;
@@ -870,6 +877,7 @@ export async function listActiveAlertsForDispatch(): Promise<ActiveAlertForDispa
     FROM alerts a
     JOIN users u ON u.id = a.user_id
     WHERE a.active
+      AND 'happy_hour' = ANY(a.alert_kinds)
       AND (a.channel_email OR (a.channel_text AND u.sms_consent_at IS NOT NULL))`;
   return rows.map((row) => ({
     alertId: row.alert_id,

@@ -24,6 +24,7 @@ export const GET: APIRoute = async ({ params }) => {
     alertId: alert.id,
     name: alert.name,
     filters: alert.filters,
+    alertKinds: alert.alertKinds,
     matchCount: matches.length,
     matches: matches.slice(0, 12).map((v) => ({ id: v.id, name: v.name, neighborhood: v.neighborhood })),
   });

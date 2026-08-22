@@ -1,6 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getUserById, createAlert, listSavedSpots, listAlerts, MAX_ALERTS_PER_USER } from '../../../../lib/store';
-import { publicUser, cleanString, cleanAlertFilters, cleanAlertChannels } from '../../../../lib/validation';
+import {
+  publicUser,
+  cleanString,
+  cleanAlertFilters,
+  cleanAlertChannels,
+  validateAlertKinds,
+} from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -25,6 +31,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const name = cleanString(body.name).slice(0, 60);
   if (!name) return errorJson(['Alert name is required.'], 422);
+  const { alertKinds, errors: alertKindErrors } = validateAlertKinds(body.alertKinds);
+  if (alertKindErrors.length) return errorJson(alertKindErrors, 422);
 
   // The 25-alert cap is enforced inside the insert itself now (README-NEON-
   // MIGRATION.md §4), so a null result unambiguously means "cap hit" rather
@@ -33,6 +41,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     name,
     filters: cleanAlertFilters(body.filters || {}),
     channels: cleanAlertChannels(body.channels),
+    alertKinds,
   });
   if (!alert) return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
 

@@ -43,6 +43,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // channel choices — text is opt-in per person, not something one user
     // can turn on for another.
     channels: { email: true, text: false },
+    alertKinds: sourceAlert.alertKinds,
     sourceAlertId: sourceAlert.id,
   });
   if (!alert) return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);

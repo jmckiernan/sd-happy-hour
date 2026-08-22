@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { getUserById, getAlert, updateAlert, deleteAlert, listSavedSpots, listAlerts } from '../../../../lib/store';
-import { publicUser, cleanString, cleanAlertFilters, cleanAlertChannels } from '../../../../lib/validation';
+import {
+  publicUser,
+  cleanString,
+  cleanAlertFilters,
+  cleanAlertChannels,
+  validateAlertKinds,
+  type AlertKind,
+} from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 
@@ -33,10 +40,18 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     if (!name) return errorJson(['Alert name is required.'], 422);
   }
 
+  let alertKinds: AlertKind[] | undefined;
+  if (body.alertKinds !== undefined) {
+    const result = validateAlertKinds(body.alertKinds);
+    if (result.errors.length) return errorJson(result.errors, 422);
+    alertKinds = result.alertKinds;
+  }
+
   const updated = await updateAlert(user.id, params.id!, {
     name,
     filters: body.filters !== undefined ? cleanAlertFilters(body.filters) : undefined,
     channels: body.channels !== undefined ? cleanAlertChannels(body.channels) : undefined,
+    alertKinds,
     active: body.active !== undefined ? Boolean(body.active) : undefined,
   });
   if (!updated) return errorJson(['Alert not found.'], 404);
