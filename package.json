@@ -14,11 +14,13 @@
     "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
     "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
-    "test": "npm run validate:data && npm run test:images && npm run test:live-promotions && npm run test:live-promotions:migration:guard",
+    "test": "npm run validate:data && npm run test:images && npm run test:live-promotions && npm run test:live-promotions:migration:guard && npm run test:live-promotions:phase2:db:guard",
     "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs",
     "test:live-promotions": "esbuild tests/live-promotions.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions.bundle.mjs && node .data/tests/live-promotions.bundle.mjs",
     "test:live-promotions:migration:guard": "node tests/live-promotions-migration.test.mjs --guard-only",
-    "test:live-promotions:migration": "node tests/live-promotions-migration.test.mjs"
+    "test:live-promotions:migration": "node tests/live-promotions-migration.test.mjs",
+    "test:live-promotions:phase2:db:guard": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs --guard-only",
+    "test:live-promotions:phase2:db": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs"
   },
   "keywords": [],
   "author": "",

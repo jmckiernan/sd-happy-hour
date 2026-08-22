@@ -51,6 +51,10 @@ export function getVenues(): Venue[] {
   return happyHours as Venue[];
 }
 
+export function getVenueById(id: number): Venue | undefined {
+  return getVenues().find((venue) => venue.id === id);
+}
+
 export function getVenueBySlug(slug: string): Venue | undefined {
   return getVenues().find((v) => slugify(v.name) === slug);
 }

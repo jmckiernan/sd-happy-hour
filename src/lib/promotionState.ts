@@ -59,7 +59,15 @@ export function getPromotionState(
 
   const startsAt = validInstant(promotion.startsAt);
   const endsAt = getEffectivePromotionEnd(promotion);
-  if (!startsAt || !endsAt || endsAt.getTime() <= startsAt.getTime()) return 'draft';
+  if (!startsAt || !endsAt) return 'draft';
+
+  // A published promotion can be ended at the exact instant it starts. It
+  // had no deliverable interval, but it is still terminal history rather
+  // than an unpublished draft. The database permits this boundary and the
+  // service deliberately records the real end timestamp instead of nudging
+  // it forward to manufacture a non-empty window.
+  if (validInstant(promotion.endedAt) && endsAt.getTime() <= startsAt.getTime()) return 'ended';
+  if (endsAt.getTime() <= startsAt.getTime()) return 'draft';
 
   const instant = validInstant(now);
   if (!instant) throw new RangeError('Expected a valid absolute instant.');

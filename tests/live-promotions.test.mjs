@@ -224,6 +224,11 @@ test('manual end shortens the effective half-open window', () => {
   assert.equal(getPromotionState(ended, '2026-08-22T00:00:00Z'), 'ended');
 });
 
+test('ending exactly at the start remains ended history rather than reverting to draft', () => {
+  const endedAtStart = { ...publishedWindow, endedAt: publishedWindow.startsAt };
+  assert.equal(getPromotionState(endedAtStart, publishedWindow.startsAt), 'ended');
+});
+
 test('offsetless persisted lifecycle strings never become live accidentally', () => {
   assert.equal(getPromotionState({ ...publishedWindow, publishedAt: '2026-08-20T20:00' }, '2026-08-21T23:30:00Z'), 'draft');
 });
