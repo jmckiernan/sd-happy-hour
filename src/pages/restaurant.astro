@@ -1,98 +1,131 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
 ---
-<Layout title="Restaurant Dashboard | SD Happy Hours" description="Claim your listing and let it live when your happy hour is live.">
+<Layout
+  title="Restaurant Dashboard | SD Happy Hours"
+  description="Manage your restaurant listing and launch or schedule limited-time promotions."
+>
   <style is:global>
-    .restaurant-main { max-width: 760px; margin: 0 auto; padding: 28px 24px 80px; }
+    .restaurant-main { max-width: 820px; margin: 0 auto; padding: 28px 24px 80px; }
 
     .panel {
       background: white;
       border-radius: var(--radius);
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-      padding: 22px;
       margin-bottom: 18px;
+      padding: 22px;
     }
     .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
 
-    form { display: grid; gap: 12px; }
-    label { color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700; gap: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-    input, textarea { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 11px 12px; width: 100%; }
-    input:focus, textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
-    textarea { min-height: 90px; resize: vertical; }
+    .restaurant-main form { display: grid; gap: 12px; }
+    .restaurant-main label {
+      color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700;
+      gap: 6px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .restaurant-main input,
+    .restaurant-main textarea {
+      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night);
+      font: inherit; min-height: 44px; padding: 11px 12px; width: 100%;
+    }
+    .restaurant-main input:focus,
+    .restaurant-main textarea:focus {
+      border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none;
+    }
+    .restaurant-main textarea { min-height: 90px; resize: vertical; }
 
-    button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
-    button:hover { background: var(--sunset-start); }
-    button.secondary { background: var(--sand-warm); color: var(--night); }
-    button.secondary:hover { background: var(--sunset-end); }
-    button:disabled { opacity: 0.6; cursor: default; }
+    .restaurant-main button {
+      background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer;
+      font: inherit; font-weight: 700; min-height: 44px; padding: 11px 18px;
+    }
+    .restaurant-main button:hover { background: var(--sunset-start); }
+    .restaurant-main button.secondary { background: var(--sand-warm); color: var(--night); }
+    .restaurant-main button.secondary:hover { background: var(--sunset-end); }
+    .restaurant-main button:disabled { cursor: default; opacity: 0.6; }
+    .restaurant-main button:focus-visible,
+    .restaurant-main a:focus-visible,
+    .restaurant-main input:focus-visible,
+    .restaurant-main textarea:focus-visible {
+      outline: 3px solid var(--sunset-start); outline-offset: 3px;
+    }
 
-    .status { color: var(--night-soft); font-weight: 600; min-height: 1.3em; font-size: 0.88rem; }
+    .status { color: var(--night-soft); font-size: 0.88rem; font-weight: 600; min-height: 1.3em; }
     .status.error { color: #B91C1C; }
 
-    .pill { align-self: flex-start; border-radius: 100px; display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 5px 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill {
+      align-self: flex-start; border-radius: 100px; display: inline-block; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 0.04em; padding: 5px 12px; text-transform: uppercase;
+    }
     .pill.pending { background: #FEF3C7; color: #92400E; }
     .pill.verified { background: #DCFCE7; color: #166534; }
     .pill.denied { background: #FEE2E2; color: #991B1B; }
 
-    .dash-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; }
+    .dash-head {
+      align-items: center; display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: space-between; margin-bottom: 4px;
+    }
     .dash-head .who { color: var(--night-soft); font-size: 0.85rem; }
 
-    .venue-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-top: 10px; }
-    .venue-result { align-items: center; background: var(--sand); border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; font-size: 0.9rem; }
+    .venue-results { display: grid; gap: 6px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
+    .venue-result {
+      align-items: center; background: var(--sand); border: 1px solid var(--sand-warm);
+      border-radius: var(--radius-sm); cursor: pointer; display: flex; font-size: 0.9rem;
+      gap: 10px; justify-content: space-between; min-height: 48px; padding: 10px 12px;
+    }
+    .restaurant-main .venue-result { background: var(--sand); color: var(--night); text-align: left; }
     .venue-result:hover { background: var(--sand-warm); }
     .venue-result.claimed { cursor: default; opacity: 0.6; }
     .venue-result strong { display: block; }
     .venue-result span { color: var(--night-soft); font-size: 0.8rem; }
-    .venue-result .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--night-soft); }
+    .venue-result .tag {
+      color: var(--night-soft); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    }
 
-    .claim-card { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
-    .manage-link { color: var(--night); font-weight: 700; font-size: 0.9rem; }
-    .listing-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
-    .live-page-link { color: var(--ocean-deep); font-weight: 700; font-size: 0.9rem; }
-    .claim-card-head { align-items: center; display: flex; gap: 10px; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
+    .claim-card { background: var(--sand); border-radius: var(--radius-sm); margin-bottom: 12px; padding: 16px; }
+    .claim-card-head {
+      align-items: center; display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: space-between; margin-bottom: 8px;
+    }
     .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; }
     .claim-card > .status { margin-bottom: 8px; }
-
-    .live-toggle { align-items: center; display: flex; gap: 14px; margin-top: 10px; }
-    .live-toggle .live-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--sand-warm); }
-    .live-toggle.is-live .live-dot { background: var(--palm); box-shadow: 0 0 0 4px rgba(34,197,94,0.18); }
+    .listing-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
+    .manage-link, .public-page-link { font-size: 0.9rem; font-weight: 700; }
+    .manage-link { color: var(--night); }
+    .public-page-link { color: var(--ocean-deep); }
 
     .verify-block { margin-top: 8px; }
     .code-entry { display: flex; gap: 8px; margin-top: 8px; }
-    .code-entry input { max-width: 140px; }
+    .code-entry input { max-width: 150px; }
     details > summary { cursor: pointer; }
     details form { margin-top: 10px; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
 
     .loading-row { align-items: center; display: flex; gap: 12px; }
     .loading-row .status { margin: 0; }
     .spinner {
-      width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%;
-      border: 2px solid var(--sand-warm); border-top-color: var(--sunset-start);
-      animation: spin 0.7s linear infinite;
+      animation: spin 0.7s linear infinite; border: 2px solid var(--sand-warm);
+      border-radius: 50%; border-top-color: var(--sunset-start); flex: 0 0 auto;
+      height: 18px; width: 18px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    /* Respects a reduced-motion preference — the row still reads as "working"
-       from its text, so the animation is safe to drop entirely. */
-    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
 
-    @media (max-width: 600px) { .dash-head { align-items: stretch; flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+    @media (max-width: 600px) {
+      .restaurant-main { padding-left: 14px; padding-right: 14px; }
+      .panel { padding: 16px; }
+      .dash-head { align-items: stretch; flex-direction: column; }
+      .code-entry { align-items: stretch; flex-direction: column; }
+      .code-entry input { max-width: none; }
+    }
   </style>
 
   <header class="page-header">
     <h1>Restaurant Dashboard</h1>
-    <p>Claim your listing, and toggle it live the moment your happy hour starts so matching alerts go out.</p>
+    <p>Keep your regular listing accurate, then launch or schedule special limited-time promotions.</p>
   </header>
 
   <main class="restaurant-main">
-    {/* Starts visible, because whether to show the dashboard can't be known
-        until /api/account/me answers. This used to be a sign-in panel that
-        started visible and was only hidden once that call came back, so
-        already-signed-in owners saw a sign-in prompt flash before their
-        listings appeared. Anyone genuinely signed out is now redirected to
-        /account/ instead of being offered a second, differently styled
-        sign-in prompt here. */}
     <section class="panel" id="loading-panel">
       <div class="loading-row" role="status" aria-live="polite">
         <span class="spinner" aria-hidden="true"></span>
@@ -100,9 +133,6 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    {/* Only for the case where we can't tell: /api/account/me or the claims
-        call failed outright. Redirecting on a network blip would look like
-        being signed out when you aren't. */}
     <section class="panel hidden" id="error-panel">
       <h2>Couldn't load your dashboard</h2>
       <p class="status" id="error-text"></p>
@@ -116,93 +146,204 @@ import Layout from '../layouts/Layout.astro';
           <span class="who" id="who"></span>
         </div>
         <div id="claims-list"></div>
-        <p class="status" id="no-claims" style="margin-top:8px;">You haven't claimed a listing yet — search for it below.</p>
+        <p class="status" id="no-claims" style="margin-top:8px;">
+          You haven't claimed a listing yet — search for it below.
+        </p>
       </section>
 
       <section class="panel">
         <h2>Claim a listing</h2>
-        <p class="status">Signing in with an email at your restaurant's own website domain verifies you instantly. Otherwise verify by phone (if we have a number on file) or submit for manual review.</p>
-        <input type="text" id="venue-search" placeholder="Search by restaurant name...">
+        <p class="status">
+          Signing in with an email at your restaurant's own website domain verifies you instantly.
+          Otherwise verify by phone (if we have a number on file) or submit for manual review.
+        </p>
+        <label for="venue-search" class="hidden">Search restaurants</label>
+        <input type="search" id="venue-search" placeholder="Search by restaurant name…" autocomplete="off">
         <div class="venue-results" id="venue-results"></div>
       </section>
     </div>
   </main>
 
-  <script>
-    let currentUser: any = null;
-    let claims: any[] = [];
-    let happyHours: any[] = [];
+  <MerchantPromotionUI />
 
-    function escapeHTML(value: unknown) {
+  <script>
+    import {
+      createServerAnchoredClock,
+      formatSanDiegoDateTime,
+      formatSanDiegoDateTimeInput,
+      formatSanDiegoTime,
+      resolveSanDiegoDateTimeLocal,
+      type ServerAnchoredClock,
+    } from '../lib/promotionClientTime';
+    import {
+      formatMerchantEntitlement,
+      formatMerchantPromotionState,
+      formatMerchantPromotionType,
+      getTodayHappyHourPresentation,
+      groupMerchantPromotions,
+      type MerchantPromotionDto,
+      type MerchantPromotionEntitlementDto,
+    } from '../lib/merchantPromotionDashboard';
+    import { parseInstant } from '../lib/sanDiegoTime';
+
+    interface DashboardClaim {
+      id: string;
+      venueId: number;
+      status: 'pending' | 'verified' | 'denied';
+      verificationMethod?: string | null;
+      claimNote?: string | null;
+      denialReason?: string | null;
+      venueName?: string | null;
+      venueSlug?: string | null;
+      venueNeighborhood?: string | null;
+      venuePhoneAvailable?: boolean;
+      happyHourSchedule?: {
+        id: number;
+        days: string[];
+        startTime: string;
+        endTime: string;
+      } | null;
+    }
+
+    interface VenuePromotionState {
+      promotions: MerchantPromotionDto[];
+      entitlement: MerchantPromotionEntitlementDto | null;
+      clock: ServerAnchoredClock | null;
+      loading: boolean;
+      error: string;
+      message: string;
+      messageKind: '' | 'error' | 'success';
+      requestVersion: number;
+      boundaryTimer: number | null;
+    }
+
+    type EditorIntent = 'create' | 'edit' | 'publish' | 'start-now';
+    type WhenMode = 'now' | 'schedule';
+
+    interface EditorContext {
+      venueId: number;
+      promotionId: string | null;
+      intent: EditorIntent;
+      stateAtOpen: MerchantPromotionDto['state'] | null;
+    }
+
+    interface ActionContext {
+      venueId: number;
+      promotionId: string;
+      action: 'delete' | 'cancel' | 'end';
+    }
+
+    interface ApiResult<T = any> {
+      data: T;
+      requestStartedAt: number;
+      responseReceivedAt: number;
+    }
+
+    class MerchantApiError extends Error {
+      status: number;
+      code: string;
+      details: Record<string, unknown> | null;
+
+      constructor(status: number, body: any) {
+        super(Array.isArray(body?.errors) ? body.errors.join(' ') : 'Something went wrong.');
+        this.name = 'MerchantApiError';
+        this.status = status;
+        this.code = typeof body?.code === 'string' ? body.code : '';
+        this.details = body?.details && typeof body.details === 'object' ? body.details : null;
+      }
+    }
+
+    let currentUser: any = null;
+    let claims: DashboardClaim[] = [];
+    let claimsClock: ServerAnchoredClock | null = null;
+    const promotionStates = new Map<number, VenuePromotionState>();
+
+    let editorContext: EditorContext | null = null;
+    let actionContext: ActionContext | null = null;
+    let returnFocusElement: HTMLElement | null = null;
+    let returnFocusSelector = '';
+
+    const claimsListEl = document.getElementById('claims-list')!;
+    const promotionDialog = document.getElementById('merchant-promotion-dialog') as HTMLDialogElement;
+    const promotionForm = document.getElementById('merchant-promotion-form') as HTMLFormElement;
+    const actionDialog = document.getElementById('merchant-promotion-action-dialog') as HTMLDialogElement;
+
+    function escapeHTML(value: unknown): string {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
       } as Record<string, string>)[char]);
     }
 
-    async function postJson(path: string, body: unknown, method = 'POST') {
-      const res = await fetch(path, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+    function ensurePromotionState(venueId: number): VenuePromotionState {
+      let state = promotionStates.get(venueId);
+      if (!state) {
+        state = {
+          promotions: [], entitlement: null, clock: null, loading: true, error: '',
+          message: '', messageKind: '', requestVersion: 0, boundaryTimer: null,
+        };
+        promotionStates.set(venueId, state);
+      }
+      return state;
+    }
+
+    function claimForVenue(venueId: number): DashboardClaim | null {
+      return claims.find((claim) => claim.venueId === venueId) || null;
+    }
+
+    function promotionFor(venueId: number, promotionId: string): MerchantPromotionDto | null {
+      return ensurePromotionState(venueId).promotions.find((promotion) => promotion.id === promotionId) || null;
+    }
+
+    function anchorClock(result: ApiResult, serverNow: unknown): ServerAnchoredClock | null {
+      if (typeof serverNow !== 'string') return null;
+      try {
+        return createServerAnchoredClock({
+          serverNow,
+          requestStartedAt: result.requestStartedAt,
+          responseReceivedAt: result.responseReceivedAt,
+        });
+      } catch {
+        return null;
+      }
+    }
+
+    async function api<T = any>(path: string, options: RequestInit = {}): Promise<ApiResult<T>> {
+      const headers = new Headers(options.headers || {});
+      headers.set('Accept', 'application/json');
+      if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+      const requestStartedAt = performance.now();
+      const response = await fetch(path, {
+        ...options,
+        headers,
+        credentials: 'same-origin',
+        cache: 'no-store',
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error((json.errors || ['Request failed.']).join(' '));
-      return json;
+      const responseReceivedAt = performance.now();
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new MerchantApiError(response.status, data);
+      return { data, requestStartedAt, responseReceivedAt };
     }
 
-    async function loadHappyHours() {
-      const res = await fetch('/data/happy-hours.json');
-      happyHours = await res.json();
+    async function postJson(path: string, body: unknown, method = 'POST'): Promise<any> {
+      return (await api(path, { method, body: JSON.stringify(body) })).data;
     }
 
-    function showLoadError(message: string) {
+    function showLoadError(message: string): void {
       document.getElementById('loading-panel')!.classList.add('hidden');
       document.getElementById('dashboard')!.classList.add('hidden');
       document.getElementById('error-panel')!.classList.remove('hidden');
       document.getElementById('error-text')!.textContent = message;
     }
 
-    async function loadEverything() {
-      try {
-        const meRes = await fetch('/api/account/me');
-        const me = await meRes.json();
-        currentUser = me.authenticated ? me.user : null;
-
-        // Signed out: hand off to the normal sign-in page rather than offering
-        // a second one here. `replace` rather than `href` so the back button
-        // doesn't bounce straight back into this redirect.
-        if (!currentUser) {
-          window.location.replace(`/account/?next=${encodeURIComponent('/restaurant/')}`);
-          return;
-        }
-
-        const claimsRes = await fetch('/api/restaurant/claims');
-        const claimsData = await claimsRes.json();
-        if (!claimsRes.ok) throw new Error((claimsData.errors || ['Could not load your listings.']).join(' '));
-        claims = claimsData.claims || [];
-        render();
-      } catch (err: any) {
-        showLoadError(err.message || 'Something went wrong loading this page.');
-      }
-    }
-
-    document.getElementById('retry-btn')?.addEventListener('click', () => {
-      document.getElementById('error-panel')!.classList.add('hidden');
-      document.getElementById('loading-panel')!.classList.remove('hidden');
-      loadEverything();
-    });
-
-    // Phone verification + manual review, shared by both a fresh pending
-    // claim and a denied one that's trying again. Verifying by phone always
-    // supersedes an in-progress manual review — verifyVenueClaimPhoneCode
-    // flips status straight to 'verified' regardless of what else is
-    // pending, so there's no harm offering both at once.
-    function verificationOptionsHTML(claim: any) {
+    function verificationOptionsHTML(claim: DashboardClaim): string {
       const phoneSection = claim.venuePhoneAvailable ? `
         <div class="verify-block" data-phone-section>
           <button type="button" class="secondary" data-action="send-code">Text me a code to verify</button>
           <div class="code-entry hidden" data-code-entry>
-            <input type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" data-code-input>
+            <label class="hidden" for="claim-code-${escapeHTML(claim.id)}">Verification code</label>
+            <input id="claim-code-${escapeHTML(claim.id)}" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" data-code-input>
             <button type="button" data-action="verify-code">Verify</button>
           </div>
           <div class="status" data-phone-status aria-live="polite"></div>
@@ -214,7 +355,10 @@ import Layout from '../layouts/Layout.astro';
         <details class="verify-block">
           <summary class="status">Or submit for manual review</summary>
           <form data-resubmit-form>
-            <textarea name="claimNote" placeholder="e.g. link to our Google Business listing">${escapeHTML(claim.claimNote || '')}</textarea>
+            <label>
+              Verification details
+              <textarea name="claimNote" placeholder="e.g. link to our Google Business listing">${escapeHTML(claim.claimNote || '')}</textarea>
+            </label>
             <button type="submit">Submit for review</button>
             <div class="status" data-resubmit-status aria-live="polite"></div>
           </form>
@@ -222,47 +366,175 @@ import Layout from '../layouts/Layout.astro';
       `;
     }
 
-    function claimCardHTML(claim: any) {
-      const underManualReview = claim.status === 'pending' && claim.verificationMethod === 'manual' && claim.claimNote;
-      const statusNote =
-        claim.status === 'verified' ? 'Verified.'
-        : claim.status === 'denied' ? `Not verified: ${escapeHTML(claim.denialReason || 'no reason given.')} Try again below.`
-        : underManualReview ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
-        : 'Verify this listing to finish claiming it.';
+    function promotionTimingHTML(promotion: MerchantPromotionDto): string {
+      const end = promotion.effectiveEndsAt || promotion.endsAt;
+      if (promotion.state === 'live' && end) {
+        return `Ends ${escapeHTML(formatSanDiegoDateTime(end))}`;
+      }
+      if (promotion.startsAt && end) {
+        return `${escapeHTML(formatSanDiegoDateTime(promotion.startsAt))} – ${escapeHTML(formatSanDiegoDateTime(end))}`;
+      }
+      return promotion.state === 'draft' ? 'Timing not set' : 'Timing unavailable';
+    }
 
-      // Everything a verified owner can now manage themselves lives on its own
-      // page, one per venue, rather than inline here — it's three panels' worth
-      // of editing (hours/deals, photo album, menu).
-      const manageLink = claim.status === 'verified' && claim.venueSlug ? `
+    function promotionCardHTML(promotion: MerchantPromotionDto, claim: DashboardClaim): string {
+      const actions = promotion.allowedActions;
+      const actionButtons = [
+        actions.update
+          ? `<button class="merchant-promotion-button secondary" type="button" data-promotion-action="edit">Edit</button>`
+          : '',
+        actions.publish
+          ? `<button class="merchant-promotion-button" type="button" data-promotion-action="publish">Schedule</button>`
+          : '',
+        actions.startNow
+          ? `<button class="merchant-promotion-button" type="button" data-promotion-action="start-now">Start Now</button>`
+          : '',
+        actions.cancel
+          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="cancel">Cancel</button>`
+          : '',
+        actions.end
+          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="end">End promotion</button>`
+          : '',
+        actions.delete
+          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="delete">Delete draft</button>`
+          : '',
+      ].filter(Boolean).join('');
+      const publicLink = claim.venueSlug && promotion.state === 'live'
+        ? `<a class="merchant-promotion-button secondary" href="/venues/${encodeURIComponent(claim.venueSlug)}/">View public page</a>`
+        : '';
+      const isTerminal = promotion.state === 'ended' || promotion.state === 'cancelled';
+      const title = promotion.title || (promotion.state === 'draft' ? 'Untitled draft' : 'Untitled promotion');
+      const badge = promotion.state === 'live'
+        ? 'Live promotion'
+        : formatMerchantPromotionState(promotion.state);
+
+      return `
+        <article
+          class="merchant-promotion-card ${promotion.state === 'live' ? 'is-active' : ''} ${isTerminal ? 'is-terminal' : ''}"
+          data-promotion-id="${escapeHTML(promotion.id)}"
+        >
+          <div class="merchant-promotion-card-head">
+            <div>
+              <h5>${escapeHTML(title)}</h5>
+              <p class="merchant-promotion-meta">${escapeHTML(formatMerchantPromotionType(promotion.type))}</p>
+            </div>
+            <span class="merchant-state-badge ${escapeHTML(promotion.state)}">${escapeHTML(badge)}</span>
+          </div>
+          <p class="merchant-promotion-meta">${promotionTimingHTML(promotion)}</p>
+          ${promotion.description ? `<p class="merchant-promotion-detail">${escapeHTML(promotion.description)}</p>` : ''}
+          ${promotion.dealCode ? `<p class="merchant-promotion-code">Deal code: ${escapeHTML(promotion.dealCode)}</p>` : ''}
+          ${actionButtons || publicLink ? `<div class="merchant-card-actions">${actionButtons}${publicLink}</div>` : ''}
+          ${isTerminal ? '<p class="merchant-promotion-meta">Read-only history</p>' : ''}
+        </article>
+      `;
+    }
+
+    function promotionSectionHTML(
+      title: string,
+      promotions: MerchantPromotionDto[],
+      claim: DashboardClaim,
+      emptyCopy: string
+    ): string {
+      return `
+        <section class="merchant-promotion-section" aria-label="${escapeHTML(title)} promotions">
+          <div class="merchant-promotion-section-head">
+            <h4>${escapeHTML(title)}</h4>
+            <span class="merchant-promotion-count">${promotions.length}</span>
+          </div>
+          <div class="merchant-promotion-list">
+            ${promotions.length
+              ? promotions.map((promotion) => promotionCardHTML(promotion, claim)).join('')
+              : `<p class="merchant-promotion-empty">${escapeHTML(emptyCopy)}</p>`}
+          </div>
+        </section>
+      `;
+    }
+
+    function todayHappyHourHTML(claim: DashboardClaim, state: VenuePromotionState): string {
+      const clock = state.clock || claimsClock;
+      if (!clock) {
+        return `
+          <section class="merchant-today" aria-label="Today's Happy Hour">
+            <h4>Today's Happy Hour</h4>
+            <p class="merchant-today-state">Checking today's recurring schedule…</p>
+          </section>
+        `;
+      }
+      const today = getTodayHappyHourPresentation(claim.happyHourSchedule, clock.now());
+      return `
+        <section class="merchant-today" aria-label="Today's Happy Hour">
+          <h4>Today's Happy Hour</h4>
+          ${today.timeRange ? `<p class="merchant-today-time">${escapeHTML(today.timeRange)}</p>` : ''}
+          <p class="merchant-today-state ${today.state === 'live' ? 'is-now' : ''}">${escapeHTML(today.statusText)}</p>
+          <p class="merchant-promotion-meta">Recurring listing schedule · informational only</p>
+        </section>
+      `;
+    }
+
+    function promotionCommandHTML(claim: DashboardClaim): string {
+      const state = ensurePromotionState(claim.venueId);
+      const groups = groupMerchantPromotions(state.promotions);
+      const entitlement = state.entitlement
+        ? formatMerchantEntitlement(state.entitlement)
+        : 'Allowance status is loading…';
+      const launchDisabled = !state.entitlement || !state.entitlement.canLaunchPromotion;
+      const statusMessage = state.error || state.message || (state.loading ? 'Loading promotions…' : '');
+      const statusKind = state.error ? 'error' : state.messageKind === 'error' ? 'error' : '';
+
+      return `
+        <div class="merchant-promotion-command" data-promotion-command>
+          ${todayHappyHourHTML(claim, state)}
+          <section aria-label="Promotions">
+            <div class="merchant-promotion-heading">
+              <div>
+                <h4>Promotions</h4>
+                <p class="merchant-entitlement"><strong>Allowance:</strong> ${escapeHTML(entitlement)}</p>
+              </div>
+              <div class="merchant-promotion-actions">
+                <button
+                  class="merchant-promotion-button"
+                  type="button"
+                  data-promotion-action="launch"
+                  ${launchDisabled ? 'disabled aria-disabled="true"' : ''}
+                >Launch Live Promotion</button>
+                <button class="merchant-promotion-button secondary" type="button" data-promotion-action="schedule-new">Schedule Promotion</button>
+              </div>
+            </div>
+          </section>
+          ${groups.active.length ? '' : '<p class="merchant-promotion-empty"><strong>No promotion currently Live</strong></p>'}
+          <div class="merchant-promotion-load-status ${statusKind}" role="status" aria-live="polite">
+            ${escapeHTML(statusMessage)}
+            ${state.error ? ' <button class="merchant-promotion-button secondary" type="button" data-promotion-action="retry">Try again</button>' : ''}
+          </div>
+          <div class="merchant-promotion-sections">
+            ${promotionSectionHTML('Active', groups.active, claim, 'No active promotion.')}
+            ${promotionSectionHTML('Scheduled', groups.scheduled, claim, 'No scheduled promotions.')}
+            ${promotionSectionHTML('Drafts', groups.drafts, claim, 'No saved drafts.')}
+            ${promotionSectionHTML('Past', groups.past, claim, 'No past promotions yet.')}
+          </div>
+        </div>
+      `;
+    }
+
+    function claimCardHTML(claim: DashboardClaim): string {
+      const underManualReview = claim.status === 'pending' && claim.verificationMethod === 'manual' && claim.claimNote;
+      const statusNote = claim.status === 'verified'
+        ? 'Verified.'
+        : claim.status === 'denied'
+          ? `Not verified: ${escapeHTML(claim.denialReason || 'no reason given.')} Try again below.`
+          : underManualReview
+            ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
+            : 'Verify this listing to finish claiming it.';
+      const listingLinks = claim.status === 'verified' && claim.venueSlug ? `
         <div class="listing-links">
           <a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/">
             Manage listing, photos &amp; menu →
           </a>
-          <a class="live-page-link" href="/venues/${encodeURIComponent(claim.venueSlug)}/">
-            View live page →
+          <a class="public-page-link" href="/venues/${encodeURIComponent(claim.venueSlug)}/">
+            View public page →
           </a>
         </div>
       ` : '';
-
-      const liveAndPromo = claim.status === 'verified' ? `
-        <div class="live-toggle" data-live-toggle>
-          <span class="live-dot"></span>
-          <button type="button" class="secondary" data-action="toggle-live">We're live now</button>
-        </div>
-        <div class="status" data-live-status aria-live="polite"></div>
-
-        <form data-promo-form style="margin-top:14px;">
-          <label>Public description <input name="description" placeholder='e.g. "10% off your bill"' maxlength="200" required></label>
-          <label>Deal code <input name="dealCode" placeholder="e.g. HHSD10" maxlength="30" required></label>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button type="submit">Save promo</button>
-            <button type="button" class="secondary" data-action="remove-promo">Remove promo</button>
-          </div>
-          <div class="status" data-promo-status aria-live="polite"></div>
-        </form>
-      ` : '';
-
-      const verifyOptions = claim.status !== 'verified' ? verificationOptionsHTML(claim) : '';
 
       return `
         <article class="claim-card" data-claim-id="${escapeHTML(claim.id)}" data-venue-id="${claim.venueId}">
@@ -271,56 +543,750 @@ import Layout from '../layouts/Layout.astro';
             <span class="pill ${escapeHTML(claim.status)}">${escapeHTML(claim.status)}</span>
           </div>
           <p class="status">${statusNote}</p>
-          ${manageLink}
-          ${liveAndPromo}
-          ${verifyOptions}
+          ${listingLinks}
+          ${claim.status === 'verified' ? promotionCommandHTML(claim) : verificationOptionsHTML(claim)}
         </article>
       `;
     }
 
-    // Only reached with a signed-in user now — signed-out visitors are
-    // redirected before this runs. The dashboard is revealed here rather than
-    // when the session check returns, so it appears with its listings already
-    // in place instead of as an empty shell that fills in.
-    function render() {
+    function render(): void {
       if (!currentUser) return;
       document.getElementById('loading-panel')!.classList.add('hidden');
       document.getElementById('error-panel')!.classList.add('hidden');
       document.getElementById('dashboard')!.classList.remove('hidden');
-
       document.getElementById('who')!.textContent = `Signed in as ${currentUser.email}`;
 
-      const listEl = document.getElementById('claims-list')!;
       const noClaimsEl = document.getElementById('no-claims')!;
       if (!claims.length) {
-        listEl.innerHTML = '';
+        claimsListEl.innerHTML = '';
         noClaimsEl.classList.remove('hidden');
       } else {
         noClaimsEl.classList.add('hidden');
-        listEl.innerHTML = claims.map(claimCardHTML).join('');
-        for (const claim of claims) {
-          if (claim.status === 'verified') loadPromotion(claim.venueId);
-        }
+        claimsListEl.innerHTML = claims.map(claimCardHTML).join('');
       }
     }
 
-    async function loadPromotion(venueId: number) {
-      try {
-        const res = await fetch(`/api/restaurant/promotion?venueId=${venueId}`);
-        const data = await res.json();
-        const card = document.querySelector(`.claim-card[data-venue-id="${venueId}"]`);
-        const form = card?.querySelector('[data-promo-form]') as HTMLFormElement | null;
-        if (!form) return;
-        if (data.promotion) {
-          (form.querySelector('[name="description"]') as HTMLInputElement).value = data.promotion.description;
-          (form.querySelector('[name="dealCode"]') as HTMLInputElement).value = data.promotion.dealCode;
-        } else {
-          form.reset();
+    function renderVenueCommand(venueId: number): void {
+      const claim = claimForVenue(venueId);
+      const card = claimsListEl.querySelector(`.claim-card[data-venue-id="${venueId}"]`);
+      const current = card?.querySelector('[data-promotion-command]');
+      if (!claim || !current) return;
+      current.outerHTML = promotionCommandHTML(claim);
+    }
+
+    function scheduleBoundaryRefresh(venueId: number): void {
+      const state = ensurePromotionState(venueId);
+      if (state.boundaryTimer !== null) window.clearTimeout(state.boundaryTimer);
+      state.boundaryTimer = null;
+      if (!state.clock || document.hidden) return;
+
+      const nowMs = state.clock.now().getTime();
+      const boundaries = state.promotions.flatMap((promotion) => {
+        if (promotion.state === 'scheduled' && promotion.startsAt) return [promotion.startsAt];
+        if (promotion.state === 'live' && (promotion.effectiveEndsAt || promotion.endsAt)) {
+          return [promotion.effectiveEndsAt || promotion.endsAt!];
         }
-      } catch {
-        // No promotion set yet, or a transient error — form just stays blank.
+        return [];
+      }).map((value) => parseInstant(value)?.getTime() ?? Number.NaN)
+        .filter((value) => Number.isFinite(value) && value > nowMs)
+        .sort((left, right) => left - right);
+      if (!boundaries.length) return;
+
+      const delay = Math.min(Math.max(boundaries[0] - nowMs + 250, 250), 2_147_000_000);
+      state.boundaryTimer = window.setTimeout(() => {
+        state.boundaryTimer = null;
+        if (!document.hidden) void loadPromotions(venueId, true);
+      }, delay);
+    }
+
+    async function loadPromotions(venueId: number, silent = false): Promise<void> {
+      const state = ensurePromotionState(venueId);
+      const requestVersion = ++state.requestVersion;
+      if (!silent) {
+        state.loading = true;
+        state.error = '';
+        renderVenueCommand(venueId);
+      }
+      try {
+        const result = await api(`/api/restaurant/promotions?venueId=${encodeURIComponent(venueId)}`);
+        if (requestVersion !== state.requestVersion) return;
+        const data = result.data;
+        if (!Array.isArray(data?.promotions) || !data?.entitlement) {
+          throw new Error('The promotions response was incomplete.');
+        }
+        state.promotions = data.promotions;
+        state.entitlement = data.entitlement;
+        state.clock = anchorClock(result, data.serverNow) || state.clock;
+        state.loading = false;
+        state.error = '';
+        renderVenueCommand(venueId);
+        scheduleBoundaryRefresh(venueId);
+      } catch (error: any) {
+        if (requestVersion !== state.requestVersion) return;
+        state.loading = false;
+        state.error = error?.message || 'Could not load promotions.';
+        renderVenueCommand(venueId);
       }
     }
+
+    async function loadEverything(): Promise<void> {
+      try {
+        const me = (await api('/api/account/me')).data;
+        currentUser = me.authenticated ? me.user : null;
+        if (!currentUser) {
+          window.location.replace(`/account/?next=${encodeURIComponent('/restaurant/')}`);
+          return;
+        }
+
+        const claimsResult = await api('/api/restaurant/claims');
+        const claimsData = claimsResult.data;
+        claimsClock = anchorClock(claimsResult, claimsData.serverNow) || claimsClock;
+        claims = claimsData.claims || [];
+        for (const claim of claims) {
+          if (claim.status === 'verified') ensurePromotionState(claim.venueId);
+        }
+        render();
+        for (const claim of claims) {
+          if (claim.status === 'verified') void loadPromotions(claim.venueId);
+        }
+      } catch (error: any) {
+        showLoadError(error?.message || 'Something went wrong loading this page.');
+      }
+    }
+
+    function rememberFocus(source: HTMLElement, selector: string): void {
+      returnFocusElement = source;
+      returnFocusSelector = selector;
+    }
+
+    function restoreFocus(): void {
+      queueMicrotask(() => {
+        const target = returnFocusElement?.isConnected
+          ? returnFocusElement
+          : returnFocusSelector
+            ? document.querySelector(returnFocusSelector)
+            : null;
+        if (target instanceof HTMLElement) target.focus();
+        returnFocusElement = null;
+        returnFocusSelector = '';
+      });
+    }
+
+    function setDialogStatus(
+      element: Element | null,
+      message: string,
+      kind: '' | 'error' | 'success' = ''
+    ): void {
+      if (!(element instanceof HTMLElement)) return;
+      element.className = `merchant-dialog-status${kind ? ` ${kind}` : ''}`;
+      element.textContent = message;
+    }
+
+    function selectedWhen(): WhenMode {
+      return (promotionForm.elements.namedItem('when') as RadioNodeList).value === 'schedule'
+        ? 'schedule'
+        : 'now';
+    }
+
+    function localInput(name: 'startsAtLocal' | 'endsAtLocal'): HTMLInputElement {
+      return promotionForm.elements.namedItem(name) as HTMLInputElement;
+    }
+
+    function occurrenceChoice(name: 'startsAtOccurrence' | 'endsAtOccurrence'): 'earlier' | 'later' | null {
+      const value = (promotionForm.elements.namedItem(name) as RadioNodeList).value;
+      return value === 'earlier' || value === 'later' ? value : null;
+    }
+
+    function clearOccurrence(name: 'startsAtOccurrence' | 'endsAtOccurrence'): void {
+      const nodes = promotionForm.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`);
+      nodes.forEach((node) => { node.checked = false; });
+    }
+
+    function resolveLocalInput(
+      kind: 'start' | 'end',
+      required: boolean
+    ): string | null {
+      const input = localInput(kind === 'start' ? 'startsAtLocal' : 'endsAtLocal');
+      const fold = promotionForm.querySelector(`[data-${kind}-fold]`) as HTMLElement;
+      const errorEl = promotionForm.querySelector(`[data-${kind}-error]`) as HTMLElement;
+      const occurrenceName = kind === 'start' ? 'startsAtOccurrence' : 'endsAtOccurrence';
+      const value = input.value.trim();
+
+      input.setCustomValidity('');
+      errorEl.textContent = '';
+      if (!value) {
+        fold.hidden = true;
+        if (required) {
+          const message = `${kind === 'start' ? 'Start' : 'End'} date and time is required.`;
+          input.setCustomValidity(message);
+          errorEl.textContent = message;
+        }
+        return null;
+      }
+
+      const resolution = resolveSanDiegoDateTimeLocal(value);
+      if (resolution.status === 'resolved') {
+        fold.hidden = true;
+        return resolution.instant.toISOString();
+      }
+      if (resolution.status === 'ambiguous') {
+        fold.hidden = false;
+        const choice = occurrenceChoice(occurrenceName);
+        if (!choice) {
+          const message = 'This San Diego time occurs twice. Choose the first or second occurrence.';
+          input.setCustomValidity(message);
+          errorEl.textContent = message;
+          return null;
+        }
+        return resolution[choice].toISOString();
+      }
+
+      fold.hidden = true;
+      const message = resolution.status === 'nonexistent'
+        ? 'This time does not exist in San Diego because the clocks move forward. Choose another time.'
+        : 'Enter a valid San Diego date and time.';
+      input.setCustomValidity(message);
+      errorEl.textContent = message;
+      return null;
+    }
+
+    function setOccurrenceFromInstant(
+      kind: 'start' | 'end',
+      instant: string | null
+    ): void {
+      if (!instant) return;
+      const input = localInput(kind === 'start' ? 'startsAtLocal' : 'endsAtLocal');
+      const resolution = resolveSanDiegoDateTimeLocal(input.value);
+      if (resolution.status !== 'ambiguous') return;
+      const name = kind === 'start' ? 'startsAtOccurrence' : 'endsAtOccurrence';
+      const choice = resolution.later.toISOString() === instant ? 'later' : 'earlier';
+      const radio = promotionForm.querySelector<HTMLInputElement>(`input[name="${name}"][value="${choice}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    function syncWhenFields(): void {
+      const scheduled = selectedWhen() === 'schedule';
+      const fields = promotionForm.querySelector('[data-schedule-fields]') as HTMLElement;
+      fields.hidden = !scheduled;
+      localInput('startsAtLocal').required = scheduled;
+      if (!scheduled) {
+        localInput('startsAtLocal').setCustomValidity('');
+        (promotionForm.querySelector('[data-start-error]') as HTMLElement).textContent = '';
+      }
+      updatePreview();
+    }
+
+    function previewInstant(kind: 'start' | 'end'): string | null {
+      const input = localInput(kind === 'start' ? 'startsAtLocal' : 'endsAtLocal');
+      const resolution = resolveSanDiegoDateTimeLocal(input.value);
+      if (resolution.status === 'resolved') return resolution.instant.toISOString();
+      if (resolution.status === 'ambiguous') {
+        const choice = occurrenceChoice(kind === 'start' ? 'startsAtOccurrence' : 'endsAtOccurrence');
+        return choice ? resolution[choice].toISOString() : null;
+      }
+      return null;
+    }
+
+    function updatePreview(): void {
+      const title = (promotionForm.elements.namedItem('title') as HTMLInputElement).value.trim();
+      const description = (promotionForm.elements.namedItem('description') as HTMLTextAreaElement).value.trim();
+      const type = (promotionForm.elements.namedItem('type') as HTMLSelectElement).value as MerchantPromotionDto['type'];
+      const previewTitle = promotionDialog.querySelector('[data-preview-title]')!;
+      const previewDetails = promotionDialog.querySelector('[data-preview-details]')!;
+      const previewTime = promotionDialog.querySelector('[data-preview-time]')!;
+      previewTitle.textContent = title || 'Your promotion headline';
+      previewDetails.textContent = description
+        ? `${formatMerchantPromotionType(type)} · ${description}`
+        : formatMerchantPromotionType(type);
+
+      const end = previewInstant('end');
+      if (selectedWhen() === 'now') {
+        previewTime.textContent = end ? `Starts now · ends ${formatSanDiegoDateTime(end)}` : 'Starts now · end required';
+      } else {
+        const start = previewInstant('start');
+        previewTime.textContent = start && end
+          ? `${formatSanDiegoDateTime(start)} – ${formatSanDiegoDateTime(end)}`
+          : 'Scheduled start and end required';
+      }
+    }
+
+    function setWhenMode(mode: WhenMode, locked: boolean): void {
+      const radios = promotionForm.querySelectorAll<HTMLInputElement>('input[name="when"]');
+      radios.forEach((radio) => {
+        radio.checked = radio.value === mode;
+        radio.disabled = locked;
+      });
+      syncWhenFields();
+    }
+
+    function defaultTiming(venueId: number, mode: WhenMode): { start: string; end: string } {
+      const state = ensurePromotionState(venueId);
+      const now = state.clock?.now() || claimsClock?.now();
+      if (!now) return { start: '', end: '' };
+      if (mode === 'now') {
+        return {
+          start: '',
+          end: formatSanDiegoDateTimeInput(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
+        };
+      }
+      const fifteenMinutes = 15 * 60 * 1000;
+      const startMs = Math.ceil((now.getTime() + 30 * 60 * 1000) / fifteenMinutes) * fifteenMinutes;
+      return {
+        start: formatSanDiegoDateTimeInput(new Date(startMs)),
+        end: formatSanDiegoDateTimeInput(new Date(startMs + 2 * 60 * 60 * 1000)),
+      };
+    }
+
+    function openPromotionEditor(
+      source: HTMLElement,
+      claim: DashboardClaim,
+      intent: EditorIntent,
+      promotion: MerchantPromotionDto | null,
+      requestedMode: WhenMode
+    ): void {
+      editorContext = {
+        venueId: claim.venueId,
+        promotionId: promotion?.id || null,
+        intent,
+        stateAtOpen: promotion?.state || null,
+      };
+      const sourceAction = source.dataset.promotionAction;
+      rememberFocus(
+        source,
+        sourceAction
+          ? `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-id="${promotion?.id || ''}"] [data-promotion-action="${sourceAction}"], .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="launch"]:not(:disabled), .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="schedule-new"]`
+          : `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="${requestedMode === 'now' ? 'launch' : 'schedule-new'}"]:not(:disabled), .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="schedule-new"]`
+      );
+
+      promotionForm.reset();
+      clearOccurrence('startsAtOccurrence');
+      clearOccurrence('endsAtOccurrence');
+      (promotionDialog.querySelector('[data-editor-step]') as HTMLElement).hidden = false;
+      (promotionDialog.querySelector('[data-confirmation-step]') as HTMLElement).hidden = true;
+      setDialogStatus(promotionDialog.querySelector('[data-form-status]'), '');
+      setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), '');
+
+      const mode: WhenMode = intent === 'start-now'
+        ? 'now'
+        : intent === 'publish' || promotion?.state === 'scheduled'
+          ? 'schedule'
+          : promotion?.startsAt && promotion?.endsAt
+            ? 'schedule'
+            : requestedMode;
+      const lockedWhen = intent === 'start-now' || intent === 'publish' || promotion?.state === 'scheduled';
+      setWhenMode(mode, lockedWhen);
+      if (intent === 'create' && !ensurePromotionState(claim.venueId).entitlement?.canLaunchPromotion) {
+        const startNowChoice = promotionForm.querySelector<HTMLInputElement>('input[name="when"][value="now"]');
+        if (startNowChoice) startNowChoice.disabled = true;
+      }
+
+      (promotionForm.elements.namedItem('type') as HTMLSelectElement).value = promotion?.type || 'special_deal';
+      (promotionForm.elements.namedItem('title') as HTMLInputElement).value = promotion?.title || '';
+      (promotionForm.elements.namedItem('description') as HTMLTextAreaElement).value = promotion?.description || '';
+      (promotionForm.elements.namedItem('dealCode') as HTMLInputElement).value = promotion?.dealCode || '';
+
+      const defaults = defaultTiming(claim.venueId, mode);
+      localInput('startsAtLocal').value = promotion?.startsAt
+        ? formatSanDiegoDateTimeInput(promotion.startsAt)
+        : defaults.start;
+      localInput('endsAtLocal').value = promotion?.endsAt
+        ? formatSanDiegoDateTimeInput(promotion.endsAt)
+        : defaults.end;
+      setOccurrenceFromInstant('start', promotion?.startsAt || null);
+      setOccurrenceFromInstant('end', promotion?.endsAt || null);
+
+      const title = intent === 'create'
+        ? mode === 'now' ? 'Launch Live Promotion' : 'Schedule Promotion'
+        : intent === 'start-now'
+          ? 'Start Promotion Now'
+          : intent === 'publish'
+            ? 'Schedule Draft'
+            : 'Edit Promotion';
+      promotionDialog.querySelector('[data-dialog-close]')?.setAttribute('aria-label', `Close ${title}`);
+      document.getElementById('merchant-promotion-dialog-title')!.textContent = title;
+      document.getElementById('merchant-promotion-dialog-venue')!.textContent = claim.venueName || `Venue #${claim.venueId}`;
+
+      const saveDraft = promotionDialog.querySelector('[data-save-draft]') as HTMLButtonElement;
+      saveDraft.hidden = promotion?.state === 'scheduled';
+      const reviewButton = promotionDialog.querySelector('[data-review-promotion]') as HTMLButtonElement;
+      reviewButton.hidden = intent === 'edit' && promotion?.state === 'draft';
+      syncWhenFields();
+      resolveLocalInput('end', false);
+      if (mode === 'schedule') resolveLocalInput('start', false);
+      updatePreview();
+
+      promotionDialog.showModal();
+      queueMicrotask(() => (promotionForm.elements.namedItem('title') as HTMLInputElement).focus());
+    }
+
+    interface CompleteFormData {
+      content: {
+        type: string;
+        title: string;
+        description: string;
+        dealCode: string;
+      };
+      when: WhenMode;
+      startsAt: string | null;
+      endsAt: string;
+    }
+
+    function formContent(): CompleteFormData['content'] {
+      return {
+        type: (promotionForm.elements.namedItem('type') as HTMLSelectElement).value,
+        title: (promotionForm.elements.namedItem('title') as HTMLInputElement).value.trim(),
+        description: (promotionForm.elements.namedItem('description') as HTMLTextAreaElement).value.trim(),
+        dealCode: (promotionForm.elements.namedItem('dealCode') as HTMLInputElement).value.trim(),
+      };
+    }
+
+    function collectCompleteForm(): CompleteFormData | null {
+      const when = selectedWhen();
+      const startsAt = when === 'schedule' ? resolveLocalInput('start', true) : null;
+      const endsAt = resolveLocalInput('end', true);
+      if (!promotionForm.checkValidity() || !endsAt || (when === 'schedule' && !startsAt)) {
+        promotionForm.reportValidity();
+        return null;
+      }
+
+      const reference = when === 'schedule'
+        ? parseInstant(startsAt)
+        : ensurePromotionState(editorContext!.venueId).clock?.now() || claimsClock?.now() || null;
+      const end = parseInstant(endsAt);
+      const anchoredNow = ensurePromotionState(editorContext!.venueId).clock?.now() || claimsClock?.now() || null;
+      if (when === 'schedule' && reference && anchoredNow && reference.getTime() <= anchoredNow.getTime()) {
+        const message = 'A scheduled promotion must start in the future. Choose Start Now to launch immediately.';
+        localInput('startsAtLocal').setCustomValidity(message);
+        (promotionForm.querySelector('[data-start-error]') as HTMLElement).textContent = message;
+        promotionForm.reportValidity();
+        return null;
+      }
+      if (!reference || !end || end.getTime() <= reference.getTime()) {
+        const message = 'Promotion end must be later than its start.';
+        localInput('endsAtLocal').setCustomValidity(message);
+        (promotionForm.querySelector('[data-end-error]') as HTMLElement).textContent = message;
+        promotionForm.reportValidity();
+        return null;
+      }
+      if (end.getTime() - reference.getTime() > 24 * 60 * 60 * 1000) {
+        const message = 'Promotion duration cannot exceed 24 hours.';
+        localInput('endsAtLocal').setCustomValidity(message);
+        (promotionForm.querySelector('[data-end-error]') as HTMLElement).textContent = message;
+        promotionForm.reportValidity();
+        return null;
+      }
+      return { content: formContent(), when, startsAt, endsAt };
+    }
+
+    function showConfirmation(data: CompleteFormData): void {
+      if (!editorContext) return;
+      const titleEl = promotionDialog.querySelector('[data-confirmation-title]')!;
+      const copyEl = promotionDialog.querySelector('[data-confirmation-copy]')!;
+      const button = promotionDialog.querySelector('[data-confirmation-submit]') as HTMLButtonElement;
+      const isGoLive = editorContext.intent === 'start-now' || (editorContext.intent === 'create' && data.when === 'now');
+      const isSchedule = editorContext.intent === 'publish' || (editorContext.intent === 'create' && data.when === 'schedule');
+
+      titleEl.textContent = isGoLive ? 'Ready to go Live?' : isSchedule ? 'Ready to schedule?' : 'Save these changes?';
+      copyEl.textContent = isGoLive
+        ? 'This promotion will become visible as soon as the server starts it.'
+        : isSchedule
+          ? 'This promotion will automatically become Live at its scheduled San Diego time.'
+          : editorContext.stateAtOpen === 'draft'
+            ? 'This promotion will remain a draft until you schedule it or start it.'
+            : 'The updated schedule will remain active.';
+      promotionDialog.querySelector('[data-confirmation-headline]')!.textContent = data.content.title;
+      promotionDialog.querySelector('[data-confirmation-time]')!.textContent = data.when === 'now'
+        ? `Now–${formatSanDiegoDateTime(data.endsAt)}`
+        : `${formatSanDiegoDateTime(data.startsAt!)} – ${formatSanDiegoDateTime(data.endsAt)}`;
+      button.textContent = isGoLive ? 'GO LIVE' : isSchedule ? 'SCHEDULE PROMOTION' : 'SAVE CHANGES';
+      (promotionDialog.querySelector('[data-editor-step]') as HTMLElement).hidden = true;
+      (promotionDialog.querySelector('[data-confirmation-step]') as HTMLElement).hidden = false;
+      setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), '');
+      button.focus();
+    }
+
+    function applyMutationResponse(
+      venueId: number,
+      result: ApiResult,
+      message: string
+    ): void {
+      const state = ensurePromotionState(venueId);
+      const data = result.data;
+      state.clock = anchorClock(result, data.serverNow) || state.clock;
+      if (data.entitlement) state.entitlement = data.entitlement;
+      if (data.promotion) {
+        const index = state.promotions.findIndex((promotion) => promotion.id === data.promotion.id);
+        if (index === -1) state.promotions.unshift(data.promotion);
+        else state.promotions[index] = data.promotion;
+      }
+      if (data.deletedId) {
+        state.promotions = state.promotions.filter((promotion) => promotion.id !== data.deletedId);
+      }
+      state.error = '';
+      state.message = message;
+      state.messageKind = 'success';
+      renderVenueCommand(venueId);
+    }
+
+    async function mutateAndReconcile(
+      venueId: number,
+      path: string,
+      options: RequestInit,
+      message: string
+    ): Promise<ApiResult> {
+      const result = await api(path, options);
+      applyMutationResponse(venueId, result, message);
+      await loadPromotions(venueId, true);
+      return result;
+    }
+
+    async function reconcileInvalidTransition(venueId: number, error: unknown): Promise<boolean> {
+      if (error instanceof MerchantApiError && error.status === 409 && error.code === 'invalid_transition') {
+        const state = ensurePromotionState(venueId);
+        state.message = 'This promotion changed on the server. The latest state is shown.';
+        state.messageKind = 'error';
+        await loadPromotions(venueId, true);
+        return true;
+      }
+      return false;
+    }
+
+    async function runEditorMutation(data: CompleteFormData): Promise<void> {
+      if (!editorContext) return;
+      const context = editorContext;
+      const confirmButton = promotionDialog.querySelector('[data-confirmation-submit]') as HTMLButtonElement;
+      confirmButton.disabled = true;
+      setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), 'Saving…');
+
+      try {
+        let promotionId = context.promotionId;
+        if (context.intent === 'create') {
+          const draftBody: Record<string, unknown> = {
+            venueId: context.venueId,
+            ...data.content,
+          };
+          // Start Now intentionally sends no client-authored start time. Its
+          // draft is untimed; the action endpoint supplies the DB timestamp.
+          if (data.when === 'schedule') {
+            draftBody.startsAt = data.startsAt;
+            draftBody.endsAt = data.endsAt;
+          }
+          const draft = await mutateAndReconcile(
+            context.venueId,
+            '/api/restaurant/promotions',
+            { method: 'POST', body: JSON.stringify(draftBody) },
+            'Draft created.'
+          );
+          promotionId = draft.data.promotion.id;
+          editorContext.promotionId = promotionId;
+        } else if (context.intent === 'edit') {
+          const patch: Record<string, unknown> = { ...data.content };
+          if (data.when === 'schedule') {
+            patch.startsAt = data.startsAt;
+            patch.endsAt = data.endsAt;
+          } else if (context.stateAtOpen === 'draft') {
+            patch.startsAt = null;
+            patch.endsAt = null;
+          }
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(promotionId!)}`,
+            { method: 'PATCH', body: JSON.stringify(patch) },
+            context.stateAtOpen === 'draft' ? 'Draft saved.' : 'Scheduled promotion updated.'
+          );
+        } else {
+          const patch: Record<string, unknown> = { ...data.content };
+          if (context.intent === 'publish') {
+            patch.startsAt = data.startsAt;
+            patch.endsAt = data.endsAt;
+          }
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(promotionId!)}`,
+            { method: 'PATCH', body: JSON.stringify(patch) },
+            context.stateAtOpen === 'draft' ? 'Draft saved.' : 'Promotion updated.'
+          );
+        }
+
+        if (context.intent === 'create' || context.intent === 'publish' || context.intent === 'start-now') {
+          const goLive = context.intent === 'start-now' || (context.intent === 'create' && data.when === 'now');
+          const action = goLive ? 'start-now' : 'publish';
+          // Start Now accepts only endsAt. No client start is ever supplied.
+          const body = goLive ? { endsAt: data.endsAt } : {};
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(promotionId!)}/${action}`,
+            { method: 'POST', body: JSON.stringify(body) },
+            goLive ? 'Promotion is Live.' : 'Promotion scheduled.'
+          );
+        }
+
+        setDialogStatus(promotionDialog.querySelector('[data-confirmation-status]'), 'Saved.', 'success');
+        promotionDialog.close();
+      } catch (error: any) {
+        if (await reconcileInvalidTransition(context.venueId, error)) {
+          promotionDialog.close();
+          return;
+        }
+        const suffix = context.intent === 'create' && editorContext?.promotionId
+          ? ' Your draft is saved and appears in Drafts.'
+          : '';
+        setDialogStatus(
+          promotionDialog.querySelector('[data-confirmation-status]'),
+          `${error?.message || 'Could not save the promotion.'}${suffix}`,
+          'error'
+        );
+      } finally {
+        confirmButton.disabled = false;
+      }
+    }
+
+    async function saveDraft(): Promise<void> {
+      if (!editorContext) return;
+      const context = editorContext;
+      const button = promotionDialog.querySelector('[data-save-draft]') as HTMLButtonElement;
+      const when = selectedWhen();
+      const body: Record<string, unknown> = { ...formContent() };
+
+      if (when === 'schedule') {
+        const startsAt = resolveLocalInput('start', false);
+        const endsAt = resolveLocalInput('end', false);
+        const hasEither = Boolean(localInput('startsAtLocal').value || localInput('endsAtLocal').value);
+        if (hasEither && (!startsAt || !endsAt)) {
+          promotionForm.reportValidity();
+          return;
+        }
+        if (startsAt && endsAt) {
+          const start = parseInstant(startsAt)!;
+          const end = parseInstant(endsAt)!;
+          if (end.getTime() <= start.getTime() || end.getTime() - start.getTime() > 24 * 60 * 60 * 1000) {
+            setDialogStatus(
+              promotionDialog.querySelector('[data-form-status]'),
+              end.getTime() <= start.getTime()
+                ? 'Promotion end must be later than its start.'
+                : 'Promotion duration cannot exceed 24 hours.',
+              'error'
+            );
+            return;
+          }
+          body.startsAt = startsAt;
+          body.endsAt = endsAt;
+        }
+      } else if (context.promotionId && context.stateAtOpen === 'draft') {
+        body.startsAt = null;
+        body.endsAt = null;
+      }
+
+      button.disabled = true;
+      setDialogStatus(promotionDialog.querySelector('[data-form-status]'), 'Saving draft…');
+      try {
+        if (context.promotionId) {
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(context.promotionId)}`,
+            { method: 'PATCH', body: JSON.stringify(body) },
+            'Draft saved.'
+          );
+        } else {
+          await mutateAndReconcile(
+            context.venueId,
+            '/api/restaurant/promotions',
+            { method: 'POST', body: JSON.stringify({ venueId: context.venueId, ...body }) },
+            'Draft saved.'
+          );
+        }
+        promotionDialog.close();
+      } catch (error: any) {
+        if (await reconcileInvalidTransition(context.venueId, error)) {
+          promotionDialog.close();
+          return;
+        }
+        setDialogStatus(
+          promotionDialog.querySelector('[data-form-status]'),
+          error?.message || 'Could not save the draft.',
+          'error'
+        );
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function openActionConfirmation(
+      source: HTMLElement,
+      venueId: number,
+      promotion: MerchantPromotionDto,
+      action: ActionContext['action']
+    ): void {
+      actionContext = { venueId, promotionId: promotion.id, action };
+      rememberFocus(
+        source,
+        `.claim-card[data-venue-id="${venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${action}"], .claim-card[data-venue-id="${venueId}"] [data-promotion-action="launch"]:not(:disabled), .claim-card[data-venue-id="${venueId}"] [data-promotion-action="schedule-new"]`
+      );
+      const title = action === 'delete'
+        ? 'Delete this draft?'
+        : action === 'cancel'
+          ? 'Cancel this scheduled promotion?'
+          : 'End this Live promotion?';
+      const copy = action === 'delete'
+        ? 'The unpublished draft will be removed permanently.'
+        : action === 'cancel'
+          ? 'It will move to Past and will not start at its scheduled time.'
+          : 'The promotion will stop appearing publicly as soon as the server ends it.';
+      actionDialog.querySelector('[data-action-dialog-title]')!.textContent = title;
+      actionDialog.querySelector('[data-action-dialog-copy]')!.textContent = copy;
+      (actionDialog.querySelector('[data-action-dialog-confirm]') as HTMLButtonElement).textContent = action === 'delete'
+        ? 'Delete draft'
+        : action === 'cancel'
+          ? 'Cancel promotion'
+          : 'End promotion';
+      setDialogStatus(actionDialog.querySelector('[data-action-dialog-status]'), '');
+      actionDialog.showModal();
+      queueMicrotask(() => (actionDialog.querySelector('[data-action-dialog-cancel]') as HTMLButtonElement).focus());
+    }
+
+    async function runActionMutation(): Promise<void> {
+      if (!actionContext) return;
+      const context = actionContext;
+      const confirmButton = actionDialog.querySelector('[data-action-dialog-confirm]') as HTMLButtonElement;
+      confirmButton.disabled = true;
+      setDialogStatus(actionDialog.querySelector('[data-action-dialog-status]'), 'Working…');
+      try {
+        if (context.action === 'delete') {
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(context.promotionId)}`,
+            { method: 'DELETE' },
+            'Draft deleted.'
+          );
+        } else {
+          await mutateAndReconcile(
+            context.venueId,
+            `/api/restaurant/promotions/${encodeURIComponent(context.promotionId)}/${context.action}`,
+            { method: 'POST', body: JSON.stringify({}) },
+            context.action === 'cancel' ? 'Promotion cancelled.' : 'Promotion ended.'
+          );
+        }
+        actionDialog.close();
+      } catch (error: any) {
+        if (await reconcileInvalidTransition(context.venueId, error)) {
+          actionDialog.close();
+          return;
+        }
+        setDialogStatus(
+          actionDialog.querySelector('[data-action-dialog-status]'),
+          error?.message || 'Could not update the promotion.',
+          'error'
+        );
+      } finally {
+        confirmButton.disabled = false;
+      }
+    }
+
+    document.getElementById('retry-btn')?.addEventListener('click', () => {
+      document.getElementById('error-panel')!.classList.add('hidden');
+      document.getElementById('loading-panel')!.classList.remove('hidden');
+      void loadEverything();
+    });
 
     document.getElementById('venue-search')!.addEventListener('input', async (event) => {
       const query = (event.target as HTMLInputElement).value.trim();
@@ -330,17 +1296,16 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
       try {
-        const res = await fetch(`/api/restaurant/venues?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const data = (await api(`/api/restaurant/venues?q=${encodeURIComponent(query)}`)).data;
         const matches = data.venues || [];
-        resultsEl.innerHTML = matches.map((v: any) => `
-          <div class="venue-result ${v.alreadyClaimed ? 'claimed' : ''}" data-venue-id="${v.id}">
-            <div>
-              <strong>${escapeHTML(v.name)}</strong>
-              <span>${escapeHTML(v.neighborhood)} · ${escapeHTML(v.address)}</span>
-            </div>
-            ${v.alreadyClaimed ? '<span class="tag">Claimed</span>' : ''}
-          </div>
+        resultsEl.innerHTML = matches.map((venue: any) => `
+          <button class="venue-result ${venue.alreadyClaimed ? 'claimed' : ''}" type="button" data-venue-id="${venue.id}" ${venue.alreadyClaimed ? 'disabled' : ''}>
+            <span>
+              <strong>${escapeHTML(venue.name)}</strong>
+              <span>${escapeHTML(venue.neighborhood)} · ${escapeHTML(venue.address)}</span>
+            </span>
+            ${venue.alreadyClaimed ? '<span class="tag">Claimed</span>' : '<span class="tag">Claim</span>'}
+          </button>
         `).join('') || '<div class="status">No matches.</div>';
       } catch {
         resultsEl.innerHTML = '<div class="status error">Search failed.</div>';
@@ -348,51 +1313,65 @@ import Layout from '../layouts/Layout.astro';
     });
 
     document.getElementById('venue-results')!.addEventListener('click', async (event) => {
-      const result = (event.target as HTMLElement).closest('[data-venue-id]') as HTMLElement | null;
-      if (!result || result.classList.contains('claimed')) return;
+      const result = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-venue-id]');
+      if (!result || result.disabled) return;
       try {
         await postJson('/api/restaurant/claim', { venueId: Number(result.dataset.venueId) });
         await loadEverything();
-      } catch (err: any) {
-        alert(err.message);
+      } catch (error: any) {
+        window.alert(error?.message || 'Could not claim that listing.');
       }
     });
 
-    document.getElementById('claims-list')!.addEventListener('click', async (event) => {
+    claimsListEl.addEventListener('click', async (event) => {
       const target = event.target as HTMLElement;
-      const card = target.closest('.claim-card') as HTMLElement | null;
+      const card = target.closest<HTMLElement>('.claim-card');
       if (!card) return;
       const venueId = Number(card.dataset.venueId);
+      const claim = claimForVenue(venueId);
+      if (!claim) return;
 
-      if (target.closest('[data-action="toggle-live"]')) {
-        const toggle = card.querySelector('[data-live-toggle]')!;
-        const status = card.querySelector('[data-live-status]')!;
-        const isLive = toggle.classList.contains('is-live');
-        status.classList.remove('error');
-        status.textContent = 'Working...';
-        try {
-          await postJson('/api/restaurant/live', { venueId, active: !isLive });
-          toggle.classList.toggle('is-live', !isLive);
-          (target.closest('[data-action="toggle-live"]') as HTMLButtonElement).textContent = !isLive ? "We're live — tap to end" : "We're live now";
-          status.textContent = !isLive ? 'Live — matching alerts will go out.' : 'Marked as no longer live.';
-        } catch (err: any) {
-          status.classList.add('error');
-          status.textContent = err.message;
+      const promotionButton = target.closest<HTMLElement>('[data-promotion-action]');
+      if (promotionButton) {
+        const action = promotionButton.dataset.promotionAction!;
+        if (action === 'retry') {
+          void loadPromotions(venueId);
+          return;
         }
-        return;
-      }
+        if (action === 'launch' || action === 'schedule-new') {
+          openPromotionEditor(
+            promotionButton,
+            claim,
+            'create',
+            null,
+            action === 'launch' ? 'now' : 'schedule'
+          );
+          return;
+        }
 
-      if (target.closest('[data-action="remove-promo"]')) {
-        const status = card.querySelector('[data-promo-status]')!;
-        status.classList.remove('error');
-        status.textContent = 'Removing...';
-        try {
-          await postJson('/api/restaurant/promotion', { venueId }, 'DELETE');
-          (card.querySelector('[data-promo-form]') as HTMLFormElement).reset();
-          status.textContent = 'Promo removed.';
-        } catch (err: any) {
-          status.classList.add('error');
-          status.textContent = err.message;
+        const promotionCard = promotionButton.closest<HTMLElement>('[data-promotion-id]');
+        const promotion = promotionCard?.dataset.promotionId
+          ? promotionFor(venueId, promotionCard.dataset.promotionId)
+          : null;
+        if (!promotion) {
+          void loadPromotions(venueId);
+          return;
+        }
+
+        if (action === 'edit' && promotion.allowedActions.update) {
+          openPromotionEditor(promotionButton, claim, 'edit', promotion, promotion.state === 'scheduled' ? 'schedule' : 'now');
+        } else if (action === 'publish' && promotion.allowedActions.publish) {
+          openPromotionEditor(promotionButton, claim, 'publish', promotion, 'schedule');
+        } else if (action === 'start-now' && promotion.allowedActions.startNow) {
+          openPromotionEditor(promotionButton, claim, 'start-now', promotion, 'now');
+        } else if (action === 'delete' && promotion.allowedActions.delete) {
+          openActionConfirmation(promotionButton, venueId, promotion, 'delete');
+        } else if (action === 'cancel' && promotion.allowedActions.cancel) {
+          openActionConfirmation(promotionButton, venueId, promotion, 'cancel');
+        } else if (action === 'end' && promotion.allowedActions.end) {
+          openActionConfirmation(promotionButton, venueId, promotion, 'end');
+        } else {
+          void loadPromotions(venueId, true);
         }
         return;
       }
@@ -400,16 +1379,16 @@ import Layout from '../layouts/Layout.astro';
       if (target.closest('[data-action="send-code"]')) {
         const status = card.querySelector('[data-phone-status]')!;
         status.classList.remove('error');
-        status.textContent = 'Sending...';
+        status.textContent = 'Sending…';
         try {
           const result = await postJson('/api/restaurant/claim/send-code', { venueId });
           card.querySelector('[data-code-entry]')!.classList.remove('hidden');
           status.textContent = result.simulated
             ? 'Code generated — provider not configured, check the server log.'
             : "Code sent — check the venue's phone.";
-        } catch (err: any) {
+        } catch (error: any) {
           status.classList.add('error');
-          status.textContent = err.message;
+          status.textContent = error?.message || 'Could not send a code.';
         }
         return;
       }
@@ -418,56 +1397,121 @@ import Layout from '../layouts/Layout.astro';
         const status = card.querySelector('[data-phone-status]')!;
         const codeInput = card.querySelector('[data-code-input]') as HTMLInputElement;
         status.classList.remove('error');
-        status.textContent = 'Verifying...';
+        status.textContent = 'Verifying…';
         try {
           await postJson('/api/restaurant/claim/verify-code', { venueId, code: codeInput.value.trim() });
           status.textContent = 'Verified!';
           await loadEverything();
-        } catch (err: any) {
+        } catch (error: any) {
           status.classList.add('error');
-          status.textContent = err.message;
+          status.textContent = error?.message || 'Could not verify that code.';
         }
       }
     });
 
-    document.getElementById('claims-list')!.addEventListener('submit', async (event) => {
+    claimsListEl.addEventListener('submit', async (event) => {
+      const form = (event.target as HTMLElement).closest<HTMLFormElement>('[data-resubmit-form]');
+      if (!form) return;
       event.preventDefault();
-      const form = event.target as HTMLFormElement;
-      const card = form.closest('.claim-card') as HTMLElement;
+      const card = form.closest<HTMLElement>('.claim-card')!;
       const venueId = Number(card.dataset.venueId);
-
-      if (form.hasAttribute('data-promo-form')) {
-        const status = card.querySelector('[data-promo-status]')!;
-        status.classList.remove('error');
-        status.textContent = 'Saving...';
-        try {
-          await postJson('/api/restaurant/promotion', {
-            venueId,
-            description: (form.querySelector('[name="description"]') as HTMLInputElement).value,
-            dealCode: (form.querySelector('[name="dealCode"]') as HTMLInputElement).value,
-          }, 'PUT');
-          status.textContent = 'Saved — visible on the site now (code shown only to signed-in visitors).';
-        } catch (err: any) {
-          status.classList.add('error');
-          status.textContent = err.message;
-        }
-      }
-
-      if (form.hasAttribute('data-resubmit-form')) {
-        const status = card.querySelector('[data-resubmit-status]')!;
-        status.classList.remove('error');
-        status.textContent = 'Submitting...';
-        try {
-          await postJson('/api/restaurant/claim', { venueId, claimNote: (form.querySelector('[name="claimNote"]') as HTMLTextAreaElement).value });
-          status.textContent = 'Submitted for review.';
-          await loadEverything();
-        } catch (err: any) {
-          status.classList.add('error');
-          status.textContent = err.message;
-        }
+      const status = card.querySelector('[data-resubmit-status]')!;
+      status.classList.remove('error');
+      status.textContent = 'Submitting…';
+      try {
+        await postJson('/api/restaurant/claim', {
+          venueId,
+          claimNote: (form.elements.namedItem('claimNote') as HTMLTextAreaElement).value,
+        });
+        status.textContent = 'Submitted for review.';
+        await loadEverything();
+      } catch (error: any) {
+        status.classList.add('error');
+        status.textContent = error?.message || 'Could not submit for review.';
       }
     });
 
-    Promise.all([loadHappyHours(), loadEverything()]);
+    promotionForm.addEventListener('input', (event) => {
+      const target = event.target as HTMLInputElement;
+      if (target.name === 'when') syncWhenFields();
+      if (target.name === 'startsAtLocal') {
+        clearOccurrence('startsAtOccurrence');
+        resolveLocalInput('start', false);
+      }
+      if (target.name === 'endsAtLocal') {
+        clearOccurrence('endsAtOccurrence');
+        resolveLocalInput('end', false);
+      }
+      updatePreview();
+    });
+
+    promotionForm.addEventListener('change', (event) => {
+      const target = event.target as HTMLInputElement;
+      if (target.name === 'startsAtOccurrence') resolveLocalInput('start', true);
+      if (target.name === 'endsAtOccurrence') resolveLocalInput('end', true);
+      updatePreview();
+    });
+
+    promotionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = collectCompleteForm();
+      if (data) showConfirmation(data);
+    });
+
+    promotionDialog.querySelector('[data-dialog-close]')!.addEventListener('click', () => promotionDialog.close());
+    promotionDialog.querySelector('[data-confirmation-back]')!.addEventListener('click', () => {
+      (promotionDialog.querySelector('[data-confirmation-step]') as HTMLElement).hidden = true;
+      (promotionDialog.querySelector('[data-editor-step]') as HTMLElement).hidden = false;
+      (promotionDialog.querySelector('[data-review-promotion]') as HTMLButtonElement).focus();
+    });
+    promotionDialog.querySelector('[data-confirmation-submit]')!.addEventListener('click', () => {
+      const data = collectCompleteForm();
+      if (data) void runEditorMutation(data);
+    });
+    promotionDialog.querySelector('[data-save-draft]')!.addEventListener('click', () => void saveDraft());
+    promotionDialog.querySelectorAll<HTMLButtonElement>('[data-quick-end]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!editorContext) return;
+        let base = selectedWhen() === 'schedule'
+          ? parseInstant(resolveLocalInput('start', true))
+          : ensurePromotionState(editorContext.venueId).clock?.now() || claimsClock?.now() || null;
+        if (!base) {
+          setDialogStatus(promotionDialog.querySelector('[data-form-status]'), 'Choose a valid start time first.', 'error');
+          return;
+        }
+        const hours = Number(button.dataset.quickEnd);
+        localInput('endsAtLocal').value = formatSanDiegoDateTimeInput(
+          new Date(base.getTime() + hours * 60 * 60 * 1000)
+        );
+        clearOccurrence('endsAtOccurrence');
+        resolveLocalInput('end', false);
+        updatePreview();
+      });
+    });
+    promotionDialog.addEventListener('close', restoreFocus);
+
+    actionDialog.querySelector('[data-action-dialog-cancel]')!.addEventListener('click', () => actionDialog.close());
+    actionDialog.querySelector('[data-action-dialog-confirm]')!.addEventListener('click', () => void runActionMutation());
+    actionDialog.addEventListener('close', restoreFocus);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      for (const claim of claims) {
+        if (claim.status === 'verified') void loadPromotions(claim.venueId, true);
+      }
+    });
+    window.addEventListener('pageshow', () => {
+      for (const claim of claims) {
+        if (claim.status === 'verified') void loadPromotions(claim.venueId, true);
+      }
+    });
+    window.setInterval(() => {
+      if (document.hidden) return;
+      for (const claim of claims) {
+        if (claim.status === 'verified') void loadPromotions(claim.venueId, true);
+      }
+    }, 60_000);
+
+    void loadEverything();
   </script>
 </Layout>
