@@ -1,0 +1,157 @@
+---
+/**
+ * Shared Phase 3 presentation primitives. The page that imports this component
+ * owns markup, hierarchy, and whether it renders full or summary deal content.
+ */
+---
+
+<style is:global>
+  .live-deal-badge,
+  .happy-hour-now-badge {
+    align-items: center;
+    border-radius: 100px;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    font-weight: 800;
+    gap: 7px;
+    letter-spacing: 0.075em;
+    line-height: 1;
+    padding: 7px 12px;
+    text-transform: uppercase;
+  }
+
+  .live-deal-badge {
+    background: linear-gradient(135deg, var(--violet), var(--sunset-start));
+    box-shadow: 0 5px 16px rgba(139, 92, 246, 0.3);
+    color: white;
+  }
+
+  .happy-hour-now-badge {
+    background: var(--palm);
+    color: white;
+  }
+
+  .live-deal-badge--secondary,
+  .happy-hour-now-badge--secondary {
+    box-shadow: none;
+    font-size: 0.65rem;
+    padding: 6px 10px;
+  }
+
+  .live-deal-status-dot {
+    background: currentColor;
+    border-radius: 50%;
+    height: 6px;
+    opacity: 0.95;
+    width: 6px;
+    animation: live-deal-status-pulse 1.8s ease-in-out infinite;
+  }
+
+  .live-deal-panel {
+    background:
+      linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 107, 53, 0.12)),
+      white;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: var(--radius);
+    box-shadow: 0 14px 38px rgba(15, 23, 42, 0.1);
+    color: var(--night);
+    min-width: 0;
+    overflow-wrap: anywhere;
+    padding: clamp(18px, 4vw, 28px);
+  }
+
+  .live-deal-panel--compact {
+    border-radius: var(--radius-sm);
+    box-shadow: none;
+    padding: 12px 14px;
+  }
+
+  .live-deal-heading-row,
+  .live-deal-meta,
+  .live-deal-code-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .live-deal-heading-row { justify-content: space-between; }
+
+  .live-deal-title {
+    color: var(--night);
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 4vw, 1.65rem);
+    line-height: 1.15;
+    margin: 12px 0 0;
+  }
+
+  .live-deal-details {
+    color: var(--night-soft);
+    line-height: 1.5;
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+  }
+
+  .live-deal-meta {
+    color: var(--night-soft);
+    font-size: 0.82rem;
+    font-weight: 650;
+    margin-top: 12px;
+  }
+
+  .live-deal-countdown {
+    color: var(--violet);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+  }
+
+  .live-deal-code-row {
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+
+  .live-deal-code {
+    background: var(--night);
+    border: 1px dashed rgba(255, 255, 255, 0.55);
+    border-radius: 100px;
+    color: white;
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 7px 12px;
+    user-select: all;
+  }
+
+  .live-deal-link {
+    color: var(--violet);
+    font-size: 0.84rem;
+    font-weight: 750;
+    text-underline-offset: 3px;
+  }
+
+  .live-deal-link:hover { color: var(--sunset-start); }
+
+  .live-deal-link:focus-visible,
+  .live-deal-panel :is(a, button):focus-visible {
+    border-radius: 4px;
+    outline: 3px solid var(--ocean);
+    outline-offset: 3px;
+  }
+
+  @keyframes live-deal-status-pulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
+  @media (max-width: 520px) {
+    .live-deal-heading-row { align-items: flex-start; }
+    .live-deal-code-row { align-items: flex-start; flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-deal-status-dot { animation: none; }
+  }
+</style>
