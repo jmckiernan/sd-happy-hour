@@ -118,10 +118,10 @@ const { venue } = Astro.props;
     </div>
 
     <div id="mg-editor" class="mg-hidden" data-venue-id={venue.id}>
-      <h1>{venue.name}</h1>
+      <h1>Manage listing: {venue.name}</h1>
       <p class="mg-sub">
         {venue.neighborhood} · <a href={`/venues/${slugify(venue.name)}/`}>view your public page</a> ·
-        <a href="/restaurant/">back to dashboard</a>
+        <a href="/restaurant/">manage promotions</a>
       </p>
 
       <!-- Listing -->

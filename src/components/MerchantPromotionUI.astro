@@ -1,0 +1,460 @@
+<style is:global>
+  .merchant-promotion-command {
+    border-top: 1px solid var(--sand-warm);
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .merchant-promotion-command [hidden],
+  .merchant-promotion-dialog [hidden] { display: none !important; }
+
+  .merchant-promotion-command h4,
+  .merchant-promotion-dialog h2,
+  .merchant-promotion-dialog h3 {
+    font-family: var(--font-display);
+  }
+
+  .merchant-promotion-command h4 { font-size: 1rem; margin: 0; }
+  .merchant-promotion-command p { line-height: 1.5; }
+
+  .merchant-today {
+    background: white;
+    border: 1px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 6px;
+    padding: 14px;
+  }
+
+  .merchant-today-time { color: var(--night); font-size: 1rem; font-weight: 800; }
+  .merchant-today-state { color: var(--night-soft); font-size: 0.86rem; font-weight: 700; }
+  .merchant-today-state.is-now { color: #166534; }
+
+  .merchant-promotion-heading {
+    align-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .merchant-promotion-heading > div:first-child { display: grid; gap: 4px; }
+  .merchant-entitlement { color: var(--night-soft); font-size: 0.82rem; margin: 0; }
+  .merchant-entitlement strong { color: var(--night); }
+
+  .merchant-promotion-actions,
+  .merchant-card-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .merchant-promotion-button {
+    align-items: center;
+    background: var(--night);
+    border: 0;
+    border-radius: 100px;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 17px;
+    text-decoration: none;
+  }
+
+  .merchant-promotion-button:hover { background: var(--sunset-start); }
+  .merchant-promotion-button.secondary { background: var(--sand-warm); color: var(--night); }
+  .merchant-promotion-button.secondary:hover { background: var(--sunset-end); }
+  .merchant-promotion-button.danger { background: #FEE2E2; color: #991B1B; }
+  .merchant-promotion-button.danger:hover { background: #FECACA; }
+  .merchant-promotion-button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+  .merchant-promotion-button:focus-visible,
+  .merchant-promotion-dialog button:focus-visible,
+  .merchant-promotion-dialog input:focus-visible,
+  .merchant-promotion-dialog textarea:focus-visible,
+  .merchant-promotion-dialog select:focus-visible {
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+    outline: 3px solid var(--sunset-start);
+    outline-offset: 2px;
+  }
+
+  .merchant-promotion-sections { display: grid; gap: 14px; }
+  .merchant-promotion-section { display: grid; gap: 9px; }
+  .merchant-promotion-section-head {
+    align-items: baseline;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .merchant-promotion-count { color: var(--night-soft); font-size: 0.78rem; font-weight: 700; }
+  .merchant-promotion-list { display: grid; gap: 9px; }
+
+  .merchant-promotion-card {
+    background: white;
+    border: 1px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+  }
+  .merchant-promotion-card.is-active { border-left: 5px solid #DC2626; }
+  .merchant-promotion-card.is-terminal { background: #FCFBF8; }
+  .merchant-promotion-card-head {
+    align-items: start;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  .merchant-promotion-card h5 { font-size: 0.98rem; line-height: 1.35; margin: 0; }
+  .merchant-promotion-meta { color: var(--night-soft); font-size: 0.8rem; margin: 0; }
+  .merchant-promotion-detail { color: var(--night-soft); font-size: 0.85rem; margin: 0; white-space: pre-wrap; }
+  .merchant-promotion-code { color: var(--night); font-size: 0.8rem; font-weight: 700; margin: 0; }
+  .merchant-promotion-empty { color: var(--night-soft); font-size: 0.85rem; margin: 0; }
+
+  .merchant-state-badge {
+    border-radius: 100px;
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    padding: 5px 9px;
+    text-transform: uppercase;
+  }
+  .merchant-state-badge.live { background: #FEE2E2; color: #991B1B; }
+  .merchant-state-badge.scheduled { background: #DBEAFE; color: #1E40AF; }
+  .merchant-state-badge.draft { background: #FEF3C7; color: #92400E; }
+  .merchant-state-badge.ended,
+  .merchant-state-badge.cancelled { background: #E5E7EB; color: #374151; }
+
+  .merchant-promotion-load-status {
+    color: var(--night-soft);
+    font-size: 0.86rem;
+    font-weight: 650;
+    min-height: 1.4em;
+  }
+  .merchant-promotion-load-status.error { color: #B91C1C; }
+
+  .merchant-promotion-dialog {
+    background: transparent;
+    border: 0;
+    color: var(--night);
+    max-height: calc(100dvh - 24px);
+    max-width: 640px;
+    padding: 0;
+    width: calc(100% - 24px);
+  }
+  .merchant-promotion-dialog::backdrop { background: rgba(17, 24, 39, 0.64); }
+  .merchant-dialog-surface {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .merchant-dialog-header {
+    align-items: start;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .merchant-dialog-header h2 { font-size: 1.35rem; margin: 0 0 4px; }
+  .merchant-dialog-header p { color: var(--night-soft); font-size: 0.84rem; margin: 0; }
+  .merchant-dialog-close {
+    align-items: center;
+    background: var(--sand-warm);
+    border: 0;
+    border-radius: 50%;
+    color: var(--night);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 44px;
+    font: inherit;
+    font-size: 1.35rem;
+    height: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .merchant-promotion-form { display: grid; gap: 15px; }
+  .merchant-promotion-form label,
+  .merchant-promotion-form legend {
+    color: var(--night-soft);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+  }
+  .merchant-promotion-form label { display: grid; gap: 6px; }
+  .merchant-promotion-form input,
+  .merchant-promotion-form textarea,
+  .merchant-promotion-form select {
+    background: white;
+    border: 2px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    color: var(--night);
+    font: inherit;
+    min-height: 48px;
+    padding: 11px 12px;
+    text-transform: none;
+    width: 100%;
+  }
+  .merchant-promotion-form textarea { min-height: 92px; resize: vertical; }
+  .merchant-promotion-form fieldset { border: 0; display: grid; gap: 8px; margin: 0; padding: 0; }
+
+  .merchant-when-options { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .merchant-choice {
+    align-items: center;
+    border: 2px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    color: var(--night) !important;
+    cursor: pointer;
+    display: flex !important;
+    font-size: 0.88rem !important;
+    gap: 9px !important;
+    letter-spacing: 0 !important;
+    min-height: 48px;
+    padding: 10px 12px;
+    text-transform: none !important;
+  }
+  .merchant-choice:has(input:checked) { background: #FFF7ED; border-color: var(--sunset-start); }
+  .merchant-choice:has(input:disabled) { cursor: not-allowed; opacity: 0.58; }
+  .merchant-choice input { min-height: 20px; padding: 0; width: 20px; }
+
+  .merchant-time-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .merchant-time-zone { color: var(--night-soft); font-size: 0.78rem; margin: -5px 0 0; }
+  .merchant-quick-ends { display: flex; flex-wrap: wrap; gap: 7px; }
+  .merchant-quick-ends button {
+    background: var(--sand-warm);
+    border: 0;
+    border-radius: 100px;
+    color: var(--night);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 800;
+    min-height: 44px;
+    padding: 9px 14px;
+  }
+
+  .merchant-fold-choice {
+    background: #FFF7ED;
+    border: 1px solid #FDBA74 !important;
+    border-radius: var(--radius-sm);
+    padding: 11px !important;
+  }
+  .merchant-fold-choice legend { color: #9A3412; }
+  .merchant-fold-choice .merchant-choice { background: white; }
+
+  .merchant-field-error { color: #B91C1C; font-size: 0.78rem; font-weight: 700; min-height: 0; }
+  .merchant-preview {
+    background: linear-gradient(135deg, #FFF7ED, #FEF2F2);
+    border: 1px solid #FED7AA;
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 6px;
+    padding: 14px;
+  }
+  .merchant-preview-label { color: #9A3412; font-size: 0.68rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+  .merchant-preview h3 { font-size: 1.05rem; margin: 0; }
+  .merchant-preview p { color: var(--night-soft); font-size: 0.84rem; margin: 0; white-space: pre-wrap; }
+  .merchant-preview-time { color: var(--night) !important; font-weight: 750; }
+
+  .merchant-dialog-status { color: var(--night-soft); font-size: 0.86rem; font-weight: 700; min-height: 1.4em; }
+  .merchant-dialog-status.error { color: #B91C1C; }
+  .merchant-dialog-status.success { color: #166534; }
+  .merchant-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+  .merchant-confirmation { display: grid; gap: 16px; }
+  .merchant-confirmation h2 { font-size: 1.4rem; margin: 0; }
+  .merchant-confirmation-copy { color: var(--night-soft); margin: 0; }
+  .merchant-confirmation-card {
+    background: #FFF7ED;
+    border: 1px solid #FDBA74;
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 7px;
+    padding: 16px;
+  }
+  .merchant-confirmation-card strong { font-size: 1.08rem; }
+  .merchant-confirmation-card span { color: var(--night-soft); font-size: 0.86rem; }
+
+  .merchant-action-dialog { max-width: 440px; }
+  .merchant-action-dialog .merchant-dialog-surface { display: grid; gap: 14px; }
+  .merchant-action-dialog h2 { font-size: 1.25rem; margin: 0; }
+  .merchant-action-dialog p { color: var(--night-soft); line-height: 1.5; margin: 0; }
+
+  @media (max-width: 600px) {
+    .merchant-promotion-heading { display: grid; }
+    .merchant-promotion-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .merchant-promotion-button { width: 100%; }
+    .merchant-card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .merchant-time-grid { grid-template-columns: 1fr; }
+    .merchant-dialog-actions { display: grid; grid-template-columns: 1fr; }
+    .merchant-dialog-actions .merchant-promotion-button { order: 1; }
+    .merchant-dialog-actions .merchant-promotion-button.secondary { order: 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .merchant-promotion-dialog,
+    .merchant-promotion-dialog::backdrop { scroll-behavior: auto; }
+  }
+</style>
+
+<dialog
+  class="merchant-promotion-dialog"
+  id="merchant-promotion-dialog"
+  aria-labelledby="merchant-promotion-dialog-title"
+>
+  <div class="merchant-dialog-surface">
+    <div class="merchant-dialog-header">
+      <div>
+        <h2 id="merchant-promotion-dialog-title">Promotion</h2>
+        <p id="merchant-promotion-dialog-venue"></p>
+      </div>
+      <button class="merchant-dialog-close" type="button" data-dialog-close aria-label="Close promotion form">×</button>
+    </div>
+
+    <form class="merchant-promotion-form" id="merchant-promotion-form" data-editor-step novalidate>
+      <label for="merchant-promotion-type">
+        Promotion type
+        <select id="merchant-promotion-type" name="type">
+          <option value="special_deal">Special Deal</option>
+          <option value="extended_happy_hour">Extended Happy Hour</option>
+          <option value="event">Event</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label for="merchant-promotion-headline">
+        Headline
+        <input
+          id="merchant-promotion-headline"
+          name="title"
+          maxlength="80"
+          placeholder="$5 Margaritas + $2 Tacos"
+          autocomplete="off"
+          required
+        >
+      </label>
+
+      <label for="merchant-promotion-details">
+        Details <span aria-hidden="true">(optional)</span>
+        <textarea
+          id="merchant-promotion-details"
+          name="description"
+          maxlength="200"
+          placeholder="Bar seating only. While supplies last."
+        ></textarea>
+      </label>
+
+      <label for="merchant-promotion-code">
+        Deal code <span aria-hidden="true">(optional)</span>
+        <input id="merchant-promotion-code" name="dealCode" maxlength="30" placeholder="HHSD10" autocomplete="off">
+      </label>
+
+      <fieldset data-when-fieldset>
+        <legend>When</legend>
+        <div class="merchant-when-options">
+          <label class="merchant-choice" for="merchant-when-now">
+            <input id="merchant-when-now" type="radio" name="when" value="now" checked>
+            Start Now
+          </label>
+          <label class="merchant-choice" for="merchant-when-schedule">
+            <input id="merchant-when-schedule" type="radio" name="when" value="schedule">
+            Schedule
+          </label>
+        </div>
+      </fieldset>
+
+      <div data-schedule-fields hidden>
+        <label for="merchant-promotion-start">
+          Start in San Diego
+          <input id="merchant-promotion-start" name="startsAtLocal" type="datetime-local">
+        </label>
+        <fieldset class="merchant-fold-choice" data-start-fold hidden>
+          <legend>This time occurs twice. Choose one.</legend>
+          <label class="merchant-choice"><input type="radio" name="startsAtOccurrence" value="earlier"> First occurrence</label>
+          <label class="merchant-choice"><input type="radio" name="startsAtOccurrence" value="later"> Second occurrence</label>
+        </fieldset>
+        <p class="merchant-field-error" data-start-error aria-live="polite"></p>
+      </div>
+
+      <div class="merchant-time-grid">
+        <div>
+          <label for="merchant-promotion-end">
+            End in San Diego
+            <input id="merchant-promotion-end" name="endsAtLocal" type="datetime-local" required>
+          </label>
+          <fieldset class="merchant-fold-choice" data-end-fold hidden>
+            <legend>This time occurs twice. Choose one.</legend>
+            <label class="merchant-choice"><input type="radio" name="endsAtOccurrence" value="earlier"> First occurrence</label>
+            <label class="merchant-choice"><input type="radio" name="endsAtOccurrence" value="later"> Second occurrence</label>
+          </fieldset>
+          <p class="merchant-field-error" data-end-error aria-live="polite"></p>
+        </div>
+        <div>
+          <span class="merchant-time-zone">Quick end</span>
+          <div class="merchant-quick-ends" aria-label="Set promotion duration">
+            <button type="button" data-quick-end="1">1h</button>
+            <button type="button" data-quick-end="2">2h</button>
+            <button type="button" data-quick-end="4">4h</button>
+          </div>
+        </div>
+      </div>
+      <p class="merchant-time-zone">All dates and times use San Diego local time (Pacific).</p>
+
+      <section class="merchant-preview" aria-labelledby="merchant-preview-label">
+        <span class="merchant-preview-label" id="merchant-preview-label">Preview</span>
+        <h3 data-preview-title>Your promotion headline</h3>
+        <p data-preview-details></p>
+        <p class="merchant-preview-time" data-preview-time></p>
+      </section>
+
+      <div class="merchant-dialog-status" data-form-status role="status" aria-live="polite"></div>
+      <div class="merchant-dialog-actions">
+        <button class="merchant-promotion-button secondary" type="button" data-save-draft>Save Draft</button>
+        <button class="merchant-promotion-button" type="submit" data-review-promotion>Review promotion</button>
+      </div>
+    </form>
+
+    <section class="merchant-confirmation" data-confirmation-step hidden aria-labelledby="merchant-confirmation-title">
+      <h2 id="merchant-confirmation-title" data-confirmation-title>Ready?</h2>
+      <p class="merchant-confirmation-copy" data-confirmation-copy></p>
+      <div class="merchant-confirmation-card">
+        <strong data-confirmation-headline></strong>
+        <span data-confirmation-time></span>
+      </div>
+      <div class="merchant-dialog-status" data-confirmation-status role="status" aria-live="polite"></div>
+      <div class="merchant-dialog-actions">
+        <button class="merchant-promotion-button secondary" type="button" data-confirmation-back>Back</button>
+        <button class="merchant-promotion-button" type="button" data-confirmation-submit>Confirm</button>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<dialog
+  class="merchant-promotion-dialog merchant-action-dialog"
+  id="merchant-promotion-action-dialog"
+  aria-labelledby="merchant-promotion-action-title"
+>
+  <div class="merchant-dialog-surface">
+    <h2 id="merchant-promotion-action-title" data-action-dialog-title>Confirm action</h2>
+    <p data-action-dialog-copy></p>
+    <div class="merchant-dialog-status" data-action-dialog-status role="status" aria-live="polite"></div>
+    <div class="merchant-dialog-actions">
+      <button class="merchant-promotion-button secondary" type="button" data-action-dialog-cancel>Keep promotion</button>
+      <button class="merchant-promotion-button danger" type="button" data-action-dialog-confirm>Confirm</button>
+    </div>
+  </div>
+</dialog>
