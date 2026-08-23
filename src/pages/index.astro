@@ -579,7 +579,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     } from '../lib/sanDiegoTime';
     import { getListingImage } from '../lib/venues';
 
+    let baseHappyHours: any[] = [];
     let happyHours: any[] = [];
+    let venueDirectoryLoaded = false;
+    let venueDirectoryRefreshPromise: Promise<void> | null = null;
     let userLocation: { lat: number; lng: number } | null = null;
     let map: any = null;
     let markers: any[] = [];
@@ -878,10 +881,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
      * complete values for owner-editable fields, and the endpoint filters it
      * to those fields on the way out.
      */
-    async function mergeOwnerEdits(venues: any[]) {
+    async function mergeOwnerEdits(venues: any[], failureFallback = venues) {
       try {
         const res = await fetch('/api/venue-overrides', { cache: 'no-store' });
-        if (!res.ok) return venues;
+        if (!res.ok) return failureFallback;
         const { overrides } = await res.json();
         if (!overrides) return venues;
         return venues.map((venue) => {
@@ -889,14 +892,16 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           return patch ? { ...venue, ...patch } : venue;
         });
       } catch {
-        // The static record is still valid as of the last deploy.
-        return venues;
+        // Keep the last successfully loaded record if reconciliation fails.
+        return failureFallback;
       }
     }
 
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
-      happyHours = await mergeOwnerEdits(await res.json());
+      baseHappyHours = await res.json();
+      happyHours = await mergeOwnerEdits(baseHappyHours);
+      venueDirectoryLoaded = true;
 
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
@@ -904,6 +909,31 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
       await loadAccount();
       render();
+    }
+
+    /**
+     * The homepage can survive an admin visit in the back/forward cache, and
+     * it can stay open in another tab while an image is saved. Reconcile the
+     * no-store override endpoint whenever the page becomes active again.
+     * Keeping the static dataset separate also means removed overrides really
+     * disappear instead of being merged over an already-merged stale record.
+     */
+    async function refreshVenueDirectory() {
+      if (!venueDirectoryLoaded || !baseHappyHours.length) return;
+      if (venueDirectoryRefreshPromise) return venueDirectoryRefreshPromise;
+
+      venueDirectoryRefreshPromise = (async () => {
+        const refreshed = await mergeOwnerEdits(baseHappyHours, happyHours);
+        if (JSON.stringify(refreshed) === JSON.stringify(happyHours)) return;
+        happyHours = refreshed;
+        render();
+      })();
+
+      try {
+        await venueDirectoryRefreshPromise;
+      } finally {
+        venueDirectoryRefreshPromise = null;
+      }
     }
 
     function buildVenueStates(now: Date | null) {
@@ -1042,6 +1072,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       count.textContent = `${promotions.length} ${promotions.length === 1 ? 'deal' : 'deals'} happening now`;
       grid.innerHTML = promotions.map((promotion) => {
         const venue = directoryVenue(promotion.venueId);
+        // Prefer the freshly merged directory record over the image snapshot
+        // embedded in the promotion feed. The two endpoints are fetched
+        // independently, so that snapshot can briefly lag an admin save.
+        const imageSources = getCardImageSources(venue, promotion.venue.image);
         const state = deriveConsumerPromotionState({
           venueId: promotion.venueId,
           schedule: venue ?? null,
@@ -1058,7 +1092,14 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         return `
           <article class="live-deal-panel live-deal-discovery-card">
             <a class="live-deal-discovery-image" href="${venuePath}" aria-label="View ${escapeHTML(promotion.venue.name)}">
-              <img src="${escapeHTML(promotion.venue.image)}" alt="${escapeHTML(promotion.venue.name)}" loading="lazy">
+              <img
+                src="${escapeHTML(imageSources.primary)}"
+                alt="${escapeHTML(promotion.venue.name)}"
+                loading="lazy"
+                data-listing-image
+                data-original-src="${escapeHTML(imageSources.original)}"
+                data-stock-src="${escapeHTML(imageSources.stock)}"
+              >
             </a>
             <div class="live-deal-discovery-body">
               <div class="live-deal-heading-row">
@@ -1094,10 +1135,21 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
     }
 
-    // The venue's own featured photo when an admin has set one, otherwise the
-    // vibe stock photo — same fallback the venue page and OG image use.
-    function getImage(hh: any) {
-      return getListingImage(hh, 'card');
+    /**
+     * Keep three independently useful sources for every venue card:
+     * the card-sized CDN URL, the original admin upload in case only that
+     * transform failed, and the venue's stock image if the upload also fails.
+     * The promotion image is used only until the directory data has loaded.
+     */
+    function getCardImageSources(venue: any, promotionImage = '') {
+      if (!venue) {
+        return { primary: promotionImage, original: promotionImage, stock: '' };
+      }
+      return {
+        primary: getListingImage(venue, 'card'),
+        original: typeof venue.image === 'string' ? venue.image : '',
+        stock: getListingImage({ vibe: venue.vibe }, 'card'),
+      };
     }
 
     function getTrustLabel(h: any) {
@@ -1199,7 +1251,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           const primaryDeal = state.liveDeals[0];
           const hasLiveDeal = Boolean(primaryDeal);
           const hasHappyHour = state.happyHourOccurrence !== null;
-          const img = getImage(h);
+          const imageSources = getCardImageSources(h);
           const hasDistance = h.distance !== undefined;
           const slug = slugify(h.name);
           const statusBadge = hasLiveDeal
@@ -1227,7 +1279,14 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
             <article class="card ${stateClass}">
               <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
                 <div class="card-image">
-                  <img src="${escapeHTML(img)}" alt="${escapeHTML(h.name)}" loading="lazy">
+                  <img
+                    src="${escapeHTML(imageSources.primary)}"
+                    alt="${escapeHTML(h.name)}"
+                    loading="lazy"
+                    data-listing-image
+                    data-original-src="${escapeHTML(imageSources.original)}"
+                    data-stock-src="${escapeHTML(imageSources.stock)}"
+                  >
                   <div class="overlay"></div>
                   ${statusBadge}
                   ${hasDistance
@@ -1345,6 +1404,32 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         </div>
       `;
     }
+
+    /**
+     * Image errors do not bubble, so use capture listeners on the permanent
+     * grids. A failed Netlify transform first retries the original upload;
+     * if that also fails, the venue-specific stock image takes over. Sources
+     * are removed before retrying so a damaged stock asset cannot loop.
+     */
+    function restoreListingImage(event: Event) {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-listing-image')) return;
+
+      const current = image.getAttribute('src') || '';
+      const original = image.dataset.originalSrc || '';
+      delete image.dataset.originalSrc;
+      if (original && original !== current) {
+        image.src = original;
+        return;
+      }
+
+      const stock = image.dataset.stockSrc || '';
+      delete image.dataset.stockSrc;
+      if (stock && stock !== current) image.src = stock;
+    }
+
+    document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
+    document.getElementById('live-deals-grid')!.addEventListener('error', restoreListingImage, true);
 
     document.getElementById('search-input')!.addEventListener('input', () => render());
     document.getElementById('day-filter')!.addEventListener('change', () => {
@@ -1474,9 +1559,11 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       feedSnapshot = snapshot;
       const now = getServerNow();
       const venueStates = buildVenueStates(now);
+      const nextPromotionSignature = promotionSignature();
+      const promotionsChanged = nextPromotionSignature !== lastRenderedPromotionSignature;
       const presentationChanged =
         (snapshot.data !== null) !== lastRenderedHadFeedData ||
-        promotionSignature() !== lastRenderedPromotionSignature ||
+        promotionsChanged ||
         venueStateSignature(venueStates) !== lastRenderedVenueStateSignature;
 
       if (presentationChanged) {
@@ -1485,11 +1572,24 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         refreshTimedPresentation(now);
         scheduleRecurringBoundaryRefresh(now);
       }
+
+      // A promotion response includes its current merged venue image. If that
+      // snapshot changed while this page stayed open, reconcile the directory
+      // endpoint too so both homepage card types continue to agree.
+      if (promotionsChanged) void refreshVenueDirectory();
     });
 
     window.addEventListener('sdhh:auth-changed', () => {
       void livePromotionFeed.authenticationChanged();
       void loadAccount();
+    });
+
+    window.addEventListener('focus', () => {
+      void refreshVenueDirectory();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) void refreshVenueDirectory();
     });
 
     window.addEventListener('pageshow', (event) => {
@@ -1499,6 +1599,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       // restarting the feed reconciles the canonical session-scoped payload.
       livePromotionFeed.start();
       void loadAccount();
+      void refreshVenueDirectory();
     });
 
     const timedPresentationInterval = window.setInterval(() => {

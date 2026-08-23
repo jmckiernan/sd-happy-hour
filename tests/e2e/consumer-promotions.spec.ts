@@ -68,6 +68,17 @@ function discoveryCard(page: Page, promotionTitle: string): Locator {
   return page.locator('#live-deals-grid article').filter({ hasText: promotionTitle });
 }
 
+async function mockVenueImageOverride(page: Page, venueId: number, image: string): Promise<void> {
+  await page.unroute('**/api/venue-overrides');
+  await page.route('**/api/venue-overrides', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ overrides: { [venueId]: { image } } }),
+    })
+  );
+}
+
 async function expectSinglePrimaryStatus(
   card: Locator,
   expected: 'live-deal' | 'happy-hour' | 'none'
@@ -129,6 +140,190 @@ test('homepage renders all four activity states, one primary status, and canonic
   ).toHaveCount(1);
   await expect(liveOnlyCard).not.toContainText(liveOnlyPromotion.description);
   await expect(bothCard).not.toContainText(bothPromotion.description);
+});
+
+test('homepage directory card falls back to its vibe image when a live venue image override is missing', async ({
+  page,
+}) => {
+  const venue = venueFixture(301, 'Fallback Taproom', {
+    vibe: 'Trendy gastropub',
+    image: '',
+  });
+  const missingImage = '/api/images/missing-directory-override.jpg';
+  const stockImage = '/images/vibes/trendy-gastropub.jpg';
+  let missingImageRequests = 0;
+
+  await mockConsumerApis(page, { venues: [venue] });
+  await mockVenueImageOverride(page, venue.id, missingImage);
+  await page.route(`**${missingImage}`, async (route) => {
+    missingImageRequests += 1;
+    await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Not found' });
+  });
+
+  await page.goto('/');
+
+  const card = directoryCard(page, venue.name);
+  await expect(card).toBeVisible();
+  const image = card.locator('.card-image img');
+  await expect.poll(() => missingImageRequests).toBeGreaterThan(0);
+  await expect(image).toHaveAttribute('src', stockImage);
+  await expect
+    .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+});
+
+test('homepage Live Deal card falls back to the venue vibe when its live image override is missing', async ({
+  page,
+}) => {
+  const missingImage = '/api/images/missing-live-deal-override.jpg';
+  const stockImage = '/images/vibes/seafood-spot.jpg';
+  const venue = venueFixture(302, 'Fallback Oyster Bar', {
+    vibe: 'Seafood spot',
+    image: '',
+  });
+  const promotion = livePromotion(venue, {
+    id: 'promotion-fallback-image',
+    title: 'Fallback oyster flash deal',
+    venue: {
+      id: venue.id,
+      name: venue.name,
+      slug: 'fallback-oyster-bar',
+      neighborhood: venue.neighborhood,
+      // Deliberately stale: the homepage must prefer the newer image from
+      // /api/venue-overrides instead of this independently fetched snapshot.
+      image: '/images/vibes/rooftop-vibes.jpg',
+    },
+  });
+  let missingImageRequests = 0;
+
+  await mockConsumerApis(page, {
+    venues: [venue],
+    livePayload: { serverNow: SERVER_NOW, promotions: [promotion] },
+  });
+  await mockVenueImageOverride(page, venue.id, missingImage);
+  await page.route(`**${missingImage}`, async (route) => {
+    missingImageRequests += 1;
+    await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Not found' });
+  });
+
+  await page.goto('/');
+
+  const card = discoveryCard(page, promotion.title);
+  await expect(card).toBeVisible();
+  const image = card.locator('.live-deal-discovery-image img');
+  await expect.poll(() => missingImageRequests).toBeGreaterThan(0);
+  await expect(image).toHaveAttribute('src', stockImage);
+  await expect
+    .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+});
+
+test('homepage refreshes a regular venue image on window focus without duplicating filter options', async ({
+  page,
+}) => {
+  const venue = venueFixture(303, 'Focus Refresh Lounge', {
+    vibe: 'Trendy gastropub',
+    image: '',
+  });
+  const firstImage = '/images/vibes/rooftop-vibes.jpg';
+  const refreshedImage = '/images/vibes/seafood-spot.jpg';
+  let overrideImage = firstImage;
+  let overrideRequests = 0;
+
+  await mockConsumerApis(page, { venues: [venue] });
+  await page.unroute('**/api/venue-overrides');
+  await page.route('**/api/venue-overrides', (route) => {
+    overrideRequests += 1;
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ overrides: { [venue.id]: { image: overrideImage } } }),
+    });
+  });
+
+  await page.goto('/');
+
+  const image = directoryCard(page, venue.name).locator('.card-image img');
+  await expect(image).toHaveAttribute('src', firstImage);
+  const requestsBeforeFocus = overrideRequests;
+  const filterOptionCounts = await page.evaluate(() =>
+    ['day-filter', 'neighborhood-filter', 'deal-filter', 'feature-filter', 'status-filter', 'trust-filter']
+      .map((id) => document.querySelectorAll(`#${id} option`).length)
+  );
+
+  overrideImage = refreshedImage;
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+
+  await expect.poll(() => overrideRequests).toBeGreaterThan(requestsBeforeFocus);
+  await expect(image).toHaveAttribute('src', refreshedImage);
+  await expect
+    .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+  expect(await page.evaluate(() =>
+    ['day-filter', 'neighborhood-filter', 'deal-filter', 'feature-filter', 'status-filter', 'trust-filter']
+      .map((id) => document.querySelectorAll(`#${id} option`).length)
+  )).toEqual(filterOptionCounts);
+  await expect(page.locator('#neighborhood-filter option[value="North Park"]')).toHaveCount(1);
+  await expect(page.locator('#deal-filter option[value="cocktails"]')).toHaveCount(1);
+  await expect(page.locator('#feature-filter option[value="patio"]')).toHaveCount(1);
+});
+
+test('homepage card retries a healthy original once after a CDN transform fails', async ({ page }) => {
+  const venue = venueFixture(304, 'Original Image Retry Bar', {
+    vibe: 'Trendy gastropub',
+    image: '',
+  });
+  const originalImage = '/api/images/healthy-original.jpg';
+  const transformedImage = `/.netlify/images?url=${encodeURIComponent(originalImage)}&w=800&q=80`;
+  const stockImage = '/images/vibes/trendy-gastropub.jpg';
+  const requests: string[] = [];
+
+  await mockConsumerApis(page, { venues: [venue] });
+  await page.route(
+    (url) => url.pathname === '/.netlify/images' && url.searchParams.get('url') === originalImage,
+    async (route) => {
+      requests.push('transform');
+      await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Transform not found' });
+    }
+  );
+  await page.route(`**${originalImage}`, async (route) => {
+    requests.push('original');
+    await route.fulfill({
+      path: `${process.cwd()}/public/images/vibes/rooftop-vibes.jpg`,
+      contentType: 'image/jpeg',
+    });
+  });
+
+  await page.goto('/');
+
+  const image = directoryCard(page, venue.name).locator('.card-image img');
+  await expect(image).toHaveAttribute('data-listing-image', '');
+  await expect(image).toHaveAttribute('data-stock-src', stockImage);
+  await expect
+    .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+
+  // Astro dev deliberately skips Netlify transforms. Point the rendered card
+  // at a production-shaped transform while retaining its real delegated error
+  // listener and fallback data attributes, so the two-step chain stays exact.
+  await image.evaluate(
+    (element, sources) => {
+      const imageElement = element as HTMLImageElement;
+      imageElement.dataset.originalSrc = sources.original;
+      imageElement.src = sources.transformed;
+    },
+    { original: originalImage, transformed: transformedImage }
+  );
+
+  await expect.poll(() => [...requests]).toEqual(['transform', 'original']);
+  await expect(image).toHaveAttribute('src', originalImage);
+  await expect
+    .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+  expect(requests.filter((request) => request === 'transform')).toHaveLength(1);
+  expect(requests.filter((request) => request === 'original')).toHaveLength(1);
+  await expect(image).not.toHaveAttribute('data-original-src');
+  await expect(image).toHaveAttribute('data-stock-src', stockImage);
 });
 
 test('homepage discovery uses explicit search/geography, ignores recurring-only filters, and redacts codes synchronously', async ({
