@@ -13,7 +13,7 @@ import { getSession } from '../../../../lib/session';
 
 export const prerender = false;
 
-const PATCH_FIELDS = new Set(['type', 'title', 'description', 'dealCode', 'startsAt', 'endsAt']);
+const PATCH_FIELDS = new Set(['type', 'title', 'description', 'dealCode', 'imageKey', 'startsAt', 'endsAt']);
 
 export const GET: APIRoute = async ({ params, cookies }) => {
   const session = await getSession(cookies);

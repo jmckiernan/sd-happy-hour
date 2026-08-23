@@ -406,6 +406,13 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           stock: getListingImage({}, 'card'),
         };
       }
+      if (promotionImage) {
+        return {
+          primary: promotionImage,
+          original: promotionImageOriginal,
+          stock: getListingImage({ vibe: venue.vibe }, 'card'),
+        };
+      }
       return {
         primary: getListingImage(venue, 'card'),
         original: typeof venue.image === 'string' ? venue.image : '',
@@ -417,8 +424,8 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       const venue = directoryVenue(promotion.venueId);
       const imageSources = getCardImageSources(
         venue,
-        promotion.venue.image,
-        promotion.venue.imageOriginal
+        promotion.image || (!venue ? promotion.venue.image : ''),
+        promotion.imageOriginal || (!venue ? promotion.venue.imageOriginal : '')
       );
       const state = deriveConsumerPromotionState({
         venueId: promotion.venueId,

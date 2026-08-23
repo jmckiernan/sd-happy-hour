@@ -1,0 +1,72 @@
+---
+export const prerender = false;
+import Layout from '../../../layouts/Layout.astro';
+const token = Astro.params.token || '';
+---
+<Layout title="Restaurant Management Invitation | SD Happy Hours" description="Accept an invitation to manage a restaurant listing.">
+  <style>
+    .invite-wrap { max-width: 620px; margin: 0 auto; padding: 56px 24px 90px; }
+    .invite-card { background: white; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,.08); padding: 28px; text-align: center; }
+    .invite-card h1 { font-family: var(--font-display); font-size: 1.7rem; margin: 0 0 10px; }
+    .invite-card p { color: var(--night-soft); line-height: 1.6; }
+    .invite-action { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; display: inline-flex; font: inherit; font-weight: 750; margin-top: 16px; padding: 12px 22px; text-decoration: none; }
+    .invite-action:disabled { opacity: .55; }
+    .invite-status.error { color: #991b1b; }
+    [hidden] { display: none !important; }
+  </style>
+  <main class="invite-wrap" data-token={token}>
+    <section class="invite-card">
+      <h1>Restaurant invitation</h1>
+      <p id="invite-copy">Loading your invitation…</p>
+      <div id="invite-actions"></div>
+      <p class="invite-status" id="invite-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <script>
+    const root = document.querySelector<HTMLElement>('.invite-wrap')!;
+    const token = root.dataset.token || '';
+    const copy = document.getElementById('invite-copy')!;
+    const actions = document.getElementById('invite-actions')!;
+    const status = document.getElementById('invite-status')!;
+    const path = `/restaurant/invitations/${encodeURIComponent(token)}/`;
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string,string>)[char]);
+    }
+    async function load() {
+      const response = await fetch(`/api/restaurant/invitations/${encodeURIComponent(token)}`, { cache: 'no-store' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) { copy.textContent = (data.errors || ['Invitation not found.']).join(' '); return; }
+      if (data.invite.acceptedAt || data.invite.revokedAt || new Date(data.invite.expiresAt).getTime() <= Date.now()) {
+        copy.textContent = 'This invitation has expired, was revoked, or has already been accepted.';
+        return;
+      }
+      const role = data.invite.role === 'full_admin' ? 'Full Admin' : 'Promotions Only';
+      copy.innerHTML = `You were invited to manage <strong>${escapeHTML(data.venue?.name || 'this restaurant')}</strong> as <strong>${role}</strong>. This invitation is for ${escapeHTML(data.invite.email)}.`;
+      if (!data.authenticated) {
+        actions.innerHTML = `<a class="invite-action" href="/account/?next=${encodeURIComponent(path)}">Sign in or create account</a>`;
+      } else if (data.signedInEmail.toLowerCase() !== data.invite.email.toLowerCase()) {
+        status.className = 'invite-status error';
+        status.textContent = `You are signed in as ${data.signedInEmail}. Sign out and use ${data.invite.email}.`;
+      } else {
+        actions.innerHTML = '<button class="invite-action" id="accept-invite" type="button">Accept invitation</button>';
+        document.getElementById('accept-invite')!.addEventListener('click', accept);
+      }
+    }
+    async function accept() {
+      const button = document.getElementById('accept-invite') as HTMLButtonElement;
+      button.disabled = true;
+      status.textContent = 'Accepting…';
+      const response = await fetch(`/api/restaurant/invitations/${encodeURIComponent(token)}`, { method: 'POST' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        status.className = 'invite-status error';
+        status.textContent = (data.errors || ['Could not accept invitation.']).join(' ');
+        button.disabled = false;
+        return;
+      }
+      status.textContent = 'Invitation accepted. Opening your restaurant dashboard…';
+      window.location.replace('/restaurant/');
+    }
+    void load();
+  </script>
+</Layout>

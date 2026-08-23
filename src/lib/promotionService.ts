@@ -32,6 +32,7 @@ import {
 } from './promotionEntitlements';
 import { getSanDiegoMonthKey, parseInstant } from './sanDiegoTime';
 import { getAdditionalPromotionAllowance } from './promotionAllowanceRepo';
+import { promotionImageBelongsToVenue } from './promotionImageRepo';
 import { validatePromotionInput, type CleanPromotionInput } from './validation';
 import { getVenueById } from './venues';
 
@@ -73,6 +74,7 @@ export interface PromotionWriteInput {
   title?: unknown;
   description?: unknown;
   dealCode?: unknown;
+  imageKey?: unknown;
   startsAt?: unknown;
   endsAt?: unknown;
 }
@@ -153,6 +155,7 @@ function rawMergedInput(
     title: value('title', promotion.title),
     description: value('description', promotion.description),
     dealCode: value('dealCode', promotion.dealCode),
+    imageKey: value('imageKey', promotion.imageKey),
     startsAt: value('startsAt', promotion.startsAt),
     endsAt: value('endsAt', promotion.endsAt),
   };
@@ -179,6 +182,7 @@ function replacement(
     title: clean.title || null,
     description: clean.description,
     dealCode: clean.dealCode,
+    imageKey: clean.imageKey,
     startsAt: clean.startsAt,
     endsAt: clean.endsAt,
     publishedAt: lifecycle.publishedAt === undefined ? promotion.publishedAt : lifecycle.publishedAt,
@@ -398,6 +402,7 @@ export async function createPromotionDraft(
       title: input.title,
       description: input.description,
       dealCode: input.dealCode,
+      imageKey: input.imageKey,
       startsAt: input.startsAt,
       endsAt: input.endsAt,
     },
@@ -407,6 +412,9 @@ export async function createPromotionDraft(
   return withTransaction(async (tx) => {
     await lockPromotionVenue(tx, input.venueId);
     const claim = await requireClaim(tx, userId, input.venueId);
+    if (clean.imageKey && !await promotionImageBelongsToVenue(input.venueId, clean.imageKey, tx)) {
+      throw serviceError(422, 'validation_failed', 'Upload the promotion image for this venue first.');
+    }
     const now = await getDatabaseNow(tx);
     const promotion = await insertPromotionCampaign(tx, {
       venueId: input.venueId,
@@ -414,6 +422,7 @@ export async function createPromotionDraft(
       title: clean.title || null,
       description: clean.description,
       dealCode: clean.dealCode,
+      imageKey: clean.imageKey,
       startsAt: clean.startsAt,
       endsAt: clean.endsAt,
       createdByUserId: userId,
@@ -439,6 +448,9 @@ export async function updatePromotion(
       rawMergedInput(context.promotion, patch),
       state === 'scheduled' ? 'publish' : 'draft'
     );
+    if (clean.imageKey && !await promotionImageBelongsToVenue(context.promotion.venueId, clean.imageKey, context.tx)) {
+      throw serviceError(422, 'validation_failed', 'Upload the promotion image for this venue first.');
+    }
     if (state === 'scheduled') requireFutureStart(clean, context.now);
 
     const proposed: PromotionCampaign = {
@@ -574,6 +586,7 @@ export async function cancelPromotion(
       title: context.promotion.title,
       description: context.promotion.description,
       dealCode: context.promotion.dealCode,
+      imageKey: context.promotion.imageKey,
       startsAt: context.promotion.startsAt,
       endsAt: context.promotion.endsAt,
       publishedAt: context.promotion.publishedAt,
@@ -598,6 +611,7 @@ export async function endPromotion(
       title: context.promotion.title,
       description: context.promotion.description,
       dealCode: context.promotion.dealCode,
+      imageKey: context.promotion.imageKey,
       startsAt: context.promotion.startsAt,
       endsAt: context.promotion.endsAt,
       publishedAt: context.promotion.publishedAt,

@@ -156,12 +156,41 @@ test('admin venue editor grants monthly promotion slots through an admin-only AP
   assert.match(migration, /PRIMARY KEY \(venue_id, month_key\)/);
   assert.match(migration, /additional_allowance\s+integer NOT NULL DEFAULT 0/);
   assert.match(allowanceRepo, /additional_allowance = venue_promotion_allowances\.additional_allowance \+ 1/);
+  assert.match(allowanceRepo, /additional_allowance = additional_allowance - 1/);
   assert.match(allowanceRoute, /getAdminUser\(cookies\)/);
   assert.match(allowanceRoute, /await lockPromotionVenue\(tx, auth\.venueId\)/);
   assert.match(promotionService, /getAdditionalPromotionAllowance\(venueId, targetMonth, tx\)/);
   assert.match(adminPage, /id="ve-promotion-used"/);
   assert.match(adminPage, /id="ve-promotion-remaining"/);
   assert.match(adminPage, /id="ve-promotion-add"/);
+  assert.match(adminPage, /id="ve-promotion-remove"/);
+});
+
+test('restaurant managing users preserve one owner and separate full-admin from promotion access', async () => {
+  const [migration, accessRepo, listingAuth, promotionAuth, managersRoute, dashboard, usersPage, ownerRoute] = await Promise.all([
+    readFile(path.join(ROOT, 'migrations', '0011_venue_managing_users.sql'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'venueUsers.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'venueManager.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'promotionAuthorization.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'restaurant', 'venues', '[id]', 'managers.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'restaurant.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'restaurant', 'manage', '[slug]', 'users.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'admin', 'venues', '[id]', 'owner.ts'), 'utf8'),
+  ]);
+
+  assert.match(migration, /role IN \('full_admin', 'promotions'\)/);
+  assert.match(migration, /UNIQUE \(venue_id, user_id\)/);
+  assert.match(migration, /venue_manager_invites_pending_unique/);
+  assert.match(accessRepo, /WHERE lower\(email\) = \$\{normalized\} LIMIT 1/);
+  assert.match(accessRepo, /normalized\.length < 3/);
+  assert.match(accessRepo, /now\(\) \+ interval '7 days'/);
+  assert.match(listingAuth, /access\?\.role === 'owner' \|\| access\?\.role === 'full_admin'/);
+  assert.match(promotionAuth, /FROM venue_managers m JOIN venue_claims c/);
+  assert.match(managersRoute, /Only the restaurant owner can manage users/);
+  assert.match(dashboard, /Managing users →/);
+  assert.match(usersPage, /No account yet — send a 7-day invitation/);
+  assert.match(ownerRoute, /getAdminUser\(cookies\)/);
+  assert.match(ownerRoute, /transferVenueOwner/);
 });
 
 test('public gallery includes opted-in menu photos once and leaves opted-out photos in the menu only', async () => {

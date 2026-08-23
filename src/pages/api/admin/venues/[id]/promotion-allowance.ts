@@ -6,6 +6,7 @@ import { getPromotionEntitlement } from '../../../../../lib/promotionEntitlement
 import {
   addPromotionAllowance,
   getAdditionalPromotionAllowance,
+  removePromotionAllowance,
 } from '../../../../../lib/promotionAllowanceRepo';
 import { getVerifiedPromotionClaimByVenue } from '../../../../../lib/promotionAuthorization';
 import {
@@ -83,5 +84,28 @@ export const POST: APIRoute = async ({ params, cookies }) => {
     return json(result);
   } catch (error: any) {
     return errorJson([`Could not add a promotion: ${error.message}`], 502);
+  }
+};
+
+export const DELETE: APIRoute = async ({ params, cookies }) => {
+  const auth = await authorize(cookies, params.id);
+  if ('response' in auth) return auth.response;
+  try {
+    const result = await withTransaction(async (tx) => {
+      await lockPromotionVenue(tx, auth.venueId);
+      const now = await getDatabaseNow(tx);
+      const removed = await removePromotionAllowance(
+        tx,
+        auth.venueId,
+        getSanDiegoMonthKey(now),
+        auth.admin.id
+      );
+      if (!removed) return null;
+      return currentAllowance(auth.venueId, tx, now);
+    });
+    if (!result) return errorJson(['There are no admin-added promotions to remove.'], 409);
+    return json(result);
+  } catch (error: any) {
+    return errorJson([`Could not remove a promotion: ${error.message}`], 502);
   }
 };

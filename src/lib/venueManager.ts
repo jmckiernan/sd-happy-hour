@@ -1,7 +1,8 @@
 import type { AstroCookies } from 'astro';
 import { getSession } from './session';
-import { getUserById, getVenueClaimByUserAndVenue, type User } from './store';
+import { getUserById, type User } from './store';
 import { ADMIN_EMAILS } from './admins';
+import { getVenueAccess, type VenueAccessRole } from './venueUsers';
 
 // ---------------------------------------------------------------------------
 // "May this request manage this venue?" — the single gate in front of every
@@ -26,6 +27,7 @@ export interface VenueManager {
   isAdmin: boolean;
   /** The verified claim that granted access, when it wasn't an admin. */
   claimId: string | null;
+  accessRole: VenueAccessRole | 'site_admin';
 }
 
 export async function getVenueManager(cookies: AstroCookies, venueId: number): Promise<VenueManager | null> {
@@ -35,10 +37,14 @@ export async function getVenueManager(cookies: AstroCookies, venueId: number): P
   const user = await getUserById(session.userId);
   if (!user) return null;
 
-  if (ADMIN_EMAILS.includes(user.email)) return { user, isAdmin: true, claimId: null };
+  if (ADMIN_EMAILS.includes(user.email)) {
+    return { user, isAdmin: true, claimId: null, accessRole: 'site_admin' };
+  }
 
-  const claim = await getVenueClaimByUserAndVenue(user.id, venueId);
-  if (claim?.status === 'verified') return { user, isAdmin: false, claimId: claim.id };
+  const access = await getVenueAccess(user.id, venueId);
+  if (access?.role === 'owner' || access?.role === 'full_admin') {
+    return { user, isAdmin: false, claimId: access.claimId, accessRole: access.role };
+  }
 
   return null;
 }
@@ -47,4 +53,4 @@ export async function getVenueManager(cookies: AstroCookies, venueId: number): P
  * purpose: it doesn't distinguish "not signed in" from "not your venue", so a
  * probe can't enumerate which venues are claimed. */
 export const NOT_A_MANAGER_MESSAGE =
-  'You need a verified claim on this listing to manage it. Claim it at /restaurant/ first.';
+  'You need owner or Full Admin access to manage this listing.';

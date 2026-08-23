@@ -21,6 +21,8 @@ export interface MerchantPromotionDto {
   title: string | null;
   description: string;
   dealCode: string | null;
+  imageKey: string | null;
+  imageUrl: string;
   startsAt: string | null;
   endsAt: string | null;
   effectiveEndsAt: string | null;
@@ -48,6 +50,9 @@ export interface PublicPromotionDto {
   type: PromotionCampaign['type'];
   title: string;
   description: string;
+  /** Promotion-only artwork. It does not replace the venue listing image. */
+  image?: string;
+  imageOriginal?: string;
   startsAt: string;
   endsAt: string;
   effectiveEndsAt: string;
@@ -79,6 +84,8 @@ export function toMerchantPromotionDto(
     title: promotion.title,
     description: promotion.description,
     dealCode: promotion.dealCode,
+    imageKey: promotion.imageKey,
+    imageUrl: promotion.imageKey ? `/api/images/${promotion.imageKey}` : '',
     startsAt: promotion.startsAt,
     endsAt: promotion.endsAt,
     effectiveEndsAt: getEffectivePromotionEnd(promotion)?.toISOString() ?? null,
@@ -130,6 +137,11 @@ export function toPublicPromotionDto(
     state: 'live',
     hasDealCode: Boolean(promotion.dealCode),
   };
+  if (promotion.imageKey) {
+    const original = `/api/images/${promotion.imageKey}`;
+    result.image = getListingImage({ image: original }, 'card');
+    result.imageOriginal = original;
+  }
   if (includeDealCode) result.dealCode = promotion.dealCode;
   return result;
 }

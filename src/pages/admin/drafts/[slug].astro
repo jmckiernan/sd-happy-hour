@@ -62,9 +62,10 @@ const isLive = Boolean(draft && !draft.data.draft);
     }
     .preview-banner .box p { font-size: 0.85rem; color: var(--night-soft); }
     .preview-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .preview-actions button {
+    .preview-actions button,
+    .preview-actions a {
       border: 0; border-radius: 100px; padding: 11px 20px; cursor: pointer;
-      font: inherit; font-weight: 700;
+      font: inherit; font-weight: 700; text-decoration: none;
     }
     .preview-actions button.good { background: var(--palm); color: white; }
     .preview-actions button.good:hover { background: #16A34A; }
@@ -96,8 +97,8 @@ const isLive = Boolean(draft && !draft.data.draft);
       border-radius: 100px; text-decoration: none; font-weight: 700;
     }
 
-    .preview-actions button.neutral { background: var(--sand-warm); color: var(--night); }
-    .preview-actions button.neutral:hover { background: var(--sunset-end); }
+    .preview-actions .neutral { background: var(--sand-warm); color: var(--night); }
+    .preview-actions .neutral:hover { background: var(--sunset-end); }
 
     .edit-panel { max-width: 760px; margin: 0 auto; padding: 24px 24px 80px; }
     .edit-panel label {
@@ -274,6 +275,7 @@ const isLive = Boolean(draft && !draft.data.draft);
             <button id="edit-btn" class="neutral">Edit</button>
             {isLive ? (
               <Fragment>
+                <a class="neutral" href={`/blog/${encodeURIComponent(draft.slug)}/`}>View Live Post</a>
                 <button class="neutral" data-slug={draft.slug} data-action="unpublish">Unpublish</button>
                 <button class="bad" data-slug={draft.slug} data-action="delete">Delete</button>
               </Fragment>

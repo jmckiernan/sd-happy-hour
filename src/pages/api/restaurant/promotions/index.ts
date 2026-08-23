@@ -16,6 +16,7 @@ const CREATE_FIELDS = new Set([
   'title',
   'description',
   'dealCode',
+  'imageKey',
   'startsAt',
   'endsAt',
 ]);
@@ -67,6 +68,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       title: body.title,
       description: body.description,
       dealCode: body.dealCode,
+      imageKey: body.imageKey,
       startsAt: body.startsAt,
       endsAt: body.endsAt,
     });

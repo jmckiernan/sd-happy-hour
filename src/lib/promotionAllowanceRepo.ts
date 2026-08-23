@@ -62,3 +62,21 @@ export async function addPromotionAllowance(
     RETURNING *`;
   return mapAllowance(rows[0]);
 }
+
+/** Atomically removes one admin-granted slot, never reducing the base plan allowance. */
+export async function removePromotionAllowance(
+  executor: QueryExecutor,
+  venueId: number,
+  monthKey: string,
+  adminUserId: string
+): Promise<VenuePromotionAllowance | null> {
+  const rows = await executor<VenuePromotionAllowanceRow>`
+    UPDATE venue_promotion_allowances SET
+      additional_allowance = additional_allowance - 1,
+      updated_by_user_id = ${adminUserId}
+    WHERE venue_id = ${venueId}
+      AND month_key = ${monthKey}
+      AND additional_allowance > 0
+    RETURNING *`;
+  return rows[0] ? mapAllowance(rows[0]) : null;
+}

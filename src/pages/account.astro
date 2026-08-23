@@ -363,6 +363,10 @@ import Layout from '../layouts/Layout.astro';
       currentUser = nextUser;
       render();
       if (signedInChanged) announceAuthChange();
+      const nextPath = new URLSearchParams(window.location.search).get('next');
+      if (currentUser && nextPath?.startsWith('/') && !nextPath.startsWith('//')) {
+        window.location.replace(nextPath);
+      }
     }
 
     async function loadConfig() {

@@ -280,6 +280,29 @@ test('Live Deals page retries the original featured image when its venue directo
   expect(requests.filter((request) => request === 'original').length).toBeGreaterThanOrEqual(1);
 });
 
+test('Live Deals prefers promotion-only artwork without changing the venue listing image', async ({ page }) => {
+  const venueImage = '/images/vibes/craft-cocktails.jpg';
+  const promotionImage = '/images/vibes/rooftop-vibes.jpg';
+  const venue = venueFixture(304, 'Artwork Test Bar', { image: venueImage });
+  const promotion = livePromotion(venue, {
+    id: 'promotion-custom-artwork',
+    title: 'Custom artwork flash deal',
+    image: promotionImage,
+    imageOriginal: promotionImage,
+  });
+
+  await mockConsumerApis(page, {
+    venues: [venue],
+    livePayload: { serverNow: SERVER_NOW, promotions: [promotion] },
+  });
+  await page.goto('/live-deals/');
+
+  await expect(
+    discoveryCard(page, promotion.title).locator('.live-deal-discovery-image img')
+  ).toHaveAttribute('src', promotionImage);
+  expect(venue.image).toBe(venueImage);
+});
+
 test('homepage refreshes a regular venue image on window focus without duplicating filter options', async ({
   page,
 }) => {

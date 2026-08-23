@@ -100,6 +100,8 @@ export function isPublicLivePromotion(value: unknown): value is PublicLivePromot
     PUBLIC_PROMOTION_TYPES.has(value.type) &&
     isNonEmptyString(value.title) &&
     typeof value.description === 'string' &&
+    (!hasOwn(value, 'image') || typeof value.image === 'string') &&
+    (!hasOwn(value, 'imageOriginal') || typeof value.imageOriginal === 'string') &&
     value.state === 'live' &&
     typeof value.hasDealCode === 'boolean' &&
     (

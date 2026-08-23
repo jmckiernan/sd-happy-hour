@@ -122,6 +122,7 @@ export interface CleanPromotionInput {
   title: string;
   description: string;
   dealCode: string | null;
+  imageKey: string | null;
   startsAt: string | null;
   endsAt: string | null;
 }
@@ -152,6 +153,7 @@ export function validatePromotionInput(
   const title = cleanString(input.title);
   const description = cleanString(input.description);
   const rawDealCode = cleanString(input.dealCode);
+  const rawImageKey = cleanString(input.imageKey);
   const startsAt = cleanPromotionInstant(input.startsAt);
   const endsAt = cleanPromotionInstant(input.endsAt);
   const hasStartInput = input.startsAt !== undefined && input.startsAt !== null && input.startsAt !== '';
@@ -162,6 +164,7 @@ export function validatePromotionInput(
     title,
     description,
     dealCode: rawDealCode || null,
+    imageKey: rawImageKey || null,
     startsAt: startsAt?.toISOString() ?? null,
     endsAt: endsAt?.toISOString() ?? null,
   };
@@ -177,6 +180,9 @@ export function validatePromotionInput(
   }
   if (rawDealCode.length > PROMOTION_DEAL_CODE_MAX_LENGTH) {
     errors.push(`Deal code must be ${PROMOTION_DEAL_CODE_MAX_LENGTH} characters or fewer.`);
+  }
+  if (rawImageKey && !/^[a-zA-Z0-9._-]{1,240}$/.test(rawImageKey)) {
+    errors.push('Promotion image is invalid. Upload it again.');
   }
 
   if (hasStartInput && !startsAt) errors.push('Promotion start must be a valid absolute timestamp.');

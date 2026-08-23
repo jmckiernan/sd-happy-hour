@@ -13,6 +13,8 @@ Same philosophy as accounts/blog: `npm run dev` works immediately. Without `RESE
 
 ## One-time setup for deploying
 
+Restaurant managing-user invitations use the same email delivery path as alerts. Owners can invite an email that does not yet have an account; the recipient receives a seven-day acceptance link and must register or sign in with that exact address. Without Resend configuration the invitation is still recorded, but delivery is simulated in the server log.
+
 ### 1. Email — Resend
 
 Free and unlimited per user (no cap on the email side — see "Why text is capped" below). Create a free account at [resend.com](https://resend.com), verify a sending domain, and set:

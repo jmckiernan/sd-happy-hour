@@ -65,14 +65,22 @@ const { venue } = Astro.props;
     .ve-promotion-stat strong { display: block; font-size: 1.35rem; line-height: 1.1; }
     .ve-promotion-stat span { color: var(--night-soft); font-size: 0.78rem; }
     .ve-promotion-detail { color: var(--night-soft); font-size: 0.78rem; margin: 10px 0 0; }
-    .ve-promotion-add {
+    .ve-promotion-controls { display: flex; gap: 8px; }
+    .ve-promotion-adjust {
       align-items: center; background: var(--sunset-start); border: 0; border-radius: 100px;
       color: white; cursor: pointer; display: inline-flex; font: inherit; font-size: 1.4rem;
       font-weight: 700; height: 44px; justify-content: center; line-height: 1; width: 44px;
     }
-    .ve-promotion-add:hover { background: var(--night); }
-    .ve-promotion-add:disabled { cursor: not-allowed; opacity: 0.5; }
+    .ve-promotion-adjust.remove { background: var(--night-soft); }
+    .ve-promotion-adjust:hover { background: var(--night); }
+    .ve-promotion-adjust:disabled { cursor: not-allowed; opacity: 0.5; }
     .ve-promotion-status { grid-column: 1 / -1; margin: -8px 0 0; }
+    .ve-owner-panel { display: grid; gap: 12px; margin-bottom: 20px; }
+    .ve-owner-panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin: 0; }
+    .ve-owner-row { align-items: end; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; }
+    .ve-owner-row label { color: var(--night-soft); display: grid; font-size: .75rem; font-weight: 800; gap: 6px; text-transform: uppercase; }
+    .ve-owner-row input { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); font: inherit; min-height: 44px; padding: 10px 12px; }
+    .ve-owner-row button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 750; min-height: 44px; padding: 10px 18px; }
 
     .ve-locked { text-align: center; padding: 60px 24px; }
     .ve-locked p { color: var(--night-soft); margin-bottom: 20px; }
@@ -81,17 +89,22 @@ const { venue } = Astro.props;
       border-radius: 100px; text-decoration: none; font-weight: 700;
     }
 
-    .admin-subnav { display: flex; gap: 8px; margin: 0 0 24px; font-size: 0.85rem; flex-wrap: wrap; }
+    .admin-subnav {
+      display: flex; flex-wrap: wrap; gap: 8px; max-width: 1100px;
+      margin: 12px auto 24px; padding: 0 24px; font-size: 0.85rem;
+    }
     .admin-subnav a {
       text-decoration: none; font-weight: 600; color: var(--night-soft);
       padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
     }
     .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
 
     .ve-hidden { display: none; }
     @media (max-width: 560px) {
       .ve-promotion-panel { grid-template-columns: 1fr; }
       .ve-promotion-add { width: 100%; }
+      .ve-owner-row { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -107,7 +120,7 @@ const { venue } = Astro.props;
          "</script>" (venue names originate from public submissions) can't
          break out and inject. -->
     <div id="ve-editor" class="ve-hidden" data-venue={JSON.stringify(venue)}>
-      <nav class="admin-subnav">
+      <nav class="admin-subnav" aria-label="Admin sections">
         <a href="/admin/">Submissions</a>
         <a href="/admin/restaurants/">Restaurant Verifications</a>
         <a href="/admin/photos/">Photo Review</a>
@@ -123,6 +136,18 @@ const { venue } = Astro.props;
         Name, neighborhood, map coordinates, verification fields and social previews are also saved to
         <code>public/data/happy-hours.json</code> and appear with the next deploy.
       </p>
+
+      <section class="ve-panel ve-owner-panel" aria-labelledby="ve-owner-title">
+        <h2 id="ve-owner-title">Restaurant owner</h2>
+        <p class="ve-promotion-detail" id="ve-owner-current">Loading owner…</p>
+        <div class="ve-owner-row">
+          <label for="ve-owner-email">Transfer ownership to an existing account
+            <input id="ve-owner-email" type="email" placeholder="Complete account email" autocomplete="off">
+          </label>
+          <button id="ve-owner-transfer" type="button">Change owner</button>
+        </div>
+        <span class="ve-status" id="ve-owner-status" aria-live="polite"></span>
+      </section>
 
       <section class="ve-panel ve-promotion-panel" aria-labelledby="ve-promotion-title">
         <div>
@@ -140,14 +165,14 @@ const { venue } = Astro.props;
           </div>
           <p class="ve-promotion-detail" id="ve-promotion-detail"></p>
         </div>
-        <button
-          type="button"
-          class="ve-promotion-add"
-          id="ve-promotion-add"
-          aria-label="Add one live promotion for this month"
-          title="Add one live promotion for this month"
-          disabled
-        >+</button>
+        <div class="ve-promotion-controls">
+          <button type="button" class="ve-promotion-adjust remove" id="ve-promotion-remove"
+            aria-label="Remove one admin-added promotion for this month"
+            title="Remove one admin-added promotion for this month" disabled>−</button>
+          <button type="button" class="ve-promotion-adjust" id="ve-promotion-add"
+            aria-label="Add one live promotion for this month"
+            title="Add one live promotion for this month" disabled>+</button>
+        </div>
         <span class="ve-status ve-promotion-status" id="ve-promotion-status" aria-live="polite"></span>
       </section>
 
@@ -178,15 +203,26 @@ const { venue } = Astro.props;
     const statusEl = document.getElementById('ve-status')!;
     const saveBtn = document.getElementById('ve-save') as HTMLButtonElement;
     const promotionAddBtn = document.getElementById('ve-promotion-add') as HTMLButtonElement;
+    const promotionRemoveBtn = document.getElementById('ve-promotion-remove') as HTMLButtonElement;
     const promotionMonthEl = document.getElementById('ve-promotion-month')!;
     const promotionUsedEl = document.getElementById('ve-promotion-used')!;
     const promotionRemainingEl = document.getElementById('ve-promotion-remaining')!;
     const promotionDetailEl = document.getElementById('ve-promotion-detail')!;
     const promotionStatusEl = document.getElementById('ve-promotion-status')!;
+    const ownerCurrentEl = document.getElementById('ve-owner-current')!;
+    const ownerEmailInput = document.getElementById('ve-owner-email') as HTMLInputElement;
+    const ownerTransferBtn = document.getElementById('ve-owner-transfer') as HTMLButtonElement;
+    const ownerStatusEl = document.getElementById('ve-owner-status')!;
     let venueReady = false;
     let imageRequestBusy = false;
     let saving = false;
     let promotionReady = false;
+    let promotionAdditionalAllowance = 0;
+
+    function syncPromotionButtons() {
+      promotionAddBtn.disabled = !promotionReady;
+      promotionRemoveBtn.disabled = !promotionReady || promotionAdditionalAllowance <= 0;
+    }
 
     function syncSaveDisabled() {
       saveBtn.disabled = !venueReady || imageRequestBusy || saving;
@@ -209,7 +245,38 @@ const { venue } = Astro.props;
         .format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, 1)));
     }
 
+    async function loadOwner() {
+      const res = await fetch(`/api/admin/venues/${venueId}/owner`, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) throw new Error((data.errors || ['Could not load owner.']).join('\n'));
+      ownerCurrentEl.textContent = data.owner
+        ? `${data.owner.name || 'Unnamed account'} · ${data.owner.email}`
+        : 'No verified owner.';
+    }
+
+    ownerTransferBtn.addEventListener('click', async () => {
+      const email = ownerEmailInput.value.trim();
+      if (!email || !confirm(`Transfer ownership of this restaurant to ${email}? The current owner will lose owner access.`)) return;
+      ownerTransferBtn.disabled = true;
+      ownerStatusEl.textContent = 'Transferring ownership…';
+      try {
+        const res = await fetch(`/api/admin/venues/${venueId}/owner`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Could not transfer ownership.']).join('\n'));
+        ownerCurrentEl.textContent = `${data.owner.name || 'Unnamed account'} · ${data.owner.email}`;
+        ownerEmailInput.value = '';
+        ownerStatusEl.textContent = 'Ownership transferred.';
+        ownerStatusEl.className = 've-status ok';
+      } catch (error: any) {
+        ownerStatusEl.textContent = error.message;
+        ownerStatusEl.className = 've-status err';
+      } finally { ownerTransferBtn.disabled = false; }
+    });
+
     function renderPromotionAllowance(entitlement: any) {
+      promotionAdditionalAllowance = Number(entitlement.additionalAllowance) || 0;
       const used = Number(entitlement.consumed) + Number(entitlement.reserved);
       promotionMonthEl.textContent = formatMonth(entitlement.monthKey);
       promotionUsedEl.textContent = String(used);
@@ -218,17 +285,19 @@ const { venue } = Astro.props;
         : String(entitlement.remainingThisMonth);
       const allowance = entitlement.allowance === null ? 'unlimited' : entitlement.allowance;
       promotionDetailEl.textContent = `${entitlement.consumed} started · ${entitlement.reserved} scheduled · ${allowance} total slots (${entitlement.additionalAllowance} admin-added)`;
+      syncPromotionButtons();
     }
 
     async function loadPromotionAllowance() {
       promotionReady = false;
       promotionAddBtn.disabled = true;
+      promotionRemoveBtn.disabled = true;
       const res = await fetch(`/api/admin/venues/${venueId}/promotion-allowance`, { cache: 'no-store' });
       const data = await res.json();
       if (!res.ok) throw new Error((data.errors || ['Could not load promotion availability.']).join('\n'));
       renderPromotionAllowance(data.entitlement);
       promotionReady = true;
-      promotionAddBtn.disabled = false;
+      syncPromotionButtons();
     }
 
     promotionAddBtn.addEventListener('click', async () => {
@@ -243,7 +312,24 @@ const { venue } = Astro.props;
       } catch (err: any) {
         setPromotionStatus(err.message, 'err');
       } finally {
-        promotionAddBtn.disabled = !promotionReady;
+        syncPromotionButtons();
+      }
+    });
+
+    promotionRemoveBtn.addEventListener('click', async () => {
+      promotionAddBtn.disabled = true;
+      promotionRemoveBtn.disabled = true;
+      setPromotionStatus('Removing one admin-added promotion…');
+      try {
+        const res = await fetch(`/api/admin/venues/${venueId}/promotion-allowance`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Could not remove a promotion.']).join('\n'));
+        renderPromotionAllowance(data.entitlement);
+        setPromotionStatus('One admin-added promotion was removed for this month.', 'ok');
+      } catch (err: any) {
+        setPromotionStatus(err.message, 'err');
+      } finally {
+        syncPromotionButtons();
       }
     });
 
@@ -315,7 +401,7 @@ const { venue } = Astro.props;
         baselineVenue = JSON.parse(JSON.stringify(venue));
         renderForm();
         try {
-          await loadPromotionAllowance();
+          await Promise.all([loadPromotionAllowance(), loadOwner()]);
         } catch (err: any) {
           setPromotionStatus(err.message, 'err');
         }

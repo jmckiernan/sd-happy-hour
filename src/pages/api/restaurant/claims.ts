@@ -4,6 +4,7 @@ import { getSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
 import { getMergedVenues } from '../../../lib/venueContent';
 import { getVenues, slugify } from '../../../lib/venues';
+import { listManagedVenueAccessByUser } from '../../../lib/venueUsers';
 
 export const prerender = false;
 
@@ -18,10 +19,29 @@ export const GET: APIRoute = async ({ cookies }) => {
   }
 
   const baseVenues = getVenues();
-  const [claims, mergedVenues] = await Promise.all([
+  const [ownerClaims, managedAccess, mergedVenues] = await Promise.all([
     listVenueClaimsByUser(session.userId),
+    listManagedVenueAccessByUser(session.userId),
     getMergedVenues(),
   ]);
+  const claims = [
+    ...ownerClaims.map((claim) => ({ ...claim, accessRole: 'owner' as const })),
+    ...managedAccess.map((access) => ({
+      id: access.manager_id,
+      userId: session.userId,
+      venueId: access.venue_id,
+      status: 'verified' as const,
+      verificationMethod: null,
+      phone: '',
+      phoneVerifiedAt: null,
+      claimNote: '',
+      plan: access.plan,
+      smsFundingEnabled: false,
+      createdAt: '',
+      updatedAt: '',
+      accessRole: access.role,
+    })),
+  ];
   const enriched = claims.map((claim) => {
     const venue = baseVenues.find((v) => v.id === claim.venueId);
     const scheduleVenue = mergedVenues.find((v) => v.id === claim.venueId);

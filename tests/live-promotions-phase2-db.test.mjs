@@ -162,7 +162,7 @@ async function main() {
       admin,
       `phase2-consumer-${crypto.randomUUID()}@example.test`
     );
-    const adminWithoutClaimUserId = await seedUser(admin, 'jmckiernan86@gmail.com');
+    const adminWithoutClaimUserId = await seedUser(admin, 'jmckiernan@gmail.com');
     const pendingUserId = await seedUser(
       admin,
       `phase2-pending-${crypto.randomUUID()}@example.test`

@@ -150,6 +150,9 @@
     max-width: 640px;
     padding: 0;
     width: calc(100% - 24px);
+    inset: 0;
+    margin: auto;
+    position: fixed;
   }
   .merchant-promotion-dialog::backdrop { background: rgba(17, 24, 39, 0.64); }
   .merchant-dialog-surface {
@@ -245,6 +248,27 @@
     min-height: 44px;
     padding: 9px 14px;
   }
+  .merchant-quick-ends button[aria-pressed="true"] {
+    background: var(--sunset-start);
+    box-shadow: 0 0 0 2px var(--night);
+    color: white;
+  }
+
+  .merchant-promotion-image-control {
+    border: 2px dashed var(--sand-warm);
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+  }
+  .merchant-promotion-image-preview {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    width: 100%;
+  }
+  .merchant-promotion-image-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .merchant-promotion-image-hint { color: var(--night-soft); font-size: 0.78rem; margin: 0; text-transform: none; }
 
   .merchant-fold-choice {
     background: #FFF7ED;
@@ -274,7 +298,7 @@
   .merchant-dialog-status.success { color: #166534; }
   .merchant-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 
-  .merchant-confirmation { display: grid; gap: 16px; }
+  .merchant-confirmation { display: grid; gap: 16px; text-align: center; }
   .merchant-confirmation h2 { font-size: 1.4rem; margin: 0; }
   .merchant-confirmation-copy { color: var(--night-soft); margin: 0; }
   .merchant-confirmation-card {
@@ -287,6 +311,7 @@
   }
   .merchant-confirmation-card strong { font-size: 1.08rem; }
   .merchant-confirmation-card span { color: var(--night-soft); font-size: 0.86rem; }
+  .merchant-confirmation .merchant-dialog-actions { justify-content: center; }
 
   .merchant-action-dialog { max-width: 440px; }
   .merchant-action-dialog .merchant-dialog-surface { display: grid; gap: 14px; }
@@ -362,6 +387,23 @@
         <input id="merchant-promotion-code" name="dealCode" maxlength="30" placeholder="HHSD10" autocomplete="off">
       </label>
 
+      <fieldset>
+        <legend>Promotion image <span aria-hidden="true">(optional)</span></legend>
+        <div class="merchant-promotion-image-control">
+          <input type="hidden" name="imageKey" data-promotion-image-key>
+          <img class="merchant-promotion-image-preview" data-promotion-image-preview alt="Promotion image preview" hidden>
+          <div class="merchant-promotion-image-actions">
+            <label class="merchant-promotion-button secondary" for="merchant-promotion-image-file">
+              Choose image
+              <input id="merchant-promotion-image-file" type="file" accept="image/jpeg,image/png" data-promotion-image-file hidden>
+            </label>
+            <button class="merchant-promotion-button secondary" type="button" data-promotion-image-remove hidden>Remove image</button>
+          </div>
+          <p class="merchant-promotion-image-hint">Shown on Live Deals only. JPEG or PNG, at least 800×500px.</p>
+          <p class="merchant-field-error" data-promotion-image-status aria-live="polite"></p>
+        </div>
+      </fieldset>
+
       <fieldset data-when-fieldset>
         <legend>When</legend>
         <div class="merchant-when-options">
@@ -405,9 +447,9 @@
         <div>
           <span class="merchant-time-zone">Quick end</span>
           <div class="merchant-quick-ends" aria-label="Set promotion duration">
-            <button type="button" data-quick-end="1">1h</button>
-            <button type="button" data-quick-end="2">2h</button>
-            <button type="button" data-quick-end="4">4h</button>
+            <button type="button" data-quick-end="1" aria-pressed="false">1h</button>
+            <button type="button" data-quick-end="2" aria-pressed="false">2h</button>
+            <button type="button" data-quick-end="4" aria-pressed="false">4h</button>
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ export interface PromotionCampaign {
   title: string | null;
   description: string;
   dealCode: string | null;
+  imageKey: string | null;
   startsAt: string | null;
   endsAt: string | null;
   createdByUserId: string | null;
@@ -30,6 +31,7 @@ interface PromotionCampaignRow {
   title: string | null;
   description: string;
   deal_code: string | null;
+  image_key: string | null;
   starts_at: Date | string | null;
   ends_at: Date | string | null;
   created_by_user_id: string | null;
@@ -55,6 +57,7 @@ function mapPromotionCampaign(row: PromotionCampaignRow): PromotionCampaign {
     title: row.title,
     description: row.description,
     dealCode: row.deal_code,
+    imageKey: row.image_key,
     startsAt: iso(row.starts_at),
     endsAt: iso(row.ends_at),
     createdByUserId: row.created_by_user_id,
@@ -73,6 +76,7 @@ export interface InsertPromotionCampaignInput {
   title: string | null;
   description: string;
   dealCode: string | null;
+  imageKey: string | null;
   startsAt: string | null;
   endsAt: string | null;
   createdByUserId: string;
@@ -87,6 +91,7 @@ export interface ReplacePromotionCampaignInput {
   title: string | null;
   description: string;
   dealCode: string | null;
+  imageKey: string | null;
   startsAt: string | null;
   endsAt: string | null;
   publishedAt: string | null;
@@ -202,12 +207,12 @@ export async function insertPromotionCampaign(
 ): Promise<PromotionCampaign> {
   const rows = await executor<PromotionCampaignRow>`
     INSERT INTO promotion_campaigns (
-      venue_id, type, title, description, deal_code, starts_at, ends_at,
+      venue_id, type, title, description, deal_code, image_key, starts_at, ends_at,
       created_by_user_id, published_at, ended_at, cancelled_at,
       legacy_promotion_venue_id
     ) VALUES (
       ${input.venueId}, ${input.type}, ${input.title}, ${input.description},
-      ${input.dealCode}, ${input.startsAt}, ${input.endsAt},
+      ${input.dealCode}, ${input.imageKey}, ${input.startsAt}, ${input.endsAt},
       ${input.createdByUserId}, ${input.publishedAt ?? null},
       ${input.endedAt ?? null}, ${input.cancelledAt ?? null},
       ${input.legacyPromotionVenueId ?? null}
@@ -227,6 +232,7 @@ export async function replacePromotionCampaign(
       title = ${input.title},
       description = ${input.description},
       deal_code = ${input.dealCode},
+      image_key = ${input.imageKey},
       starts_at = ${input.startsAt},
       ends_at = ${input.endsAt},
       published_at = ${input.publishedAt},

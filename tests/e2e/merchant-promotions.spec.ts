@@ -46,6 +46,7 @@ const CLAIMS_RESPONSE = {
       venueSlug: 'the-sunset-room',
       venueNeighborhood: 'North Park',
       venuePhoneAvailable: true,
+      accessRole: 'owner',
       happyHourSchedule: {
         id: VENUE_ID,
         days: ['Friday'],
@@ -150,6 +151,8 @@ function promotion(
     title: `${state} promotion`,
     description: 'A merchant promotion fixture.',
     dealCode: null,
+    imageKey: null,
+    imageUrl: '',
     ...timingByState[state],
     state,
     createdAt: '2026-08-20T18:00:00.000Z',
@@ -172,6 +175,7 @@ async function mockDashboard(
   options: {
     promotions?: MerchantPromotionDto[];
     entitlement?: MerchantPromotionEntitlementDto;
+    claimsPayload?: any;
     handlePromotions?: (route: Route) => Promise<void>;
   } = {}
 ): Promise<void> {
@@ -180,7 +184,7 @@ async function mockDashboard(
     fulfillJson(route, { authenticated: false, admin: null })
   );
   await page.route('**/api/restaurant/claims', (route) =>
-    fulfillJson(route, CLAIMS_RESPONSE)
+    fulfillJson(route, options.claimsPayload ?? CLAIMS_RESPONSE)
   );
   await page.route('**/api/restaurant/promotions**', async (route) => {
     if (options.handlePromotions) {
@@ -196,7 +200,23 @@ async function mockDashboard(
   });
 }
 
-test('verified venue separates recurring happy hour from backend-grouped promotions and keeps terminal history read-only', async ({
+test('Promotions Only access shows promotion controls without listing or user administration', async ({ page }) => {
+  await mockDashboard(page, {
+    claimsPayload: {
+      ...CLAIMS_RESPONSE,
+      claims: [{ ...CLAIMS_RESPONSE.claims[0], accessRole: 'promotions' }],
+    },
+  });
+  await page.goto('/restaurant/');
+  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
+  await expect(claim.locator('.pill.verified')).toHaveText('Promotions Only');
+  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeVisible();
+  await expect(claim.getByRole('link', { name: 'View public page' })).toBeVisible();
+  await expect(claim.getByRole('link', { name: 'Manage listing, photos & menu' })).toHaveCount(0);
+  await expect(claim.getByRole('link', { name: 'Managing users' })).toHaveCount(0);
+});
+
+test('verified venue separates recurring happy hour and offers rerun only for ended history', async ({
   page,
 }) => {
   await mockDashboard(page, {
@@ -205,13 +225,15 @@ test('verified venue separates recurring happy hour from backend-grouped promoti
       promotion('scheduled', { id: 'promotion-scheduled', title: 'Sunday Brunch Preview' }),
       promotion('draft', { id: 'promotion-draft', title: 'Draft Taco Drop' }),
       promotion('ended', { id: 'promotion-ended', title: 'Expired Chef Special' }),
+      promotion('cancelled', { id: 'promotion-cancelled', title: 'Cancelled Chef Special' }),
     ],
   });
 
   await page.goto('/restaurant/');
 
   const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.locator('.pill.verified')).toHaveText('verified');
+  await expect(claim.locator('.pill.verified')).toHaveText('Owner');
+  await expect(claim.getByRole('link', { name: 'Managing users' })).toBeVisible();
 
   const command = claim.locator('[data-promotion-command]');
   const today = command.locator('section[aria-label="Today\'s Happy Hour"]');
@@ -253,9 +275,17 @@ test('verified venue separates recurring happy hour from backend-grouped promoti
   const terminalCard = past.locator('[data-promotion-id="promotion-ended"]');
   await expect(terminalCard).toHaveClass(/is-terminal/);
   await expect(terminalCard.locator('.merchant-state-badge.ended')).toHaveText('Ended');
-  await expect(terminalCard).toContainText('Read-only history');
-  await expect(terminalCard.locator('[data-promotion-action]')).toHaveCount(0);
-  await expect(terminalCard.locator('.merchant-card-actions')).toHaveCount(0);
+  await expect(terminalCard).toContainText('Historical promotion');
+  await expect(terminalCard.getByRole('button', { name: 'Rerun' })).toBeVisible();
+  await expect(
+    past.locator('[data-promotion-id="promotion-cancelled"]').getByRole('button', { name: 'Rerun' })
+  ).toHaveCount(0);
+
+  await terminalCard.getByRole('button', { name: 'Rerun' }).click();
+  const rerunDialog = page.getByRole('dialog', { name: 'Create Promotion' });
+  await expect(rerunDialog.getByLabel('Headline')).toHaveValue('Expired Chef Special');
+  await expect(rerunDialog.getByLabel('Details')).toHaveValue('A merchant promotion fixture.');
+  await expect(rerunDialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
 });
 
 test('Create Promotion defaults to Start Now, creates an untimed draft, starts it with only endsAt, and refetches', async ({
@@ -346,10 +376,14 @@ test('Create Promotion defaults to Start Now, creates an untimed draft, starts i
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeEnabled();
   await expect(dialog.getByRole('radio', { name: 'Schedule' })).toBeEnabled();
+  const oneHour = dialog.getByRole('button', { name: '1h' });
+  await oneHour.click();
+  await expect(oneHour).toHaveAttribute('aria-pressed', 'true');
+  await dialog.getByLabel('End in San Diego').fill('2026-08-21T20:00');
+  await expect(oneHour).toHaveAttribute('aria-pressed', 'false');
   await dialog.getByLabel('Headline').fill('$5 Margaritas + $2 Tacos');
   await dialog.getByLabel('Details').fill('Patio only.');
   await dialog.getByLabel('Deal code').fill('SUNSET');
-  await dialog.getByLabel('End in San Diego').fill('2026-08-21T20:00');
   await dialog.getByRole('button', { name: 'Review promotion' }).click();
 
   await expect(dialog.getByRole('heading', { name: 'Ready to go Live?' })).toBeVisible();
