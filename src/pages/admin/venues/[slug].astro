@@ -6,8 +6,9 @@ import { getVenues, slugify } from '../../../lib/venues';
 
 // One editor page per published venue, mirroring the public /venues/[slug]/
 // route so the Edit button there is a straight slug swap. The values below
-// come from the same build-time happy-hours.json the public page renders
-// from, so the two can't drift.
+// start from the same build-time happy-hours.json the public page renders.
+// Once authenticated, the client replaces these values with the repository
+// record plus the current live override before the form becomes editable.
 export async function getStaticPaths() {
   return getVenues().map((venue) => ({
     params: { slug: slugify(venue.name) },
@@ -91,8 +92,9 @@ const { venue } = Astro.props;
       <p class="sub">{venue.neighborhood} · venue #{venue.id}</p>
 
       <p class="ve-note">
-        Saving commits straight to <code>public/data/happy-hours.json</code> in the repo. The change goes
-        live on the next deploy — usually a couple of minutes — not instantly on this page.
+        Featured images, hours, deals, vibe and contact details go live as soon as Save succeeds.
+        Name, neighborhood, map coordinates, verification fields and social previews are also saved to
+        <code>public/data/happy-hours.json</code> and appear with the next deploy.
       </p>
 
       <div class="ve-panel">
@@ -107,50 +109,109 @@ const { venue } = Astro.props;
   </div>
 
   <script>
-    import { listingFormHTML, readListingForm, wireListingImageControls } from '../../../lib/listingForm';
+    import {
+      LISTING_IMAGE_BUSY_EVENT,
+      listingFormHTML,
+      readListingForm,
+      wireListingImageControls,
+    } from '../../../lib/listingForm';
 
     const editorEl = document.getElementById('ve-editor')!;
-    const venue = JSON.parse(editorEl.dataset.venue!);
+    let venue = JSON.parse(editorEl.dataset.venue!);
+    let baselineVenue = JSON.parse(JSON.stringify(venue));
+    const venueId = Number(venue.id);
     const formEl = document.getElementById('ve-form')!;
     const statusEl = document.getElementById('ve-status')!;
     const saveBtn = document.getElementById('ve-save') as HTMLButtonElement;
+    let venueReady = false;
+    let imageRequestBusy = false;
+    let saving = false;
+
+    function syncSaveDisabled() {
+      saveBtn.disabled = !venueReady || imageRequestBusy || saving;
+    }
 
     function setStatus(message: string, kind: '' | 'ok' | 'err' = '') {
       statusEl.className = `ve-status${kind ? ` ${kind}` : ''}`;
       statusEl.textContent = message;
     }
 
-    // Verification fields are shown here but not in the submission queue —
-    // on a published venue they drive the badge on the public page, whereas
-    // approving a submission is what sets them in the first place.
-    formEl.innerHTML = listingFormHTML(venue, { includeVerification: true });
     // Upload / paste-a-URL / AI touch-up for the featured image, shared with
     // the submission queue. Delegated, so it survives a form repaint.
     wireListingImageControls(formEl);
+    formEl.addEventListener(LISTING_IMAGE_BUSY_EVENT, (event) => {
+      imageRequestBusy = Boolean((event as CustomEvent<{ busy?: boolean }>).detail?.busy);
+      syncSaveDisabled();
+      if (imageRequestBusy) setStatus('Waiting for the image upload to finish…');
+      else if (statusEl.textContent === 'Waiting for the image upload to finish…') setStatus('');
+    });
+
+    function renderForm() {
+      // Verification fields are shown here but not in the submission queue —
+      // on a published venue they drive the badge on the public page, whereas
+      // approving a submission is what sets them in the first place.
+      formEl.innerHTML = listingFormHTML(venue, { includeVerification: true });
+    }
 
     saveBtn.addEventListener('click', async () => {
-      saveBtn.disabled = true;
+      saving = true;
+      syncSaveDisabled();
       setStatus('Saving...');
       try {
-        const res = await fetch(`/api/admin/venues/${venue.id}`, {
+        const res = await fetch(`/api/admin/venues/${venueId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ listing: readListingForm(formEl) }),
+          body: JSON.stringify({ listing: readListingForm(formEl), baseline: baselineVenue }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error((data.errors || ['Save failed.']).join('\n'));
-        setStatus('Saved — live on the next deploy.', 'ok');
+        venue = data.venue;
+        baselineVenue = JSON.parse(JSON.stringify(venue));
+        renderForm();
+        setStatus(
+          data.imageFallbackApplied
+            ? 'Saved and live now — the previous image was missing, so the venue is using its stock fallback.'
+            : 'Saved — the featured image and other public listing details are live now.',
+          'ok'
+        );
       } catch (err: any) {
         setStatus(err.message, 'err');
       } finally {
-        saveBtn.disabled = false;
+        saving = false;
+        syncSaveDisabled();
       }
     });
 
     (async () => {
-      const res = await fetch('/api/admin/me');
-      const session = await res.json();
-      (session.authenticated ? editorEl : document.getElementById('ve-locked')!).classList.remove('ve-hidden');
+      try {
+        const res = await fetch('/api/admin/me', { cache: 'no-store' });
+        const session = await res.json();
+        if (!session.authenticated) {
+          document.getElementById('ve-locked')!.classList.remove('ve-hidden');
+          return;
+        }
+
+        editorEl.classList.remove('ve-hidden');
+        venueReady = false;
+        syncSaveDisabled();
+        setStatus('Loading the current live listing…');
+
+        const venueRes = await fetch(`/api/admin/venues/${venueId}`, { cache: 'no-store' });
+        const data = await venueRes.json();
+        if (!venueRes.ok) throw new Error((data.errors || ['Could not load venue.']).join('\n'));
+
+        venue = data.venue;
+        baselineVenue = JSON.parse(JSON.stringify(venue));
+        renderForm();
+        setStatus('');
+        venueReady = true;
+        syncSaveDisabled();
+      } catch (err: any) {
+        editorEl.classList.remove('ve-hidden');
+        venueReady = false;
+        syncSaveDisabled();
+        setStatus(`Could not load the current venue. ${err.message}`, 'err');
+      }
     })();
   </script>
 </Layout>

@@ -17,6 +17,11 @@ import type { Venue } from './venues';
 
 const DATA_PATH = 'public/data/happy-hours.json';
 
+export interface VenueFileSnapshot {
+  venues: Venue[];
+  sha: string;
+}
+
 /** Drops `image` when it's empty rather than writing `"image": ""` into
  * happy-hours.json. Matters for more than tidiness: updateVenue() merges the
  * incoming listing over the stored row, so an empty string has to actually
@@ -43,7 +48,7 @@ function repoConfig() {
 /** Current contents of the venue file plus the blob sha, which
  * commitVenues() needs to make the write a conflict-checked update rather
  * than a blind overwrite. */
-export async function fetchVenues(): Promise<{ venues: Venue[]; sha: string }> {
+export async function fetchVenues(): Promise<VenueFileSnapshot> {
   const { owner, repo, branch, octokit } = repoConfig();
   const existing = await octokit.repos.getContent({ owner, repo, path: DATA_PATH, ref: branch });
 
@@ -88,8 +93,12 @@ export async function appendVenue(listing: Listing, now: string): Promise<number
 
 /** Replaces an existing venue's editable fields in place, keeping its id.
  * Throws if no venue has that id. */
-export async function updateVenue(id: number, listing: Listing): Promise<Venue> {
-  const { venues, sha } = await fetchVenues();
+export async function updateVenue(
+  id: number,
+  listing: Listing,
+  snapshot?: VenueFileSnapshot
+): Promise<Venue> {
+  const { venues, sha } = snapshot ?? (await fetchVenues());
   const index = venues.findIndex((venue) => Number(venue.id) === id);
   if (index === -1) throw new Error(`No venue with id ${id}.`);
 

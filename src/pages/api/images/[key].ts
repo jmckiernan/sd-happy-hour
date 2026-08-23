@@ -12,7 +12,12 @@ export const GET: APIRoute = async ({ params }) => {
   const image = await readImage(key);
   if (!image) return new Response('Not found', { status: 404 });
 
-  return new Response(image.bytes, {
+  // Response's DOM type accepts an ArrayBuffer, not a Uint8Array whose
+  // backing buffer could theoretically be shared.
+  const body = new ArrayBuffer(image.bytes.byteLength);
+  new Uint8Array(body).set(image.bytes);
+
+  return new Response(body, {
     status: 200,
     headers: {
       'content-type': image.contentType,

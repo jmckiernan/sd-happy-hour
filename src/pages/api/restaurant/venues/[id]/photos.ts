@@ -126,7 +126,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     minHeight: MIN_HEIGHT,
     maxDimension: MAX_DIMENSION,
   });
-  if (!sanitized.ok) return errorJson([sanitized.error], 400);
+  if (sanitized.ok === false) return errorJson([sanitized.error], 400);
 
   // Admin uploads skip screening — an admin looking at the photo as they
   // upload it is a stronger check than the model, and it keeps the admin's own

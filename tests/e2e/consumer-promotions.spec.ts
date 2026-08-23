@@ -290,6 +290,79 @@ test('venue page gives Live Deal priority on mobile while preserving regular hap
   await expect(page.locator('#lightbox')).toBeHidden();
 });
 
+test('venue page keeps the stock hero and lightbox image when a live featured-image override is missing', async ({
+  page,
+}) => {
+  const missingImage = '/api/images/missing-live-featured.jpg';
+  const stockImage = '/images/vibes/trendy-gastropub.jpg';
+  let missingImageRequests = 0;
+
+  await mockConsumerApis(page, {
+    venueContentPayload: {
+      venueId: 2,
+      hasOwnerEdits: true,
+      listing: { image: missingImage },
+      photos: [],
+      menu: [],
+    },
+  });
+  await page.route(`**${missingImage}`, async (route) => {
+    missingImageRequests += 1;
+    await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Not found' });
+  });
+
+  await page.goto('/venues/craft-commerce/');
+
+  const hero = page.locator('#hero-frame');
+  const heroImage = hero.locator('img').first();
+  await expect.poll(() => missingImageRequests).toBeGreaterThan(0);
+  await expect(heroImage).toHaveAttribute('src', stockImage);
+  await expect
+    .poll(() => heroImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+
+  await hero.click();
+  await expect(page.locator('#lightbox')).toBeVisible();
+  const lightboxImage = page.locator('#lightbox-img');
+  await expect(lightboxImage).toHaveAttribute('src', stockImage);
+  await expect
+    .poll(() => lightboxImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+});
+
+test('venue page restores the stock hero when a live override clears a build-time featured image', async ({
+  page,
+}) => {
+  const buildTimeImage = '/api/images/your-mother-s-house-1787356091402-57d84087.png';
+  const stockImage = '/images/vibes/speakeasy.jpg';
+
+  await mockConsumerApis(page, {
+    venueContentPayload: {
+      venueId: 21,
+      hasOwnerEdits: true,
+      listing: { image: '' },
+      photos: [],
+      menu: [],
+    },
+  });
+  // Keep the prerendered featured image healthy so only the explicit empty
+  // live override can cause the switch back to the venue's stock fallback.
+  await page.route(`**${buildTimeImage}`, (route) =>
+    route.fulfill({
+      path: `${process.cwd()}/public/images/vibes/rooftop-vibes.jpg`,
+      contentType: 'image/jpeg',
+    })
+  );
+
+  await page.goto('/venues/your-mother-s-house/');
+
+  const heroImage = page.locator('#hero-frame > img');
+  await expect(heroImage).toHaveAttribute('src', stockImage);
+  await expect
+    .poll(() => heroImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+});
+
 test('venue page reserves the pulse for Live Deal and falls through Happy Hour Now to no status', async ({
   page,
 }) => {

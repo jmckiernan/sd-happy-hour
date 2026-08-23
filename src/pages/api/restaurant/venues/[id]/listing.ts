@@ -75,7 +75,16 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
 
-  const { patch, errors } = validateOwnerPatch(body.listing || {});
+  const currentOverride = await getVenueOverride(venueId);
+  const currentListing = mergeVenue(venue, currentOverride);
+  const currentImage = String(currentListing.image || '');
+  const { patch, errors } = validateOwnerPatch(body.listing || {}, {
+    // An admin may have selected a featured image that is not part of the
+    // owner's album (including a remote URL). Saving unrelated owner edits
+    // must preserve that value; only a newly selected image is constrained
+    // to this venue's published photos below.
+    allowedExistingImage: currentImage,
+  });
   if (errors.length) return errorJson(errors, 422);
 
   // The featured photo has to be one of this venue's published photos.
@@ -83,7 +92,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   // stops an owner pointing it at an arbitrary stored image — including one
   // of their own photos that screening is still holding, or another venue's.
   const image = String(patch.image || '');
-  if (image) {
+  if (image && image !== currentImage) {
     const published = await listPublishedVenuePhotos(venueId);
     const allowed = published.some((photo) => `/api/images/${photo.imageKey}` === image);
     if (!allowed) {

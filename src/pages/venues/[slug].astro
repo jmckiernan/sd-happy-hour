@@ -3,7 +3,7 @@ export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import LiveDealStyles from '../../components/LiveDealStyles.astro';
-import { getVenues, slugify, formatTime, getListingImage } from '../../lib/venues';
+import { getVenues, slugify, formatTime, getListingImage, getVenueImage } from '../../lib/venues';
 
 
 export async function getStaticPaths() {
@@ -357,6 +357,8 @@ const heroImage = getListingImage(venue, 'hero');
       data-days={venue.days.join('|')}
       data-start={venue.startTime}
       data-end={venue.endTime}
+      data-stock-image={getVenueImage(venue.vibe, 'hero')}
+      data-stock-vibe={venue.vibe}
       role="button"
       tabindex="0"
       aria-label={`View photos of ${venue.name}`}
@@ -503,6 +505,7 @@ const heroImage = getListingImage(venue, 'hero');
     } from '../../lib/consumerPromotionState';
     import { createLivePromotionFeed } from '../../lib/livePromotionFeed';
     import { formatCountdown, formatSanDiegoDateTime } from '../../lib/promotionClientTime';
+    import { vibeImageFor } from '../../lib/vibeImages';
     import {
       getHappyHourOccurrenceForDate,
       getSanDiegoDayBounds,
@@ -712,10 +715,13 @@ const heroImage = getListingImage(venue, 'hero');
     const lightboxCount = document.getElementById('lightbox-count')!;
     const lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement;
     const lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement;
+    const heroImg = heroFrame.querySelector('img') as HTMLImageElement;
     let lightboxPhotos: Array<{ url: string; caption: string }> = [];
     let lightboxIndex = 0;
     let venueGallery: Array<{ url: string; caption: string }> = [];
+    let venueGalleryPhotos: any[] = [];
     let menuPhotoGallery: Array<{ url: string; caption: string }> = [];
+    let activeHeroVibe = heroFrame.dataset.stockVibe || '';
 
     function esc(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -739,6 +745,38 @@ const heroImage = getListingImage(venue, 'hero');
       if (!url.startsWith('/') || url.startsWith('/.netlify/images')) return url;
       if (!import.meta.env.PROD) return url;
       return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=80`;
+    }
+
+    /** The build-time stock URL is already CDN-sized. If a live edit changes
+     * the vibe, derive the corresponding stock URL in the browser. */
+    function stockHeroFor(vibe: string) {
+      if (vibe === heroFrame.dataset.stockVibe && heroFrame.dataset.stockImage) {
+        return heroFrame.dataset.stockImage;
+      }
+      return sized(vibeImageFor(vibe), 1600);
+    }
+
+    /** Test a live image before swapping it into the visible hero. This keeps
+     * the valid build-time image on screen while the new Blob/CDN URL loads,
+     * avoiding the stock-photo flash followed by an empty frame. */
+    function canLoadImage(url: string): Promise<boolean> {
+      return new Promise((resolve) => {
+        const probe = new Image();
+        let settled = false;
+        const timeout = window.setTimeout(() => finish(false), 8_000);
+        function finish(loaded: boolean) {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeout);
+          probe.onload = null;
+          probe.onerror = null;
+          if (!loaded) probe.src = '';
+          resolve(loaded);
+        }
+        probe.onload = () => finish(probe.naturalWidth > 0);
+        probe.onerror = () => finish(false);
+        probe.src = url;
+      });
     }
 
     function paintLightbox() {
@@ -824,7 +862,7 @@ const heroImage = getListingImage(venue, 'hero');
     /** Repaints the parts of the page an owner is allowed to change. Only
      * fields the response actually carries are touched, so a venue with no
      * owner edits keeps its build-time markup untouched. */
-    function applyOwnerEdits(listing: any) {
+    async function applyOwnerEdits(listing: any) {
       if (!listing) return;
 
       if (listing.startTime && listing.endTime) {
@@ -859,7 +897,10 @@ const heroImage = getListingImage(venue, 'hero');
       }
 
       if (listing.address) document.getElementById('hh-address')!.textContent = listing.address;
-      if (listing.vibe) document.getElementById('venue-vibe')!.textContent = listing.vibe;
+      if (listing.vibe) {
+        activeHeroVibe = listing.vibe;
+        document.getElementById('venue-vibe')!.textContent = listing.vibe;
+      }
 
       if (listing.website) {
         (document.getElementById('venue-website') as HTMLAnchorElement).href = listing.website;
@@ -874,10 +915,13 @@ const heroImage = getListingImage(venue, 'hero');
         callLink.style.display = 'none';
       }
 
-      // A featured photo the owner picked replaces the hero image.
-      if (listing.image) {
-        const heroImg = heroFrame.querySelector('img') as HTMLImageElement | null;
-        if (heroImg) heroImg.src = sized(listing.image, 1600);
+      // Empty is meaningful: it clears a previously featured image and goes
+      // back to the live listing's vibe stock photo. A missing/broken Blob is
+      // never assigned to the visible hero.
+      if (Object.prototype.hasOwnProperty.call(listing, 'image')) {
+        const stock = stockHeroFor(activeHeroVibe);
+        const requested = listing.image ? sized(String(listing.image), 1600) : stock;
+        heroImg.src = (await canLoadImage(requested)) ? requested : stock;
       }
 
       // The schedule may have moved, so recompute the consumer hierarchy from
@@ -886,7 +930,7 @@ const heroImage = getListingImage(venue, 'hero');
     }
 
     function setVenueGallery(photos: any[]) {
-      const heroImg = heroFrame.querySelector('img') as HTMLImageElement;
+      venueGalleryPhotos = photos;
       const featured = heroImg.getAttribute('src') || heroImg.src;
       venueGallery = [
         { url: featured, caption: heroImg.alt },
@@ -894,6 +938,18 @@ const heroImage = getListingImage(venue, 'hero');
       ].filter((photo, index, all) => all.findIndex((candidate) => candidate.url === photo.url) === index);
       heroFrame.classList.toggle('has-gallery', venueGallery.length > 0);
     }
+
+    // Also protect build-time featured images and the unlikely case where a
+    // preloaded CDN URL fails on its second request. The gallery is rebuilt so
+    // opening the hero cannot resurrect the broken URL in the lightbox.
+    function restoreStockHero() {
+      const stock = stockHeroFor(activeHeroVibe);
+      if ((heroImg.getAttribute('src') || '') === stock) return;
+      heroImg.src = stock;
+      setVenueGallery(venueGalleryPhotos);
+    }
+    heroImg.addEventListener('error', restoreStockHero);
+    if (heroImg.complete && heroImg.naturalWidth === 0) restoreStockHero();
 
     // The featured image is always available, even before owner content loads.
     setVenueGallery([]);
@@ -958,14 +1014,14 @@ const heroImage = getListingImage(venue, 'hero');
 
     async function initOwnerContent() {
       try {
-        const res = await fetch(`/api/venue-content/${venueId}`);
+        const res = await fetch(`/api/venue-content/${venueId}`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         // Only repaint when there's actually something different to show. The
         // static markup is already correct for a venue nobody has edited, so
         // repainting it identically just risks a flash of relayout and hides
         // styling mistakes behind "it works on the happy path".
-        if (data.hasOwnerEdits) applyOwnerEdits(data.listing);
+        if (data.hasOwnerEdits) await applyOwnerEdits(data.listing);
         setVenueGallery(data.photos || []);
         renderMenu(data.menu || []);
       } catch {

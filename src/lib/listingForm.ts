@@ -354,6 +354,8 @@ interface ImageBlock {
   status: HTMLElement;
 }
 
+export const LISTING_IMAGE_BUSY_EVENT = 'sdhh:listing-image-busy';
+
 function imageBlockFor(el: HTMLElement): ImageBlock | null {
   const block = el.closest('[data-lf-image]') as HTMLElement | null;
   if (!block) return null;
@@ -398,6 +400,9 @@ function setImageBusy(ui: ImageBlock, busy: boolean) {
     (el as HTMLButtonElement | HTMLInputElement).disabled = busy;
   });
   ui.block.classList.toggle('busy', busy);
+  ui.block.dispatchEvent(
+    new CustomEvent(LISTING_IMAGE_BUSY_EVENT, { bubbles: true, detail: { busy } })
+  );
 }
 
 /** A filename-safe hint for the stored image key, taken from the listing's own

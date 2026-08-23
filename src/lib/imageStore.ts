@@ -37,7 +37,7 @@ const STORE_NAME = 'blog-images';
 export function isNetlifyBlobsAvailable(): boolean {
   // If we're in dev mode (either Vite DEV or NETLIFY_DEV), use local storage
   if (import.meta.env.DEV) return false;
-  if (process.env.NETLIFY_DEV) return false;
+  if (process.env.NETLIFY_DEV === 'true') return false;
   if (process.env.CONTEXT === 'dev') return false;
 
   // Otherwise use SITE_ID as the signal - it's set in deployed functions but not plain astro dev
@@ -50,7 +50,7 @@ export function isNetlifyBlobsAvailable(): boolean {
 // filesystem is ephemeral and per-container. `import.meta.env.DEV` is
 // substituted by Vite at build time, so unlike the env sniffing above it
 // can't be wrong at runtime.
-function isLocalDevFallbackAllowed(): boolean {
+export function isLocalImageStorageAvailable(): boolean {
   return import.meta.env.DEV === true;
 }
 
@@ -59,7 +59,7 @@ function isLocalDevFallbackAllowed(): boolean {
 // visible 502 at upload time instead of an image that quietly works until
 // the container recycles.
 function assertLocalFallbackAllowed(operation: string): void {
-  if (isLocalDevFallbackAllowed()) return;
+  if (isLocalImageStorageAvailable()) return;
   throw new Error(
     `Cannot ${operation}: Netlify Blobs is unavailable and the local-disk fallback ` +
       `is only safe under \`astro dev\` (storage in a deployed function is ephemeral). ` +
@@ -118,13 +118,57 @@ export async function saveImage(key: string, bytes: Uint8Array, contentType: str
       console.log('[imageStore] Imported getStore from @netlify/blobs');
       const store = getStore(STORE_NAME);
       console.log('[imageStore] Got store for:', STORE_NAME);
-      const result = await store.set(key, bytes, { metadata: { contentType } });
+      // @netlify/blobs deliberately accepts ArrayBuffer rather than an
+      // arbitrary ArrayBufferView. Copying also guarantees that a
+      // SharedArrayBuffer-backed caller can never violate that contract.
+      const payload = new ArrayBuffer(bytes.byteLength);
+      new Uint8Array(payload).set(bytes);
+      const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
+      const result = await store.set(key, payload, {
+        metadata: { contentType, sha256 },
+        // Generated keys should never overwrite an existing upload. Besides
+        // protecting the old file, this gives us an authoritative modified
+        // flag that can be enforced before a URL is returned to the editor.
+        onlyIfNew: true,
+      });
       console.log('[imageStore] store.set() result:', result);
-      console.log('[imageStore] Successfully saved to Netlify Blobs');
+      if (!result.modified) {
+        throw new Error(`Image key already exists and was not overwritten: ${key}`);
+      }
 
-      // Verify it was actually saved
-      const verification = await store.get(key);
-      console.log('[imageStore] Verification - blob exists after save:', !!verification);
+      // Reads default to eventual consistency. A save followed immediately by
+      // the public image endpoint could therefore 404 even though the write
+      // succeeded. Verify through a strong read and enforce the result before
+      // returning the URL to the admin form.
+      try {
+        const verification = await store.getWithMetadata(key, {
+          type: 'arrayBuffer',
+          consistency: 'strong',
+        });
+        const verifiedSha256 = verification
+          ? crypto.createHash('sha256').update(new Uint8Array(verification.data)).digest('hex')
+          : '';
+        if (
+          !verification ||
+          verification.data.byteLength !== bytes.byteLength ||
+          verification.metadata?.contentType !== contentType ||
+          verification.metadata?.sha256 !== sha256 ||
+          verifiedSha256 !== sha256
+        ) {
+          throw new Error(`Image upload could not be verified in durable storage: ${key}`);
+        }
+      } catch (err) {
+        // The conditional write proved this invocation created the key, so it
+        // is safe to clean it up if verification fails rather than leaving an
+        // unreferenced object behind.
+        try {
+          await store.delete(key);
+        } catch (cleanupErr) {
+          console.error('[imageStore] Could not clean up unverified image:', cleanupErr);
+        }
+        throw err;
+      }
+      console.log('[imageStore] Successfully saved and verified in Netlify Blobs');
       return;
     } catch (err) {
       console.error('[imageStore] ERROR saving to Netlify Blobs:', err);
@@ -140,27 +184,31 @@ export async function saveImage(key: string, bytes: Uint8Array, contentType: str
   console.log('[imageStore] Successfully saved to local storage');
 }
 
-export async function readImage(key: string): Promise<StoredImage | null> {
+/** Strict lookup for write paths that must distinguish a missing object from
+ * a storage outage/configuration error. Public reads use readImage() below to
+ * degrade either case to a normal 404. */
+export async function readImageStrict(key: string): Promise<StoredImage | null> {
   console.log('[imageStore] readImage called for key:', key);
   console.log('[imageStore] Environment check - CONTEXT:', process.env.CONTEXT, 'SITE_ID:', process.env.SITE_ID);
   console.log('[imageStore] isNetlifyBlobsAvailable():', isNetlifyBlobsAvailable());
 
   if (isNetlifyBlobsAvailable()) {
     console.log('[imageStore] Reading from Netlify Blobs');
-    try {
-      const { getStore } = await import('@netlify/blobs');
-      const store = getStore(STORE_NAME);
-      console.log('[imageStore] Got store for:', STORE_NAME);
-      const result = await store.getWithMetadata(key, { type: 'arrayBuffer' });
-      console.log('[imageStore] getWithMetadata result:', result ? 'found' : 'not found');
-      if (!result) return null;
-      const contentType = (result.metadata?.contentType as string) || 'application/octet-stream';
-      console.log('[imageStore] Successfully read from Netlify Blobs, contentType:', contentType);
-      return { bytes: new Uint8Array(result.data), contentType };
-    } catch (err) {
-      console.error('[imageStore] ERROR reading from Netlify Blobs:', err);
-      return null;
-    }
+    const { getStore } = await import('@netlify/blobs');
+    const store = getStore(STORE_NAME);
+    console.log('[imageStore] Got store for:', STORE_NAME);
+    // Strong reads make a just-uploaded image available to the image route
+    // immediately after the admin presses Save instead of briefly 404ing at
+    // the edge while Blob replicas converge.
+    const result = await store.getWithMetadata(key, {
+      type: 'arrayBuffer',
+      consistency: 'strong',
+    });
+    console.log('[imageStore] getWithMetadata result:', result ? 'found' : 'not found');
+    if (!result) return null;
+    const contentType = (result.metadata?.contentType as string) || 'application/octet-stream';
+    console.log('[imageStore] Successfully read from Netlify Blobs, contentType:', contentType);
+    return { bytes: new Uint8Array(result.data), contentType };
   }
 
   // Reads stay non-fatal — a missing image should 404, not 500 — but a
@@ -168,12 +216,12 @@ export async function readImage(key: string): Promise<StoredImage | null> {
   // again, which is worth saying out loud in the function logs rather than
   // leaving as a silent 404.
   console.log('[imageStore] Netlify Blobs not available, checking if local fallback is allowed');
-  if (!isLocalDevFallbackAllowed()) {
-    console.error(
+  if (!isLocalImageStorageAvailable()) {
+    throw new Error(
       '[imageStore] Netlify Blobs unavailable in a deployed build; ' +
-        'cannot read image. CONTEXT=' + process.env.CONTEXT + ' isLocalDevFallbackAllowed=' + isLocalDevFallbackAllowed()
+        'cannot read image. CONTEXT=' + process.env.CONTEXT +
+        ' isLocalImageStorageAvailable=' + isLocalImageStorageAvailable()
     );
-    return null;
   }
 
   try {
@@ -186,6 +234,15 @@ export async function readImage(key: string): Promise<StoredImage | null> {
   } catch (err: any) {
     if (err.code === 'ENOENT') return null;
     throw err;
+  }
+}
+
+export async function readImage(key: string): Promise<StoredImage | null> {
+  try {
+    return await readImageStrict(key);
+  } catch (err) {
+    console.error('[imageStore] ERROR reading image:', err);
+    return null;
   }
 }
 

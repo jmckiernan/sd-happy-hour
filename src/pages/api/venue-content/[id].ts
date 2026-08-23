@@ -7,13 +7,13 @@ import { json, errorJson } from '../../../lib/api';
 export const prerender = false;
 
 // Public, unauthenticated: everything the venue page needs that isn't baked
-// into its static HTML — the owner's live listing edits, the photo album, and
+// into its static HTML — live owner/admin listing edits, the photo album, and
 // the menu.
 //
 // The venue page is prerendered from happy-hours.json at build time, so an
-// owner's change would otherwise wait for a deploy. Fetching this on load lets
-// owner-managed content appear immediately while the page itself stays static
-// and CDN-cached.
+// those changes would otherwise wait for a deploy. Fetching this on load lets
+// runtime-managed content appear immediately while the page itself stays
+// static and CDN-cached.
 //
 // Only published photos are ever included (listPublishedVenuePhotos), so an
 // unscreened photo can't reach a visitor even if the id is guessed.
@@ -46,12 +46,11 @@ export const GET: APIRoute = async ({ params }) => {
       status: 200,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        // Short public cache: owners expect their edits to show up promptly,
-        // but a venue page getting shared shouldn't invoke this per visitor.
-        // The stale-while-revalidate window keeps it warm without serving
-        // anything more than a minute out of date.
-        'cache-control': 'public, max-age=60, stale-while-revalidate=300',
-        'netlify-cdn-cache-control': 'public, durable, max-age=60, stale-while-revalidate=300',
+        // This response is the runtime overlay for a prerendered page. Caching
+        // it would make a successful admin/owner save appear stale for up to
+        // the SWR window, which violates the editor's live-update contract.
+        'cache-control': 'no-store',
+        'netlify-cdn-cache-control': 'no-store',
       },
     }
   );

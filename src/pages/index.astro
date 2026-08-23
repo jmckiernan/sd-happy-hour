@@ -880,7 +880,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
      */
     async function mergeOwnerEdits(venues: any[]) {
       try {
-        const res = await fetch('/api/venue-overrides');
+        const res = await fetch('/api/venue-overrides', { cache: 'no-store' });
         if (!res.ok) return venues;
         const { overrides } = await res.json();
         if (!overrides) return venues;

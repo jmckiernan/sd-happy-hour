@@ -34,8 +34,10 @@ export const GET: APIRoute = async () => {
     status: 200,
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'public, max-age=60, stale-while-revalidate=300',
-      'netlify-cdn-cache-control': 'public, durable, max-age=60, stale-while-revalidate=300',
+      // Homepage cards use this as their live layer over static JSON, so an
+      // editor save must not be hidden behind an edge/SWR cache.
+      'cache-control': 'no-store',
+      'netlify-cdn-cache-control': 'no-store',
     },
   });
 };

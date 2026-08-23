@@ -1010,9 +1010,10 @@ export type { QueryExecutor };
 // src/lib/venueContent.ts is where the two get merged.
 // ---------------------------------------------------------------------------
 
-/** A verified claimant's edits to their own listing, as a partial patch over
- * the happy-hours.json row. Only the fields in OWNER_EDITABLE_FIELDS
- * (venueContent.ts) are ever stored here. */
+/** Runtime listing edits as a partial patch over the happy-hours.json row.
+ * Usually written by a verified claimant; admins also merge field-level
+ * corrections here when those fields must go live before the next deploy.
+ * Only OWNER_EDITABLE_FIELDS (venueContent.ts) are stored. */
 export interface VenueOverride {
   venueId: number;
   patch: Record<string, unknown>;
@@ -1063,6 +1064,27 @@ export async function setVenueOverride(
     VALUES (${venueId}, ${JSON.stringify(patch)}::jsonb, ${updatedBy})
     ON CONFLICT (venue_id) DO UPDATE
       SET patch = ${JSON.stringify(patch)}::jsonb,
+          updated_by = ${updatedBy},
+          updated_at = now()
+    RETURNING *`;
+  return mapVenueOverride(rows[0]);
+}
+
+/** Atomically merges a field-level admin correction into the current live
+ * patch. Unlike the owner dashboard's complete replacement above, an admin
+ * editor may have been open while the owner saved newer hours or deals. A
+ * JSONB merge means changing only `image` cannot revert those concurrent
+ * owner fields between the route's read and write. */
+export async function mergeVenueOverride(
+  venueId: number,
+  patchDelta: Record<string, unknown>,
+  updatedBy: string
+): Promise<VenueOverride> {
+  const rows = await sql<VenueOverrideRow>`
+    INSERT INTO venue_overrides (venue_id, patch, updated_by)
+    VALUES (${venueId}, ${JSON.stringify(patchDelta)}::jsonb, ${updatedBy})
+    ON CONFLICT (venue_id) DO UPDATE
+      SET patch = venue_overrides.patch || EXCLUDED.patch,
           updated_by = ${updatedBy},
           updated_at = now()
     RETURNING *`;

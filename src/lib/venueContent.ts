@@ -12,13 +12,13 @@ import {
 import { cleanString, cleanList, isValidTime } from './validation';
 
 // ---------------------------------------------------------------------------
-// Where an admin-curated venue meets its owner's own edits.
+// Where an admin-curated venue meets runtime listing edits.
 //
 // public/data/happy-hours.json is the base record: admins create it by
 // approving a submission and edit it through /admin/venues/<slug>, and it
-// only reaches visitors on a deploy. A verified claimant's edits live in the
-// venue_overrides table (migrations/0004) and take effect immediately, so
-// this module is what decides which wins — the override, field by field.
+// only reaches visitors on a deploy. A verified claimant's edits — plus an
+// admin's field-level corrections that must be live before that deploy — live
+// in venue_overrides (migrations/0004), so this module decides what wins.
 //
 // The album and menu have no counterpart in the JSON file at all; they're
 // owner-only content, assembled here for the public venue page.
@@ -54,6 +54,18 @@ export const OWNER_EDITABLE_FIELDS = [
 
 export type OwnerEditableField = (typeof OWNER_EDITABLE_FIELDS)[number];
 
+/** Copies the live-editable portion of a complete venue/listing record.
+ *
+ * Admin saves use the same override channel as owner saves so these fields
+ * can reach the public site without waiting for a deploy. Keeping the picker
+ * here makes that boundary explicit and prevents an admin-only field such as
+ * `verified` or `lat` from accidentally entering the public override. */
+export function pickOwnerEditableFields(input: Record<string, unknown>): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
+  for (const field of OWNER_EDITABLE_FIELDS) patch[field] = input[field];
+  return patch;
+}
+
 const VALID_DAYS = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
 
 /**
@@ -66,7 +78,10 @@ const VALID_DAYS = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursda
  * the complete set, and setVenueOverride() replaces the stored patch
  * wholesale, so a missing field would silently revert to the base value.
  */
-export function validateOwnerPatch(input: Record<string, any>): { patch: Record<string, unknown>; errors: string[] } {
+export function validateOwnerPatch(
+  input: Record<string, any>,
+  { allowedExistingImage = '' }: { allowedExistingImage?: string } = {}
+): { patch: Record<string, unknown>; errors: string[] } {
   const errors: string[] = [];
 
   const days = cleanList(input.days);
@@ -97,7 +112,11 @@ export function validateOwnerPatch(input: Record<string, any>): { patch: Record<
   }
   // Only our own stored images — the route narrows this further to a
   // published photo of this same venue.
-  if (patch.image && !/^\/api\/images\/[^/]+$/.test(patch.image as string)) {
+  if (
+    patch.image &&
+    patch.image !== allowedExistingImage &&
+    !/^\/api\/images\/[^/]+$/.test(patch.image as string)
+  ) {
     errors.push('Featured photo must be one of your uploaded photos.');
   }
 
