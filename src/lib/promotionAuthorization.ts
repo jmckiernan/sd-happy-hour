@@ -40,6 +40,18 @@ export async function getVerifiedPromotionClaim(
   return rows[0] ? mapClaim(rows[0]) : null;
 }
 
+/** Admin reporting needs the venue's plan without impersonating its owner. */
+export async function getVerifiedPromotionClaimByVenue(
+  venueId: number,
+  executor: QueryExecutor = sql
+): Promise<VerifiedPromotionClaim | null> {
+  const rows = await executor<VerifiedPromotionClaimRow>`
+    SELECT id, user_id, venue_id, plan
+    FROM venue_claims
+    WHERE venue_id = ${venueId} AND status = 'verified'`;
+  return rows[0] ? mapClaim(rows[0]) : null;
+}
+
 /** Hold the verified authorization decision stable until the mutation commits. */
 export async function getVerifiedPromotionClaimForShare(
   userId: string,

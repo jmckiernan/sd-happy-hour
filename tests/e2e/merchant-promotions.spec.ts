@@ -65,6 +65,8 @@ function entitlement(
   return {
     plan: 'pro',
     allowance,
+    baseAllowance: allowance,
+    additionalAllowance: 0,
     monthlyAllowance: allowance,
     monthKey: '2026-08',
     consumed,

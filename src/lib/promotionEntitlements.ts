@@ -46,6 +46,8 @@ export interface PromotionEntitlementInput extends PromotionAllowanceConfigurati
   usedThisMonth?: number;
   consumed?: number;
   reserved?: number;
+  /** Venue-specific slots granted by an admin for this month. */
+  additionalAllowance?: number;
   promotions?: readonly PromotionStateInput[];
   monthKey?: string;
   now?: InstantInput;
@@ -55,6 +57,10 @@ export interface PromotionEntitlement {
   plan: PromotionPlan;
   /** Included Live promotions per San Diego calendar month; null is unlimited. */
   allowance: PromotionAllowance;
+  /** Plan allowance before venue-specific admin grants; null is unlimited. */
+  baseAllowance: PromotionAllowance;
+  /** Venue-specific slots granted by an admin for this month. */
+  additionalAllowance: number;
   /** Descriptive alias for API/UI consumers. */
   monthlyAllowance: PromotionAllowance;
   monthKey: string;
@@ -242,13 +248,17 @@ export function getPromotionEntitlement(
 
   const consumed = computedUsage?.consumed ?? nonNegativeCount(input.consumed ?? input.usedThisMonth, 'consumed');
   const reserved = computedUsage?.reserved ?? nonNegativeCount(input.reserved, 'reserved');
+  const additionalAllowance = nonNegativeCount(input.additionalAllowance, 'additionalAllowance');
   const plan = resolvePromotionPlan(input, input);
 
-  const allowance = getPromotionAllowances(input)[plan];
+  const baseAllowance = getPromotionAllowances(input)[plan];
+  const allowance = baseAllowance === null ? null : baseAllowance + additionalAllowance;
   const remaining = allowance === null ? null : Math.max(allowance - consumed - reserved, 0);
   return {
     plan,
     allowance,
+    baseAllowance,
+    additionalAllowance,
     monthlyAllowance: allowance,
     monthKey,
     consumed,

@@ -51,6 +51,29 @@ const { venue } = Astro.props;
       font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px; padding: 12px 16px;
     }
 
+    .ve-promotion-panel {
+      align-items: center; display: grid; gap: 18px; grid-template-columns: 1fr auto;
+      margin-bottom: 20px;
+    }
+    .ve-promotion-panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin: 0 0 4px; }
+    .ve-promotion-month { color: var(--night-soft); font-size: 0.83rem; margin: 0; }
+    .ve-promotion-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .ve-promotion-stat {
+      background: var(--sand-warm); border-radius: var(--radius-sm); min-width: 115px;
+      padding: 10px 14px;
+    }
+    .ve-promotion-stat strong { display: block; font-size: 1.35rem; line-height: 1.1; }
+    .ve-promotion-stat span { color: var(--night-soft); font-size: 0.78rem; }
+    .ve-promotion-detail { color: var(--night-soft); font-size: 0.78rem; margin: 10px 0 0; }
+    .ve-promotion-add {
+      align-items: center; background: var(--sunset-start); border: 0; border-radius: 100px;
+      color: white; cursor: pointer; display: inline-flex; font: inherit; font-size: 1.4rem;
+      font-weight: 700; height: 44px; justify-content: center; line-height: 1; width: 44px;
+    }
+    .ve-promotion-add:hover { background: var(--night); }
+    .ve-promotion-add:disabled { cursor: not-allowed; opacity: 0.5; }
+    .ve-promotion-status { grid-column: 1 / -1; margin: -8px 0 0; }
+
     .ve-locked { text-align: center; padding: 60px 24px; }
     .ve-locked p { color: var(--night-soft); margin-bottom: 20px; }
     .ve-locked a {
@@ -66,6 +89,10 @@ const { venue } = Astro.props;
     .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
 
     .ve-hidden { display: none; }
+    @media (max-width: 560px) {
+      .ve-promotion-panel { grid-template-columns: 1fr; }
+      .ve-promotion-add { width: 100%; }
+    }
   </style>
 
   <div class="ve-wrap">
@@ -97,6 +124,33 @@ const { venue } = Astro.props;
         <code>public/data/happy-hours.json</code> and appear with the next deploy.
       </p>
 
+      <section class="ve-panel ve-promotion-panel" aria-labelledby="ve-promotion-title">
+        <div>
+          <h2 id="ve-promotion-title">Live promotion availability</h2>
+          <p class="ve-promotion-month" id="ve-promotion-month">Loading this month…</p>
+          <div class="ve-promotion-stats">
+            <div class="ve-promotion-stat">
+              <strong id="ve-promotion-used">—</strong>
+              <span>used this month</span>
+            </div>
+            <div class="ve-promotion-stat">
+              <strong id="ve-promotion-remaining">—</strong>
+              <span>still available</span>
+            </div>
+          </div>
+          <p class="ve-promotion-detail" id="ve-promotion-detail"></p>
+        </div>
+        <button
+          type="button"
+          class="ve-promotion-add"
+          id="ve-promotion-add"
+          aria-label="Add one live promotion for this month"
+          title="Add one live promotion for this month"
+          disabled
+        >+</button>
+        <span class="ve-status ve-promotion-status" id="ve-promotion-status" aria-live="polite"></span>
+      </section>
+
       <div class="ve-panel">
         <div id="ve-form"></div>
         <div class="ve-actions">
@@ -123,9 +177,16 @@ const { venue } = Astro.props;
     const formEl = document.getElementById('ve-form')!;
     const statusEl = document.getElementById('ve-status')!;
     const saveBtn = document.getElementById('ve-save') as HTMLButtonElement;
+    const promotionAddBtn = document.getElementById('ve-promotion-add') as HTMLButtonElement;
+    const promotionMonthEl = document.getElementById('ve-promotion-month')!;
+    const promotionUsedEl = document.getElementById('ve-promotion-used')!;
+    const promotionRemainingEl = document.getElementById('ve-promotion-remaining')!;
+    const promotionDetailEl = document.getElementById('ve-promotion-detail')!;
+    const promotionStatusEl = document.getElementById('ve-promotion-status')!;
     let venueReady = false;
     let imageRequestBusy = false;
     let saving = false;
+    let promotionReady = false;
 
     function syncSaveDisabled() {
       saveBtn.disabled = !venueReady || imageRequestBusy || saving;
@@ -135,6 +196,56 @@ const { venue } = Astro.props;
       statusEl.className = `ve-status${kind ? ` ${kind}` : ''}`;
       statusEl.textContent = message;
     }
+
+    function setPromotionStatus(message: string, kind: '' | 'ok' | 'err' = '') {
+      promotionStatusEl.className = `ve-status ve-promotion-status${kind ? ` ${kind}` : ''}`;
+      promotionStatusEl.textContent = message;
+    }
+
+    function formatMonth(monthKey: string) {
+      const match = /^(\d{4})-(\d{2})$/.exec(monthKey);
+      if (!match) return monthKey;
+      return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+        .format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, 1)));
+    }
+
+    function renderPromotionAllowance(entitlement: any) {
+      const used = Number(entitlement.consumed) + Number(entitlement.reserved);
+      promotionMonthEl.textContent = formatMonth(entitlement.monthKey);
+      promotionUsedEl.textContent = String(used);
+      promotionRemainingEl.textContent = entitlement.remainingThisMonth === null
+        ? 'Unlimited'
+        : String(entitlement.remainingThisMonth);
+      const allowance = entitlement.allowance === null ? 'unlimited' : entitlement.allowance;
+      promotionDetailEl.textContent = `${entitlement.consumed} started · ${entitlement.reserved} scheduled · ${allowance} total slots (${entitlement.additionalAllowance} admin-added)`;
+    }
+
+    async function loadPromotionAllowance() {
+      promotionReady = false;
+      promotionAddBtn.disabled = true;
+      const res = await fetch(`/api/admin/venues/${venueId}/promotion-allowance`, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) throw new Error((data.errors || ['Could not load promotion availability.']).join('\n'));
+      renderPromotionAllowance(data.entitlement);
+      promotionReady = true;
+      promotionAddBtn.disabled = false;
+    }
+
+    promotionAddBtn.addEventListener('click', async () => {
+      promotionAddBtn.disabled = true;
+      setPromotionStatus('Adding one promotion…');
+      try {
+        const res = await fetch(`/api/admin/venues/${venueId}/promotion-allowance`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.errors || ['Could not add a promotion.']).join('\n'));
+        renderPromotionAllowance(data.entitlement);
+        setPromotionStatus('One additional promotion is now available this month.', 'ok');
+      } catch (err: any) {
+        setPromotionStatus(err.message, 'err');
+      } finally {
+        promotionAddBtn.disabled = !promotionReady;
+      }
+    });
 
     // Upload / paste-a-URL / AI touch-up for the featured image, shared with
     // the submission queue. Delegated, so it survives a form repaint.
@@ -203,6 +314,11 @@ const { venue } = Astro.props;
         venue = data.venue;
         baselineVenue = JSON.parse(JSON.stringify(venue));
         renderForm();
+        try {
+          await loadPromotionAllowance();
+        } catch (err: any) {
+          setPromotionStatus(err.message, 'err');
+        }
         setStatus('');
         venueReady = true;
         syncSaveDisabled();

@@ -439,6 +439,22 @@ test('finite entitlement subtracts consumed and reserved slots', () => {
   assert.equal(entitlement.canLaunchPromotion, false);
 });
 
+test('admin-granted venue slots increase the effective monthly allowance', () => {
+  const entitlement = getPromotionEntitlement({
+    plan: 'free',
+    consumed: 1,
+    reserved: 1,
+    additionalAllowance: 2,
+    env: EMPTY_ENV,
+    now: '2026-08-21T20:00:00Z',
+  });
+  assert.equal(entitlement.baseAllowance, 1);
+  assert.equal(entitlement.additionalAllowance, 2);
+  assert.equal(entitlement.allowance, 3);
+  assert.equal(entitlement.remainingThisMonth, 1);
+  assert.equal(entitlement.canLaunchPromotion, true);
+});
+
 // ---------------------------------------------------------------------------
 // Stable notification event identities
 // ---------------------------------------------------------------------------

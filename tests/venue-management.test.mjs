@@ -144,6 +144,26 @@ test('menu gallery migration and application plumbing preserve checked-by-defaul
   assert.match(managerPage, /<h2>Venue details<\/h2>/);
 });
 
+test('admin venue editor grants monthly promotion slots through an admin-only API', async () => {
+  const [migration, allowanceRepo, allowanceRoute, promotionService, adminPage] = await Promise.all([
+    readFile(path.join(ROOT, 'migrations', '0009_venue_promotion_allowances.sql'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'promotionAllowanceRepo.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'admin', 'venues', '[id]', 'promotion-allowance.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'promotionService.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'admin', 'venues', '[slug].astro'), 'utf8'),
+  ]);
+
+  assert.match(migration, /PRIMARY KEY \(venue_id, month_key\)/);
+  assert.match(migration, /additional_allowance\s+integer NOT NULL DEFAULT 0/);
+  assert.match(allowanceRepo, /additional_allowance = venue_promotion_allowances\.additional_allowance \+ 1/);
+  assert.match(allowanceRoute, /getAdminUser\(cookies\)/);
+  assert.match(allowanceRoute, /await lockPromotionVenue\(tx, auth\.venueId\)/);
+  assert.match(promotionService, /getAdditionalPromotionAllowance\(venueId, targetMonth, tx\)/);
+  assert.match(adminPage, /id="ve-promotion-used"/);
+  assert.match(adminPage, /id="ve-promotion-remaining"/);
+  assert.match(adminPage, /id="ve-promotion-add"/);
+});
+
 test('public gallery includes opted-in menu photos once and leaves opted-out photos in the menu only', async () => {
   const venueGalleryPhoto = venuePhoto('venue-1', 'venue-patio.jpg', 'Patio', 'venue');
   const legacyOptedOutPhoto = venuePhoto('venue-2', 'legacy-menu-photo.jpg', 'Legacy dish', 'venue');

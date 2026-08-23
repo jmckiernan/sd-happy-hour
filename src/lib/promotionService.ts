@@ -1,4 +1,4 @@
-import { withTransaction, type QueryExecutor } from './db';
+import { sql, withTransaction, type QueryExecutor } from './db';
 import {
   getVerifiedPromotionClaim,
   getVerifiedPromotionClaimForShare,
@@ -31,6 +31,7 @@ import {
   type PromotionEntitlement,
 } from './promotionEntitlements';
 import { getSanDiegoMonthKey, parseInstant } from './sanDiegoTime';
+import { getAdditionalPromotionAllowance } from './promotionAllowanceRepo';
 import { validatePromotionInput, type CleanPromotionInput } from './validation';
 import { getVenueById } from './venues';
 
@@ -211,19 +212,23 @@ async function requireClaim(
   return claim;
 }
 
-function entitlementFor(
+async function entitlementFor(
+  tx: QueryExecutor,
   claim: VerifiedPromotionClaim,
   venueId: number,
   promotions: PromotionCampaign[],
   now: string,
   monthKey?: string
-): PromotionEntitlement {
+): Promise<PromotionEntitlement> {
+  const targetMonth = monthKey ?? getSanDiegoMonthKey(parseInstant(now)!);
+  const additionalAllowance = await getAdditionalPromotionAllowance(venueId, targetMonth, tx);
   return getPromotionEntitlement({
     plan: claim.plan,
     venueId,
     promotions,
     now,
-    monthKey,
+    monthKey: targetMonth,
+    additionalAllowance,
   });
 }
 
@@ -234,6 +239,7 @@ async function currentEntitlement(
   now: string
 ): Promise<PromotionEntitlement> {
   return entitlementFor(
+    tx,
     claim,
     venueId,
     await listPromotionCampaignsByVenue(venueId, tx),
@@ -270,19 +276,20 @@ function assertNoOverlap(candidate: PromotionCampaign, existing: PromotionCampai
   );
 }
 
-function assertQuotaSlot(
+async function assertQuotaSlot(
+  tx: QueryExecutor,
   claim: VerifiedPromotionClaim,
   candidate: PromotionCampaign,
   existing: PromotionCampaign[],
   now: string
-): void {
+): Promise<void> {
   const startsAt = parseInstant(candidate.startsAt);
   if (!startsAt) {
     throw serviceError(422, 'validation_failed', 'Promotion start is required before publishing.');
   }
   const monthKey = getSanDiegoMonthKey(startsAt);
   const withoutCandidate = existing.filter((promotion) => promotion.id !== candidate.id);
-  const entitlement = entitlementFor(claim, candidate.venueId, withoutCandidate, now, monthKey);
+  const entitlement = await entitlementFor(tx, claim, candidate.venueId, withoutCandidate, now, monthKey);
   if (entitlement.canLaunchPromotion) return;
   throw serviceError(
     409,
@@ -351,7 +358,7 @@ export async function listMerchantPromotions(
       serverNow: now,
       venueId,
       promotions,
-      entitlement: entitlementFor(claim, venueId, promotions, now),
+      entitlement: await entitlementFor(tx, claim, venueId, promotions, now),
     };
   });
 }
@@ -376,7 +383,7 @@ export async function getMerchantPromotion(
   return {
     serverNow: now,
     promotion,
-    entitlement: entitlementFor(claim, promotion.venueId, promotions, now),
+    entitlement: await entitlementFor(sql, claim, promotion.venueId, promotions, now),
   };
 }
 
@@ -444,7 +451,9 @@ export async function updatePromotion(
       assertNoOverlap(proposed, existing);
       const oldMonth = getSanDiegoMonthKey(parseInstant(context.promotion.startsAt)!);
       const newMonth = getSanDiegoMonthKey(parseInstant(proposed.startsAt)!);
-      if (oldMonth !== newMonth) assertQuotaSlot(context.claim, proposed, existing, context.now);
+      if (oldMonth !== newMonth) {
+        await assertQuotaSlot(context.tx, context.claim, proposed, existing, context.now);
+      }
     }
 
     const updated = await replacePromotionCampaign(
@@ -497,7 +506,7 @@ export async function publishPromotion(
     };
     const existing = await listPromotionCampaignsByVenue(proposed.venueId, context.tx);
     assertNoOverlap(proposed, existing);
-    assertQuotaSlot(context.claim, proposed, existing, context.now);
+    await assertQuotaSlot(context.tx, context.claim, proposed, existing, context.now);
 
     const updated = await replacePromotionCampaign(
       context.tx,
@@ -537,7 +546,7 @@ export async function startPromotionNow(
       : null;
     const newMonth = getSanDiegoMonthKey(parseInstant(proposed.startsAt)!);
     if (state === 'draft' || oldMonth !== newMonth) {
-      assertQuotaSlot(context.claim, proposed, existing, context.now);
+      await assertQuotaSlot(context.tx, context.claim, proposed, existing, context.now);
     }
 
     const updated = await replacePromotionCampaign(
