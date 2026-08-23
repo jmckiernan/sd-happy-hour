@@ -776,10 +776,14 @@
     "days": [
       "Monday",
       "Tuesday",
-      "Wednesday"
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
     ],
-    "startTime": "19:57",
-    "endTime": "20:57",
+    "startTime": "07:57",
+    "endTime": "23:57",
     "deals": [
       "$4 you call its"
     ],
