@@ -21,6 +21,8 @@ export interface ListingFormValues {
   lat?: number | null;
   lng?: number | null;
   days?: string[];
+  openTime?: string;
+  closeTime?: string;
   startTime?: string;
   endTime?: string;
   deals?: string[];
@@ -126,28 +128,38 @@ export interface ListingFormOptions {
 }
 
 /**
- * The owner's featured-image control: pick one of the venue's uploaded photos,
- * or none. Uploading happens in the Photos panel.
+ * The owner's featured-image control. The first tile always represents what
+ * is already visible on the site, even when an admin supplied that image and
+ * it is not part of the owner's uploaded album. Uploading happens below in the
+ * Photos panel.
  *
  * The chosen URL lives in a hidden `data-lf="image"` input so readListingForm()
- * picks it up with no special casing.
+ * picks it up with no special casing. A stock fallback keeps an empty value in
+ * that input—the visual tile is the current site image, not a new owner image.
  */
-function featuredPhotoPicker(photos: OwnerPhotoOption[], current: string) {
-  const tile = (url: string, label: string, caption: string) => `
-    <button type="button" class="lf-pick${url === current ? ' selected' : ''}" data-lf-pick="${escapeHTML(url)}" title="${escapeHTML(caption)}">
-      ${url
-        ? `<img src="${escapeHTML(url)}" alt="${escapeHTML(caption || label)}" loading="lazy">`
-        : `<span class="lf-pick-none">${escapeHTML(label)}</span>`}
+function featuredPhotoPicker(photos: OwnerPhotoOption[], current: string, stockFallback: string) {
+  const currentIsAlbumPhoto = photos.some((photo) => photo.url === current);
+  const choices = [
+    ...(!currentIsAlbumPhoto
+      ? [{ id: 'current-site-image', url: current || stockFallback, caption: 'Current featured image', value: current }]
+      : []),
+    ...photos.map((photo) => ({ ...photo, value: photo.url })),
+  ].filter((photo, index, all) =>
+    Boolean(photo.url) && all.findIndex((candidate) => candidate.url === photo.url) === index
+  );
+
+  const tile = (value: string, url: string, caption: string) => `
+    <button type="button" class="lf-pick${value === current ? ' selected' : ''}" data-lf-pick="${escapeHTML(value)}" title="${escapeHTML(caption)}" aria-pressed="${value === current ? 'true' : 'false'}">
+      <img src="${escapeHTML(previewSrc(url))}" alt="${escapeHTML(caption || 'Featured photo')}" loading="lazy">
     </button>`;
 
   return `
     <div class="lf-field full lf-picker" data-lf-picker>
       <label>Featured photo</label>
       <input type="hidden" data-lf="image" value="${escapeHTML(current)}">
-      ${photos.length
+      ${choices.length
         ? `<div class="lf-pick-grid">
-             ${tile('', 'No featured photo', 'Fall back to the stock photo for this vibe')}
-             ${photos.map((photo) => tile(photo.url, 'Photo', photo.caption)).join('')}
+             ${choices.map((photo) => tile(photo.value, photo.url, photo.caption)).join('')}
            </div>
            <p class="lf-image-hint">This is the photo shown on the homepage card and at the top of your venue page.</p>`
         : `<p class="lf-image-hint">Upload photos in the Photos section below to feature one here.</p>`}
@@ -171,8 +183,10 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
       ${owner ? '' : textField('sourceUrl', 'Source URL (menu, press, etc.)', listing.sourceUrl, { type: 'url', placeholder: 'https://...' })}
       ${textField('phone', 'Phone (optional)', listing.phone, { type: 'tel', placeholder: '(619) 555-0100' })}
       ${textField('vibe', 'Vibe', listing.vibe, { placeholder: 'Rooftop, wine bar, patio...' })}
-      ${textField('startTime', 'Start time', listing.startTime, { type: 'time' })}
-      ${textField('endTime', 'End time', listing.endTime, { type: 'time' })}
+      ${textField('openTime', 'Open Time', listing.openTime, { type: 'time' })}
+      ${textField('closeTime', 'Close Time', listing.closeTime, { type: 'time' })}
+      ${textField('startTime', 'Happy Hour Start Time', listing.startTime, { type: 'time' })}
+      ${textField('endTime', 'Happy Hour End Time', listing.endTime, { type: 'time' })}
       ${owner ? '' : textField('lat', 'Latitude', listing.lat, { placeholder: '32.7157' })}
       ${owner ? '' : textField('lng', 'Longitude', listing.lng, { placeholder: '-117.1611' })}
 
@@ -196,7 +210,13 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
         ${checkboxGrid('features', optionSet(FEATURES, features), features)}
       </div>
 
-      ${owner ? featuredPhotoPicker(options.photoOptions || [], listing.image || '') : ''}
+      ${owner
+        ? featuredPhotoPicker(
+            options.photoOptions || [],
+            listing.image || '',
+            vibeImageFor(listing.vibe)
+          )
+        : ''}
 
       ${owner ? '' : `<div class="lf-field full lf-image" data-lf-image>
         <label>Featured image</label>
@@ -310,6 +330,8 @@ export function readListingForm(root: HTMLElement): Record<string, any> {
     lat: fieldValue(root, 'lat'),
     lng: fieldValue(root, 'lng'),
     days: checkedValues(root, 'days'),
+    openTime: fieldValue(root, 'openTime'),
+    closeTime: fieldValue(root, 'closeTime'),
     startTime: fieldValue(root, 'startTime'),
     endTime: fieldValue(root, 'endTime'),
     deals: fieldValue(root, 'deals').split('\n').map((line) => line.trim()).filter(Boolean),
@@ -547,6 +569,8 @@ export function wireListingPhotoPicker(container: HTMLElement) {
     const field = picker.querySelector('[data-lf="image"]') as HTMLInputElement;
     field.value = tile.dataset.lfPick || '';
     picker.querySelectorAll('[data-lf-pick]').forEach((el) => el.classList.remove('selected'));
+    picker.querySelectorAll('[data-lf-pick]').forEach((el) => el.setAttribute('aria-pressed', 'false'));
     tile.classList.add('selected');
+    tile.setAttribute('aria-pressed', 'true');
   });
 }

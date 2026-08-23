@@ -91,6 +91,8 @@ const { venue } = Astro.props;
 
     .mn-item { background: white; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
     .mn-item img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--sand-warm); }
+    .mn-item-photo { display: grid; flex: 0 0 132px; gap: 7px; }
+    .mn-item-photo img { width: 100%; height: 92px; }
     .mn-item-main { flex: 1; min-width: 0; }
     .mn-item-main .nm { font-weight: 700; font-size: 0.92rem; }
     .mn-item-main .pr { color: var(--night-soft); font-size: 0.85rem; }
@@ -103,6 +105,19 @@ const { venue } = Astro.props;
       font-size: 0.88rem; padding: 9px 11px; flex: 1 1 160px; min-width: 0;
     }
     .mn-form textarea { min-height: 60px; resize: vertical; width: 100%; }
+    .mn-edit-form { flex: 1; margin-top: 0; min-width: 0; }
+    .mn-item-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .mn-gallery-check {
+      align-items: flex-start; color: var(--night-soft); cursor: pointer; display: flex;
+      font-size: 0.78rem; gap: 7px; line-height: 1.35;
+    }
+    .mn-gallery-check input { flex: 0 0 auto; margin-top: 2px; min-width: 0; padding: 0; width: auto; }
+
+    @media (max-width: 560px) {
+      .mn-item { flex-wrap: wrap; }
+      .mn-item-photo { flex-basis: 100%; grid-template-columns: 92px minmax(0, 1fr); align-items: center; }
+      .mn-edit-form { flex-basis: 100%; }
+    }
 
     .mg-hidden { display: none; }
   </style>
@@ -126,7 +141,7 @@ const { venue } = Astro.props;
 
       <!-- Listing -->
       <section class="mg-panel">
-        <h2>Happy hour details</h2>
+        <h2>Venue details</h2>
         <p class="why">
           Your changes go live on your page right away. Your restaurant name, neighbourhood and map
           location are managed by us — email us if one of those is wrong.
@@ -221,7 +236,12 @@ const { venue } = Astro.props;
 
     // Uploaded photos double as the featured-image options and the menu item
     // photo options, so both panels read this one list.
-    let approvedPhotos: Array<{ id: string; url: string; caption: string }> = [];
+    let approvedPhotos: Array<{
+      id: string;
+      url: string;
+      caption: string;
+      photoType?: 'venue' | 'menu_item';
+    }> = [];
 
     // ---------------------------------------------------------------------
     // Listing
@@ -389,19 +409,58 @@ const { venue } = Astro.props;
         options += '</optgroup>';
       }
 
-      return `<select data-item-photo>${options}</select>`;
+      return `<select data-item-photo aria-label="Menu item photo">${options}</select>`;
     }
 
     function itemHTML(item: any) {
       const photo = approvedPhotos.find((candidate) => candidate.id === item.photoId);
       return `
         <div class="mn-item" data-item-id="${esc(item.id)}">
-          ${photo ? `<img src="${esc(photo.url)}" alt="${esc(item.name)}" loading="lazy">` : ''}
-          <div class="mn-item-main">
+          ${photo ? `
+            <div class="mn-item-photo" data-item-view>
+              <img src="${esc(photo.url)}" alt="${esc(item.name)}" loading="lazy">
+              <label class="mn-gallery-check">
+                <input type="checkbox" data-item-gallery-toggle ${item.showPhotoInGallery !== false ? 'checked' : ''}>
+                Show in venue gallery
+              </label>
+            </div>
+          ` : ''}
+          <div class="mn-item-main" data-item-view>
             <div class="nm">${esc(item.name)} ${item.price ? `<span class="pr">· ${esc(item.price)}</span>` : ''}</div>
             ${item.description ? `<div class="ds">${esc(item.description)}</div>` : ''}
           </div>
-          <button type="button" class="mg-btn small danger" data-action="delete-item">Remove</button>
+          <div class="mn-item-actions" data-item-view>
+            <button type="button" class="mg-btn small neutral" data-action="edit-item">Edit</button>
+            <button type="button" class="mg-btn small danger" data-action="delete-item">Remove</button>
+          </div>
+
+          <form class="mn-form mn-edit-form mg-hidden" data-edit-item>
+            <div class="row">
+              <input name="name" value="${esc(item.name)}" placeholder="Item name" aria-label="Menu item name" maxlength="120" required>
+              <input name="price" value="${esc(item.price)}" placeholder="$8" aria-label="Menu item price" maxlength="40">
+              <div class="photo-picker">
+                ${photoSelectHTML(item.photoId)}
+                <label class="mg-btn small" style="margin: 0;">
+                  Upload photo
+                  <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
+                </label>
+              </div>
+            </div>
+            <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400">${esc(item.description)}</textarea>
+            <label class="mn-gallery-check">
+              <input type="checkbox" data-item-gallery ${item.showPhotoInGallery !== false ? 'checked' : ''}>
+              Show the selected menu item photo in the venue gallery
+            </label>
+            <div class="mn-item-actions">
+              <button type="submit" class="mg-btn small">Save item</button>
+              <button type="button" class="mg-btn small neutral" data-action="cancel-edit-item">Cancel</button>
+            </div>
+            <span class="mg-status" data-item-status aria-live="polite"></span>
+            <div data-photo-preview style="margin-top: 0.5rem; display: ${photo ? 'block' : 'none'};">
+              <img src="${photo ? esc(photo.url) : ''}" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+              <span style="margin-left: 0.5rem; color: #28a745;">${photo ? esc(photo.caption || 'Selected photo') : ''}</span>
+            </div>
+          </form>
         </div>
       `;
     }
@@ -421,8 +480,8 @@ const { venue } = Astro.props;
 
           <form class="mn-form" data-add-item>
             <div class="row">
-              <input name="name" placeholder="Item, e.g. Street tacos" maxlength="120" required>
-              <input name="price" placeholder="$8" maxlength="40">
+              <input name="name" placeholder="Item, e.g. Street tacos" aria-label="Menu item name" maxlength="120" required>
+              <input name="price" placeholder="$8" aria-label="Menu item price" maxlength="40">
               <div class="photo-picker">
                 ${photoSelectHTML(null)}
                 <label class="mg-btn small" style="margin: 0;">
@@ -432,7 +491,11 @@ const { venue } = Astro.props;
               </div>
               <button type="submit" class="mg-btn small">Add item</button>
             </div>
-            <textarea name="description" placeholder="Optional description" maxlength="400"></textarea>
+            <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400"></textarea>
+            <label class="mn-gallery-check">
+              <input type="checkbox" data-item-gallery checked>
+              Show the selected menu item photo in the venue gallery
+            </label>
             <span class="mg-status" data-item-status aria-live="polite"></span>
             <div data-photo-preview style="margin-top: 0.5rem; display: none;">
               <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
@@ -476,23 +539,32 @@ const { venue } = Astro.props;
     });
 
     menuBodyEl.addEventListener('submit', async (event) => {
-      const form = (event.target as HTMLElement).closest('[data-add-item]') as HTMLFormElement | null;
-      if (!form) return;
+      const form = event.target as HTMLFormElement;
+      const isAdd = form.matches('[data-add-item]');
+      const isEdit = form.matches('[data-edit-item]');
+      if (!isAdd && !isEdit) return;
       event.preventDefault();
 
       const section = form.closest('[data-section-id]') as HTMLElement;
+      const item = form.closest('[data-item-id]') as HTMLElement | null;
       const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
 
-      setStatus(statusEl, 'Adding...');
+      setStatus(statusEl, isEdit ? 'Saving...' : 'Adding...');
       try {
+        const selectedPhotoId = (form.querySelector('[data-item-photo]') as HTMLSelectElement).value;
         await menuAction({
-          action: 'create-item',
+          action: isEdit ? 'update-item' : 'create-item',
           sectionId: section.dataset.sectionId,
+          ...(isEdit ? { itemId: item?.dataset.itemId } : {}),
           name: (form.querySelector('[name="name"]') as HTMLInputElement).value.trim(),
           price: (form.querySelector('[name="price"]') as HTMLInputElement).value.trim(),
           description: (form.querySelector('[name="description"]') as HTMLTextAreaElement).value.trim(),
-          photoId: (form.querySelector('[data-item-photo]') as HTMLSelectElement).value || '',
+          // The update route distinguishes an omitted photo from an explicit
+          // clear, so the edit form sends null for "No photo".
+          photoId: selectedPhotoId || (isEdit ? null : ''),
+          showPhotoInGallery: (form.querySelector('[data-item-gallery]') as HTMLInputElement).checked,
         });
+        setStatus(menuStatusEl, isEdit ? 'Menu item updated.' : 'Menu item added.', 'ok');
         await loadMenu();
       } catch (err: any) {
         setStatus(statusEl, err.message, 'err');
@@ -504,6 +576,24 @@ const { venue } = Astro.props;
       if (!button) return;
 
       const section = button.closest('[data-section-id]') as HTMLElement;
+
+      if (button.dataset.action === 'edit-item' || button.dataset.action === 'cancel-edit-item') {
+        const item = button.closest('[data-item-id]') as HTMLElement;
+        if (item.dataset.gallerySaving === 'true') return;
+        const editing = button.dataset.action === 'edit-item';
+        if (!editing) {
+          // Repaint from the saved menu so Cancel truly discards text, photo,
+          // preview, and checkbox edits rather than hiding stale form values.
+          await loadMenu();
+          return;
+        }
+        item.querySelectorAll<HTMLElement>('[data-item-view]').forEach((element) => {
+          element.classList.toggle('mg-hidden', editing);
+        });
+        item.querySelector<HTMLElement>('[data-edit-item]')?.classList.toggle('mg-hidden', !editing);
+        if (editing) item.querySelector<HTMLInputElement>('[data-edit-item] [name="name"]')?.focus();
+        return;
+      }
 
       if (button.dataset.action === 'delete-section') {
         if (!confirm('Delete this section and everything in it?')) return;
@@ -527,12 +617,37 @@ const { venue } = Astro.props;
       }
     });
 
-    // Handle menu item photo dropdown changes
-    menuBodyEl.addEventListener('change', (event) => {
+    // Persist the gallery choice beside an existing item's thumbnail without
+    // making the owner open the full editor.
+    menuBodyEl.addEventListener('change', async (event) => {
+      const toggle = (event.target as HTMLElement).closest('[data-item-gallery-toggle]') as HTMLInputElement | null;
+      if (toggle) {
+        const item = toggle.closest('[data-item-id]') as HTMLElement;
+        toggle.disabled = true;
+        item.dataset.gallerySaving = 'true';
+        try {
+          await menuAction({
+            action: 'update-item',
+            itemId: item.dataset.itemId,
+            showPhotoInGallery: toggle.checked,
+          });
+          const editToggle = item.querySelector<HTMLInputElement>('[data-edit-item] [data-item-gallery]');
+          if (editToggle) editToggle.checked = toggle.checked;
+          setStatus(menuStatusEl, toggle.checked ? 'Photo added to the venue gallery.' : 'Photo removed from the venue gallery.', 'ok');
+        } catch (err: any) {
+          toggle.checked = !toggle.checked;
+          setStatus(menuStatusEl, err.message, 'err');
+        } finally {
+          toggle.disabled = false;
+          delete item.dataset.gallerySaving;
+        }
+        return;
+      }
+
       const select = event.target as HTMLSelectElement;
       if (!select.matches('[data-item-photo]')) return;
 
-      const form = select.closest('[data-add-item]') as HTMLFormElement;
+      const form = select.closest('.mn-form') as HTMLFormElement;
       const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
       const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
       const previewText = previewContainer.querySelector('span') as HTMLElement;
@@ -557,7 +672,7 @@ const { venue } = Astro.props;
       if (!input || !input.files?.[0]) return;
 
       const file = input.files[0];
-      const form = input.closest('[data-add-item]') as HTMLFormElement;
+      const form = input.closest('.mn-form') as HTMLFormElement;
       const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
       const photoSelect = form.querySelector('[data-item-photo]') as HTMLSelectElement;
       const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;

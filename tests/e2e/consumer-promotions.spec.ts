@@ -105,11 +105,7 @@ test('homepage renders all four activity states, one primary status, and canonic
 
   await page.goto('/');
 
-  const liveDeals = page.locator('#live-deals-section');
-  await expect(liveDeals).toBeVisible();
-  await expect(liveDeals.getByRole('heading', { name: 'Live Deals' })).toBeVisible();
-  await expect(page.locator('#live-deals-grid article')).toHaveCount(2);
-  await expect(page.locator('#live-deals-count')).toHaveText('2 deals happening now');
+  await expect(page.locator('#live-deals-section')).toHaveCount(0);
   await expect(page.locator('#live-count-big')).toHaveText('2');
 
   const liveOnlyCard = directoryCard(page, liveOnlyVenue.name);
@@ -130,16 +126,30 @@ test('homepage renders all four activity states, one primary status, and canonic
     normalVenue.name,
   ]);
 
-  // Directory cards may summarize a promotion headline, but full body copy is
-  // rendered only in the dedicated inventory rather than duplicated in both sections.
+  // The homepage keeps only the compact promotion summary. Full promotion
+  // inventory belongs on /live-deals/ and is not duplicated above the directory.
+  await expect(liveOnlyCard).toContainText(liveOnlyPromotion.title);
+  await expect(bothCard).toContainText(bothPromotion.title);
   await expect(
     page.getByText(liveOnlyPromotion.description, { exact: true })
-  ).toHaveCount(1);
+  ).toHaveCount(0);
   await expect(
     page.getByText(bothPromotion.description, { exact: true })
-  ).toHaveCount(1);
+  ).toHaveCount(0);
   await expect(liveOnlyCard).not.toContainText(liveOnlyPromotion.description);
   await expect(bothCard).not.toContainText(bothPromotion.description);
+
+  const liveDealsLink = page.getByRole('link', { name: 'Live Deals', exact: true });
+  await expect(liveDealsLink).toHaveAttribute('href', '/live-deals/');
+  await liveDealsLink.click();
+
+  await expect(page).toHaveURL(/\/live-deals\/$/);
+  await expect(page.getByRole('heading', { name: 'Live Deals', level: 1 })).toBeVisible();
+  await expect(liveDealsLink).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#live-deals-grid article')).toHaveCount(2);
+  await expect(page.locator('#live-deals-count')).toHaveText('2 deals happening now');
+  await expect(page.getByText(liveOnlyPromotion.description, { exact: true })).toHaveCount(1);
+  await expect(page.getByText(bothPromotion.description, { exact: true })).toHaveCount(1);
 });
 
 test('homepage directory card falls back to its vibe image when a live venue image override is missing', async ({
@@ -172,7 +182,7 @@ test('homepage directory card falls back to its vibe image when a live venue ima
     .toBeGreaterThan(0);
 });
 
-test('homepage Live Deal card falls back to the venue vibe when its live image override is missing', async ({
+test('Live Deals page card falls back to the venue vibe when its live image override is missing', async ({
   page,
 }) => {
   const missingImage = '/api/images/missing-live-deal-override.jpg';
@@ -189,7 +199,7 @@ test('homepage Live Deal card falls back to the venue vibe when its live image o
       name: venue.name,
       slug: 'fallback-oyster-bar',
       neighborhood: venue.neighborhood,
-      // Deliberately stale: the homepage must prefer the newer image from
+      // Deliberately stale: the Live Deals page must prefer the newer image from
       // /api/venue-overrides instead of this independently fetched snapshot.
       image: '/images/vibes/rooftop-vibes.jpg',
     },
@@ -206,7 +216,7 @@ test('homepage Live Deal card falls back to the venue vibe when its live image o
     await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Not found' });
   });
 
-  await page.goto('/');
+  await page.goto('/live-deals/');
 
   const card = discoveryCard(page, promotion.title);
   await expect(card).toBeVisible();
@@ -216,6 +226,58 @@ test('homepage Live Deal card falls back to the venue vibe when its live image o
   await expect
     .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
     .toBeGreaterThan(0);
+});
+
+test('Live Deals page retries the original featured image when its venue directory is unavailable', async ({
+  page,
+}) => {
+  const originalImage = '/api/images/live-deal-original.jpg';
+  const transformedImage = `/.netlify/images?url=${encodeURIComponent(originalImage)}&w=800&q=80`;
+  const venue = venueFixture(303, 'Original Live Deal Bar', { image: originalImage });
+  const promotion = livePromotion(venue, {
+    id: 'promotion-original-image',
+    title: 'Original image flash deal',
+    venue: {
+      id: venue.id,
+      name: venue.name,
+      slug: 'original-live-deal-bar',
+      neighborhood: venue.neighborhood,
+      image: transformedImage,
+      imageOriginal: originalImage,
+    },
+  });
+  const requests: string[] = [];
+
+  await mockConsumerApis(page, {
+    livePayload: { serverNow: SERVER_NOW, promotions: [promotion] },
+  });
+  await page.unroute('**/data/happy-hours.json');
+  await page.route('**/data/happy-hours.json', (route) =>
+    route.fulfill({ status: 503, contentType: 'application/json', body: '{}' })
+  );
+  await page.route(
+    (url) => url.pathname === '/.netlify/images' && url.searchParams.get('url') === originalImage,
+    async (route) => {
+      requests.push('transform');
+      await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Transform not found' });
+    }
+  );
+  await page.route(`**${originalImage}`, async (route) => {
+    requests.push('original');
+    await route.fulfill({
+      path: `${process.cwd()}/public/images/vibes/rooftop-vibes.jpg`,
+      contentType: 'image/jpeg',
+    });
+  });
+
+  await page.goto('/live-deals/');
+
+  const image = discoveryCard(page, promotion.title).locator('.live-deal-discovery-image img');
+  await expect.poll(() => requests.includes('original')).toBe(true);
+  await expect(image).toHaveAttribute('src', originalImage);
+  await expect(image).not.toHaveAttribute('data-original-src');
+  expect(requests.filter((request) => request === 'transform')).toHaveLength(1);
+  expect(requests.filter((request) => request === 'original').length).toBeGreaterThanOrEqual(1);
 });
 
 test('homepage refreshes a regular venue image on window focus without duplicating filter options', async ({
@@ -326,7 +388,7 @@ test('homepage card retries a healthy original once after a CDN transform fails'
   await expect(image).toHaveAttribute('data-stock-src', stockImage);
 });
 
-test('homepage discovery uses explicit search/geography, ignores recurring-only filters, and redacts codes synchronously', async ({
+test('Live Deals page supports discovery filters and redacts codes synchronously', async ({
   page,
 }) => {
   const noCodeVenue = venueFixture(201, 'No Code Taproom', {
@@ -354,7 +416,7 @@ test('homepage discovery uses explicit search/geography, ignores recurring-only 
     ...(signedIn ? { dealCode: 'SECRET-42' } : {}),
   });
 
-  await mockConsumerApis(page, {
+  const consumerApis = await mockConsumerApis(page, {
     venues: [noCodeVenue, secretVenue],
     accountPayload: () => signedIn
       ? { authenticated: true, user: { id: 'consumer-1', savedSpots: [] } }
@@ -365,7 +427,7 @@ test('homepage discovery uses explicit search/geography, ignores recurring-only 
     }),
   });
 
-  await page.goto('/');
+  await page.goto('/live-deals/');
 
   const noCodeCard = discoveryCard(page, noCodePromotion.title);
   const secretCard = discoveryCard(page, 'Saffron signal launch');
@@ -375,31 +437,32 @@ test('homepage discovery uses explicit search/geography, ignores recurring-only 
   await expect(secretCard.getByRole('link', { name: 'Sign in to see deal code' })).toBeVisible();
   await expect(secretCard.locator('code')).toHaveCount(0);
 
-  // Recurring-HH deal filters affect the directory only. They must not silently
-  // shrink the separately sourced Live Deals inventory.
-  await page.locator('#deal-filter').selectOption('beer');
-  await expect(page.locator('#grid article.card')).toHaveCount(1);
-  await expect(directoryCard(page, noCodeVenue.name)).toBeVisible();
-  await expect(page.locator('#live-deals-grid article')).toHaveCount(2);
-
-  await page.locator('#deal-filter').selectOption('');
-  await page.locator('#neighborhood-filter').selectOption('Little Italy');
+  await page.locator('#live-deals-neighborhood').selectOption('Little Italy');
   await expect(page.locator('#live-deals-grid article')).toHaveCount(1);
   await expect(discoveryCard(page, 'Saffron signal launch')).toBeVisible();
   await expect(noCodeCard).toHaveCount(0);
 
-  await page.locator('#neighborhood-filter').selectOption('');
-  const search = page.getByRole('searchbox', { name: 'Search venues and Live Deals' });
+  await page.locator('#live-deals-neighborhood').selectOption('');
+  const search = page.getByRole('searchbox', { name: 'Search Live Deals' });
   await search.fill('saffron signal');
   await expect(page.locator('#live-deals-grid article')).toHaveCount(1);
   await expect(discoveryCard(page, 'Saffron signal launch')).toBeVisible();
-  await expect(page.locator('#grid article.card')).toHaveCount(0);
 
-  // The filter row has a usable keyboard sequence from search into day filtering.
+  // The filter row has a usable keyboard sequence from search into geography.
   await search.click();
   await page.keyboard.press('Tab');
-  await expect(page.locator('#day-filter')).toBeFocused();
+  await expect(page.locator('#live-deals-neighborhood')).toBeFocused();
   await search.fill('');
+
+  // A background refresh with unchanged data must not rebuild the cards and
+  // steal keyboard focus.
+  const focusedVenueLink = discoveryCard(page, 'Saffron signal launch')
+    .getByRole('link', { name: 'View venue details →' });
+  await focusedVenueLink.focus();
+  const requestsBeforeRefresh = consumerApis.liveRequestCount();
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('sdhh:auth-changed')));
+  await expect.poll(() => consumerApis.liveRequestCount()).toBeGreaterThan(requestsBeforeRefresh);
+  await expect(focusedVenueLink).toBeFocused();
 
   signedIn = true;
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('sdhh:auth-changed')));
@@ -418,6 +481,46 @@ test('homepage discovery uses explicit search/geography, ignores recurring-only 
     code: null,
     signIn: 'Sign in to see deal code',
   });
+});
+
+test('Live Deals page distinguishes an empty feed from a request failure', async ({ page }) => {
+  await mockConsumerApis(page, { venues: [normalVenue] });
+
+  await page.goto('/live-deals/');
+  await expect(page.getByRole('heading', { name: 'No Live Deals right now' })).toBeVisible();
+  await expect(page.locator('#live-deals-count')).toHaveText('0 deals happening now');
+  await expect(page.locator('#live-deals-grid article')).toHaveCount(0);
+
+  await page.unroute('**/api/promotions/live**');
+  let liveRequests = 0;
+  let finishRetry!: () => void;
+  const retryResponse = new Promise<void>((resolve) => {
+    finishRetry = resolve;
+  });
+  await page.route('**/api/promotions/live**', async (route) => {
+    liveRequests += 1;
+    if (liveRequests === 1) {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
+      return;
+    }
+    await retryResponse;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ serverNow: SERVER_NOW, promotions: [] }),
+    });
+  });
+  await page.reload();
+
+  await expect(page.getByRole('heading', { name: 'Live Deals are unavailable' })).toBeVisible();
+  const retry = page.getByRole('button', { name: 'Try again' });
+  await expect(retry).toBeVisible();
+  await expect(page.locator('#live-deals-count')).toHaveText('');
+
+  await retry.click();
+  await expect(page.getByRole('button', { name: 'Retrying…' })).toBeDisabled();
+  finishRetry();
+  await expect(page.getByRole('heading', { name: 'No Live Deals right now' })).toBeVisible();
 });
 
 test('venue page gives Live Deal priority on mobile while preserving regular happy hour and accessible motion', async ({

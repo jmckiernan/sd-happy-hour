@@ -895,9 +895,9 @@ Do not display two competing “live” badges.
 
 ---
 
-# 23. Homepage Live Deals Section
+# 23. Dedicated Live Deals Page
 
-Add a dedicated section near the top of the primary discovery experience when at least one Live promotion exists:
+Add a dedicated `/live-deals/` discovery page, linked from the primary navigation:
 
 # Live Deals
 
@@ -912,15 +912,19 @@ Each card should include:
 * relevant image
 * details link
 
-This section exists because Live promotions are exceptional inventory.
+This page exists because Live promotions are exceptional inventory.
 
-Below that, preserve regular discovery such as:
+The homepage should not duplicate these full promotion cards. Preserve its normal searchable venue grid, including the Live Deal badge, promoted-offer summary, and premium outline on venues that currently have a Live Deal.
+
+On the dedicated page, provide relevant discovery controls such as search and neighborhood filtering.
+
+On the homepage, preserve regular discovery such as:
 
 # Happy Hours Happening Now
 
 or the normal searchable venue grid.
 
-If zero promotions are live, do not show an empty giant Live Deals section.
+If zero promotions are live, show a clear, compact empty state on the dedicated page.
 
 ---
 
@@ -1616,7 +1620,7 @@ Implement in this order:
 11. Happy Hour Now badge
 12. Live Deal badge
 13. homepage card hierarchy
-14. Live Deals section
+14. Live Deals page
 15. venue detail promotion block
 
 ## Phase 4 — Alerts
@@ -1655,7 +1659,7 @@ The redesign is complete when all of the following are true:
 * Multiple historical promotions can exist for one venue.
 * A venue can have a regular happy hour and Live Deal simultaneously.
 * Live Deal visually outranks Happy Hour Now.
-* Homepage can surface Live Deals separately.
+* A dedicated Live Deals page surfaces active promotions without duplicating full promotion cards on the homepage.
 * Permanent happy-hour deals remain separate from promotional offers.
 * Deal codes are optional.
 * Consumers can independently opt into:

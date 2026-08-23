@@ -463,6 +463,7 @@ async function main() {
       assert.equal(result.promotion.id, livePrivate.promotion.id);
       assert.equal(result.promotion.venueId, 1);
       assert.equal(result.promotion.venue.id, 1);
+      assert.equal(typeof result.promotion.venue.imageOriginal, 'string');
       assert.equal(result.promotion.title, 'Live Deal headline');
       assert.equal(result.promotion.description, 'Secondary Live Deal details.');
       assert.equal(result.promotion.hasDealCode, true);

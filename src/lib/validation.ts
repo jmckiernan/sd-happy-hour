@@ -232,6 +232,8 @@ export function validateListing(
     lat: input.lat === '' || input.lat == null ? null : Number(input.lat),
     lng: input.lng === '' || input.lng == null ? null : Number(input.lng),
     days: cleanList(input.days),
+    openTime: cleanString(input.openTime),
+    closeTime: cleanString(input.closeTime),
     startTime: cleanString(input.startTime),
     endTime: cleanString(input.endTime),
     deals: cleanList(input.deals),
@@ -252,6 +254,10 @@ export function validateListing(
     // stock one" rather than a validation failure.
     image: cleanString(input.image),
   };
+  // Keep these optional on legacy repository records rather than writing
+  // empty keys during an unrelated admin save.
+  if (!listing.openTime) delete listing.openTime;
+  if (!listing.closeTime) delete listing.closeTime;
 
   const errors: string[] = [];
   const validDays = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
@@ -262,8 +268,13 @@ export function validateListing(
   if (!listing.website || !/^https?:\/\//i.test(listing.website)) errors.push('Website must start with http:// or https://.');
   if (!listing.sourceUrl || !/^https?:\/\//i.test(listing.sourceUrl)) errors.push('Source URL must start with http:// or https://.');
   if (!listing.days.length || listing.days.some((day) => !validDays.has(day))) errors.push('Choose at least one valid day.');
-  if (!isValidTime(listing.startTime)) errors.push('Start time must use HH:MM 24-hour format.');
-  if (!isValidTime(listing.endTime)) errors.push('End time must use HH:MM 24-hour format.');
+  if (Boolean(listing.openTime) !== Boolean(listing.closeTime)) {
+    errors.push('Add both venue open and close times, or leave both blank.');
+  }
+  if (listing.openTime && !isValidTime(listing.openTime)) errors.push('Venue open time must use HH:MM 24-hour format.');
+  if (listing.closeTime && !isValidTime(listing.closeTime)) errors.push('Venue close time must use HH:MM 24-hour format.');
+  if (!isValidTime(listing.startTime)) errors.push('Happy hour start time must use HH:MM 24-hour format.');
+  if (!isValidTime(listing.endTime)) errors.push('Happy hour end time must use HH:MM 24-hour format.');
   if (!listing.deals.length) errors.push('Add at least one deal.');
   if (!listing.vibe) errors.push('Vibe is required.');
   if (requireCoordinates && (!Number.isFinite(listing.lat) || !Number.isFinite(listing.lng))) {

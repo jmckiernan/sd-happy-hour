@@ -604,6 +604,8 @@ export interface Listing {
   lat: number | null;
   lng: number | null;
   days: string[];
+  openTime?: string;
+  closeTime?: string;
   startTime: string;
   endTime: string;
   deals: string[];
@@ -1299,6 +1301,11 @@ export interface MenuItem {
   /** venue_photos.id, so the item's photo carries the same moderation status
    * as an album photo. Null when the owner hasn't attached one. */
   photoId: string | null;
+  /** Whether this item's photo should also be included in the venue hero
+   * gallery. Kept on the item (rather than the photo) so the same approved
+   * photo can be reused by multiple menu items without one item unexpectedly
+   * changing another item's presentation. */
+  showPhotoInGallery: boolean;
   sortOrder: number;
 }
 
@@ -1317,6 +1324,7 @@ interface MenuItemRow {
   price: string;
   description: string;
   photo_id: string | null;
+  show_photo_in_gallery: boolean;
   sort_order: number;
 }
 
@@ -1328,6 +1336,7 @@ function mapMenuItem(row: MenuItemRow): MenuItem {
     price: row.price,
     description: row.description,
     photoId: row.photo_id,
+    showPhotoInGallery: row.show_photo_in_gallery,
     sortOrder: row.sort_order,
   };
 }
@@ -1428,14 +1437,18 @@ export interface CreateMenuItemInput {
   price?: string;
   description?: string;
   photoId?: string | null;
+  showPhotoInGallery?: boolean;
 }
 
 export async function createMenuItem(input: CreateMenuItemInput): Promise<MenuItem> {
   const rows = await sql<MenuItemRow>`
-    INSERT INTO menu_items (section_id, name, price, description, photo_id, sort_order)
+    INSERT INTO menu_items (
+      section_id, name, price, description, photo_id, show_photo_in_gallery, sort_order
+    )
     VALUES (
       ${input.sectionId}, ${input.name}, ${input.price ?? ''}, ${input.description ?? ''},
       ${input.photoId ?? null},
+      ${input.showPhotoInGallery ?? true},
       COALESCE((SELECT max(sort_order) + 1 FROM menu_items WHERE section_id = ${input.sectionId}), 0)
     )
     RETURNING *`;
@@ -1448,6 +1461,7 @@ export interface UpdateMenuItemInput {
   description?: string;
   /** `null` clears the photo; `undefined` leaves it alone. */
   photoId?: string | null;
+  showPhotoInGallery?: boolean;
   sortOrder?: number;
   clearPhoto?: boolean;
 }
@@ -1460,6 +1474,7 @@ export async function updateMenuItem(id: string, input: UpdateMenuItemInput): Pr
       description = COALESCE(${input.description ?? null}, description),
       photo_id    = CASE WHEN ${input.clearPhoto ?? false} THEN NULL
                          ELSE COALESCE(${input.photoId ?? null}::uuid, photo_id) END,
+      show_photo_in_gallery = COALESCE(${input.showPhotoInGallery ?? null}, show_photo_in_gallery),
       sort_order  = COALESCE(${input.sortOrder ?? null}, sort_order),
       updated_at  = now()
     WHERE id = ${id}

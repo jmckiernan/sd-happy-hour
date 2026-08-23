@@ -1,0 +1,641 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import LiveDealStyles from '../components/LiveDealStyles.astro';
+---
+
+<Layout
+  title="Live Deals | SD Happy Hours"
+  description="Find limited-time Live Deals happening now at San Diego restaurants and bars."
+>
+  <LiveDealStyles />
+
+  <style is:global>
+    .live-deals-page-header { padding-bottom: 24px; }
+
+    .live-deals-main {
+      margin: 0 auto;
+      max-width: 1200px;
+      padding: 0 24px 80px;
+    }
+
+    .live-deals-controls {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(139, 92, 246, 0.18);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+      padding: 16px;
+    }
+
+    .live-deals-search,
+    .live-deals-filter {
+      appearance: none;
+      background: white;
+      border: 2px solid var(--sand-warm);
+      border-radius: 100px;
+      color: var(--night);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      min-height: 44px;
+      padding: 10px 16px;
+    }
+
+    .live-deals-search {
+      flex: 1 1 300px;
+      min-width: min(300px, 100%);
+    }
+
+    .live-deals-filter {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230F172A' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+      background-position: right 14px center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      padding-right: 38px;
+    }
+
+    .live-deals-search:focus,
+    .live-deals-filter:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
+      outline: none;
+    }
+
+    .live-deals-count {
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 100px;
+      color: var(--violet);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-left: auto;
+      padding: 8px 13px;
+      white-space: nowrap;
+    }
+
+    .live-deals-notice {
+      background: #fff7ed;
+      border: 1px solid rgba(234, 88, 12, 0.25);
+      border-radius: var(--radius-sm);
+      color: #9a3412;
+      font-weight: 650;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+    }
+
+    .live-deals-notice[hidden],
+    .live-deals-state[hidden] { display: none; }
+
+    .live-deals-grid {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+      min-width: 0;
+    }
+
+    .live-deal-discovery-card {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .live-deal-discovery-image {
+      min-height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .live-deal-discovery-image img {
+      height: 100%;
+      inset: 0;
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+    }
+
+    .live-deal-discovery-image::after {
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.4), transparent 60%);
+      content: '';
+      inset: 0;
+      position: absolute;
+    }
+
+    .live-deal-discovery-body {
+      min-width: 0;
+      padding: clamp(18px, 3vw, 26px);
+    }
+
+    .live-deal-venue {
+      color: var(--night);
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .live-deal-venue:hover { color: var(--sunset-start); }
+    .live-deal-type { color: var(--night-soft); font-size: 0.75rem; font-weight: 750; }
+    .live-deal-code { max-width: 100%; overflow-wrap: anywhere; }
+
+    .live-deals-state {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(139, 92, 246, 0.16);
+      border-radius: var(--radius);
+      color: var(--night-soft);
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    .live-deals-state h2 {
+      color: var(--night);
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      margin-bottom: 10px;
+    }
+
+    .live-deals-state p { line-height: 1.6; }
+
+    .live-deals-retry {
+      appearance: none;
+      background: var(--night);
+      border: 0;
+      border-radius: 100px;
+      color: white;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-weight: 750;
+      margin-top: 18px;
+      padding: 10px 18px;
+    }
+
+    .live-deals-retry:focus-visible {
+      outline: 3px solid var(--ocean);
+      outline-offset: 3px;
+    }
+
+    .live-deals-retry:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    .live-deals-loading-dot {
+      animation: live-deals-loading-pulse 1.2s ease-in-out infinite;
+      background: var(--violet);
+      border-radius: 50%;
+      display: inline-block;
+      height: 9px;
+      margin-right: 8px;
+      width: 9px;
+    }
+
+    @keyframes live-deals-loading-pulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    @media (max-width: 768px) {
+      .live-deals-main { padding-left: 18px; padding-right: 18px; }
+      .live-deals-controls { align-items: stretch; flex-direction: column; }
+      .live-deals-search { flex-basis: auto; min-width: 0; width: 100%; }
+      .live-deals-filter { width: 100%; }
+      .live-deals-count { align-self: flex-start; margin-left: 0; }
+      .live-deal-discovery-card { grid-template-columns: minmax(0, 1fr); }
+      .live-deal-discovery-image { min-height: 180px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .live-deals-loading-dot { animation: none; }
+    }
+  </style>
+
+  <header class="page-header live-deals-page-header">
+    <h1>Live Deals</h1>
+    <p>Limited-time offers happening right now at San Diego venues.</p>
+  </header>
+
+  <main class="live-deals-main">
+    <section class="live-deals-controls" aria-label="Filter Live Deals">
+      <input
+        class="live-deals-search"
+        id="live-deals-search"
+        type="search"
+        placeholder="Search deals or venues..."
+        autocomplete="off"
+        aria-label="Search Live Deals"
+      />
+      <select class="live-deals-filter" id="live-deals-neighborhood" aria-label="Filter Live Deals by neighborhood">
+        <option value="">All neighborhoods</option>
+      </select>
+      <span class="live-deals-count" id="live-deals-count" aria-live="polite"></span>
+    </section>
+
+    <div class="live-deals-notice" id="live-deals-notice" role="status" aria-live="polite" hidden></div>
+    <div class="live-deals-grid" id="live-deals-grid"></div>
+    <section class="live-deals-state" id="live-deals-state" role="status" aria-live="polite">
+      <p><span class="live-deals-loading-dot" aria-hidden="true"></span>Loading Live Deals...</p>
+    </section>
+  </main>
+
+  <script>
+    import {
+      classifyDealCode,
+      deriveConsumerPromotionState,
+      filterLiveDealsForDiscovery,
+      type PublicLivePromotion,
+    } from '../lib/consumerPromotionState';
+    import {
+      createLivePromotionFeed,
+      type LivePromotionFeedSnapshot,
+    } from '../lib/livePromotionFeed';
+    import {
+      formatCountdown,
+      formatSanDiegoDateTime,
+    } from '../lib/promotionClientTime';
+    import { getListingImage } from '../lib/venues';
+
+    let baseVenues: any[] = [];
+    let venues: any[] = [];
+    let venueDirectoryLoaded = false;
+    let venueDirectoryRefreshPromise: Promise<void> | null = null;
+
+    const livePromotionFeed = createLivePromotionFeed();
+    let feedSnapshot: LivePromotionFeedSnapshot = livePromotionFeed.getSnapshot();
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function labelize(value: string) {
+      return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    function getServerNow() {
+      return feedSnapshot.data?.clock.now() ?? null;
+    }
+
+    function directoryVenue(venueId: number) {
+      return venues.find((venue) => venue.id === venueId);
+    }
+
+    async function mergeOwnerEdits(directory: any[], failureFallback = directory) {
+      try {
+        const response = await fetch('/api/venue-overrides', { cache: 'no-store' });
+        if (!response.ok) return failureFallback;
+        const { overrides } = await response.json();
+        if (!overrides) return directory;
+        return directory.map((venue) => {
+          const patch = overrides[String(venue.id)];
+          return patch ? { ...venue, ...patch } : venue;
+        });
+      } catch {
+        return failureFallback;
+      }
+    }
+
+    async function loadVenueDirectory() {
+      try {
+        const response = await fetch('/data/happy-hours.json');
+        if (!response.ok) return;
+        baseVenues = await response.json();
+        venues = await mergeOwnerEdits(baseVenues);
+        venueDirectoryLoaded = true;
+        render();
+      } catch {
+        // The promotion payload contains enough venue data to keep this page usable.
+      }
+    }
+
+    async function refreshVenueDirectory() {
+      if (!venueDirectoryLoaded || !baseVenues.length) return;
+      if (venueDirectoryRefreshPromise) return venueDirectoryRefreshPromise;
+
+      venueDirectoryRefreshPromise = (async () => {
+        const refreshed = await mergeOwnerEdits(baseVenues, venues);
+        if (JSON.stringify(refreshed) === JSON.stringify(venues)) return;
+        venues = refreshed;
+        render();
+      })();
+
+      try {
+        await venueDirectoryRefreshPromise;
+      } finally {
+        venueDirectoryRefreshPromise = null;
+      }
+    }
+
+    function activeLiveDeals(now: Date | null) {
+      if (!now || !feedSnapshot.data) return [];
+      return feedSnapshot.data.promotions.filter((promotion) =>
+        deriveConsumerPromotionState({
+          venueId: promotion.venueId,
+          schedule: null,
+          promotions: [promotion],
+          now,
+        }).liveDeals.length > 0
+      );
+    }
+
+    function syncNeighborhoodOptions(promotions: readonly PublicLivePromotion[]) {
+      const select = document.getElementById('live-deals-neighborhood') as HTMLSelectElement;
+      const currentValue = select.value;
+      const neighborhoods = [...new Set(promotions.map((promotion) => promotion.venue.neighborhood).filter(Boolean))]
+        .sort((left, right) => left.localeCompare(right));
+      const existing = [...select.options].slice(1).map((option) => option.value);
+      if (JSON.stringify(existing) === JSON.stringify(neighborhoods)) return;
+
+      const options = [new Option('All neighborhoods', '')];
+      for (const neighborhood of neighborhoods) options.push(new Option(neighborhood, neighborhood));
+      select.replaceChildren(...options);
+      if (neighborhoods.includes(currentValue)) select.value = currentValue;
+    }
+
+    function getDiscoveryLiveDeals(now: Date | null) {
+      const active = activeLiveDeals(now);
+      const query = (document.getElementById('live-deals-search') as HTMLInputElement).value.trim();
+      const neighborhood = (document.getElementById('live-deals-neighborhood') as HTMLSelectElement).value;
+      return filterLiveDealsForDiscovery(
+        active,
+        { query, neighborhood, radius: null },
+        {
+          venueSearchText: (venueId) => {
+            const venue = directoryVenue(venueId);
+            return venue
+              ? [
+                  venue.address,
+                  venue.vibe,
+                  ...(venue.deals || []),
+                  ...(venue.dealTypes || []),
+                  ...(venue.features || []),
+                ]
+              : null;
+          },
+        }
+      ).sort((left, right) => left.effectiveEndsAt.localeCompare(right.effectiveEndsAt));
+    }
+
+    function renderDealCode(promotion: PublicLivePromotion) {
+      const codeState = classifyDealCode(promotion);
+      if (codeState.kind === 'none') return '';
+      if (codeState.kind === 'gated') {
+        const next = encodeURIComponent('/live-deals/');
+        return `
+          <div class="live-deal-code-row">
+            <span>Deal code available</span>
+            <a class="live-deal-link" href="/account/?next=${next}">Sign in to see deal code</a>
+          </div>
+        `;
+      }
+      return `
+        <div class="live-deal-code-row">
+          <span>Deal code</span>
+          <code class="live-deal-code">${escapeHTML(codeState.code)}</code>
+        </div>
+      `;
+    }
+
+    function getCardImageSources(venue: any, promotionImage = '', promotionImageOriginal = '') {
+      if (!venue) {
+        return {
+          primary: promotionImage || getListingImage({}, 'card'),
+          original: promotionImageOriginal,
+          stock: getListingImage({}, 'card'),
+        };
+      }
+      return {
+        primary: getListingImage(venue, 'card'),
+        original: typeof venue.image === 'string' ? venue.image : '',
+        stock: getListingImage({ vibe: venue.vibe }, 'card'),
+      };
+    }
+
+    function renderCard(promotion: PublicLivePromotion, now: Date) {
+      const venue = directoryVenue(promotion.venueId);
+      const imageSources = getCardImageSources(
+        venue,
+        promotion.venue.image,
+        promotion.venue.imageOriginal
+      );
+      const state = deriveConsumerPromotionState({
+        venueId: promotion.venueId,
+        schedule: venue ?? null,
+        promotions: feedSnapshot.data?.promotions ?? [promotion],
+        now,
+      });
+      const countdown = formatCountdown(promotion.effectiveEndsAt, now);
+      const venuePath = `/venues/${encodeURIComponent(promotion.venue.slug)}/`;
+      const promotionType = labelize(promotion.type.replaceAll('_', ' '));
+
+      return `
+        <article class="live-deal-panel live-deal-discovery-card">
+          <a class="live-deal-discovery-image" href="${venuePath}" aria-label="View ${escapeHTML(promotion.venue.name)}">
+            <img
+              src="${escapeHTML(imageSources.primary)}"
+              alt="${escapeHTML(promotion.venue.name)}"
+              loading="lazy"
+              data-listing-image
+              data-original-src="${escapeHTML(imageSources.original)}"
+              data-stock-src="${escapeHTML(imageSources.stock)}"
+            >
+          </a>
+          <div class="live-deal-discovery-body">
+            <div class="live-deal-heading-row">
+              <span class="live-deal-badge"><span class="live-deal-status-dot"></span>Live Deal</span>
+              <span class="live-deal-type">${escapeHTML(promotionType)}</span>
+            </div>
+            <h2 class="live-deal-title">${escapeHTML(promotion.title)}</h2>
+            <div class="live-deal-meta">
+              <a class="live-deal-venue" href="${venuePath}">${escapeHTML(promotion.venue.name)}</a>
+              <span>${escapeHTML(promotion.venue.neighborhood)}</span>
+            </div>
+            <div class="live-deal-meta">
+              ${countdown ? `<span class="live-deal-countdown" data-live-deal-countdown="${escapeHTML(promotion.effectiveEndsAt)}">Ends in ${escapeHTML(countdown)}</span>` : ''}
+              <span>Ends ${escapeHTML(formatSanDiegoDateTime(promotion.effectiveEndsAt))}</span>
+            </div>
+            ${state.state === 'both' ? '<p class="live-deal-details"><strong>Happy hour also happening now</strong></p>' : ''}
+            ${promotion.description ? `<p class="live-deal-details">${escapeHTML(promotion.description)}</p>` : ''}
+            ${renderDealCode(promotion)}
+            <div class="live-deal-meta">
+              <a class="live-deal-link" href="${venuePath}">View venue details →</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function showState(title: string, message: string, retry = false, retrying = false) {
+      const state = document.getElementById('live-deals-state')!;
+      state.innerHTML = `
+        <h2>${escapeHTML(title)}</h2>
+        <p>${escapeHTML(message)}</p>
+        ${retry ? `<button class="live-deals-retry" id="live-deals-retry" type="button"${retrying ? ' disabled' : ''}>${retrying ? 'Retrying…' : 'Try again'}</button>` : ''}
+      `;
+      state.hidden = false;
+      if (retry && !retrying) {
+        document.getElementById('live-deals-retry')!.addEventListener('click', () => {
+          void livePromotionFeed.refresh();
+        });
+      }
+    }
+
+    let renderedGridSignature = '';
+
+    function clearGrid(grid: HTMLElement) {
+      if (renderedGridSignature || grid.childElementCount > 0) grid.replaceChildren();
+      renderedGridSignature = '';
+    }
+
+    function gridSignature(promotions: readonly PublicLivePromotion[], now: Date) {
+      return JSON.stringify(promotions.map((promotion) => {
+        const venue = directoryVenue(promotion.venueId);
+        const state = deriveConsumerPromotionState({
+          venueId: promotion.venueId,
+          schedule: venue ?? null,
+          promotions: feedSnapshot.data?.promotions ?? [promotion],
+          now,
+        });
+        return [promotion, venue ?? null, state.state];
+      }));
+    }
+
+    function render() {
+      const grid = document.getElementById('live-deals-grid')!;
+      const count = document.getElementById('live-deals-count')!;
+      const state = document.getElementById('live-deals-state')!;
+      const notice = document.getElementById('live-deals-notice')!;
+      const now = getServerNow();
+
+      state.hidden = true;
+      notice.hidden = true;
+      notice.textContent = '';
+
+      if (!feedSnapshot.data || !now) {
+        clearGrid(grid);
+        count.textContent = '';
+        if (feedSnapshot.error) {
+          showState(
+            'Live Deals are unavailable',
+            feedSnapshot.refreshing
+              ? 'Checking for the latest deals now.'
+              : 'We could not load the latest deals. Please try again.',
+            true,
+            feedSnapshot.refreshing
+          );
+        } else {
+          state.innerHTML = '<p><span class="live-deals-loading-dot" aria-hidden="true"></span>Loading Live Deals...</p>';
+          state.hidden = false;
+        }
+        return;
+      }
+
+      const active = activeLiveDeals(now);
+      syncNeighborhoodOptions(active);
+      const promotions = getDiscoveryLiveDeals(now);
+      count.textContent = `${promotions.length} ${promotions.length === 1 ? 'deal' : 'deals'} happening now`;
+
+      if (feedSnapshot.error) {
+        notice.textContent = 'We could not refresh Live Deals. Showing the latest available results.';
+        notice.hidden = false;
+      }
+
+      if (active.length === 0) {
+        clearGrid(grid);
+        showState('No Live Deals right now', 'Check back soon for new limited-time offers.');
+        return;
+      }
+
+      if (promotions.length === 0) {
+        clearGrid(grid);
+        showState('No deals match those filters', 'Try another search or neighborhood.');
+        return;
+      }
+
+      const nextGridSignature = gridSignature(promotions, now);
+      if (nextGridSignature !== renderedGridSignature) {
+        grid.innerHTML = promotions.map((promotion) => renderCard(promotion, now)).join('');
+        renderedGridSignature = nextGridSignature;
+      } else {
+        refreshTimedPresentation(now);
+      }
+    }
+
+    function refreshTimedPresentation(now: Date) {
+      for (const element of document.querySelectorAll<HTMLElement>('[data-live-deal-countdown]')) {
+        const target = element.dataset.liveDealCountdown;
+        const countdown = target ? formatCountdown(target, now) : null;
+        element.hidden = countdown === null;
+        element.textContent = countdown ? `Ends in ${countdown}` : '';
+      }
+    }
+
+    function restoreListingImage(event: Event) {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-listing-image')) return;
+
+      const current = image.getAttribute('src') || '';
+      const original = image.dataset.originalSrc || '';
+      delete image.dataset.originalSrc;
+      if (original && original !== current) {
+        image.src = original;
+        return;
+      }
+
+      const stock = image.dataset.stockSrc || '';
+      delete image.dataset.stockSrc;
+      if (stock && stock !== current) image.src = stock;
+    }
+
+    document.getElementById('live-deals-grid')!.addEventListener('error', restoreListingImage, true);
+    document.getElementById('live-deals-search')!.addEventListener('input', render);
+    document.getElementById('live-deals-neighborhood')!.addEventListener('change', render);
+
+    const unsubscribeFromLivePromotions = livePromotionFeed.subscribe((snapshot) => {
+      const previousPromotions = JSON.stringify(feedSnapshot.data?.promotions ?? []);
+      feedSnapshot = snapshot;
+      render();
+      if (JSON.stringify(snapshot.data?.promotions ?? []) !== previousPromotions) {
+        void refreshVenueDirectory();
+      }
+    });
+
+    window.addEventListener('sdhh:auth-changed', () => {
+      void livePromotionFeed.authenticationChanged();
+    });
+
+    window.addEventListener('focus', () => {
+      void refreshVenueDirectory();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) void refreshVenueDirectory();
+    });
+
+    window.addEventListener('pageshow', (event) => {
+      if (!(event as PageTransitionEvent).persisted) return;
+      livePromotionFeed.start();
+      void refreshVenueDirectory();
+    });
+
+    const timedPresentationInterval = window.setInterval(() => {
+      const now = getServerNow();
+      if (now) refreshTimedPresentation(now);
+    }, 30_000);
+
+    window.addEventListener('pagehide', (event) => {
+      livePromotionFeed.stop();
+      // Redact session-only codes before a cached document can be restored.
+      void livePromotionFeed.authenticationChanged();
+      if ((event as PageTransitionEvent).persisted) return;
+      window.clearInterval(timedPresentationInterval);
+      unsubscribeFromLivePromotions();
+    });
+
+    livePromotionFeed.start();
+    void loadVenueDirectory();
+    render();
+  </script>
+</Layout>

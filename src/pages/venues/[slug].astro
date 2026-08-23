@@ -116,6 +116,8 @@ const heroImage = getListingImage(venue, 'hero');
       font-size: clamp(1.35rem, 4vw, 1.8rem);
       margin-bottom: 14px;
     }
+    .venue-hours { border-top: 1px solid var(--sand-warm); margin-top: 16px; padding-top: 14px; }
+    .venue-hours-label { color: var(--night-soft); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 4px; text-transform: uppercase; }
     .venue-details {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -448,6 +450,14 @@ const heroImage = getListingImage(venue, 'hero');
           {dayNames.map((day) => (
             <span class={`day-pill ${venue.days.includes(day) ? 'active' : ''}`}>{day.slice(0, 3)}</span>
           ))}
+        </div>
+        <div class="venue-hours" id="venue-hours" style={venue.openTime && venue.closeTime ? '' : 'display:none;'}>
+          <p class="venue-hours-label">Venue Hours</p>
+          <p id="venue-hours-times">
+            {venue.openTime && venue.closeTime && (
+              <strong>{formatTime(venue.openTime)} – {formatTime(venue.closeTime)}</strong>
+            )}
+          </p>
         </div>
       </div>
       <div class="venue-card">
@@ -872,6 +882,18 @@ const heroImage = getListingImage(venue, 'hero');
         // the badge would follow the old hours.
         heroFrame.dataset.start = listing.startTime;
         heroFrame.dataset.end = listing.endTime;
+      }
+
+      const venueHours = document.getElementById('venue-hours') as HTMLElement;
+      if (listing.openTime && listing.closeTime) {
+        document.getElementById('venue-hours-times')!.innerHTML =
+          `<strong>${esc(formatClock(listing.openTime))} – ${esc(formatClock(listing.closeTime))}</strong>`;
+        venueHours.style.display = '';
+      } else if (
+        Object.prototype.hasOwnProperty.call(listing, 'openTime') ||
+        Object.prototype.hasOwnProperty.call(listing, 'closeTime')
+      ) {
+        venueHours.style.display = 'none';
       }
 
       if (Array.isArray(listing.days) && listing.days.length) {

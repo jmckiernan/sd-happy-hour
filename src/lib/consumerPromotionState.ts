@@ -95,6 +95,7 @@ export function isPublicLivePromotion(value: unknown): value is PublicLivePromot
     isNonEmptyString(venue.slug) &&
     typeof venue.neighborhood === 'string' &&
     typeof venue.image === 'string' &&
+    (!hasOwn(venue, 'imageOriginal') || typeof venue.imageOriginal === 'string') &&
     typeof value.type === 'string' &&
     PUBLIC_PROMOTION_TYPES.has(value.type) &&
     isNonEmptyString(value.title) &&

@@ -16,6 +16,10 @@ export interface Venue {
   lat: number;
   lng: number;
   days: string[];
+  /** General venue hours. Optional for legacy listings until an owner/admin
+   * supplies them; these are distinct from the recurring happy-hour window. */
+  openTime?: string;
+  closeTime?: string;
   startTime: string;
   endTime: string;
   deals: string[];

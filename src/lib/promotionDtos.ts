@@ -42,6 +42,8 @@ export interface PublicPromotionDto {
     slug: string;
     neighborhood: string;
     image: string;
+    /** Untransformed featured image used if the card-sized CDN request fails. */
+    imageOriginal?: string;
   };
   type: PromotionCampaign['type'];
   title: string;
@@ -117,6 +119,7 @@ export function toPublicPromotionDto(
       slug: slugify(venue.name),
       neighborhood: venue.neighborhood,
       image: getListingImage(venue, 'card'),
+      imageOriginal: venue.image || '',
     },
     type: promotion.type,
     title: promotion.title,

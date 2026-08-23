@@ -284,22 +284,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
     /* ===== MAIN GRID ===== */
     .main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
-    .live-deals-section { margin-bottom: 42px; min-width: 0; }
-    .live-deals-section[hidden] { display: none; }
-    .live-deals-header { align-items: end; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; margin-bottom: 20px; }
-    .live-deals-header h2 { color: var(--night); font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); line-height: 1; margin: 0; }
-    .live-deals-header p { color: var(--night-soft); margin: 7px 0 0; max-width: 620px; }
-    .live-deals-count { background: rgba(139, 92, 246, 0.1); border-radius: 100px; color: var(--violet); font-size: 0.78rem; font-weight: 800; padding: 8px 13px; }
-    .live-deals-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); min-width: 0; }
-    .live-deal-discovery-card { display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr); overflow: hidden; padding: 0; }
-    .live-deal-discovery-image { min-height: 100%; overflow: hidden; position: relative; }
-    .live-deal-discovery-image img { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
-    .live-deal-discovery-image::after { background: linear-gradient(to top, rgba(15, 23, 42, 0.4), transparent 60%); content: ''; inset: 0; position: absolute; }
-    .live-deal-discovery-body { min-width: 0; padding: clamp(18px, 3vw, 26px); }
-    .live-deal-venue { color: var(--night); font-size: 0.9rem; font-weight: 800; text-decoration: none; }
-    .live-deal-venue:hover { color: var(--sunset-start); }
-    .live-deal-type { color: var(--night-soft); font-size: 0.75rem; font-weight: 750; }
-    .live-deal-code { max-width: 100%; overflow-wrap: anywhere; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px; }
     .grid.hidden { display: none; }
 
@@ -393,8 +377,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       .filters { flex-wrap: wrap; }
       .search-input { width: 100%; }
       .filter-btn { flex: 1; min-width: 100px; }
-      .live-deal-discovery-card { grid-template-columns: minmax(0, 1fr); }
-      .live-deal-discovery-image { min-height: 180px; }
       .grid { grid-template-columns: 1fr; }
       .map-container { height: 400px; border-radius: var(--radius-sm); }
       .live-counter { flex-direction: column; text-align: center; padding: 16px 28px; }
@@ -458,7 +440,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
   <section class="filters-section">
     <div class="filters-container">
       <div class="filters">
-        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" aria-label="Search venues and Live Deals" />
+        <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" aria-label="Search happy hour venues" />
 
         <select class="filter-btn" id="day-filter" aria-label="Filter by happy hour day">
           <option value="">All days</option>
@@ -486,7 +468,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         <select class="filter-btn" id="status-filter" aria-label="Filter directory by current status">
           <option value="">All spots</option>
           <option value="happy-hour-now">Happy Hour Now</option>
-          <option value="live-deals">Live Deals</option>
         </select>
 
         <select class="filter-btn" id="trust-filter" aria-label="Filter by trust status">
@@ -529,17 +510,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
   <!-- MAIN -->
   <main class="main">
-    <section class="live-deals-section" id="live-deals-section" aria-labelledby="live-deals-heading" hidden>
-      <div class="live-deals-header">
-        <div>
-          <h2 id="live-deals-heading">Live Deals</h2>
-          <p>Limited-time offers happening now at San Diego venues.</p>
-        </div>
-        <span class="live-deals-count" id="live-deals-count" aria-live="polite"></span>
-      </div>
-      <div class="live-deals-grid" id="live-deals-grid"></div>
-    </section>
-
     <div class="map-container" id="map-container">
       <div id="map" aria-label="Map of filtered happy hour venues"></div>
     </div>
@@ -557,19 +527,14 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
   <script>
     import {
-      classifyDealCode,
       deriveConsumerPromotionState,
-      filterLiveDealsForDiscovery,
       type ConsumerPromotionState,
-      type PublicLivePromotion,
     } from '../lib/consumerPromotionState';
     import {
       createLivePromotionFeed,
       type LivePromotionFeedSnapshot,
     } from '../lib/livePromotionFeed';
     import {
-      formatCountdown,
-      formatSanDiegoDateTime,
       formatSanDiegoTime,
     } from '../lib/promotionClientTime';
     import {
@@ -640,12 +605,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
     function refreshTimedPresentation(now: Date) {
       document.getElementById('current-time')!.textContent = formatSanDiegoTime(now);
-      for (const element of document.querySelectorAll<HTMLElement>('[data-live-deal-countdown]')) {
-        const target = element.dataset.liveDealCountdown;
-        const countdown = target ? formatCountdown(target, now) : null;
-        element.hidden = countdown === null;
-        element.textContent = countdown ? `Ends in ${countdown}` : '';
-      }
     }
 
     function dateKeyAfter(dateKey: string, days: number) {
@@ -971,163 +930,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       return happyHours.find((venue) => venue.id === venueId);
     }
 
-    function activeLiveDeals(now: Date | null) {
-      if (!now || !feedSnapshot.data) return [];
-      return feedSnapshot.data.promotions.filter((promotion) =>
-        deriveConsumerPromotionState({
-          venueId: promotion.venueId,
-          schedule: null,
-          promotions: [promotion],
-          now,
-        }).liveDeals.length > 0
-      );
-    }
-
-    function getDiscoveryLiveDeals(now: Date | null) {
-      const query = (document.getElementById('search-input') as HTMLInputElement).value.trim();
-      const neighborhood = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
-      const filtered = filterLiveDealsForDiscovery(
-        activeLiveDeals(now),
-        {
-          query,
-          neighborhood,
-          // Near Me currently means distance sorting, not a radius boundary.
-          // Supplying coordinates here keeps an explicit radius a safe future addition.
-          radius: null,
-        },
-        {
-          venueSearchText: (venueId) => {
-            const venue = directoryVenue(venueId);
-            return venue
-              ? [
-                  venue.address,
-                  venue.vibe,
-                  ...(venue.deals || []),
-                  ...(venue.dealTypes || []),
-                  ...(venue.features || []),
-                ]
-              : null;
-          },
-          venueCoordinates: (venueId) => {
-            const venue = directoryVenue(venueId);
-            return venue && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)
-              ? { latitude: venue.lat, longitude: venue.lng }
-              : null;
-          },
-          distanceMiles: (from, to) =>
-            getDistance(from.latitude, from.longitude, to.latitude, to.longitude),
-        }
-      );
-
-      return filtered.sort((left, right) => {
-        if (userLocation) {
-          const leftVenue = directoryVenue(left.venueId);
-          const rightVenue = directoryVenue(right.venueId);
-          const leftDistance = leftVenue
-            ? getDistance(userLocation.lat, userLocation.lng, leftVenue.lat, leftVenue.lng)
-            : Number.POSITIVE_INFINITY;
-          const rightDistance = rightVenue
-            ? getDistance(userLocation.lat, userLocation.lng, rightVenue.lat, rightVenue.lng)
-            : Number.POSITIVE_INFINITY;
-          if (leftDistance !== rightDistance) return leftDistance - rightDistance;
-        }
-        return left.effectiveEndsAt.localeCompare(right.effectiveEndsAt);
-      });
-    }
-
-    function renderDealCode(promotion: PublicLivePromotion) {
-      const codeState = classifyDealCode(promotion);
-      if (codeState.kind === 'none') return '';
-      if (codeState.kind === 'gated') {
-        const next = encodeURIComponent(`/venues/${promotion.venue.slug}/`);
-        return `
-          <div class="live-deal-code-row">
-            <span>Deal code available</span>
-            <a class="live-deal-link" href="/account/?next=${next}">Sign in to see deal code</a>
-          </div>
-        `;
-      }
-      return `
-        <div class="live-deal-code-row">
-          <span>Deal code</span>
-          <code class="live-deal-code">${escapeHTML(codeState.code)}</code>
-        </div>
-      `;
-    }
-
-    function renderLiveDeals(now: Date | null) {
-      const section = document.getElementById('live-deals-section') as HTMLElement;
-      const grid = document.getElementById('live-deals-grid')!;
-      const count = document.getElementById('live-deals-count')!;
-      const promotions = getDiscoveryLiveDeals(now);
-
-      if (!now || promotions.length === 0) {
-        section.hidden = true;
-        grid.innerHTML = '';
-        count.textContent = '';
-        return;
-      }
-
-      section.hidden = false;
-      count.textContent = `${promotions.length} ${promotions.length === 1 ? 'deal' : 'deals'} happening now`;
-      grid.innerHTML = promotions.map((promotion) => {
-        const venue = directoryVenue(promotion.venueId);
-        // Prefer the freshly merged directory record over the image snapshot
-        // embedded in the promotion feed. The two endpoints are fetched
-        // independently, so that snapshot can briefly lag an admin save.
-        const imageSources = getCardImageSources(venue, promotion.venue.image);
-        const state = deriveConsumerPromotionState({
-          venueId: promotion.venueId,
-          schedule: venue ?? null,
-          promotions: feedSnapshot.data?.promotions ?? [promotion],
-          now,
-        });
-        const countdown = formatCountdown(promotion.effectiveEndsAt, now);
-        const distance = userLocation && venue
-          ? getDistance(userLocation.lat, userLocation.lng, venue.lat, venue.lng)
-          : null;
-        const venuePath = `/venues/${promotion.venue.slug}/`;
-        const promotionType = labelize(promotion.type.replaceAll('_', ' '));
-
-        return `
-          <article class="live-deal-panel live-deal-discovery-card">
-            <a class="live-deal-discovery-image" href="${venuePath}" aria-label="View ${escapeHTML(promotion.venue.name)}">
-              <img
-                src="${escapeHTML(imageSources.primary)}"
-                alt="${escapeHTML(promotion.venue.name)}"
-                loading="lazy"
-                data-listing-image
-                data-original-src="${escapeHTML(imageSources.original)}"
-                data-stock-src="${escapeHTML(imageSources.stock)}"
-              >
-            </a>
-            <div class="live-deal-discovery-body">
-              <div class="live-deal-heading-row">
-                <span class="live-deal-badge"><span class="live-deal-status-dot"></span>Live Deal</span>
-                <span class="live-deal-type">${escapeHTML(promotionType)}</span>
-              </div>
-              <h3 class="live-deal-title">${escapeHTML(promotion.title)}</h3>
-              <div class="live-deal-meta">
-                <a class="live-deal-venue" href="${venuePath}">${escapeHTML(promotion.venue.name)}</a>
-                <span>${escapeHTML(promotion.venue.neighborhood)}</span>
-                ${distance === null ? '' : `<span>${formatDistance(distance)}</span>`}
-              </div>
-              <div class="live-deal-meta">
-                ${countdown ? `<span class="live-deal-countdown" data-live-deal-countdown="${escapeHTML(promotion.effectiveEndsAt)}">Ends in ${escapeHTML(countdown)}</span>` : ''}
-                <span>Ends ${escapeHTML(formatSanDiegoDateTime(promotion.effectiveEndsAt))}</span>
-              </div>
-              ${state.state === 'both' ? '<p class="live-deal-details"><strong>Happy hour also happening now</strong></p>' : ''}
-              ${promotion.description ? `<p class="live-deal-details">${escapeHTML(promotion.description)}</p>` : ''}
-              ${renderDealCode(promotion)}
-              <div class="live-deal-meta">
-                <a class="live-deal-link" href="${venuePath}">View venue details →</a>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join('');
-    }
-
     function formatTime(time: string) {
       const [h, m] = time.split(':').map(Number);
       const ampm = h >= 12 ? 'PM' : 'AM';
@@ -1139,12 +941,8 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
      * Keep three independently useful sources for every venue card:
      * the card-sized CDN URL, the original admin upload in case only that
      * transform failed, and the venue's stock image if the upload also fails.
-     * The promotion image is used only until the directory data has loaded.
      */
-    function getCardImageSources(venue: any, promotionImage = '') {
-      if (!venue) {
-        return { primary: promotionImage, original: promotionImage, stock: '' };
-      }
+    function getCardImageSources(venue: any) {
       return {
         primary: getListingImage(venue, 'card'),
         original: typeof venue.image === 'string' ? venue.image : '',
@@ -1196,9 +994,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       if (statusFilter === 'happy-hour-now') {
         filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.happyHourOccurrence));
       }
-      if (statusFilter === 'live-deals') {
-        filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.liveDeals.length));
-      }
       if (trustFilter === 'verified') filtered = filtered.filter((h) => h.verified);
       if (trustFilter === 'unverified') filtered = filtered.filter((h) => !h.verified);
 
@@ -1236,7 +1031,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         .length;
       countEl.textContent = String(filtered.length);
       liveCountBig.textContent = String(happyHoursNow);
-      renderLiveDeals(now);
 
       if (filtered.length === 0) {
         (grid as HTMLElement).style.display = 'none';
@@ -1429,7 +1223,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     }
 
     document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
-    document.getElementById('live-deals-grid')!.addEventListener('error', restoreListingImage, true);
 
     document.getElementById('search-input')!.addEventListener('input', () => render());
     document.getElementById('day-filter')!.addEventListener('change', () => {
@@ -1575,7 +1368,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
       // A promotion response includes its current merged venue image. If that
       // snapshot changed while this page stayed open, reconcile the directory
-      // endpoint too so both homepage card types continue to agree.
+      // endpoint so the homepage card stays current too.
       if (promotionsChanged) void refreshVenueDirectory();
     });
 

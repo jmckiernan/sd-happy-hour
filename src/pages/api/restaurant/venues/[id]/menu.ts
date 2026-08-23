@@ -117,6 +117,9 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 
       const photoId = await resolvePhotoId(body.photoId, venueId);
       if (photoId === 'invalid') return errorJson(['That photo isn’t one of this listing’s photos.'], 422);
+      if (body.showPhotoInGallery !== undefined && typeof body.showPhotoInGallery !== 'boolean') {
+        return errorJson(['Gallery visibility must be true or false.'], 422);
+      }
 
       const item = await createMenuItem({
         sectionId: section.id,
@@ -125,6 +128,9 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
         price: cleanString(body.price).slice(0, 40),
         description: cleanString(body.description).slice(0, 400),
         photoId,
+        // Existing behavior is preserved unless the owner deliberately opts
+        // this item out of the venue gallery.
+        showPhotoInGallery: body.showPhotoInGallery !== false,
       });
       return json({ item }, 201);
     }
@@ -141,12 +147,16 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
       const clearPhoto = body.photoId === null;
       const photoId = clearPhoto ? null : await resolvePhotoId(body.photoId, venueId);
       if (photoId === 'invalid') return errorJson(['That photo isn’t one of this listing’s photos.'], 422);
+      if (body.showPhotoInGallery !== undefined && typeof body.showPhotoInGallery !== 'boolean') {
+        return errorJson(['Gallery visibility must be true or false.'], 422);
+      }
 
       await updateMenuItem(item.id, {
         name,
         price: body.price === undefined ? undefined : cleanString(body.price).slice(0, 40),
         description: body.description === undefined ? undefined : cleanString(body.description).slice(0, 400),
         photoId,
+        showPhotoInGallery: body.showPhotoInGallery,
         sortOrder: body.sortOrder === undefined ? undefined : Number(body.sortOrder),
         clearPhoto,
       });

@@ -80,6 +80,7 @@ const isHome = Astro.url.pathname === '/';
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       max-width: 1400px;
       width: 100%;
       margin: 0 auto;
@@ -195,7 +196,9 @@ const isHome = Astro.url.pathname === '/';
 
     .site-nav .links {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
+      justify-content: flex-end;
       font-size: 0.875rem;
     }
 
@@ -254,6 +257,12 @@ const isHome = Astro.url.pathname === '/';
     .site-nav.transparent .links a:hover { background: white; }
     .site-nav.transparent .links a[aria-current="page"] { background: var(--night); color: white; }
 
+    @media (max-width: 720px) {
+      .site-nav { align-items: flex-start; flex-direction: column; padding: 16px 20px; }
+      .site-nav .links { gap: 6px; justify-content: flex-start; width: 100%; }
+      .site-nav .links a { padding: 7px 11px; }
+    }
+
     footer.site-footer {
       background: var(--night);
       color: white;
@@ -274,6 +283,7 @@ const isHome = Astro.url.pathname === '/';
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
     <a class="brand" href="/">SD Happy Hours</a>
     <div class="links">
+      <a href="/live-deals/" aria-current={Astro.url.pathname === '/live-deals/' ? 'page' : undefined}>Live Deals</a>
       <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
       <a href="/restaurant/" aria-current={Astro.url.pathname === '/restaurant/' ? 'page' : undefined}>For Restaurants</a>

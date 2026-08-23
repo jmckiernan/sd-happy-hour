@@ -40,6 +40,8 @@ import { cleanString, cleanList, isValidTime } from './validation';
  */
 export const OWNER_EDITABLE_FIELDS = [
   'days',
+  'openTime',
+  'closeTime',
   'startTime',
   'endTime',
   'deals',
@@ -88,6 +90,8 @@ export function validateOwnerPatch(
   const deals = cleanList(input.deals);
   const patch: Record<string, unknown> = {
     days,
+    openTime: cleanString(input.openTime),
+    closeTime: cleanString(input.closeTime),
     startTime: cleanString(input.startTime),
     endTime: cleanString(input.endTime),
     deals,
@@ -101,8 +105,13 @@ export function validateOwnerPatch(
   };
 
   if (!days.length || days.some((day) => !VALID_DAYS.has(day))) errors.push('Choose at least one valid day.');
-  if (!isValidTime(patch.startTime as string)) errors.push('Start time must use HH:MM 24-hour format.');
-  if (!isValidTime(patch.endTime as string)) errors.push('End time must use HH:MM 24-hour format.');
+  const openTime = patch.openTime as string;
+  const closeTime = patch.closeTime as string;
+  if (Boolean(openTime) !== Boolean(closeTime)) errors.push('Add both venue open and close times, or leave both blank.');
+  if (openTime && !isValidTime(openTime)) errors.push('Venue open time must use HH:MM 24-hour format.');
+  if (closeTime && !isValidTime(closeTime)) errors.push('Venue close time must use HH:MM 24-hour format.');
+  if (!isValidTime(patch.startTime as string)) errors.push('Happy hour start time must use HH:MM 24-hour format.');
+  if (!isValidTime(patch.endTime as string)) errors.push('Happy hour end time must use HH:MM 24-hour format.');
   if (!deals.length) errors.push('Add at least one deal.');
   if (!patch.vibe) errors.push('Vibe is required.');
   if (!patch.address) errors.push('Address is required.');
@@ -199,12 +208,46 @@ export async function getVenueContent(venueId: number): Promise<PublicVenueConte
     getVenueMenu(venueId)
   ]);
 
-  // Create a map of ALL photos (gallery + menu item) for menu item linking
+  // Create maps of ALL photos (gallery + menu item) for menu item linking and
+  // for the owner's per-item "also show in gallery" choice.
+  const publishedRowsById = new Map(allPhotos.map((photo) => [photo.id, photo]));
   const publishedById = new Map(allPhotos.map((photo) => [photo.id, publicPhoto(photo)]));
+  // A photo can be reused by more than one item. It appears when at least one
+  // referencing item opts in; if every referencing item opts out, even a
+  // legacy photo typed as a venue photo is removed from the public gallery.
+  const galleryChoiceByPhotoId = new Map<string, boolean>();
+  for (const section of menu) {
+    for (const item of section.items) {
+      if (!item.photoId) continue;
+      galleryChoiceByPhotoId.set(
+        item.photoId,
+        Boolean(galleryChoiceByPhotoId.get(item.photoId)) || item.showPhotoInGallery
+      );
+    }
+  }
+
+  const visibleGalleryPhotos = galleryPhotos.filter((photo) =>
+    !galleryChoiceByPhotoId.has(photo.id) || galleryChoiceByPhotoId.get(photo.id) === true
+  );
+  const publicGallery = visibleGalleryPhotos.map(publicPhoto);
+  const publicGalleryIds = new Set(visibleGalleryPhotos.map((photo) => photo.id));
+
+  for (const section of menu) {
+    for (const item of section.items) {
+      if (!item.showPhotoInGallery || !item.photoId || publicGalleryIds.has(item.photoId)) continue;
+      const photo = publishedRowsById.get(item.photoId);
+      if (!photo) continue;
+      const galleryPhoto = publicPhoto(photo);
+      // Menu-only uploads normally have no caption; the item name is much more
+      // useful in the venue lightbox than a blank caption.
+      if (!galleryPhoto.caption) galleryPhoto.caption = item.name;
+      publicGallery.push(galleryPhoto);
+      publicGalleryIds.add(item.photoId);
+    }
+  }
 
   return {
-    // Only return gallery photos for the album/modal
-    photos: galleryPhotos.map(publicPhoto),
+    photos: publicGallery,
     menu: menu.map((section) => ({
       id: section.id,
       title: section.title,

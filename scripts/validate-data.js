@@ -43,6 +43,9 @@ function validateListing(listing, label) {
   if (Number.isFinite(listing.lat) && (listing.lat < -90 || listing.lat > 90)) errors.push(`${label}: lat is out of range.`);
   if (Number.isFinite(listing.lng) && (listing.lng < -180 || listing.lng > 180)) errors.push(`${label}: lng is out of range.`);
   if (!hasStringArray(listing.days) || listing.days.some((day) => !validDays.has(day))) errors.push(`${label}: days must contain valid day names.`);
+  if (Boolean(listing.openTime) !== Boolean(listing.closeTime)) errors.push(`${label}: openTime and closeTime must be supplied together.`);
+  if (listing.openTime && !isTime(listing.openTime)) errors.push(`${label}: openTime must be HH:MM when present.`);
+  if (listing.closeTime && !isTime(listing.closeTime)) errors.push(`${label}: closeTime must be HH:MM when present.`);
   if (!isTime(listing.startTime)) errors.push(`${label}: startTime must be HH:MM.`);
   if (!isTime(listing.endTime)) errors.push(`${label}: endTime must be HH:MM.`);
   if (!hasStringArray(listing.deals)) errors.push(`${label}: deals must be a non-empty string array.`);
