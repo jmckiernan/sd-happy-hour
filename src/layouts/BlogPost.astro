@@ -93,6 +93,10 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       max-width: 760px;
       margin: 0 auto;
       padding: 0 24px 48px;
+      /* Keep the site artwork visible, while giving long-form copy a calmer
+         surface to sit on. */
+      background: rgba(255, 251, 245, 0.30);
+      border-radius: var(--radius);
       font-size: 1.05rem;
       line-height: 1.75;
     }
