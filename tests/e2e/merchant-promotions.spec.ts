@@ -256,7 +256,7 @@ test('verified venue separates recurring happy hour from backend-grouped promoti
   await expect(terminalCard.locator('.merchant-card-actions')).toHaveCount(0);
 });
 
-test('Launch Live Promotion confirms, creates an untimed draft, starts it with only endsAt, and refetches', async ({
+test('Create Promotion defaults to Start Now, creates an untimed draft, starts it with only endsAt, and refetches', async ({
   page,
 }) => {
   type PromotionCall = {
@@ -338,9 +338,12 @@ test('Launch Live Promotion confirms, creates an untimed draft, starts it with o
   await expect(claim.locator('.merchant-entitlement')).toContainText(
     '3 included promotions remaining this month'
   );
-  await claim.getByRole('button', { name: 'Launch Live Promotion' }).click();
+  await claim.getByRole('button', { name: 'Create Promotion' }).click();
 
-  const dialog = page.getByRole('dialog', { name: 'Launch Live Promotion' });
+  const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
+  await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
+  await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeEnabled();
+  await expect(dialog.getByRole('radio', { name: 'Schedule' })).toBeEnabled();
   await dialog.getByLabel('Headline').fill('$5 Margaritas + $2 Tacos');
   await dialog.getByLabel('Details').fill('Patio only.');
   await dialog.getByLabel('Deal code').fill('SUNSET');
@@ -454,12 +457,19 @@ test('quota conflict reports the canonical target month, preserves the draft, an
 
   await page.goto('/restaurant/');
   const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toBeDisabled();
-  await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toBeEnabled();
+  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeEnabled();
+  await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toHaveCount(0);
+  await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toHaveCount(0);
 
-  await claim.getByRole('button', { name: 'Schedule Promotion' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Schedule Promotion' });
+  await claim.getByRole('button', { name: 'Create Promotion' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
+  await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
+  await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeDisabled();
+  await expect(dialog.getByRole('radio', { name: 'Schedule' })).toBeEnabled();
   await expect(dialog.getByRole('button', { name: 'Save Draft' })).toBeEnabled();
+  await expect(dialog.getByRole('button', { name: 'Review promotion' })).toBeDisabled();
+  await dialog.getByRole('radio', { name: 'Schedule' }).check();
+  await expect(dialog.getByRole('button', { name: 'Review promotion' })).toBeEnabled();
   await dialog.getByLabel('Headline').fill('September sunset menu');
   await dialog.getByLabel('Start in San Diego').fill('2026-09-01T18:00');
   await dialog.getByLabel('End in San Diego').fill('2026-09-01T20:00');
@@ -477,8 +487,7 @@ test('quota conflict reports the canonical target month, preserves the draft, an
   await expect(
     claim.locator('[data-promotion-id="promotion-quota-draft"]')
   ).toContainText('September sunset menu');
-  await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toBeEnabled();
-  await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toBeDisabled();
+  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeEnabled();
 
   expect(calls.filter((call) =>
     call.method === 'POST' && call.pathname === '/api/restaurant/promotions'
@@ -493,11 +502,11 @@ test('silent canonical refresh preserves keyboard focus on a promotion action', 
   await mockDashboard(page, { promotions: [], entitlement: entitlement(0, 0, 3) });
   await page.goto('/restaurant/');
 
-  const schedule = page
+  const create = page
     .locator(`.claim-card[data-venue-id="${VENUE_ID}"]`)
-    .getByRole('button', { name: 'Schedule Promotion' });
-  await schedule.focus();
-  await expect(schedule).toBeFocused();
+    .getByRole('button', { name: 'Create Promotion' });
+  await create.focus();
+  await expect(create).toBeFocused();
 
   await Promise.all([
     page.waitForResponse((response) =>
@@ -506,7 +515,7 @@ test('silent canonical refresh preserves keyboard focus on a promotion action', 
     ),
     page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow'))),
   ]);
-  await expect(schedule).toBeFocused();
+  await expect(create).toBeFocused();
 });
 
 test('merchant deal codes clear before bfcache and on claim authorization failure', async ({
@@ -576,9 +585,10 @@ test('San Diego DST gap is rejected and fall-back fold offers both occurrences',
   await expect(claim.locator('.merchant-entitlement')).toContainText(
     '3 included promotions remaining this month'
   );
-  await claim.getByRole('button', { name: 'Schedule Promotion' }).click();
+  await claim.getByRole('button', { name: 'Create Promotion' }).click();
 
-  const dialog = page.getByRole('dialog', { name: 'Schedule Promotion' });
+  const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
+  await dialog.getByRole('radio', { name: 'Schedule' }).check();
   const startInput = dialog.getByLabel('Start in San Diego');
   const startError = dialog.locator('[data-start-error]');
   const startFold = dialog.locator('[data-start-fold]');

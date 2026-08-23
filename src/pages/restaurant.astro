@@ -511,7 +511,6 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       const entitlement = state.entitlement
         ? formatMerchantEntitlement(state.entitlement)
         : 'Allowance status is loading…';
-      const launchDisabled = !state.entitlement || !state.entitlement.canLaunchPromotion;
       const statusMessage = state.error || state.message || (state.loading ? 'Loading promotions…' : '');
       const statusKind = state.error ? 'error' : state.messageKind === 'error' ? 'error' : '';
 
@@ -525,13 +524,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
                 <p class="merchant-entitlement"><strong>Allowance:</strong> ${escapeHTML(entitlement)}</p>
               </div>
               <div class="merchant-promotion-actions">
-                <button
-                  class="merchant-promotion-button"
-                  type="button"
-                  data-promotion-action="launch"
-                  ${launchDisabled ? 'disabled aria-disabled="true"' : ''}
-                >Launch Live Promotion</button>
-                <button class="merchant-promotion-button secondary" type="button" data-promotion-action="schedule-new">Schedule Promotion</button>
+                <button class="merchant-promotion-button" type="button" data-promotion-action="create">Create Promotion</button>
               </div>
             </div>
           </section>
@@ -619,7 +612,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
             (candidate.closest<HTMLElement>('[data-promotion-id]')?.dataset.promotionId || '') === focusedPromotionId
           );
         const fallback = updated.querySelector<HTMLElement>(
-          '[data-promotion-action="schedule-new"], [data-promotion-action="launch"]:not(:disabled)'
+          '[data-promotion-action="create"]'
         );
         (matchingAction || fallback)?.focus();
       }
@@ -873,8 +866,11 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
     function syncWhenFields(): void {
       const scheduled = selectedWhen() === 'schedule';
       const fields = promotionForm.querySelector('[data-schedule-fields]') as HTMLElement;
+      const startNowChoice = promotionForm.querySelector<HTMLInputElement>('input[name="when"][value="now"]');
+      const reviewButton = promotionDialog.querySelector('[data-review-promotion]') as HTMLButtonElement;
       fields.hidden = !scheduled;
       localInput('startsAtLocal').required = scheduled;
+      reviewButton.disabled = editorContext?.intent === 'create' && !scheduled && Boolean(startNowChoice?.disabled);
       if (!scheduled) {
         localInput('startsAtLocal').setCustomValidity('');
         (promotionForm.querySelector('[data-start-error]') as HTMLElement).textContent = '';
@@ -957,11 +953,12 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         stateAtOpen: promotion?.state || null,
       };
       const sourceAction = source.dataset.promotionAction;
+      const createActionSelector = `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="create"]`;
       rememberFocus(
         source,
-        sourceAction
-          ? `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-id="${promotion?.id || ''}"] [data-promotion-action="${sourceAction}"], .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="launch"]:not(:disabled), .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="schedule-new"]`
-          : `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="${requestedMode === 'now' ? 'launch' : 'schedule-new'}"]:not(:disabled), .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="schedule-new"]`
+        promotion && sourceAction
+          ? `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${sourceAction}"], ${createActionSelector}`
+          : createActionSelector
       );
 
       promotionForm.reset();
@@ -1002,7 +999,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       setOccurrenceFromInstant('end', promotion?.endsAt || null);
 
       const title = intent === 'create'
-        ? mode === 'now' ? 'Launch Live Promotion' : 'Schedule Promotion'
+        ? 'Create Promotion'
         : intent === 'start-now'
           ? 'Start Promotion Now'
           : intent === 'publish'
@@ -1353,7 +1350,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       actionContext = { venueId, promotionId: promotion.id, action };
       rememberFocus(
         source,
-        `.claim-card[data-venue-id="${venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${action}"], .claim-card[data-venue-id="${venueId}"] [data-promotion-action="launch"]:not(:disabled), .claim-card[data-venue-id="${venueId}"] [data-promotion-action="schedule-new"]`
+        `.claim-card[data-venue-id="${venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${action}"], .claim-card[data-venue-id="${venueId}"] [data-promotion-action="create"]`
       );
       const title = action === 'delete'
         ? 'Delete this draft?'
@@ -1471,13 +1468,13 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           void loadPromotions(venueId);
           return;
         }
-        if (action === 'launch' || action === 'schedule-new') {
+        if (action === 'create') {
           openPromotionEditor(
             promotionButton,
             claim,
             'create',
             null,
-            action === 'launch' ? 'now' : 'schedule'
+            'now'
           );
           return;
         }
