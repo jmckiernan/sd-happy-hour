@@ -44,6 +44,74 @@ const { venue } = Astro.props;
     }
   </style>
 
+  <style is:global>
+    .mu-actions button[data-action="resend"],
+    .mu-actions button[data-action="remove"] {
+      align-items: center;
+      border: 1px solid transparent;
+      border-radius: 100px;
+      box-shadow: 0 2px 7px rgba(20, 27, 37, .08);
+      cursor: pointer;
+      display: inline-flex;
+      font: inherit;
+      font-size: .84rem;
+      font-weight: 750;
+      gap: 7px;
+      justify-content: center;
+      letter-spacing: .01em;
+      min-height: 40px;
+      min-width: 88px;
+      padding: 9px 15px;
+      transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease, transform .18s ease;
+    }
+    .mu-actions button[data-action="resend"] {
+      background: #fff7ed;
+      border-color: #fdba74;
+      color: #9a3412;
+    }
+    .mu-actions button[data-action="resend"]::before {
+      content: "↻";
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .mu-actions button[data-action="remove"] {
+      background: #fff;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+    .mu-actions button[data-action="remove"]::before {
+      content: "×";
+      font-size: 1.1rem;
+      line-height: .8;
+    }
+    .mu-actions button[data-action="resend"]:hover {
+      background: #ffedd5;
+      border-color: #fb923c;
+      box-shadow: 0 5px 13px rgba(154, 52, 18, .14);
+      transform: translateY(-1px);
+    }
+    .mu-actions button[data-action="remove"]:hover {
+      background: #fef2f2;
+      border-color: #f87171;
+      box-shadow: 0 5px 13px rgba(185, 28, 28, .12);
+      transform: translateY(-1px);
+    }
+    .mu-actions button[data-action]:focus-visible {
+      outline: 3px solid rgba(249, 115, 22, .3);
+      outline-offset: 2px;
+    }
+    .mu-actions button[data-action]:active {
+      box-shadow: none;
+      transform: translateY(0);
+    }
+    .mu-actions button[data-action]:disabled {
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: .55;
+      transform: none;
+    }
+  </style>
+
   <main class="mu-wrap" data-venue-id={venue.id} data-venue-name={venue.name}>
     <a class="mu-back" href="/restaurant/">← Restaurant dashboard</a>
     <h1>Managing Users</h1>
