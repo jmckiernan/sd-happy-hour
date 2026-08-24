@@ -776,14 +776,10 @@
     "days": [
       "Monday",
       "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
+      "Wednesday"
     ],
-    "startTime": "07:57",
-    "endTime": "23:57",
+    "startTime": "19:57",
+    "endTime": "20:57",
     "deals": [
       "$4 you call its"
     ],
@@ -802,6 +798,6 @@
       "date night"
     ],
     "phone": "",
-    "image": "/api/images/your-mother-s-house-1787356091402-57d84087.png"
+    "image": "/api/images/your-mother-s-house-1787550552493-33a15c16.png"
   }
 ]
