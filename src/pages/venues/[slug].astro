@@ -191,10 +191,7 @@ const heroImage = getListingImage(venue, 'hero');
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
     .btn-save.saved { background: var(--sunset-start); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
-    /* Revealed by Layout.astro's [data-admin-only] sweep, which sets
-       display:'' — hence inline-flex has to come from the .venue-actions a
-       rule above rather than from here. */
-    .btn-admin-edit { background: rgba(8, 145, 178, 0.14); color: var(--ocean-deep); }
+    .btn-admin-edit { align-items: center; background: rgba(8, 145, 178, 0.14); border-radius: 100px; color: var(--ocean-deep); display: inline-flex; font-size: .78rem; font-weight: 700; padding: 8px 14px; text-decoration: none; }
     .btn-admin-edit:hover { background: rgba(8, 145, 178, 0.26); }
 
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
@@ -338,10 +335,16 @@ const heroImage = getListingImage(venue, 'hero');
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    .back-link {
+    .venue-topbar {
       max-width: 800px;
       margin: 0 auto;
       padding: 24px 24px 0;
+      align-items: center;
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .back-link {
       display: block;
       font-size: 0.85rem;
       color: var(--night-soft);
@@ -349,7 +352,15 @@ const heroImage = getListingImage(venue, 'hero');
     }
   </style>
 
-  <a class="back-link" href="/">← Back to all happy hours</a>
+  <div class="venue-topbar">
+    <a class="back-link" href="/">← Back to all happy hours</a>
+    <a
+      class="btn-admin-edit"
+      data-admin-only
+      style="display:none;"
+      href={`/admin/venues/${slugify(venue.name)}/`}
+    >✎ Edit venue</a>
+  </div>
 
   <div class="venue-hero">
     <div
@@ -399,18 +410,12 @@ const heroImage = getListingImage(venue, 'hero');
       href={venue.phone ? `tel:${venue.phone.replace(/[^0-9+]/g, '')}` : '#'}
       style={venue.phone ? '' : 'display:none;'}
     >Call {venue.phone}</a>
-    <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id}>
+    <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id} aria-pressed="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
       </svg>
       <span id="save-label">Save</span>
     </button>
-    <a
-      class="btn-admin-edit"
-      data-admin-only
-      style="display:none;"
-      href={`/admin/venues/${slugify(venue.name)}/`}
-    >✎ Edit venue</a>
   </div>
 
   <section class="live-deal-wrap" id="live-deal-section" aria-labelledby="live-deal-title" hidden>
@@ -666,11 +671,19 @@ const heroImage = getListingImage(venue, 'hero');
     const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     const saveLabel = document.getElementById('save-label')!;
     let isSignedIn = false;
-    let isSaved = false;
+    let isSavedToDefault = false;
+    let savedState: any = null;
 
     function renderSaveState() {
-      saveBtn.classList.toggle('saved', isSaved);
-      saveLabel.textContent = isSaved ? 'Saved' : 'Save';
+      const savedVenue = savedState?.venues?.find((entry: any) => entry.venueId === venueId);
+      const defaultList = savedState?.lists?.find((entry: any) => entry.id === savedState.defaultListId);
+      isSavedToDefault = Boolean(defaultList && savedVenue?.lists?.some((membership: any) => membership.listId === defaultList.id));
+      saveBtn.classList.toggle('saved', isSavedToDefault);
+      saveBtn.disabled = false;
+      saveBtn.setAttribute('aria-pressed', String(isSavedToDefault));
+      saveLabel.textContent = isSavedToDefault
+        ? `Saved${defaultList ? ` to ${defaultList.title}` : ''}`
+        : `Save${defaultList ? ` to ${defaultList.title}` : ''}`;
     }
 
     async function init() {
@@ -678,7 +691,7 @@ const heroImage = getListingImage(venue, 'hero');
         const res = await fetch('/api/account/me');
         const session = await res.json();
         isSignedIn = Boolean(session.authenticated);
-        isSaved = Boolean(session.user?.savedSpots?.some((s: any) => s.spotId === venueId));
+        savedState = session.user?.saved || null;
         renderSaveState();
       } catch {
         // leave defaults
@@ -690,18 +703,21 @@ const heroImage = getListingImage(venue, 'hero');
         window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
-      if (isSaved) {
-        await fetch(`/api/account/spots/${venueId}`, { method: 'DELETE' });
-        isSaved = false;
-      } else {
-        await fetch(`/api/account/spots/${venueId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'favorite', note: '' }),
+      const removing = isSavedToDefault;
+      saveBtn.disabled = true;
+      saveLabel.textContent = removing ? 'Unsaving…' : 'Saving…';
+      try {
+        const response = await fetch(`/api/account/saved-venues/${venueId}`, {
+          method: removing ? 'DELETE' : 'POST',
         });
-        isSaved = true;
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((data.errors || ['Could not update the default list.']).join(' '));
+        savedState = data.saved;
+      } catch (error) {
+        console.error('[venue quick save]', error);
+      } finally {
+        renderSaveState();
       }
-      renderSaveState();
     });
 
 

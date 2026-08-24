@@ -1,0 +1,858 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+
+const listId = Astro.params.id || '';
+---
+<Layout title="Shared Happy Hour List | SD Happy Hours" description="Plan happy hour together with a live shared list.">
+  <style is:global>
+    .collab-main { max-width: 980px; margin: 0 auto; padding: 28px 24px 80px; }
+    .collab-shell { display: grid; gap: 18px; }
+    .collab-panel { background: white; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); padding: 22px; }
+    .collab-head, .collab-actions, .access-row, .item-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .collab-head h1, .collab-panel h2, .list-item h2 { font-family: var(--font-display); }
+    .collab-head h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); margin: 0; }
+    .collab-panel h2 { font-size: 1.15rem; margin-bottom: 5px; }
+    .collab-muted { color: var(--night-soft); line-height: 1.55; }
+    .role-pill { background: var(--sand-warm); border-radius: 100px; color: var(--night); display: inline-flex; font-size: .75rem; font-weight: 800; padding: 7px 11px; text-transform: capitalize; }
+    .sync-pill { color: var(--night-soft); font-size: .78rem; font-weight: 700; }
+    .collab-button, .collab-link { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 750; padding: 11px 18px; text-decoration: none; }
+    .collab-button:hover, .collab-link:hover { background: var(--sunset-start); }
+    .collab-button.secondary, .collab-link.secondary { background: var(--sand-warm); color: var(--night); }
+    .collab-button.danger { background: #991b1b; }
+    .collab-button.small { padding: 7px 11px; font-size: .78rem; }
+    .collab-button:disabled { cursor: default; opacity: .6; }
+    .collab-form { display: grid; gap: 12px; }
+    .collab-form label { color: var(--night-soft); display: grid; font-size: .72rem; font-weight: 800; gap: 6px; letter-spacing: .05em; text-transform: uppercase; }
+    .collab-form input, .collab-form textarea, .collab-form select, .access-row select { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 10px 11px; width: 100%; }
+    .collab-form textarea { min-height: 78px; resize: vertical; }
+    .collab-form input:focus, .collab-form textarea:focus, .collab-form select:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    .inline-fields { display: grid; gap: 10px; grid-template-columns: minmax(0,1fr) auto; align-items: end; }
+    .venue-search-combobox { min-width: 0; position: relative; }
+    .venue-search-results { background: white; border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); box-shadow: 0 14px 34px rgba(15,23,42,.16); left: 0; max-height: min(320px, 48vh); overflow-y: auto; position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; }
+    .venue-search-results[hidden] { display: none; }
+    .venue-search-option { background: white; border: 0; color: var(--night); cursor: pointer; display: block; font: inherit; font-size: .88rem; font-weight: 650; letter-spacing: 0; padding: 11px 13px; text-align: left; text-transform: none; width: 100%; }
+    .venue-search-option + .venue-search-option { border-top: 1px solid var(--sand-warm); }
+    .venue-search-option:hover, .venue-search-option.active { background: var(--sand); }
+    .venue-search-empty { color: var(--night-soft); font-size: .84rem; font-weight: 650; letter-spacing: 0; padding: 12px 13px; text-transform: none; }
+    .list-items, .access-list { display: grid; gap: 12px; margin-top: 15px; }
+    .list-item, .access-row { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); padding: 16px; }
+    .list-item h2 { font-size: 1.05rem; margin-bottom: 4px; }
+    .list-item-meta { color: var(--night-soft); font-size: .86rem; line-height: 1.5; }
+    .list-item-actions { display: flex; gap: 8px; align-items: center; }
+    .list-feedback { border-top: 1px solid var(--sand-warm); display: grid; gap: 10px; margin-top: 13px; padding-top: 13px; }
+    .list-feedback textarea { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; min-height: 78px; padding: 10px 11px; resize: vertical; width: 100%; }
+    .list-feedback textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    .feedback-row, .settings-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .setting-check { align-items: center; color: var(--night); display: inline-flex !important; flex-direction: row; font-size: .84rem !important; gap: 7px !important; letter-spacing: 0 !important; text-transform: none !important; }
+    .setting-check input { width: 17px !important; }
+    .star-rating { display: inline-flex; gap: 2px; }
+    .star-rating .star { background: none; border: 0; color: var(--sand-warm); cursor: pointer; font-size: 1.35rem; line-height: 1; padding: 2px; }
+    .star-rating .star.filled { color: var(--sunset-start); }
+    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); font-size: .82rem; padding: 9px 11px; }
+    .share-dialog { background: transparent; border: 0; margin: auto; max-height: min(88vh, 900px); padding: 0; width: min(760px, calc(100vw - 32px)); }
+    .share-dialog::backdrop { background: rgba(15, 23, 42, .68); }
+    .share-modal { background: white; border-radius: var(--radius); box-shadow: 0 24px 72px rgba(15, 23, 42, .28); max-height: min(88vh, 900px); overflow: auto; padding: 22px; }
+    .share-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .share-close { background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 1.2rem; line-height: 1; padding: 8px 10px; }
+    .share-close:hover { background: #ead7bd; }
+    .share-panel { display: grid; gap: 20px; }
+    .share-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+    .share-box { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; }
+    .share-box h3 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 5px; }
+    .share-box .collab-button { justify-self: start; width: auto; }
+    .access-person { min-width: 0; }
+    .access-person strong, .access-person span { display: block; overflow: hidden; text-overflow: ellipsis; }
+    .access-person span { color: var(--night-soft); font-size: .82rem; }
+    .access-link-copy { display: flex; align-items: center; gap: 8px; margin-top: 9px; max-width: 520px; }
+    .access-link-copy input { background: white; border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night-soft); font: inherit; font-size: .78rem; min-width: 0; padding: 7px 9px; width: min(380px, 52vw); }
+    .access-controls { display: flex; gap: 8px; align-items: center; }
+    .access-controls select { min-width: 105px; padding: 7px 9px; }
+    .invite-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm); display: grid; gap: 10px; padding: 16px; }
+    .collab-status { color: var(--night-soft); font-size: .88rem; font-weight: 650; min-height: 1.35em; }
+    .collab-status.error { color: #b91c1c; }
+    .empty-list { color: var(--night-soft); font-weight: 650; padding: 16px 0; }
+    .hidden { display: none !important; }
+    @media (max-width: 720px) {
+      .share-grid, .inline-fields { grid-template-columns: 1fr; }
+      .inline-fields .collab-button { justify-self: start; }
+      .collab-head { align-items: flex-start; flex-direction: column; }
+      .access-row { align-items: stretch; }
+      .access-controls { justify-content: space-between; }
+      .access-link-copy { align-items: stretch; flex-direction: column; }
+      .access-link-copy input { width: 100%; }
+    }
+  </style>
+
+  <main class="collab-main" id="collab-app" data-list-id={listId}>
+    <div class="collab-shell">
+      <a class="collab-link secondary" href="/account/#section-lists" style="justify-self:start;">← My lists</a>
+
+      <section class="collab-panel" id="loading-panel">
+        <p class="collab-muted">Loading the live list…</p>
+      </section>
+
+      <section class="invite-banner hidden" id="invite-banner"></section>
+
+      <section class="collab-panel hidden" id="list-panel">
+        <div class="collab-head">
+          <div>
+            <div class="collab-actions" style="justify-content:flex-start;margin-bottom:8px;">
+              <span class="role-pill" id="role-pill">Viewer</span>
+              <span class="sync-pill" id="sync-pill">Live list</span>
+            </div>
+            <h1 id="list-title">Happy Hour List</h1>
+            <p class="collab-muted" id="list-owner"></p>
+          </div>
+          <button class="collab-button secondary hidden" id="share-toggle" type="button">Share</button>
+        </div>
+
+        <p class="collab-muted" id="list-description" style="margin-top:14px;"></p>
+
+        <form class="collab-form hidden" id="details-form" style="margin-top:18px;">
+          <label>List title <input name="title" maxlength="80" required></label>
+          <label>Description (optional) <textarea name="description" maxlength="500"></textarea></label>
+          <div class="settings-row hidden" id="list-settings-fields">
+            <label class="setting-check"><input type="checkbox" name="ratingsEnabled"> Enable star ratings</label>
+            <label class="setting-check"><input type="checkbox" name="commentsEnabled"> Enable comments</label>
+          </div>
+          <p class="collab-muted hidden" id="ratings-rule"></p>
+          <div class="collab-actions" style="justify-content:flex-start;">
+            <span class="collab-status" id="details-status" aria-live="polite">Changes save automatically.</span>
+          </div>
+        </form>
+
+        <form class="collab-form hidden" id="list-alerts-form" style="margin-top:18px;border-top:1px solid var(--sand-warm);padding-top:18px;">
+          <div>
+            <h2>Your alerts for this list</h2>
+            <p class="collab-muted">These settings are personal. They do not change anyone else’s alerts.</p>
+          </div>
+          <div class="settings-row">
+            <label class="setting-check"><input type="checkbox" name="happyHour"> Happy-hour alerts</label>
+            <label class="setting-check"><input type="checkbox" name="liveDeals"> Live-deal alerts</label>
+          </div>
+          <div class="settings-row">
+            <label class="setting-check"><input type="checkbox" name="email"> Email</label>
+            <label class="setting-check"><input type="checkbox" name="text"> Text</label>
+          </div>
+          <div class="collab-actions" style="justify-content:flex-start;">
+            <button class="collab-button secondary small" id="turn-off-list-alerts" type="button">Turn alerts off</button>
+            <span class="collab-status" id="list-alerts-status" aria-live="polite">Changes save automatically.</span>
+          </div>
+        </form>
+      </section>
+
+      <dialog class="share-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
+        <div class="share-modal">
+          <div class="share-panel" id="share-panel">
+            <div class="share-modal-head">
+              <div>
+                <h2 id="share-dialog-title">Share this list</h2>
+                <p class="collab-muted">One live list, shared with everyone who has access.</p>
+              </div>
+              <button class="share-close" id="share-close" type="button" aria-label="Close sharing">×</button>
+            </div>
+            <div class="share-grid hidden" id="share-owner-tools">
+              <form class="collab-form share-box" id="email-invite-form">
+                <h3>Invite someone</h3>
+                <p class="collab-muted">They’ll also see the invite in My Stuff when the email matches their account.</p>
+                <label>Email <input name="email" type="email" autocomplete="email" required></label>
+                <label>Access
+                  <select name="role"><option value="editor">Can edit</option><option value="viewer">Can view</option></select>
+                </label>
+                <button class="collab-button small" type="submit">Send invite</button>
+              </form>
+              <div class="share-box collab-form">
+                <h3>Invite by link</h3>
+                <p class="collab-muted">Create a reusable secure link. You can copy it again below until it expires or you revoke it.</p>
+                <label>Access
+                  <select id="link-role"><option value="viewer">Can view</option><option value="editor">Can edit after joining</option></select>
+                </label>
+                <button class="collab-button small" id="copy-list-link" type="button">Copy share link</button>
+              </div>
+            </div>
+            <p class="collab-status" id="share-status" aria-live="polite"></p>
+            <div>
+              <h2>Who has access</h2>
+              <div class="access-list" id="access-list"></div>
+            </div>
+            <button class="collab-button danger small hidden" id="delete-list" type="button" style="justify-self:start;">Delete list</button>
+          </div>
+        </div>
+      </dialog>
+
+      <section class="collab-panel hidden" id="items-panel">
+        <div class="collab-head">
+          <div>
+            <h2>Happy hour spots</h2>
+            <p class="collab-muted" id="item-count"></p>
+          </div>
+        </div>
+        <form class="collab-form hidden" id="add-venue-form" style="margin-top:16px;">
+          <div class="inline-fields">
+            <label>Search venues
+              <div class="venue-search-combobox" id="venue-search-combobox">
+                <input type="search" id="venue-search" name="venueSearch" placeholder="Type a venue or neighborhood…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="venue-search-results" required>
+                <div class="venue-search-results" id="venue-search-results" role="listbox" hidden></div>
+              </div>
+            </label>
+            <button class="collab-button" id="add-venue-button" type="submit" disabled>Add to list</button>
+          </div>
+        </form>
+        <p class="collab-status" id="item-status" aria-live="polite"></p>
+        <div class="list-items" id="list-items"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const app = document.getElementById('collab-app')!;
+    const listId = app.dataset.listId!;
+    let inviteToken = new URLSearchParams(window.location.search).get('invite');
+    let list: any = null;
+    let allVenues: any[] = [];
+    let access: any[] = [];
+    let availableVenues: any[] = [];
+    let lastVersion = '';
+    let firstLoad = true;
+    let detailsSaveTimer: number | null = null;
+    let detailsSaveRevision = 0;
+    let detailsSavePending = false;
+    let alertsSaveRevision = 0;
+    let alertsSavePending = false;
+    let activeVenueResult = -1;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    async function requestJson(path: string, options: RequestInit = {}) {
+      const response = await fetch(path, options);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error((data.errors || ['Request failed.']).join(' '));
+      return data;
+    }
+
+    function jsonOptions(method: string, body: unknown): RequestInit {
+      return { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+    }
+
+    function setStatus(id: string, message: string, isError = false) {
+      const element = document.getElementById(id)!;
+      element.textContent = message;
+      element.classList.toggle('error', isError);
+    }
+
+    function roleLabel(role: string) {
+      return role === 'owner' ? 'Owner' : role === 'editor' ? 'Can edit' : 'View only';
+    }
+
+    function venueOptionLabel(venue: any) {
+      return `${venue.name} · ${venue.neighborhood}`;
+    }
+
+    function matchingVenues() {
+      const search = document.getElementById('venue-search') as HTMLInputElement;
+      const query = search.value.trim().toLowerCase();
+      if (!query) return availableVenues;
+      return availableVenues.filter((venue) =>
+        venue.name.toLowerCase().includes(query) || venue.neighborhood.toLowerCase().includes(query)
+      );
+    }
+
+    function closeVenueSearch() {
+      const search = document.getElementById('venue-search') as HTMLInputElement;
+      const results = document.getElementById('venue-search-results')!;
+      results.hidden = true;
+      search.setAttribute('aria-expanded', 'false');
+      search.removeAttribute('aria-activedescendant');
+      activeVenueResult = -1;
+    }
+
+    function renderVenueSearchResults() {
+      const search = document.getElementById('venue-search') as HTMLInputElement;
+      const results = document.getElementById('venue-search-results')!;
+      const matches = matchingVenues();
+      if (!matches.length) {
+        results.innerHTML = '<div class="venue-search-empty">No matching venues.</div>';
+        search.removeAttribute('aria-activedescendant');
+        activeVenueResult = -1;
+      } else {
+        if (activeVenueResult < 0 || activeVenueResult >= matches.length) activeVenueResult = 0;
+        results.innerHTML = matches.map((venue, index) => `
+          <button
+            class="venue-search-option${index === activeVenueResult ? ' active' : ''}"
+            id="venue-search-option-${venue.id}"
+            type="button"
+            role="option"
+            aria-selected="${index === activeVenueResult}"
+            data-venue-result="${venue.id}"
+          >${escapeHTML(venueOptionLabel(venue))}</button>
+        `).join('');
+        search.setAttribute('aria-activedescendant', `venue-search-option-${matches[activeVenueResult].id}`);
+      }
+      results.hidden = false;
+      search.setAttribute('aria-expanded', 'true');
+    }
+
+    function chooseVenueResult(venue: any) {
+      const search = document.getElementById('venue-search') as HTMLInputElement;
+      search.value = venueOptionLabel(venue);
+      document.getElementById('add-venue-button')!.removeAttribute('disabled');
+      setStatus('item-status', '');
+      search.focus();
+      closeVenueSearch();
+    }
+
+    function feedbackMarkup(item: any) {
+      const mine = item.myFeedback || {};
+      const rating = Number(mine.rating) || 0;
+      const stars = [1, 2, 3, 4, 5].map((value) => `
+        <button type="button" class="star${value <= rating ? ' filled' : ''}" data-value="${value}" aria-label="${value} star${value === 1 ? '' : 's'}">★</button>
+      `).join('');
+      const contributions = (item.feedback || []).map((entry: any) => `
+        <div class="feedback-entry"><strong>${escapeHTML(entry.userName || 'List member')}</strong>${entry.rating ? ` · ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}` : ''}${entry.comment ? `<div>${escapeHTML(entry.comment)}</div>` : ''}</div>
+      `).join('');
+      const canContribute = list.canEdit && (list.ratingsEnabled || list.commentsEnabled);
+      if (!canContribute && !contributions) return '';
+      return `<div class="list-feedback">
+        ${canContribute ? `
+          <div class="feedback-row">${list.ratingsEnabled ? `<div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating">${stars}</div>` : ''}</div>
+          ${list.commentsEnabled ? `<textarea data-feedback-comment maxlength="500" placeholder="Add your comment…">${escapeHTML(mine.comment || '')}</textarea>` : ''}
+          <div><button class="collab-button small" data-save-feedback type="button">Save notes</button></div>
+        ` : ''}
+        ${contributions ? `<div class="list-feedback">${contributions}</div>` : ''}
+      </div>`;
+    }
+
+    function renderInviteBanner(authenticated: boolean) {
+      const banner = document.getElementById('invite-banner')!;
+      if (!list.inviteId || list.access.isMember) {
+        banner.classList.add('hidden');
+        return;
+      }
+      banner.classList.remove('hidden');
+      const message = list.role === 'editor'
+        ? 'You were invited to collaborate. Join the list to add and remove venues.'
+        : 'You were invited to view this live list. Join it so it stays easy to find in My Stuff.';
+      const action = authenticated
+        ? '<button class="collab-button" id="accept-invite" type="button">Join list</button>'
+        : `<a class="collab-link" href="/account/?next=${encodeURIComponent(window.location.pathname + window.location.search)}">Sign in to join</a>`;
+      banner.innerHTML = `<strong>${escapeHTML(message)}</strong><div>${action}</div>`;
+      document.getElementById('accept-invite')?.addEventListener('click', acceptInvite);
+    }
+
+    function renderItems() {
+      const container = document.getElementById('list-items')!;
+      document.getElementById('item-count')!.textContent = `${list.items.length} spot${list.items.length === 1 ? '' : 's'} · synced for everyone`;
+      if (!list.items.length) {
+        container.innerHTML = `<div class="empty-list">${list.canEdit ? 'Start the list by adding a venue above.' : 'No venues have been added yet.'}</div>`;
+      } else {
+        container.innerHTML = list.items.map((item: any) => `
+          <article class="list-item" data-venue-id="${item.venueId}">
+            <div class="item-head">
+              <div>
+                <h2>${escapeHTML(item.venue.name)}</h2>
+                <p class="list-item-meta">${escapeHTML(item.venue.neighborhood)} · ${escapeHTML((item.venue.deals || []).slice(0, 3).join(' · '))}</p>
+              </div>
+              <div class="list-item-actions">
+                <a class="collab-link secondary small" href="/venues/${escapeHTML(item.venue.slug)}/">View venue</a>
+                ${list.canEdit ? '<button class="collab-button secondary small" data-remove-venue type="button">Remove</button>' : ''}
+              </div>
+            </div>
+            ${feedbackMarkup(item)}
+          </article>`).join('');
+      }
+
+      const selectedIds = new Set(list.items.map((item: any) => item.venueId));
+      availableVenues = allVenues
+        .filter((venue) => !selectedIds.has(venue.id))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      const search = document.getElementById('venue-search') as HTMLInputElement;
+      const isKnownVenue = allVenues.some((venue) => venueOptionLabel(venue) === search.value);
+      if (isKnownVenue && !availableVenues.some((venue) => venueOptionLabel(venue) === search.value)) search.value = '';
+      document.getElementById('add-venue-button')!.toggleAttribute(
+        'disabled',
+        !availableVenues.some((venue) => venueOptionLabel(venue) === search.value)
+      );
+      if (document.activeElement === search) renderVenueSearchResults();
+      else closeVenueSearch();
+    }
+
+    function renderList(authenticated: boolean) {
+      document.getElementById('loading-panel')!.classList.add('hidden');
+      document.getElementById('list-panel')!.classList.remove('hidden');
+      document.getElementById('items-panel')!.classList.remove('hidden');
+      document.getElementById('list-title')!.textContent = list.title;
+      document.getElementById('list-owner')!.textContent = `Created by ${list.ownerName || 'an SD Happy Hours member'}`;
+      document.getElementById('list-description')!.textContent = list.description || 'No description yet.';
+      document.getElementById('role-pill')!.textContent = roleLabel(list.role);
+      document.getElementById('share-toggle')!.classList.toggle('hidden', !list.access.isMember);
+      document.getElementById('details-form')!.classList.toggle('hidden', !list.canEdit);
+      document.getElementById('add-venue-form')!.classList.toggle('hidden', !list.canEdit);
+      document.getElementById('list-alerts-form')!.classList.toggle('hidden', !list.access.isMember);
+      document.getElementById('share-owner-tools')!.classList.toggle('hidden', !list.canManageSharing);
+      document.getElementById('delete-list')!.classList.toggle('hidden', list.role !== 'owner' || Boolean(list.systemKey));
+      const titleInput = document.querySelector('#details-form input[name="title"]') as HTMLInputElement;
+      titleInput.disabled = Boolean(list.systemKey);
+      const settings = document.getElementById('list-settings-fields')!;
+      settings.classList.toggle('hidden', list.role !== 'owner');
+      const ratingsInput = document.querySelector('#details-form input[name="ratingsEnabled"]') as HTMLInputElement;
+      const commentsInput = document.querySelector('#details-form input[name="commentsEnabled"]') as HTMLInputElement;
+      ratingsInput.disabled = Boolean(list.systemKey);
+      if (!detailsSavePending) {
+        titleInput.value = list.title;
+        (document.querySelector('#details-form textarea[name="description"]') as HTMLTextAreaElement).value = list.description || '';
+        ratingsInput.checked = Boolean(list.ratingsEnabled);
+        commentsInput.checked = Boolean(list.commentsEnabled);
+      }
+      const rule = document.getElementById('ratings-rule')!;
+      rule.classList.toggle('hidden', !list.systemKey || list.role !== 'owner');
+      rule.textContent = list.systemKey === 'want_to_try'
+        ? 'Want to Try never shows star ratings.'
+        : list.systemKey
+          ? 'Star ratings are always available on this built-in list, but giving a rating is optional.'
+          : '';
+      const subscription = list.subscription;
+      const alertsForm = document.getElementById('list-alerts-form') as HTMLFormElement;
+      if (!alertsSavePending) {
+        (alertsForm.elements.namedItem('happyHour') as HTMLInputElement).checked = subscription?.happyHour ?? false;
+        (alertsForm.elements.namedItem('liveDeals') as HTMLInputElement).checked = subscription?.liveDeals ?? false;
+        (alertsForm.elements.namedItem('email') as HTMLInputElement).checked = subscription?.email ?? false;
+        (alertsForm.elements.namedItem('text') as HTMLInputElement).checked = subscription?.text ?? false;
+      }
+      document.getElementById('turn-off-list-alerts')!.classList.toggle('hidden', !subscription);
+      renderInviteBanner(authenticated);
+      renderItems();
+    }
+
+    async function loadList(track = false, force = false) {
+      const query = new URLSearchParams();
+      if (inviteToken) query.set('invite', inviteToken);
+      if (track) query.set('track', '1');
+      try {
+        const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}?${query}`);
+        if (!force && !firstLoad && data.list.updatedAt === lastVersion) return;
+        list = data.list;
+        lastVersion = list.updatedAt;
+        firstLoad = false;
+        renderList(data.authenticated);
+      } catch (error: any) {
+        if (firstLoad) {
+          document.getElementById('loading-panel')!.innerHTML = `<p class="collab-status error">${escapeHTML(error.message)}</p><a class="collab-link secondary" href="/account/#section-lists">Back to My lists</a>`;
+        }
+      }
+    }
+
+    async function loadAccess() {
+      try {
+        const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}/shares`);
+        access = data.access;
+        renderAccess();
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    }
+
+    function renderAccess() {
+      const container = document.getElementById('access-list')!;
+      container.innerHTML = access.map((entry) => {
+        const displayName = entry.name || entry.email;
+        const detail = entry.name
+          ? entry.email
+          : entry.inviteUrl
+            ? `Reusable link · expires ${new Date(entry.expiresAt).toLocaleDateString()}`
+            : entry.kind === 'invite'
+              ? 'Pending invitation'
+              : '';
+        const reusableLink = entry.inviteUrl
+          ? `<div class="access-link-copy">
+              <input data-existing-share-link aria-label="Reusable share link" value="${escapeHTML(entry.inviteUrl)}" readonly>
+              <button class="collab-button secondary small" data-copy-existing-link data-role="${escapeHTML(entry.role)}" type="button">Copy link</button>
+            </div>`
+          : '';
+        const controls = list.canManageSharing && entry.kind !== 'owner'
+          ? `<div class="access-controls">
+              <select data-access-role aria-label="Access for ${escapeHTML(displayName)}">
+                <option value="editor" ${entry.role === 'editor' ? 'selected' : ''}>Can edit</option>
+                <option value="viewer" ${entry.role === 'viewer' ? 'selected' : ''}>Can view</option>
+              </select>
+              <button class="collab-button secondary small" data-remove-access type="button">${entry.kind === 'invite' ? 'Revoke' : 'Remove'}</button>
+            </div>`
+          : `<span class="role-pill">${escapeHTML(roleLabel(entry.role))}</span>`;
+        return `<div class="access-row" data-access-id="${escapeHTML(entry.id)}">
+          <div class="access-person"><strong>${escapeHTML(displayName)}</strong>${detail ? `<span>${escapeHTML(detail)}</span>` : ''}${reusableLink}</div>
+          ${controls}
+        </div>`;
+      }).join('');
+    }
+
+    async function acceptInvite() {
+      try {
+        setStatus('share-status', 'Joining list…');
+        await requestJson(
+          `/api/list-invites/${encodeURIComponent(list.inviteId)}/accept`,
+          jsonOptions('POST', { token: inviteToken })
+        );
+        inviteToken = null;
+        window.history.replaceState({}, '', window.location.pathname);
+        firstLoad = true;
+        await loadList(false, true);
+      } catch (error: any) {
+        const banner = document.getElementById('invite-banner')!;
+        banner.insertAdjacentHTML('beforeend', `<p class="collab-status error">${escapeHTML(error.message)}</p>`);
+      }
+    }
+
+    function detailsBody() {
+      const form = document.getElementById('details-form') as HTMLFormElement;
+      const body: Record<string, unknown> = {
+        description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
+      };
+      if (!list.systemKey) body.title = (form.elements.namedItem('title') as HTMLInputElement).value;
+      if (list.role === 'owner') {
+        body.ratingsEnabled = (form.elements.namedItem('ratingsEnabled') as HTMLInputElement).checked;
+        body.commentsEnabled = (form.elements.namedItem('commentsEnabled') as HTMLInputElement).checked;
+      }
+      return body;
+    }
+
+    async function saveDetails(revision: number) {
+      try {
+        setStatus('details-status', 'Saving…');
+        const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}`, jsonOptions('PUT', detailsBody()));
+        if (revision !== detailsSaveRevision) return;
+        list = { ...list, ...data.list };
+        lastVersion = list.updatedAt || lastVersion;
+        detailsSavePending = false;
+        renderList(true);
+        setStatus('details-status', 'Saved automatically.');
+      } catch (error: any) {
+        if (revision !== detailsSaveRevision) return;
+        detailsSavePending = false;
+        setStatus('details-status', error.message, true);
+      }
+    }
+
+    function scheduleDetailsSave(delay = 550) {
+      detailsSaveRevision += 1;
+      const revision = detailsSaveRevision;
+      detailsSavePending = true;
+      setStatus('details-status', 'Saving soon…');
+      if (detailsSaveTimer !== null) window.clearTimeout(detailsSaveTimer);
+      detailsSaveTimer = window.setTimeout(() => {
+        detailsSaveTimer = null;
+        void saveDetails(revision);
+      }, delay);
+    }
+
+    const detailsForm = document.getElementById('details-form') as HTMLFormElement;
+    detailsForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      scheduleDetailsSave(0);
+    });
+    detailsForm.querySelectorAll('input[name="title"], textarea').forEach((input) => {
+      input.addEventListener('input', () => scheduleDetailsSave());
+      input.addEventListener('blur', () => scheduleDetailsSave(0));
+    });
+    detailsForm.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+      input.addEventListener('change', () => scheduleDetailsSave(0));
+    });
+
+    const venueSearch = document.getElementById('venue-search') as HTMLInputElement;
+    venueSearch.addEventListener('input', () => {
+      activeVenueResult = -1;
+      const hasExactMatch = availableVenues.some((venue) => venueOptionLabel(venue) === venueSearch.value);
+      document.getElementById('add-venue-button')!.toggleAttribute('disabled', !hasExactMatch);
+      renderVenueSearchResults();
+    });
+    venueSearch.addEventListener('focus', renderVenueSearchResults);
+    venueSearch.addEventListener('keydown', (event) => {
+      const results = document.getElementById('venue-search-results')!;
+      const matches = matchingVenues();
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (results.hidden) {
+          activeVenueResult = event.key === 'ArrowDown' ? 0 : Math.max(0, matches.length - 1);
+        } else if (matches.length) {
+          const offset = event.key === 'ArrowDown' ? 1 : -1;
+          activeVenueResult = (activeVenueResult + offset + matches.length) % matches.length;
+        }
+        renderVenueSearchResults();
+      } else if (event.key === 'Enter' && !results.hidden && activeVenueResult >= 0 && matches[activeVenueResult]) {
+        event.preventDefault();
+        chooseVenueResult(matches[activeVenueResult]);
+      } else if (event.key === 'Escape') {
+        closeVenueSearch();
+      }
+    });
+    document.getElementById('venue-search-results')!.addEventListener('click', (event) => {
+      const option = (event.target as HTMLElement).closest('[data-venue-result]') as HTMLElement | null;
+      if (!option) return;
+      const venue = availableVenues.find((candidate) => candidate.id === Number(option.dataset.venueResult));
+      if (venue) chooseVenueResult(venue);
+    });
+    document.addEventListener('click', (event) => {
+      if (!(event.target as HTMLElement).closest('#venue-search-combobox')) closeVenueSearch();
+    });
+
+    document.getElementById('add-venue-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const venue = availableVenues.find((candidate) => venueOptionLabel(candidate) === venueSearch.value);
+      if (!venue) {
+        setStatus('item-status', 'Choose a venue from the search results.', true);
+        return;
+      }
+      const button = document.getElementById('add-venue-button') as HTMLButtonElement;
+      try {
+        button.disabled = true;
+        button.textContent = 'Adding…';
+        setStatus('item-status', `Adding ${venue.name}…`);
+        await requestJson(`/api/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(venue.id)}`, { method: 'PUT' });
+        await loadList(false, true);
+        setStatus('item-status', 'Added — everyone with access will see it.');
+      } catch (error: any) {
+        setStatus('item-status', error.message, true);
+      } finally {
+        button.textContent = 'Add to list';
+        button.disabled = !availableVenues.some((candidate) => venueOptionLabel(candidate) === venueSearch.value);
+      }
+    });
+
+    document.getElementById('list-items')!.addEventListener('click', async (event) => {
+      const star = (event.target as HTMLElement).closest('.star-rating .star') as HTMLButtonElement | null;
+      if (star) {
+        const group = star.closest('.star-rating') as HTMLElement;
+        const value = Number(star.dataset.value);
+        const current = Number(group.dataset.rating) || 0;
+        const next = value === current ? 0 : value;
+        group.dataset.rating = String(next);
+        group.querySelectorAll('.star').forEach((element) => {
+          element.classList.toggle('filled', Number((element as HTMLElement).dataset.value) <= next);
+        });
+        return;
+      }
+      const button = (event.target as HTMLElement).closest('[data-remove-venue], [data-save-feedback]') as HTMLButtonElement | null;
+      if (!button) return;
+      const card = button.closest('[data-venue-id]') as HTMLElement;
+      try {
+        if (button.hasAttribute('data-remove-venue')) {
+          await requestJson(`/api/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(card.dataset.venueId!)}`, { method: 'DELETE' });
+          await loadList(false, true);
+          setStatus('item-status', 'Removed from the shared list.');
+        } else {
+          const group = card.querySelector('.star-rating') as HTMLElement | null;
+          await requestJson(
+            `/api/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(card.dataset.venueId!)}/feedback`,
+            jsonOptions('PUT', {
+              rating: Number(group?.dataset.rating) || null,
+              comment: (card.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null)?.value || '',
+            })
+          );
+          await loadList(false, true);
+          setStatus('item-status', 'Your notes are saved and synced.');
+        }
+      } catch (error: any) {
+        setStatus('item-status', error.message, true);
+      }
+    });
+
+    const alertsForm = document.getElementById('list-alerts-form') as HTMLFormElement;
+
+    function alertCheckbox(name: string) {
+      return alertsForm.elements.namedItem(name) as HTMLInputElement;
+    }
+
+    async function saveAlerts(changedName?: string) {
+      const happyHour = alertCheckbox('happyHour');
+      const liveDeals = alertCheckbox('liveDeals');
+      const email = alertCheckbox('email');
+      const text = alertCheckbox('text');
+      const changed = changedName ? alertCheckbox(changedName) : null;
+      if (changed?.checked && (changedName === 'happyHour' || changedName === 'liveDeals') && !email.checked && !text.checked) {
+        email.checked = true;
+      }
+      if (changed?.checked && (changedName === 'email' || changedName === 'text') && !happyHour.checked && !liveDeals.checked) {
+        happyHour.checked = true;
+      }
+      const hasAlertType = happyHour.checked || liveDeals.checked;
+      const hasChannel = email.checked || text.checked;
+      if (!hasAlertType || !hasChannel) {
+        happyHour.checked = false;
+        liveDeals.checked = false;
+        email.checked = false;
+        text.checked = false;
+      }
+      const revision = ++alertsSaveRevision;
+      alertsSavePending = true;
+      try {
+        setStatus('list-alerts-status', 'Saving…');
+        const data = hasAlertType && hasChannel
+          ? await requestJson(`/api/lists/${encodeURIComponent(listId)}/subscription`, jsonOptions('PUT', {
+              happyHour: happyHour.checked,
+              liveDeals: liveDeals.checked,
+              email: email.checked,
+              text: text.checked,
+            }))
+          : await requestJson(`/api/lists/${encodeURIComponent(listId)}/subscription`, { method: 'DELETE' });
+        if (revision !== alertsSaveRevision) return;
+        list.subscription = data.subscription;
+        alertsSavePending = false;
+        document.getElementById('turn-off-list-alerts')!.classList.toggle('hidden', !data.subscription);
+        setStatus('list-alerts-status', data.subscription ? 'Alert settings saved automatically.' : 'Alerts are off for this list.');
+      } catch (error: any) {
+        if (revision !== alertsSaveRevision) return;
+        alertsSavePending = false;
+        setStatus('list-alerts-status', error.message, true);
+      }
+    }
+
+    alertsForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+    });
+    alertsForm.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+      input.addEventListener('change', () => void saveAlerts((input as HTMLInputElement).name));
+    });
+
+    document.getElementById('turn-off-list-alerts')!.addEventListener('click', async () => {
+      alertCheckbox('happyHour').checked = false;
+      alertCheckbox('liveDeals').checked = false;
+      alertCheckbox('email').checked = false;
+      alertCheckbox('text').checked = false;
+      await saveAlerts();
+    });
+
+    document.getElementById('share-toggle')!.addEventListener('click', async () => {
+      const dialog = document.getElementById('share-dialog') as HTMLDialogElement;
+      if (!dialog.open) dialog.showModal();
+      window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}#share`);
+      await loadAccess();
+    });
+
+    const shareDialog = document.getElementById('share-dialog') as HTMLDialogElement;
+    document.getElementById('share-close')!.addEventListener('click', () => shareDialog.close());
+    shareDialog.addEventListener('click', (event) => {
+      if (event.target === shareDialog) shareDialog.close();
+    });
+    shareDialog.addEventListener('close', () => {
+      if (window.location.hash === '#share') {
+        window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`);
+      }
+    });
+
+    document.getElementById('email-invite-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      try {
+        setStatus('share-status', 'Creating invitation…');
+        const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}/shares`, jsonOptions('POST', {
+          email: (form.elements.namedItem('email') as HTMLInputElement).value,
+          role: (form.elements.namedItem('role') as HTMLSelectElement).value,
+        }));
+        form.reset();
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(data.inviteUrl);
+          copied = true;
+        } catch {
+          // The invitation is still durable and email-bound; it will appear
+          // in My Stuff for an account using that email.
+        }
+        setStatus(
+          'share-status',
+          data.delivery?.sent
+            ? 'Invitation sent.'
+            : copied
+              ? 'Invitation created and its secure link copied.'
+              : 'Invitation created. It will appear for the matching account.'
+        );
+        await loadAccess();
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    });
+
+    document.getElementById('copy-list-link')!.addEventListener('click', async () => {
+      const role = (document.getElementById('link-role') as HTMLSelectElement).value;
+      try {
+        setStatus('share-status', 'Creating secure link…');
+        const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}/shares`, jsonOptions('POST', { role }));
+        await navigator.clipboard.writeText(data.inviteUrl);
+        await requestJson(`/api/lists/${encodeURIComponent(listId)}/activity`, jsonOptions('POST', { event: 'share_link_copied', role }));
+        setStatus('share-status', 'Share link copied.');
+        await loadAccess();
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    });
+
+    document.getElementById('access-list')!.addEventListener('change', async (event) => {
+      const select = (event.target as HTMLElement).closest('[data-access-role]') as HTMLSelectElement | null;
+      if (!select) return;
+      const row = select.closest('[data-access-id]') as HTMLElement;
+      try {
+        await requestJson(`/api/lists/${encodeURIComponent(listId)}/shares/${encodeURIComponent(row.dataset.accessId!)}`, jsonOptions('PUT', { role: select.value }));
+        setStatus('share-status', 'Access updated.');
+        await loadAccess();
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    });
+
+    document.getElementById('access-list')!.addEventListener('click', async (event) => {
+      const copyButton = (event.target as HTMLElement).closest('[data-copy-existing-link]') as HTMLButtonElement | null;
+      if (copyButton) {
+        const row = copyButton.closest('[data-access-id]') as HTMLElement;
+        const input = row.querySelector('[data-existing-share-link]') as HTMLInputElement;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          await requestJson(`/api/lists/${encodeURIComponent(listId)}/activity`, jsonOptions('POST', {
+            event: 'share_link_copied',
+            role: copyButton.dataset.role,
+          }));
+          setStatus('share-status', 'Share link copied.');
+        } catch (error: any) {
+          input.focus();
+          input.select();
+          setStatus('share-status', error.message || 'Select and copy the highlighted link.', true);
+        }
+        return;
+      }
+      const button = (event.target as HTMLElement).closest('[data-remove-access]');
+      if (!button) return;
+      const row = button.closest('[data-access-id]') as HTMLElement;
+      try {
+        await requestJson(`/api/lists/${encodeURIComponent(listId)}/shares/${encodeURIComponent(row.dataset.accessId!)}`, { method: 'DELETE' });
+        setStatus('share-status', 'Access removed.');
+        await loadAccess();
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    });
+
+    document.getElementById('delete-list')!.addEventListener('click', async () => {
+      if (!window.confirm('Delete this list for everyone? This cannot be undone.')) return;
+      try {
+        await requestJson(`/api/lists/${encodeURIComponent(listId)}`, { method: 'DELETE' });
+        window.location.href = '/account/#section-lists';
+      } catch (error: any) {
+        setStatus('share-status', error.message, true);
+      }
+    });
+
+    Promise.all([
+      fetch('/data/happy-hours.json').then((response) => response.json()).then((venues) => { allVenues = venues; }),
+      loadList(true, true),
+    ]).then(() => {
+      if (list) renderItems();
+      if (window.location.hash === '#share' && list?.access.isMember) document.getElementById('share-toggle')!.click();
+    });
+
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadList(false);
+    }, 5000);
+    window.addEventListener('focus', () => void loadList(false));
+  </script>
+</Layout>

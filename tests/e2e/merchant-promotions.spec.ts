@@ -373,6 +373,9 @@ test('Create Promotion defaults to Start Now, creates an untimed draft, starts i
   await claim.getByRole('button', { name: 'Create Promotion' }).click();
 
   const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
+  await expect(dialog).toHaveCSS('border-radius', '20px');
+  await expect(dialog).toHaveCSS('overflow', 'hidden');
+  await expect(dialog.locator('.merchant-dialog-surface')).toHaveCSS('border-radius', '20px');
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeEnabled();
   await expect(dialog.getByRole('radio', { name: 'Schedule' })).toBeEnabled();

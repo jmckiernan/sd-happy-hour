@@ -328,12 +328,44 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
     .save-panel { background: var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 8px; margin: 0 0 14px; padding: 10px; }
     .save-panel.compact { align-items: center; display: flex; justify-content: space-between; gap: 10px; }
+    .save-panel-row { align-items: center; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; }
     .save-panel select, .save-panel input { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
+    .save-list-combobox { min-width: 0; position: relative; }
+    .save-list-trigger { align-items: center; background: white; border: 2px solid rgba(15, 23, 42, .12); border-radius: 10px; color: var(--night); cursor: pointer; display: grid; font: inherit; font-size: .82rem; font-weight: 650; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; padding: 8px 10px; text-align: left; width: 100%; }
+    .save-list-trigger:hover { border-color: rgba(15, 23, 42, .24); }
+    .save-list-trigger:focus-visible, .save-list-trigger[aria-expanded="true"] { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    .save-list-trigger:disabled { cursor: default; opacity: .65; }
+    .save-list-trigger-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .save-list-trigger svg { transition: transform .18s ease; }
+    .save-list-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .save-list-options { background: white; border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); box-shadow: 0 14px 34px rgba(15,23,42,.16); left: 0; max-height: min(320px, 48vh); overflow-y: auto; position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; }
+    .save-list-options[hidden] { display: none; }
+    .save-list-option { align-items: center; background: white; border: 0; color: var(--night); cursor: pointer; display: grid; font: inherit; font-size: .82rem; font-weight: 650; gap: 8px; grid-template-columns: 16px minmax(0, 1fr); padding: 10px 12px; text-align: left; width: 100%; }
+    .save-list-option + .save-list-option { border-top: 1px solid var(--sand-warm); }
+    .save-list-option:hover, .save-list-option:focus-visible, .save-list-option.active { background: var(--sand); outline: none; }
+    .save-list-option:disabled { background: white; cursor: not-allowed; opacity: .55; }
+    .save-list-option-check { color: var(--sunset-start); font-weight: 900; visibility: hidden; }
+    .save-list-option[aria-selected="true"] .save-list-option-check { visibility: visible; }
+    .save-list-option.create { color: var(--ocean); }
+    .save-panel-row .save-action { white-space: nowrap; }
     .save-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .save-action { border: 0; border-radius: 100px; background: var(--night); color: white; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px 12px; }
     .save-action:hover { background: var(--sunset-start); }
     .save-action.secondary { background: white; color: var(--night); }
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.78rem; font-weight: 700; gap: 4px; }
+    .save-confirm.is-loading { color: var(--night-soft); }
+    .save-confirm.is-loading::before {
+      animation: save-list-spin .75s linear infinite;
+      border: 2px solid rgba(15, 23, 42, 0.16);
+      border-radius: 50%;
+      border-top-color: var(--sunset-start);
+      content: '';
+      height: 11px;
+      width: 11px;
+    }
+    @keyframes save-list-spin { to { transform: rotate(360deg); } }
+    .save-list-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .save-list-chip { background: white; border-radius: 100px; color: var(--night-soft); font-size: .7rem; font-weight: 750; padding: 5px 8px; }
 
     .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
     .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
@@ -553,6 +585,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     let markers: any[] = [];
     let accountUser: any = null;
     let saveConfirmation: { spotId: number; text: string } | null = null;
+    const pendingSaveListSelections = new Map<number, string>();
     let dayFilterInitialized = false;
     let dayFilterTouched = false;
     let automaticDayFilter = '';
@@ -815,8 +848,107 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       render();
     }
 
-    function getSavedSpot(spotId: number) {
-      return accountUser?.savedSpots?.find((item: any) => item.spotId === spotId);
+    async function loadAccountKeepingVenueInPlace(venueId: number) {
+      const selector = `[data-venue-card="${venueId}"]`;
+      const beforeTop = document.querySelector(selector)?.getBoundingClientRect().top;
+      await loadAccount();
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      const afterTop = document.querySelector(selector)?.getBoundingClientRect().top;
+      if (beforeTop !== undefined && afterTop !== undefined) {
+        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollBy(0, afterTop - beforeTop);
+        document.documentElement.style.scrollBehavior = previousScrollBehavior;
+      }
+    }
+
+    function getSavedVenue(spotId: number) {
+      return accountUser?.saved?.venues?.find((item: any) => item.venueId === spotId);
+    }
+
+    function setSaveListMenuOpen(combobox: HTMLElement, open: boolean) {
+      const trigger = combobox.querySelector('[data-list-menu-trigger]') as HTMLButtonElement | null;
+      const menu = combobox.querySelector('[data-list-menu]') as HTMLElement | null;
+      if (!trigger || !menu) return;
+      menu.hidden = !open;
+      trigger.setAttribute('aria-expanded', String(open));
+    }
+
+    function closeSaveListMenus(except?: HTMLElement) {
+      document.querySelectorAll('[data-list-menu-combobox]').forEach((element) => {
+        const combobox = element as HTMLElement;
+        if (combobox !== except) setSaveListMenuOpen(combobox, false);
+      });
+    }
+
+    async function updateSavedVenueList(
+      venueId: number,
+      listId: string,
+      picker: HTMLButtonElement,
+      actionStatus: HTMLElement | null
+    ) {
+      picker.disabled = true;
+      picker.setAttribute('aria-busy', 'true');
+      try {
+        if (listId === '__create') {
+          const title = window.prompt('Name your new list');
+          if (!title?.trim()) return;
+          if (actionStatus) {
+            actionStatus.classList.add('is-loading');
+            actionStatus.textContent = `Creating ${title.trim()}…`;
+          }
+          const response = await fetch('/api/account/lists', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description: '', venueId }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error((data.errors || ['Could not create the list.']).join(' '));
+          saveConfirmation = { spotId: venueId, text: `Added to ${data.list.title}` };
+        } else {
+          const saved = getSavedVenue(venueId);
+          const included = saved?.lists?.some((membership: any) => membership.listId === listId);
+          const selectedList = accountUser.saved?.lists?.find((list: any) => list.id === listId);
+          const oppositeKey = selectedList?.systemKey === 'want_to_try'
+            ? 'been_to'
+            : selectedList?.systemKey === 'been_to'
+              ? 'want_to_try'
+              : null;
+          const transitionedFrom = oppositeKey
+            ? saved?.lists?.find((membership: any) => membership.systemKey === oppositeKey)
+            : null;
+          if (actionStatus) {
+            actionStatus.classList.add('is-loading');
+            actionStatus.textContent = included
+              ? `Removing from ${selectedList?.title || 'list'}…`
+              : `Adding to ${selectedList?.title || 'list'}…`;
+          }
+          const response = await fetch(`/api/lists/${encodeURIComponent(listId)}/items/${venueId}`, {
+            method: included ? 'DELETE' : 'PUT',
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error((data.errors || ['Could not update the list.']).join(' '));
+          saveConfirmation = {
+            spotId: venueId,
+            text: included
+              ? `Removed from ${selectedList?.title || 'list'}`
+              : transitionedFrom
+                ? `Moved from ${transitionedFrom.title} to ${selectedList?.title}`
+                : `Added to ${selectedList?.title || 'list'}`,
+          };
+        }
+        await loadAccountKeepingVenueInPlace(venueId);
+      } catch (error: any) {
+        saveConfirmation = { spotId: venueId, text: error.message };
+        render();
+      } finally {
+        if (picker.isConnected) {
+          picker.disabled = false;
+          picker.removeAttribute('aria-busy');
+        }
+      }
     }
 
     function populateSelect(id: string, values: string[], formatter: (v: string) => string = (v) => v) {
@@ -1070,7 +1202,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
             .join('');
 
           return `
-            <article class="card ${stateClass}">
+            <article class="card ${stateClass}" data-venue-card="${h.id}">
               <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
                 <div class="card-image">
                   <img
@@ -1168,32 +1300,100 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         `;
       }
 
-      const saved = getSavedSpot(h.id);
+      const saved = getSavedVenue(h.id);
+      const lists = accountUser.saved?.lists || [];
+      const defaultList = lists.find((list: any) => list.id === accountUser.saved?.defaultListId);
+      const editableLists = lists.filter((list: any) => list.canEdit);
+      const pendingListId = pendingSaveListSelections.get(h.id);
+      const selectedListId = pendingListId === '__create' || editableLists.some((list: any) => list.id === pendingListId)
+        ? pendingListId
+        : editableLists.some((list: any) => list.id === defaultList?.id)
+          ? defaultList.id
+          : editableLists[0]?.id;
+      const pickerLabel = (list: any) => {
+        const oppositeKey = list.systemKey === 'want_to_try'
+          ? 'been_to'
+          : list.systemKey === 'been_to'
+            ? 'want_to_try'
+            : null;
+        const replaced = oppositeKey
+          ? saved?.lists?.find((membership: any) => membership.systemKey === oppositeKey)
+          : null;
+        return `${list.title}${replaced ? ` · moves from ${replaced.title}` : ''}`;
+      };
       if (!saved) {
+        const selectedListLabel = selectedListId === '__create'
+          ? 'Create a new list…'
+          : pickerLabel(editableLists.find((list: any) => list.id === selectedListId) || { title: 'Choose a list…' });
         return `
-          <div class="save-panel compact">
-            <span>Add to your happy hour list</span>
-            <button class="save-action" data-save-spot="${h.id}">Save</button>
+          <div class="save-panel">
+            <div class="save-panel-row">
+              <div class="save-list-combobox" data-list-menu-combobox data-save-list-combobox="${h.id}">
+                <button
+                  class="save-list-trigger"
+                  type="button"
+                  data-save-list-trigger="${h.id}"
+                  data-list-menu-trigger
+                  data-save-list-value="${escapeHTML(selectedListId || '__create')}"
+                  aria-label="Choose a list for ${escapeHTML(h.name)}"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="save-list-options-${h.id}"
+                >
+                  <span class="save-list-trigger-label" data-save-list-label>${escapeHTML(selectedListLabel)}</span>
+                  <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="save-list-options" id="save-list-options-${h.id}" role="listbox" aria-label="Lists for ${escapeHTML(h.name)}" data-list-menu data-save-list-menu hidden>
+                  ${editableLists.map((list: any) => {
+                    const label = pickerLabel(list);
+                    const isSelected = list.id === selectedListId;
+                    return `<button class="save-list-option${isSelected ? ' active' : ''}" type="button" role="option" aria-selected="${isSelected}" data-list-menu-option data-save-list-option="${escapeHTML(list.id)}" data-save-list-option-label="${escapeHTML(label)}"><span class="save-list-option-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></button>`;
+                  }).join('')}
+                  <button class="save-list-option create${selectedListId === '__create' ? ' active' : ''}" type="button" role="option" aria-selected="${selectedListId === '__create'}" data-list-menu-option data-save-list-option="__create" data-save-list-option-label="Create a new list…"><span class="save-list-option-check" aria-hidden="true">✓</span><span>+ Create a new list…</span></button>
+                </div>
+              </div>
+              <button class="save-action" data-save-spot="${h.id}">Save</button>
+            </div>
+            <span class="save-confirm" data-list-action-status aria-live="polite"></span>
           </div>
         `;
       }
 
-      const confirm = saveConfirmation && saveConfirmation.spotId === h.id
-        ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
+      const confirmation = saveConfirmation && saveConfirmation.spotId === h.id
+        ? `&#10003; ${escapeHTML(saveConfirmation.text)}`
         : '';
 
       return `
         <div class="save-panel" data-saved-spot="${h.id}">
-          <select data-save-status>
-            <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
-            <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
-            <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
-          </select>
-          <input data-save-note value="${escapeHTML(saved.note)}" placeholder="Private note or shareable tip" />
+          <div class="save-list-chips">
+            ${saved.lists.map((list: any) => `<span class="save-list-chip">${escapeHTML(list.title)}${list.role === 'viewer' ? ' · view only' : ''}</span>`).join('')}
+          </div>
+          <div class="save-list-combobox" data-list-menu-combobox data-manage-list-combobox="${h.id}">
+            <button
+              class="save-list-trigger"
+              type="button"
+              data-list-menu-trigger
+              data-manage-list-trigger="${h.id}"
+              aria-label="Manage lists for ${escapeHTML(h.name)}"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="manage-list-options-${h.id}"
+            >
+              <span class="save-list-trigger-label">Add or remove a list…</span>
+              <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="save-list-options" id="manage-list-options-${h.id}" role="listbox" aria-label="Manage lists for ${escapeHTML(h.name)}" aria-multiselectable="true" data-list-menu data-manage-list-menu hidden>
+              ${lists.map((list: any) => {
+                const membership = saved.lists.find((entry: any) => entry.listId === list.id);
+                const label = `${pickerLabel(list)}${!list.canEdit ? ' · view only' : ''}`;
+                return `<button class="save-list-option${membership ? ' active' : ''}" type="button" role="option" aria-selected="${Boolean(membership)}" ${!list.canEdit ? 'disabled' : ''} data-list-menu-option data-manage-list-option="${escapeHTML(list.id)}"><span class="save-list-option-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></button>`;
+              }).join('')}
+              <button class="save-list-option create" type="button" role="option" aria-selected="false" data-list-menu-option data-manage-list-option="__create"><span class="save-list-option-check" aria-hidden="true">✓</span><span>+ Create a new list…</span></button>
+            </div>
+          </div>
           <div class="save-actions">
-            <button class="save-action" data-update-spot="${h.id}">Update</button>
-            <button class="save-action secondary" data-remove-spot="${h.id}">Remove</button>
-            ${confirm}
+            <a class="save-action secondary" href="/account/#section-spots" style="text-decoration:none;">Ratings, comments &amp; details</a>
+            <span class="save-confirm" data-list-action-status aria-live="polite">${confirmation}</span>
           </div>
         </div>
       `;
@@ -1312,30 +1512,126 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         return;
       }
 
+      const manageListOption = target.closest('[data-manage-list-option]') as HTMLButtonElement | null;
+      if (manageListOption) {
+        event.preventDefault();
+        if (manageListOption.disabled) return;
+        const combobox = manageListOption.closest('[data-manage-list-combobox]') as HTMLElement | null;
+        const picker = combobox?.querySelector('[data-manage-list-trigger]') as HTMLButtonElement | null;
+        const venueId = Number(combobox?.dataset.manageListCombobox);
+        const listId = manageListOption.dataset.manageListOption;
+        const actionStatus = combobox?.closest('.save-panel')?.querySelector('[data-list-action-status]') as HTMLElement | null;
+        if (!combobox || !picker || !venueId || !listId) return;
+        setSaveListMenuOpen(combobox, false);
+        await updateSavedVenueList(venueId, listId, picker, actionStatus);
+        return;
+      }
+
+      const manageListTrigger = target.closest('[data-manage-list-trigger]') as HTMLButtonElement | null;
+      if (manageListTrigger) {
+        event.preventDefault();
+        const combobox = manageListTrigger.closest('[data-manage-list-combobox]') as HTMLElement | null;
+        if (!combobox) return;
+        const willOpen = manageListTrigger.getAttribute('aria-expanded') !== 'true';
+        closeSaveListMenus(combobox);
+        setSaveListMenuOpen(combobox, willOpen);
+        return;
+      }
+
+      const saveListOption = target.closest('[data-save-list-option]') as HTMLButtonElement | null;
+      if (saveListOption) {
+        event.preventDefault();
+        const combobox = saveListOption.closest('[data-save-list-combobox]') as HTMLElement | null;
+        const trigger = combobox?.querySelector('[data-save-list-trigger]') as HTMLButtonElement | null;
+        const label = trigger?.querySelector('[data-save-list-label]') as HTMLElement | null;
+        const value = saveListOption.dataset.saveListOption;
+        const venueId = Number(combobox?.dataset.saveListCombobox);
+        if (!combobox || !trigger || !label || !value || !venueId) return;
+        pendingSaveListSelections.set(venueId, value);
+        trigger.dataset.saveListValue = value;
+        label.textContent = saveListOption.dataset.saveListOptionLabel || saveListOption.textContent?.trim() || '';
+        combobox.querySelectorAll('[data-save-list-option]').forEach((option) => {
+          const selected = option === saveListOption;
+          option.classList.toggle('active', selected);
+          option.setAttribute('aria-selected', String(selected));
+        });
+        setSaveListMenuOpen(combobox, false);
+        trigger.focus();
+        return;
+      }
+
+      const saveListTrigger = target.closest('[data-save-list-trigger]') as HTMLButtonElement | null;
+      if (saveListTrigger) {
+        event.preventDefault();
+        const combobox = saveListTrigger.closest('[data-save-list-combobox]') as HTMLElement | null;
+        if (!combobox) return;
+        const willOpen = saveListTrigger.getAttribute('aria-expanded') !== 'true';
+        closeSaveListMenus(combobox);
+        setSaveListMenuOpen(combobox, willOpen);
+        return;
+      }
+
       const saveButton = target.closest('[data-save-spot]') as HTMLElement | null;
-      const updateButton = target.closest('[data-update-spot]') as HTMLElement | null;
-      const removeButton = target.closest('[data-remove-spot]') as HTMLElement | null;
-      const spotId = saveButton?.dataset.saveSpot || updateButton?.dataset.updateSpot || removeButton?.dataset.removeSpot;
+      const spotId = saveButton?.dataset.saveSpot;
       if (!spotId) return;
 
       event.preventDefault();
+      const venueId = Number(spotId);
+      const savePanel = saveButton.closest('.save-panel');
+      const picker = savePanel?.querySelector('[data-save-list-trigger]') as HTMLButtonElement | null;
+      const actionStatus = savePanel?.querySelector('[data-list-action-status]') as HTMLElement | null;
+      const listId = picker?.dataset.saveListValue;
+      if (!picker || !listId) return;
 
-      if (removeButton) {
-        saveConfirmation = null;
-        await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
-      } else {
-        const panel = target.closest('.save-panel');
-        await fetch(`/api/account/spots/${spotId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            status: (panel?.querySelector('[data-save-status]') as HTMLSelectElement | null)?.value || 'favorite',
-            note: (panel?.querySelector('[data-save-note]') as HTMLInputElement | null)?.value || '',
-          }),
-        });
-        saveConfirmation = { spotId: Number(spotId), text: updateButton ? 'Updated' : 'Saved' };
+      saveButton.setAttribute('aria-busy', 'true');
+      saveButton.textContent = 'Saving…';
+      saveButton.setAttribute('disabled', '');
+      picker.disabled = true;
+
+      try {
+        if (listId === '__create') {
+          const title = window.prompt('Name your new list');
+          if (!title?.trim()) return;
+          if (actionStatus) {
+            actionStatus.classList.add('is-loading');
+            actionStatus.textContent = `Creating ${title.trim()}…`;
+          }
+          const response = await fetch('/api/account/lists', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description: '', venueId }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error((data.errors || ['Could not create the list.']).join(' '));
+          saveConfirmation = { spotId: venueId, text: `Added to ${data.list.title}` };
+        } else {
+          const selectedList = accountUser.saved?.lists?.find((list: any) => list.id === listId);
+          if (actionStatus) {
+            actionStatus.classList.add('is-loading');
+            actionStatus.textContent = `Adding to ${selectedList?.title || 'list'}…`;
+          }
+          const response = await fetch(`/api/lists/${encodeURIComponent(listId)}/items/${venueId}`, {
+            method: 'PUT',
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error((data.errors || ['Could not save.']).join(' '));
+          saveConfirmation = { spotId: venueId, text: `Added to ${selectedList?.title || 'list'}` };
+        }
+        pendingSaveListSelections.delete(venueId);
+        await loadAccountKeepingVenueInPlace(venueId);
+      } catch (error: any) {
+        if (actionStatus) {
+          actionStatus.classList.remove('is-loading');
+          actionStatus.textContent = error.message;
+        }
+      } finally {
+        if (saveButton.isConnected) {
+          saveButton.removeAttribute('aria-busy');
+          saveButton.removeAttribute('disabled');
+          saveButton.textContent = 'Save';
+        }
+        if (picker.isConnected) picker.disabled = false;
       }
-      await loadAccount();
 
       if (saveConfirmation) {
         const confirmedId = saveConfirmation.spotId;
@@ -1346,6 +1642,48 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           }
         }, 2000);
       }
+    });
+
+    document.getElementById('grid')!.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement;
+      const trigger = target.closest('[data-list-menu-trigger]') as HTMLButtonElement | null;
+      if (trigger && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+        event.preventDefault();
+        const combobox = trigger.closest('[data-list-menu-combobox]') as HTMLElement | null;
+        if (!combobox) return;
+        closeSaveListMenus(combobox);
+        setSaveListMenuOpen(combobox, true);
+        const options = Array.from(combobox.querySelectorAll('[data-list-menu-option]:not(:disabled)')) as HTMLButtonElement[];
+        const selectedIndex = options.findIndex((option) => option.getAttribute('aria-selected') === 'true');
+        const nextIndex = event.key === 'ArrowUp'
+          ? (selectedIndex > 0 ? selectedIndex - 1 : options.length - 1)
+          : (selectedIndex >= 0 && selectedIndex < options.length - 1 ? selectedIndex + 1 : 0);
+        options[nextIndex]?.focus();
+        return;
+      }
+
+      const option = target.closest('[data-list-menu-option]') as HTMLButtonElement | null;
+      if (!option) return;
+      const combobox = option.closest('[data-list-menu-combobox]') as HTMLElement | null;
+      if (!combobox) return;
+      const options = Array.from(combobox.querySelectorAll('[data-list-menu-option]:not(:disabled)')) as HTMLButtonElement[];
+      const currentIndex = options.indexOf(option);
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const offset = event.key === 'ArrowDown' ? 1 : -1;
+        options[(currentIndex + offset + options.length) % options.length]?.focus();
+      } else if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        options[event.key === 'Home' ? 0 : options.length - 1]?.focus();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        setSaveListMenuOpen(combobox, false);
+        (combobox.querySelector('[data-list-menu-trigger]') as HTMLButtonElement | null)?.focus();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target as HTMLElement).closest('[data-list-menu-combobox]')) closeSaveListMenus();
     });
 
     const unsubscribeFromLivePromotions = livePromotionFeed.subscribe((snapshot) => {

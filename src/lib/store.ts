@@ -801,6 +801,8 @@ export interface NotificationLogEntry {
   userId: string;
   venueId: number;
   channel: 'email' | 'text';
+  notificationKind: 'happy_hour' | 'promotion';
+  eventKey: string | null;
   sentAt: string;
 }
 
@@ -808,11 +810,20 @@ interface NotificationLogRow {
   user_id: string;
   venue_id: number;
   channel: 'email' | 'text';
+  notification_kind: 'happy_hour' | 'promotion';
+  event_key: string | null;
   sent_at: string;
 }
 
 function mapNotification(row: NotificationLogRow): NotificationLogEntry {
-  return { userId: row.user_id, venueId: row.venue_id, channel: row.channel, sentAt: row.sent_at };
+  return {
+    userId: row.user_id,
+    venueId: row.venue_id,
+    channel: row.channel,
+    notificationKind: row.notification_kind,
+    eventKey: row.event_key,
+    sentAt: row.sent_at,
+  };
 }
 
 // Everything at or after `sinceIso` — the dispatch job passes the earlier of
@@ -820,7 +831,17 @@ function mapNotification(row: NotificationLogRow): NotificationLogEntry {
 // (see notify.ts).
 export async function listNotificationsSince(sinceIso: string): Promise<NotificationLogEntry[]> {
   const rows = await sql<NotificationLogRow>`
-    SELECT user_id, venue_id, channel, sent_at FROM notification_log WHERE sent_at >= ${sinceIso}`;
+    SELECT user_id, venue_id, channel, notification_kind, event_key, sent_at
+    FROM notification_log WHERE sent_at >= ${sinceIso}`;
+  return rows.map(mapNotification);
+}
+
+export async function listNotificationsForEventKeys(eventKeys: string[]): Promise<NotificationLogEntry[]> {
+  if (!eventKeys.length) return [];
+  const rows = await sql<NotificationLogRow>`
+    SELECT user_id, venue_id, channel, notification_kind, event_key, sent_at
+    FROM notification_log
+    WHERE notification_kind = 'promotion' AND event_key = ANY(${eventKeys}::text[])`;
   return rows.map(mapNotification);
 }
 
@@ -828,7 +849,13 @@ export async function insertNotifications(entries: NotificationLogEntry[]): Prom
   if (!entries.length) return;
   await withTransaction(async (txSql) => {
     for (const entry of entries) {
-      await txSql`INSERT INTO notification_log (user_id, venue_id, channel, sent_at) VALUES (${entry.userId}, ${entry.venueId}, ${entry.channel}, ${entry.sentAt})`;
+      await txSql`
+        INSERT INTO notification_log (
+          user_id, venue_id, channel, notification_kind, event_key, sent_at
+        ) VALUES (
+          ${entry.userId}, ${entry.venueId}, ${entry.channel},
+          ${entry.notificationKind}, ${entry.eventKey}, ${entry.sentAt}
+        )`;
     }
   });
 }

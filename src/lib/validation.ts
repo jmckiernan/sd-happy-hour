@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
+import type { UnifiedSavedState } from './savedLists';
 import { PROMOTION_TYPES, type PromotionType } from './promotionState';
 import { parseInstant, type InstantInput } from './sanDiegoTime';
 
@@ -9,9 +10,8 @@ import { parseInstant, type InstantInput } from './sanDiegoTime';
 // signature change: since saved spots and alerts are now separate tables
 // instead of nested on the User object, callers fetch them via store.ts
 // (listSavedSpots/listAlerts) and pass them in explicitly. The JSON shape
-// returned to the client is unchanged — every existing frontend call site
-// (account.astro, index.astro) still reads `currentUser.savedSpots` /
-// `currentUser.alerts` off the response.
+// returned to older clients is preserved while the unified `saved` object
+// carries canonical multi-list memberships for current frontend call sites.
 //
 // publicRestaurant() is gone — restaurants no longer have a separate
 // account to redact a password from (2026-08-12 redesign). VenueClaim
@@ -19,13 +19,19 @@ import { parseInstant, type InstantInput } from './sanDiegoTime';
 // to clients as-is.
 // ---------------------------------------------------------------------------
 
-export function publicUser(user: User, savedSpots: SavedSpot[], alerts: Alert[]) {
+export function publicUser(
+  user: User,
+  savedSpots: SavedSpot[],
+  alerts: Alert[],
+  saved?: UnifiedSavedState
+) {
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     shareId: user.shareId,
     savedSpots,
+    ...(saved ? { saved } : {}),
     alerts,
     phone: user.phone || '',
     smsOptedIn: Boolean(user.smsConsentAt),

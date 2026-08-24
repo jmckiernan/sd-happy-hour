@@ -2,7 +2,7 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="My Stuff | SD Happy Hours" description="Saved spots, alerts, and account preferences, all in one place.">
+<Layout title="My Stuff | SD Happy Hours" description="Shared lists, saved spots, alerts, and account preferences, all in one place.">
   <style is:global>
     .account-main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 80px; }
 
@@ -27,8 +27,9 @@ import Layout from '../layouts/Layout.astro';
 
     form { display: grid; gap: 12px; }
     label { color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700; gap: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-    input { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 11px 12px; width: 100%; }
-    input:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
+    input, textarea { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 11px 12px; width: 100%; }
+    textarea { min-height: 72px; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
     select { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; }
 
     button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
@@ -72,6 +73,16 @@ import Layout from '../layouts/Layout.astro';
     .stuff-nav a:hover { background: var(--sunset-end); color: var(--night); }
 
     .saved-grid { display: grid; gap: 14px; }
+    .custom-list-create { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); align-items: end; gap: 12px; margin-top: 14px; }
+    .custom-list-create .form-actions, .list-create-options { grid-column: 1 / -1; }
+    .list-create-options { display: flex; gap: 18px; flex-wrap: wrap; }
+    .custom-lists-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+    .custom-list-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 13px; padding: 17px; }
+    .custom-list-card h3 { font-family: var(--font-display); margin-bottom: 4px; }
+    .custom-list-meta { color: var(--night-soft); font-size: .84rem; line-height: 1.5; }
+    .custom-list-role { background: var(--sand-warm); border-radius: 100px; display: inline-flex; font-size: .72rem; font-weight: 800; padding: 6px 9px; text-transform: capitalize; }
+    .pending-invites { display: grid; gap: 10px; margin-top: 16px; }
+    .pending-invite { align-items: center; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm); display: flex; gap: 12px; justify-content: space-between; padding: 13px; flex-wrap: wrap; }
     .saved-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 12px; padding: 16px; }
     .saved-card h3 { font-family: var(--font-display); margin-bottom: 4px; }
     .saved-meta { color: var(--night-soft); font-size: 0.88rem; }
@@ -95,6 +106,17 @@ import Layout from '../layouts/Layout.astro';
     .star-rating.is-previewing .star { color: var(--sand-warm); }
     .star-rating.is-previewing .star.preview { color: var(--sunset-start); }
     .saved-edit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .list-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+    .list-chip { align-items: center; background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); display: inline-flex; font: inherit; font-size: .76rem; font-weight: 750; gap: 7px; line-height: 1; padding: 7px 10px; }
+    button.list-chip { cursor: pointer; }
+    button.list-chip:hover { background: #fee2e2; color: #991b1b; }
+    .list-chip-remove { color: var(--night-soft); font-size: 1rem; line-height: 1; }
+    .saved-list-tools { display: grid; gap: 9px; grid-template-columns: minmax(180px, 260px) minmax(180px, 260px); }
+    .inline-list-create { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm); display: grid; gap: 9px; padding: 12px; }
+    .feedback-contributions { display: grid; gap: 7px; }
+    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); font-size: .82rem; padding: 9px 11px; }
+    .list-alert-controls { border-top: 1px solid var(--sand-warm); display: grid; gap: 9px; margin-top: 2px; padding-top: 11px; }
+    .default-list-control { min-width: min(100%, 270px); }
 
     /* Buttons are direct children of a single-column grid form, which would
        stretch them edge to edge. Wrapping them in a flex row keeps them at
@@ -102,6 +124,19 @@ import Layout from '../layouts/Layout.astro';
        spot and alert cards. */
     .form-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.82rem; font-weight: 700; gap: 4px; }
+    .list-action-status { min-height: 1.25em; }
+    .list-action-status.is-loading { color: var(--night-soft); }
+    .list-action-status.error { color: #b91c1c; }
+    .list-action-status.is-loading::before {
+      animation: list-action-spin .75s linear infinite;
+      border: 2px solid var(--sand-warm);
+      border-radius: 50%;
+      border-top-color: var(--sunset-start);
+      content: '';
+      height: 12px;
+      width: 12px;
+    }
+    @keyframes list-action-spin { to { transform: rotate(360deg); } }
 
     /* Alerts section */
     .alert-form { display: grid; gap: 12px; }
@@ -144,12 +179,14 @@ import Layout from '../layouts/Layout.astro';
     @media (max-width: 820px) {
       .auth-grid { grid-template-columns: 1fr; }
       .account-head { align-items: stretch; flex-direction: column; }
+      .custom-list-create, .custom-lists-grid { grid-template-columns: 1fr; }
+      .saved-list-tools { grid-template-columns: 1fr; }
     }
   </style>
 
   <header class="page-header hidden" id="page-header">
     <h1 id="header-title">Sign In</h1>
-    <p id="header-subtitle">Sign in to save favorites, set up custom alerts, and manage your preferences.</p>
+    <p id="header-subtitle">Sign in to build and share happy hour lists, save favorites, and manage alerts.</p>
   </header>
 
   <main class="account-main">
@@ -202,18 +239,42 @@ import Layout from '../layouts/Layout.astro';
 
       <div id="stuff-nav-sentinel" aria-hidden="true"></div>
       <nav class="stuff-nav">
-        <a href="#section-spots">Saved Spots</a>
+        <a href="#section-lists">My Lists</a>
+        <a href="#section-spots">All Saved Spots</a>
         <a href="#section-alerts">Alerts</a>
         <a href="#section-preferences">Preferences</a>
         <a href="#section-profile">Profile</a>
       </nav>
 
+      <section class="panel" id="section-lists">
+        <div class="account-head">
+          <div>
+            <h2>Your lists</h2>
+            <p class="hint" id="list-count-hint" style="margin-bottom:0;">Three built-in lists plus up to seven custom lists.</p>
+          </div>
+          <label class="default-list-control">Default quick-save list
+            <select id="default-list-select" aria-label="Default quick-save list"></select>
+          </label>
+        </div>
+        <form class="custom-list-create" id="create-list-form">
+          <label>List title <input name="title" maxlength="80" placeholder="Friday night picks" required></label>
+          <label>Description (optional) <input name="description" maxlength="500" placeholder="Patios and cocktails near North Park"></label>
+          <div class="list-create-options">
+            <label class="channel-check"><input type="checkbox" name="ratingsEnabled"> Enable star ratings</label>
+            <label class="channel-check"><input type="checkbox" name="commentsEnabled"> Enable comments</label>
+          </div>
+          <div class="form-actions"><button type="submit">Create list</button></div>
+        </form>
+        <div class="status" id="create-list-status" aria-live="polite"></div>
+        <div class="pending-invites" id="pending-list-invites"></div>
+        <div class="custom-lists-grid" id="custom-lists-grid"></div>
+      </section>
+
       <section class="panel" id="section-spots">
         <div class="account-head">
-          <h2>Saved spots</h2>
-          <div class="actions">
-            <a class="secondary" id="share-link" href="#" style="display:inline-flex;align-items:center;padding:11px 18px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Open shared list</a>
-            <button class="secondary" id="copy-share">Copy share link</button>
+          <div>
+            <h2>All Saved Spots</h2>
+            <p class="hint" style="margin-bottom:0;">Every venue from every list you can access, shown once.</p>
           </div>
         </div>
         <div id="saved-grid" class="saved-grid"></div>
@@ -279,6 +340,7 @@ import Layout from '../layouts/Layout.astro';
 
     let currentUser: any = null;
     let happyHours: any[] = [];
+    let customListState: any = { lists: [], pendingInvites: [] };
     let saveConfirmation: { spotId: number; text: string } | null = null;
     let alertSaveConfirmation: { alertId: string; text: string } | null = null;
 
@@ -361,11 +423,29 @@ import Layout from '../layouts/Layout.astro';
       // and re-checking the nav on each of those is pure wasted round trips.
       const signedInChanged = Boolean(currentUser) !== Boolean(nextUser);
       currentUser = nextUser;
+      if (currentUser) await loadCustomLists();
+      else customListState = { lists: [], pendingInvites: [] };
       render();
       if (signedInChanged) announceAuthChange();
       const nextPath = new URLSearchParams(window.location.search).get('next');
       if (currentUser && nextPath?.startsWith('/') && !nextPath.startsWith('//')) {
         window.location.replace(nextPath);
+      }
+    }
+
+    async function loadAccountKeepingVenueInPlace(venueId: number) {
+      const selector = `.saved-card[data-id="${venueId}"]`;
+      const beforeTop = document.querySelector(selector)?.getBoundingClientRect().top;
+      await loadAccount();
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      const afterTop = document.querySelector(selector)?.getBoundingClientRect().top;
+      if (beforeTop !== undefined && afterTop !== undefined) {
+        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        window.scrollBy(0, afterTop - beforeTop);
+        document.documentElement.style.scrollBehavior = previousScrollBehavior;
       }
     }
 
@@ -489,16 +569,17 @@ import Layout from '../layouts/Layout.astro';
       const headerSubtitle = document.getElementById('header-subtitle')!;
       if (currentUser) {
         headerTitle.textContent = 'My Stuff';
-        headerSubtitle.textContent = 'Saved spots, alerts, and account preferences, all in one place.';
+        headerSubtitle.textContent = 'Shared lists, saved spots, alerts, and preferences, all in one place.';
       } else {
         headerTitle.textContent = 'Sign In';
-        headerSubtitle.textContent = 'Sign in to save favorites, set up custom alerts, and manage your preferences.';
+        headerSubtitle.textContent = 'Sign in to build and share happy hour lists, save favorites, and manage alerts.';
       }
 
       if (!currentUser) return;
 
       document.getElementById('account-subtitle')!.textContent = currentUser.email;
 
+      renderCustomLists();
       renderSavedSpots();
       renderCreateAlertForm();
       renderAlertsList();
@@ -507,62 +588,133 @@ import Layout from '../layouts/Layout.astro';
     }
 
     // ---------------------------------------------------------------------
+    // Custom collaborative lists
+    // ---------------------------------------------------------------------
+
+    async function loadCustomLists() {
+      try {
+        const response = await fetch('/api/account/lists');
+        const data = await response.json();
+        customListState = response.ok ? data : { lists: [], pendingInvites: [] };
+      } catch {
+        customListState = { lists: [], pendingInvites: [] };
+      }
+    }
+
+    function accessLabel(role: string) {
+      return role === 'owner' ? 'Owner' : role === 'editor' ? 'Can edit' : 'View only';
+    }
+
+    function renderCustomLists() {
+      const invites = document.getElementById('pending-list-invites')!;
+      const pending = customListState.pendingInvites || [];
+      invites.innerHTML = pending.length
+        ? `<h3 style="font-family:var(--font-display);font-size:1rem;">Invitations</h3>` + pending.map((invite: any) => `
+          <div class="pending-invite" data-invite-id="${escapeHTML(invite.id)}">
+            <div>
+              <strong>${escapeHTML(invite.title)}</strong>
+              <div class="custom-list-meta">${escapeHTML(invite.ownerName)} invited you · ${escapeHTML(accessLabel(invite.role))}</div>
+            </div>
+            <button type="button" data-accept-list-invite>Join list</button>
+          </div>`).join('')
+        : '';
+
+      const grid = document.getElementById('custom-lists-grid')!;
+      const lists = customListState.lists || [];
+      const ownedCustomCount = lists.filter((list: any) => list.role === 'owner' && !list.systemKey).length;
+      document.getElementById('list-count-hint')!.textContent = `${ownedCustomCount} of 7 custom lists used · built-in lists cannot be deleted.`;
+      const defaultSelect = document.getElementById('default-list-select') as HTMLSelectElement;
+      const editableLists = lists.filter((list: any) => list.canEdit !== false && list.role !== 'viewer');
+      defaultSelect.innerHTML = editableLists.map((list: any) => `
+        <option value="${escapeHTML(list.id)}" ${list.isDefault ? 'selected' : ''}>${escapeHTML(list.title)}${list.role === 'owner' ? '' : ` · shared by ${escapeHTML(list.ownerName)}`}</option>
+      `).join('');
+      if (!lists.length) {
+        grid.innerHTML = '<div class="empty">Your built-in lists are being prepared. Refresh in a moment.</div>';
+        return;
+      }
+      grid.innerHTML = lists.map((list: any) => {
+        const subscription = list.subscription;
+        const alertLabel = subscription
+          ? [subscription.happyHour ? 'happy hours' : '', subscription.liveDeals ? 'live deals' : ''].filter(Boolean).join(' + ')
+          : 'off';
+        return `
+        <article class="custom-list-card">
+          <div>
+            <div class="actions" style="justify-content:space-between;align-items:center;margin-bottom:7px;">
+              <div class="actions">
+                <span class="custom-list-role">${escapeHTML(accessLabel(list.role))}</span>
+                ${list.systemKey ? '<span class="custom-list-role">Built in</span>' : ''}
+                ${list.isDefault ? '<span class="custom-list-role">Default save</span>' : ''}
+              </div>
+              <span class="custom-list-meta">${list.itemCount} spot${list.itemCount === 1 ? '' : 's'}</span>
+            </div>
+            <h3>${escapeHTML(list.title)}</h3>
+            <p class="custom-list-meta">${escapeHTML(list.description || (list.role === 'owner' ? 'Private until you share it.' : `Shared by ${list.ownerName}`))}</p>
+            <p class="custom-list-meta">Ratings ${list.ratingsEnabled ? 'on' : 'off'} · Comments ${list.commentsEnabled ? 'on' : 'off'} · Your alerts ${escapeHTML(alertLabel)}</p>
+          </div>
+          <div class="actions">
+            <a class="secondary" href="/lists/${encodeURIComponent(list.id)}/" style="display:inline-flex;align-items:center;padding:9px 15px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Open list</a>
+            ${list.role === 'owner' ? `<a class="secondary" href="/lists/${encodeURIComponent(list.id)}/#share" style="display:inline-flex;align-items:center;padding:9px 15px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Share</a>` : ''}
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    document.getElementById('create-list-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget as HTMLFormElement;
+      const status = document.getElementById('create-list-status')!;
+      const button = form.querySelector('button') as HTMLButtonElement;
+      status.classList.remove('error');
+      status.textContent = 'Creating…';
+      button.disabled = true;
+      try {
+        const data = await postJson('/api/account/lists', {
+          title: (form.elements.namedItem('title') as HTMLInputElement).value,
+          description: (form.elements.namedItem('description') as HTMLInputElement).value,
+          ratingsEnabled: (form.elements.namedItem('ratingsEnabled') as HTMLInputElement).checked,
+          commentsEnabled: (form.elements.namedItem('commentsEnabled') as HTMLInputElement).checked,
+        });
+        window.location.href = `/lists/${encodeURIComponent(data.list.id)}/`;
+      } catch (error: any) {
+        status.classList.add('error');
+        status.textContent = error.message;
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('default-list-select')!.addEventListener('change', async (event) => {
+      const select = event.currentTarget as HTMLSelectElement;
+      select.disabled = true;
+      try {
+        await postJson('/api/account/default-list', { listId: select.value }, 'PUT');
+        await loadAccount();
+      } catch (error: any) {
+        document.getElementById('create-list-status')!.classList.add('error');
+        document.getElementById('create-list-status')!.textContent = error.message;
+      } finally {
+        select.disabled = false;
+      }
+    });
+
+    document.getElementById('pending-list-invites')!.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('[data-accept-list-invite]');
+      if (!button) return;
+      const invite = button.closest('[data-invite-id]') as HTMLElement;
+      try {
+        const data = await postJson(`/api/list-invites/${encodeURIComponent(invite.dataset.inviteId!)}/accept`, {});
+        window.location.href = `/lists/${encodeURIComponent(data.listId)}/`;
+      } catch (error: any) {
+        document.getElementById('create-list-status')!.textContent = error.message;
+        document.getElementById('create-list-status')!.classList.add('error');
+      }
+    });
+
+    // ---------------------------------------------------------------------
     // Saved spots
     // ---------------------------------------------------------------------
 
-    function getSavedSpot(spotId: number) {
-      return currentUser?.savedSpots?.find((item: any) => item.spotId === spotId);
-    }
-
-    function renderSavedSpots() {
-      const shareUrl = `${window.location.origin}/list/?id=${encodeURIComponent(currentUser.shareId)}`;
-      (document.getElementById('share-link') as HTMLAnchorElement).href = shareUrl;
-
-      const savedGrid = document.getElementById('saved-grid')!;
-      if (!currentUser.savedSpots.length) {
-        savedGrid.innerHTML = '<div class="empty">No saved spots yet. Head back to the homepage and save a few.</div>';
-        return;
-      }
-
-      savedGrid.innerHTML = currentUser.savedSpots.map((saved: any) => {
-        const spot = happyHours.find((item) => item.id === saved.spotId);
-        if (!spot) return '';
-        const confirm = saveConfirmation && saveConfirmation.spotId === saved.spotId
-          ? `<span class="save-confirm">&#10003; ${escapeHTML(saveConfirmation.text)}</span>`
-          : '';
-        const canRate = saved.status === 'favorite' || saved.status === 'been-to';
-        const rating = Number(saved.rating) || 0;
-        const stars = [1, 2, 3, 4, 5].map((n) =>
-          `<button type="button" class="star${n <= rating ? ' filled' : ''}" data-value="${n}" aria-label="${n} star${n === 1 ? '' : 's'}">&#9733;</button>`
-        ).join('');
-        return `
-          <article class="saved-card" data-id="${saved.spotId}">
-            <div>
-              <h3>${escapeHTML(spot.name)}</h3>
-              <div class="saved-meta">${escapeHTML(spot.neighborhood)} · ${escapeHTML(spot.deals.slice(0, 2).join(' · '))}</div>
-            </div>
-            <div class="saved-edit">
-              <div class="saved-edit-row">
-                <select data-field="status">
-                  <option value="favorite" ${saved.status === 'favorite' ? 'selected' : ''}>Favorite</option>
-                  <option value="want-to-try" ${saved.status === 'want-to-try' ? 'selected' : ''}>Want to try</option>
-                  <option value="been-to" ${saved.status === 'been-to' ? 'selected' : ''}>Been to</option>
-                </select>
-                <div class="star-rating${canRate ? '' : ' hidden'}" data-field="rating" data-rating="${rating}" role="group" aria-label="Your rating">
-                  ${stars}
-                </div>
-              </div>
-              <textarea data-field="note" placeholder="Add a note for friends or future you...">${escapeHTML(saved.note)}</textarea>
-              <div class="saved-edit-actions">
-                <button data-action="save">Save</button>
-                <button class="secondary" data-action="remove">Remove</button>
-                ${confirm}
-              </div>
-            </div>
-          </article>
-        `;
-      }).join('');
-    }
+    const activeFeedbackListByVenue = new Map<number, string>();
 
     function paintStars(container: HTMLElement, rating: number) {
       container.dataset.rating = String(rating);
@@ -572,8 +724,6 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    // Light up 1..value so the visitor can see the rating a click would set,
-    // rather than only the single star under the pointer.
     function previewStars(container: HTMLElement, value: number) {
       container.classList.add('is-previewing');
       container.querySelectorAll('.star').forEach((el) => {
@@ -586,40 +736,182 @@ import Layout from '../layouts/Layout.astro';
       container.querySelectorAll('.star').forEach((el) => el.classList.remove('preview'));
     }
 
+    function renderFeedback(membership: any) {
+      if (!membership) return '';
+      const mine = membership.myFeedback || {};
+      const rating = Number(mine.rating) || 0;
+      const stars = [1, 2, 3, 4, 5].map((n) =>
+        `<button type="button" class="star${n <= rating ? ' filled' : ''}" data-value="${n}" aria-label="${n} star${n === 1 ? '' : 's'}">&#9733;</button>`
+      ).join('');
+      const contributions = (membership.feedback || []).map((entry: any) => `
+        <div class="feedback-entry">
+          <strong>${escapeHTML(entry.userName || 'List member')}</strong>
+          ${entry.rating ? ` · ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}` : ''}
+          ${entry.comment ? `<div>${escapeHTML(entry.comment)}</div>` : ''}
+        </div>`).join('');
+      const editable = membership.canEdit && (membership.ratingsEnabled || membership.commentsEnabled);
+      return `
+        <div class="saved-edit" data-feedback-list="${escapeHTML(membership.listId)}">
+          ${editable ? `<div class="saved-edit-row">
+            ${membership.ratingsEnabled ? `<div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating for ${escapeHTML(membership.title)}">${stars}</div>` : ''}
+          </div>
+          ${membership.commentsEnabled ? `<textarea data-feedback-comment placeholder="Add your comment to ${escapeHTML(membership.title)}...">${escapeHTML(mine.comment || '')}</textarea>` : ''}
+          <div class="saved-edit-actions"><button type="button" data-action="save-feedback">Save notes</button></div>` : ''}
+          ${!editable && !(membership.feedback || []).length ? '<div class="saved-meta">Ratings and comments are not available for this list.</div>' : ''}
+          ${contributions ? `<div class="feedback-contributions">${contributions}</div>` : ''}
+        </div>`;
+    }
+
+    function renderSavedSpots() {
+      const state = currentUser.saved || { lists: [], venues: [], defaultListId: '' };
+      const savedGrid = document.getElementById('saved-grid')!;
+      if (!state.venues.length) {
+        savedGrid.innerHTML = '<div class="empty">No saved spots yet. Save a venue from the homepage or add one to a list.</div>';
+        return;
+      }
+      const ownedCustomCount = state.lists.filter((list: any) => list.role === 'owner' && !list.systemKey).length;
+      savedGrid.innerHTML = state.venues.map((saved: any) => {
+        const spot = happyHours.find((item) => item.id === saved.venueId);
+        if (!spot) return '';
+        const currentActive = activeFeedbackListByVenue.get(saved.venueId);
+        const active = saved.lists.find((list: any) => list.listId === currentActive) || saved.lists[0];
+        activeFeedbackListByVenue.set(saved.venueId, active.listId);
+        const includedIds = new Set(saved.lists.map((list: any) => list.listId));
+        const available = state.lists.filter((list: any) => list.canEdit && !includedIds.has(list.id));
+        const chips = saved.lists.map((list: any) => list.canEdit
+          ? `<button type="button" class="list-chip" data-action="remove-list"
+              data-list-id="${escapeHTML(list.listId)}" data-list-title="${escapeHTML(list.title)}"
+              data-venue-id="${saved.venueId}"
+              aria-label="Remove ${escapeHTML(spot.name)} from ${escapeHTML(list.title)}">
+              <span>${escapeHTML(list.title)}</span><span class="list-chip-remove" aria-hidden="true">×</span>
+            </button>`
+          : `<span class="list-chip">${escapeHTML(list.title)} · view only</span>`
+        ).join('');
+        const addOptions = available.map((list: any) => {
+          const oppositeKey = list.systemKey === 'want_to_try'
+            ? 'been_to'
+            : list.systemKey === 'been_to'
+              ? 'want_to_try'
+              : null;
+          const replaced = oppositeKey
+            ? saved.lists.find((membership: any) => membership.systemKey === oppositeKey)
+            : null;
+          const moveNote = replaced ? ` · moves from ${replaced.title}` : '';
+          return `<option value="${escapeHTML(list.id)}">${escapeHTML(list.title + moveNote)}</option>`;
+        }).join('');
+        const createOption = ownedCustomCount < 7
+          ? '<option value="__create">+ Create a new list…</option>'
+          : '<option value="" disabled>7 custom-list limit reached</option>';
+        return `
+          <article class="saved-card" data-id="${saved.venueId}">
+            <div>
+              <h3><a href="/venues/${escapeHTML(spot.slug || spot.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))}/">${escapeHTML(spot.name)}</a></h3>
+              <div class="saved-meta">${escapeHTML(spot.neighborhood)} · ${escapeHTML(spot.deals.slice(0, 2).join(' · '))}</div>
+            </div>
+            <div class="list-chips">${chips}</div>
+            <div class="save-confirm list-action-status" data-list-action-status role="status" aria-live="polite">
+              ${saveConfirmation?.spotId === saved.venueId ? `✓ ${escapeHTML(saveConfirmation.text)}` : ''}
+            </div>
+            <div class="saved-list-tools">
+              <label>Add to another list
+                <select data-add-list>
+                  <option value="">Choose a list…</option>
+                  ${addOptions}
+                  ${createOption}
+                </select>
+              </label>
+              <label>Rating and comments for
+                <select data-detail-list>
+                  ${saved.lists.map((list: any) => `<option value="${escapeHTML(list.listId)}" ${list.listId === active.listId ? 'selected' : ''}>${escapeHTML(list.title)}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <div class="inline-list-create hidden" data-inline-create>
+              <label>New list title <input data-new-list-title maxlength="80" placeholder="Weekend picks"></label>
+              <label>Description (optional) <input data-new-list-description maxlength="500"></label>
+              <div class="list-create-options">
+                <label class="channel-check"><input type="checkbox" data-new-list-ratings> Enable star ratings</label>
+                <label class="channel-check"><input type="checkbox" data-new-list-comments> Enable comments</label>
+              </div>
+              <div class="saved-edit-actions">
+                <button type="button" data-action="create-list-here">Create and add</button>
+                <button type="button" class="secondary" data-action="cancel-create-list">Cancel</button>
+              </div>
+            </div>
+            ${renderFeedback(active)}
+          </article>`;
+      }).join('');
+    }
+
     function starIn(target: EventTarget | null) {
       return (target as HTMLElement | null)?.closest?.('.star-rating .star') as HTMLElement | null;
     }
 
-    // mouseover/mouseout (not mouseenter/leave) because these are delegated
-    // off the grid, which re-renders its cards on every save.
     for (const enterEvent of ['mouseover', 'focusin']) {
       document.getElementById('saved-grid')!.addEventListener(enterEvent, (event) => {
         const star = starIn(event.target);
-        if (!star) return;
-        previewStars(star.closest('.star-rating') as HTMLElement, Number(star.dataset.value));
+        if (star) previewStars(star.closest('.star-rating') as HTMLElement, Number(star.dataset.value));
       });
     }
-
     for (const leaveEvent of ['mouseout', 'focusout']) {
       document.getElementById('saved-grid')!.addEventListener(leaveEvent, (event) => {
         const star = starIn(event.target);
         if (!star) return;
         const container = star.closest('.star-rating') as HTMLElement;
-        // Sliding from star 3 to star 4 fires mouseout on 3 before mouseover
-        // on 4; clearing here would flicker the whole row off in between.
         const next = (event as MouseEvent | FocusEvent).relatedTarget as Node | null;
-        if (next && container.contains(next)) return;
-        clearStarPreview(container);
+        if (!next || !container.contains(next)) clearStarPreview(container);
       });
     }
 
-    document.getElementById('saved-grid')!.addEventListener('change', (event) => {
-      const select = event.target as HTMLElement;
-      if (select.dataset.field !== 'status') return;
-      const card = select.closest('.saved-card') as HTMLElement;
-      const stars = card.querySelector('.star-rating') as HTMLElement;
-      const status = (select as HTMLSelectElement).value;
-      stars.classList.toggle('hidden', !(status === 'favorite' || status === 'been-to'));
+    document.getElementById('saved-grid')!.addEventListener('change', async (event) => {
+      const select = event.target as HTMLSelectElement;
+      const card = select.closest('.saved-card') as HTMLElement | null;
+      if (!card) return;
+      const venueId = Number(card.dataset.id);
+      if (select.matches('[data-detail-list]')) {
+        activeFeedbackListByVenue.set(venueId, select.value);
+        renderSavedSpots();
+        return;
+      }
+      if (!select.matches('[data-add-list]') || !select.value) return;
+      if (select.value === '__create') {
+        card.querySelector('[data-inline-create]')!.classList.remove('hidden');
+        (card.querySelector('[data-new-list-title]') as HTMLInputElement).focus();
+        return;
+      }
+      select.disabled = true;
+      try {
+        const state = currentUser.saved || { lists: [], venues: [] };
+        const destination = state.lists.find((list: any) => list.id === select.value);
+        const savedVenue = state.venues.find((venue: any) => venue.venueId === venueId);
+        const oppositeKey = destination?.systemKey === 'want_to_try'
+          ? 'been_to'
+          : destination?.systemKey === 'been_to'
+            ? 'want_to_try'
+            : null;
+        const transitionedFrom = oppositeKey
+          ? savedVenue?.lists.find((list: any) => list.systemKey === oppositeKey)
+          : null;
+        const actionStatus = card.querySelector('[data-list-action-status]')!;
+        actionStatus.classList.add('is-loading');
+        actionStatus.textContent = `Adding to ${destination?.title || 'list'}…`;
+        card.setAttribute('aria-busy', 'true');
+        await postJson(`/api/lists/${encodeURIComponent(select.value)}/items/${venueId}`, {}, 'PUT');
+        saveConfirmation = {
+          spotId: venueId,
+          text: transitionedFrom
+            ? `Moved from ${transitionedFrom.title} to ${destination.title}`
+            : `Added to ${destination?.title || 'list'}`,
+        };
+        await loadAccountKeepingVenueInPlace(venueId);
+      } catch (error: any) {
+        const actionStatus = card.querySelector('[data-list-action-status]')!;
+        actionStatus.classList.remove('is-loading');
+        actionStatus.textContent = error.message;
+        actionStatus.classList.add('error');
+        card.removeAttribute('aria-busy');
+        select.disabled = false;
+      }
     });
 
     document.getElementById('saved-grid')!.addEventListener('click', async (event) => {
@@ -631,45 +923,75 @@ import Layout from '../layouts/Layout.astro';
         paintStars(container, clicked === current ? 0 : clicked);
         return;
       }
-
       const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
-
       const card = button.closest('.saved-card') as HTMLElement;
-      const spotId = card.dataset.id;
-      if (button.dataset.action === 'remove') {
-        saveConfirmation = null;
-        await fetch(`/api/account/spots/${spotId}`, { method: 'DELETE' });
-      } else {
-        const ratingEl = card.querySelector('.star-rating') as HTMLElement;
-        const rating = Number(ratingEl.dataset.rating) || 0;
-        await fetch(`/api/account/spots/${spotId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            status: (card.querySelector('[data-field="status"]') as HTMLSelectElement).value,
-            note: (card.querySelector('[data-field="note"]') as HTMLTextAreaElement).value,
-            rating: rating || null,
-          }),
-        });
-        saveConfirmation = { spotId: Number(spotId), text: 'Updated' };
-      }
-      await loadAccount();
-
-      if (saveConfirmation) {
-        const confirmedId = saveConfirmation.spotId;
-        setTimeout(() => {
-          if (saveConfirmation && saveConfirmation.spotId === confirmedId) {
-            saveConfirmation = null;
-            renderSavedSpots();
+      const venueId = Number(card.dataset.id);
+      const action = button.dataset.action;
+      try {
+        if (action === 'remove-list') {
+          const requestedListId = button.dataset.listId!;
+          const requestedVenueId = Number(button.dataset.venueId);
+          const membership = currentUser.saved?.venues
+            ?.find((venue: any) => venue.venueId === requestedVenueId)
+            ?.lists.find((list: any) => list.listId === requestedListId);
+          if (!membership) {
+            await loadAccount();
+            throw new Error('That list membership changed. Please try again.');
           }
-        }, 2000);
+          button.disabled = true;
+          const actionStatus = card.querySelector('[data-list-action-status]')!;
+          actionStatus.classList.add('is-loading');
+          actionStatus.textContent = `Removing from ${button.dataset.listTitle || membership.title}…`;
+          await postJson(`/api/lists/${encodeURIComponent(requestedListId)}/items/${requestedVenueId}`, {}, 'DELETE');
+          saveConfirmation = {
+            spotId: requestedVenueId,
+            text: `Removed from ${button.dataset.listTitle || membership.title}`,
+          };
+          await loadAccountKeepingVenueInPlace(requestedVenueId);
+          return;
+        }
+        if (action === 'cancel-create-list') {
+          card.querySelector('[data-inline-create]')!.classList.add('hidden');
+          (card.querySelector('[data-add-list]') as HTMLSelectElement).value = '';
+          return;
+        }
+        if (action === 'create-list-here') {
+          const title = (card.querySelector('[data-new-list-title]') as HTMLInputElement).value;
+          if (!title.trim()) throw new Error('Give the new list a title.');
+          button.disabled = true;
+          const actionStatus = card.querySelector('[data-list-action-status]')!;
+          actionStatus.classList.add('is-loading');
+          actionStatus.textContent = `Creating ${title.trim()} and adding this spot…`;
+          const data = await postJson('/api/account/lists', {
+            title,
+            description: (card.querySelector('[data-new-list-description]') as HTMLInputElement).value,
+            ratingsEnabled: (card.querySelector('[data-new-list-ratings]') as HTMLInputElement).checked,
+            commentsEnabled: (card.querySelector('[data-new-list-comments]') as HTMLInputElement).checked,
+            venueId,
+          });
+          activeFeedbackListByVenue.set(venueId, data.list.id);
+          saveConfirmation = { spotId: venueId, text: `Added to ${data.list.title}` };
+          await loadAccountKeepingVenueInPlace(venueId);
+          return;
+        }
+        if (action === 'save-feedback') {
+          const feedback = card.querySelector('[data-feedback-list]') as HTMLElement;
+          const ratingEl = feedback.querySelector('.star-rating') as HTMLElement | null;
+          await postJson(`/api/lists/${encodeURIComponent(feedback.dataset.feedbackList!)}/items/${venueId}/feedback`, {
+            rating: Number(ratingEl?.dataset.rating) || null,
+            comment: (feedback.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null)?.value || '',
+          }, 'PUT');
+          saveConfirmation = { spotId: venueId, text: 'Notes saved' };
+          await loadAccount();
+        }
+      } catch (error: any) {
+        button.disabled = false;
+        const actionStatus = card.querySelector('[data-list-action-status]')!;
+        actionStatus.classList.remove('is-loading');
+        actionStatus.classList.add('error');
+        actionStatus.textContent = error.message;
       }
-    });
-
-    document.getElementById('copy-share')!.addEventListener('click', async () => {
-      await navigator.clipboard.writeText((document.getElementById('share-link') as HTMLAnchorElement).href);
-      document.getElementById('account-subtitle')!.textContent = 'Share link copied.';
     });
 
     // ---------------------------------------------------------------------

@@ -1,5 +1,11 @@
 import type { APIRoute } from 'astro';
-import { getUserById, upsertSavedSpot, deleteSavedSpot, listSavedSpots, listAlerts } from '../../../../lib/store';
+import { getUserById, listAlerts } from '../../../../lib/store';
+import { addVenueToHappyHourList } from '../../../../lib/sharedLists';
+import {
+  getUnifiedSavedState,
+  projectLegacySavedSpots,
+  replaceVenueFeedback,
+} from '../../../../lib/savedLists';
 import { publicUser, cleanString } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
@@ -49,23 +55,29 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     }
   }
 
-  // One entry per venue per user, upserted atomically (UNIQUE (user_id,
-  // venue_id) — README-NEON-MIGRATION.md §5) instead of the old
-  // find-or-unshift against the whole savedSpots array.
-  await upsertSavedSpot(user.id, { venueId: spotId, status: status as any, note, rating });
-  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
-  return json(publicUser(user, savedSpots, alerts));
+  const saved = await getUnifiedSavedState(user.id);
+  const systemKey = status === 'favorite'
+    ? 'favorites'
+    : status === 'want-to-try'
+      ? 'want_to_try'
+      : 'been_to';
+  const target = saved.lists.find((list) => list.systemKey === systemKey && list.role === 'owner');
+  if (!target) return errorJson(['Built-in list not found.'], 409);
+  const result = await addVenueToHappyHourList(target.id, user.id, spotId);
+  if (result === 'forbidden') return errorJson(['Could not edit the built-in list.'], 403);
+  if (result === 'full') return errorJson(['The selected list is full.'], 409);
+  if (note || rating) {
+    await replaceVenueFeedback(target.id, spotId, user.id, { comment: note, rating });
+  }
+  const [nextSaved, alerts] = await Promise.all([getUnifiedSavedState(user.id), listAlerts(user.id)]);
+  return json(publicUser(user, projectLegacySavedSpots(nextSaved), alerts, nextSaved));
 };
 
 export const DELETE: APIRoute = async ({ params, cookies }) => {
   const session = await getSession(cookies);
   if (!session || session.role !== 'user') return errorJson(['User login required.'], 401);
 
-  const user = await getUserById(session.userId);
-  if (!user) return errorJson(['User not found.'], 404);
-
-  const spotId = Number(params.id);
-  await deleteSavedSpot(user.id, spotId);
-  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
-  return json(publicUser(user, savedSpots, alerts));
+  return errorJson([
+    'Saved venues can belong to several lists. Remove the venue from the specific list instead.',
+  ], 409);
 };

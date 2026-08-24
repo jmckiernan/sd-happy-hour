@@ -92,6 +92,19 @@ test('manager listing form distinguishes venue hours from happy-hour hours', () 
   assert.doesNotMatch(html, /<label>End time<\/label>/);
 });
 
+test('venue page keeps one default-list quick-save action without a list picker', async () => {
+  const venuePage = await readFile(path.join(ROOT, 'src', 'pages', 'venues', '[slug].astro'), 'utf8');
+
+  assert.match(venuePage, /\.venue-actions\s*\{[^}]*display:\s*flex;/s);
+  assert.match(venuePage, /<div class="venue-topbar">[\s\S]*?class="back-link"[\s\S]*?class="btn-admin-edit"[\s\S]*?<\/div>/);
+  assert.match(venuePage, /<div class="venue-actions">[\s\S]*?id="venue-website"[\s\S]*?id="venue-call"[\s\S]*?id="save-btn"[\s\S]*?<\/div>/);
+  assert.match(venuePage, /savedState\.defaultListId/);
+  assert.match(venuePage, /membership\.listId === defaultList\.id/);
+  assert.match(venuePage, /method:\s*removing \? 'DELETE' : 'POST'/);
+  assert.match(venuePage, /aria-pressed="false"/);
+  assert.doesNotMatch(venuePage, /venue-list-picker|venue-list-memberships|Add or remove a list/);
+});
+
 test('featured picker displays the current admin image and offers no empty-image choice', () => {
   const adminImage = '/api/images/admin-featured-craft-commerce.png';
   const albumImage = '/api/images/owner-album-photo.png';

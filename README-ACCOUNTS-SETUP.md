@@ -3,7 +3,8 @@
 This restores a feature that existed on `main` (commit "Add backend submissions and saved lists") before this branch converted the site to Astro. It's been reimplemented to fit the new setup — Netlify Functions instead of a self-hosted Node server — but the behavior is the same:
 
 - **Google Sign-In** at `/account/` (with an email/password fallback if Google isn't configured yet).
-- **Saved lists** — click the bookmark icon on any homepage card or venue page to save it as a favorite / want-to-try / been-to, with an optional note. Share a read-only link to your list from `/account/`.
+- **Unified saved lists** — every account gets Favorites, Want to Try, and Been To, can create seven additional named lists, and can choose any editable list as the default bookmark destination. All Saved Spots shows each venue once with every list it belongs to.
+- **Collaborative lists** — add venues from the homepage, venue page, or account page, then use one Share panel to invite an editor/viewer by email or copy a secure invite link. Everyone works from the same Postgres-backed list, and open list pages reconcile changes automatically. Ratings, comments, and alert subscriptions are configured per list.
 - **Submit a Spot** at `/submit/` — a public form for restaurants/patrons to suggest a happy hour. Submissions land in a review queue.
 - **Admin review** at `/admin/` (sign in at `/account/` with an admin email — see below) — approve, edit, or deny submissions. Approving one commits it straight into `public/data/happy-hours.json` via the GitHub API, the same way the AI blog draft generator publishes posts — it becomes a real venue page on the next deploy.
 
@@ -47,9 +48,9 @@ Redeploy after adding/changing any of the above.
 
 ## Day-to-day usage
 
-**Saving spots:** click the bookmark icon on a card (homepage) or the Save button (venue page). If you're not signed in, it sends you to `/account/` first.
+**Saving spots:** click the bookmark icon on a card (homepage) or the Save button (venue page) to add it to your configured default list. The adjacent list picker can add/remove the venue from any editable list or create a new list in place. If you're not signed in, it sends you to `/account/` first.
 
-**Sharing a list:** on `/account/`, "Copy share link" — anyone with that link can view your saved spots at `/list/?id=...`, no login required.
+**Sharing a list:** create or open a list from `/account/`, then choose **Share**. Email invitations are also discoverable in the recipient’s My Lists section. Secure links allow an immediate preview; recipients sign in and join before editor access becomes writable. The old aggregate `/list/?id=...` snapshot-style link has been removed; shared list URLs always point to the canonical live list.
 
 **Reviewing submissions:** `/admin/` (sign in at `/account/` with an admin email). Each submission shows the raw listing JSON, editable inline. Approve commits it to the repo (goes live on next deploy); Deny asks for a reason and archives it; Save Edit updates the listing without changing its status.
 

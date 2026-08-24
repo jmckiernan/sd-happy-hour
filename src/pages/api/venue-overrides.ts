@@ -6,7 +6,7 @@ export const prerender = false;
 
 // Public, unauthenticated: every venue's owner edits in one response, keyed by
 // venue id, for the pages that render the whole venue set client-side (the
-// homepage grid and /list/). Those fetch the static /data/happy-hours.json and
+// homepage grid and list pages). Those fetch the static /data/happy-hours.json and
 // merge this over it, so an owner's corrected hours show up there as well as on
 // the venue page — otherwise the card and the venue page would disagree.
 //
