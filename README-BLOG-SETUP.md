@@ -15,7 +15,7 @@ Nothing here costs money except the Claude API calls (pennies per post).
 There's no separate admin login for this (or for the submissions review queue at `/admin/`). Both are gated by the same check: sign in at `/account/` (Google or email/password) with an email listed in `ADMIN_EMAILS`, in `src/lib/admins.ts`:
 
 ```ts
-export const ADMIN_EMAILS = ['jmckiernan@gmail.com', 'shanewlykins@gmail.com'];
+export const ADMIN_EMAILS = ['jmckiernan86@gmail.com', 'shanewlykins@gmail.com'];
 ```
 
 Add or remove emails there directly if the list ever needs to change — whoever's on it gets full admin rights everywhere (submissions + blog posts), automatically.

@@ -6,7 +6,7 @@ import { getUserById, type User } from './store';
 // generate blog posts) come from signing in with one of these emails via
 // the normal Google/email login at /account/. There's no separate admin
 // username/password anymore.
-export const ADMIN_EMAILS = ['jmckiernan@gmail.com', 'shanewlykins@gmail.com'];
+export const ADMIN_EMAILS = ['jmckiernan86@gmail.com', 'shanewlykins@gmail.com'];
 
 /**
  * Returns the signed-in User if their account's email is an admin email,
