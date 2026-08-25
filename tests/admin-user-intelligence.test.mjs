@@ -12,6 +12,7 @@ import {
   marketAreaForCoordinates,
   marketAreaLabel,
 } from '../src/lib/marketAreas.ts';
+import { isAdminEmail } from '../src/lib/adminIdentity.ts';
 import {
   GET as getAdminUser,
   PATCH as patchAdminUser,
@@ -43,6 +44,28 @@ test('account mutation policy protects the acting and site-admin accounts', () =
     action: 'deactivate',
     adminEmails,
   }), 'allowed');
+});
+
+test('site-admin identity is case-insensitive and whitespace-safe', () => {
+  assert.equal(isAdminEmail('jmckiernan86@gmail.com'), true);
+  assert.equal(isAdminEmail('  JMCKIERNAN86@GMAIL.COM  '), true);
+  assert.equal(isAdminEmail('member@example.test'), false);
+  assert.equal(isAdminEmail(null), false);
+});
+
+test('account navigation consumes one authoritative session state after login', async () => {
+  const [layout, accountPage, accountMe] = await Promise.all([
+    readFile(path.join(ROOT, 'src', 'layouts', 'Layout.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'account.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'account', 'me.ts'), 'utf8'),
+  ]);
+  assert.match(accountMe, /isAdmin:\s*isAdminEmail\(user\.email\)/);
+  assert.match(layout, /fetch\('\/api\/account\/me'/);
+  assert.match(layout, /applyAuthNav\(state\)/);
+  assert.match(layout, /authSyncVersion/);
+  assert.doesNotMatch(layout, /fetch\('\/api\/admin\/me'/);
+  assert.match(accountPage, /new CustomEvent\(AUTH_CHANGED_EVENT/);
+  assert.match(accountPage, /detail:\s*\{ authenticated, isAdmin \}/);
 });
 
 test('account state transitions and dependency transfer rules are explicit', () => {
@@ -141,4 +164,3 @@ test('migration, UI, and auth gates contain the scalable reporting foundation', 
   assert.match(analytics, /EVENT_PROPERTIES/);
   assert.doesNotMatch(analytics, /properties:\s*\{[^}]*email/si);
 });
-

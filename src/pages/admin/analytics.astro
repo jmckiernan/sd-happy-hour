@@ -1,0 +1,72 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+
+const posthogWebAnalyticsUrl = 'https://us.posthog.com/project/575257/web';
+const posthogBlogDashboardUrl = 'https://us.posthog.com/project/575257/dashboard/2028794';
+const searchConsoleUrl = 'https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain%3Ahappyhoursd.com';
+---
+<Layout title="Analytics & SEO | SD Happy Hours Admin" description="Open the reporting tools for SD Happy Hours.">
+  <style>
+    .analytics-admin { max-width:1100px; margin:0 auto; padding:36px 24px 80px; }
+    .analytics-admin h1 { font-family:var(--font-display); font-size:clamp(2rem,5vw,3rem); margin-bottom:8px; }
+    .intro { color:var(--night-soft); line-height:1.6; max-width:760px; }
+    .tool-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:28px; }
+    .tool-card { background:white; border:1px solid rgba(15,23,42,.1); border-radius:22px; padding:22px; }
+    .tool-card h2 { font-family:var(--font-display); font-size:1.35rem; margin-bottom:7px; }
+    .tool-card p { color:var(--night-soft); line-height:1.55; margin-bottom:14px; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .action { display:inline-flex; text-decoration:none; border-radius:100px; padding:10px 16px; background:var(--night); color:white; font-weight:750; }
+    .action.secondary { background:var(--sand-warm); color:var(--night); }
+    .event-list { margin:28px 0 0; background:white; border:1px solid rgba(15,23,42,.1); border-radius:22px; padding:22px; }
+    .event-list h2 { font-family:var(--font-display); font-size:1.3rem; margin-bottom:10px; }
+    .event-list ul { columns:2; padding-left:20px; color:var(--night-soft); line-height:1.8; }
+    .notice { margin-top:18px; color:var(--night-soft); font-size:.88rem; }
+    @media (max-width:700px) { .tool-grid { grid-template-columns:1fr; } .event-list ul { columns:1; } }
+  </style>
+
+  <main class="analytics-admin">
+    <h1>Analytics &amp; SEO</h1>
+    <p class="intro">PostHog explains what readers do after reaching the site. Google Search Console explains which Google searches showed or sent readers to each page.</p>
+
+    <div class="tool-grid">
+      <section class="tool-card">
+        <h2>PostHog Web Analytics</h2>
+        <p>Blog visitors, pageviews, sessions, reading time, scroll depth, referrers, campaigns, web vitals, and clicked destinations.</p>
+        <div class="actions">
+          <a class="action" href={posthogWebAnalyticsUrl} target="_blank" rel="noreferrer">Open Web Analytics ↗</a>
+          <a class="action secondary" href={posthogBlogDashboardUrl} target="_blank" rel="noreferrer">Open Blog &amp; SEO Dashboard ↗</a>
+        </div>
+      </section>
+      <section class="tool-card">
+        <h2>Google Search Console</h2>
+        <p>Google queries, impressions, clicks, click-through rate, average position, indexed pages, sitemap status, and search issues.</p>
+        <div class="actions">
+          <a class="action" href={searchConsoleUrl} target="_blank" rel="noreferrer">Open Search Performance ↗</a>
+        </div>
+      </section>
+    </div>
+
+    <section class="event-list">
+      <h2>Blog events being collected</h2>
+      <ul>
+        <li>Blog index and post views</li>
+        <li>Page-leave and session duration</li>
+        <li>Active reading time</li>
+        <li>25%, 50%, 75%, and 100% scroll depth</li>
+        <li>Internal, venue, CTA, and external link clicks</li>
+        <li>Referrer and UTM attribution</li>
+        <li>Page-level web vitals</li>
+      </ul>
+      <p class="notice">Session replay, form-content capture, and broad click autocapture are disabled. Google may omit low-volume queries for searcher privacy.</p>
+    </section>
+  </main>
+
+  <script>
+    (async () => {
+      const session = await fetch('/api/admin/me', { headers:{ 'cache-control':'no-cache' } })
+        .then((response) => response.json()).catch(() => ({ authenticated:false }));
+      if (!session.authenticated) window.location.href = '/account/';
+    })();
+  </script>
+</Layout>

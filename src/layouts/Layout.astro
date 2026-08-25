@@ -4,6 +4,9 @@ export interface Props {
   description: string;
   image?: string;
   transparentNav?: boolean;
+  analyticsContentType?: 'blog_index' | 'blog_post';
+  analyticsContentSlug?: string;
+  analyticsContentTitle?: string;
 }
 
 const {
@@ -11,6 +14,9 @@ const {
   description,
   image = '/og-default.jpg',
   transparentNav = false,
+  analyticsContentType,
+  analyticsContentSlug,
+  analyticsContentTitle,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -277,7 +283,11 @@ const isHome = Astro.url.pathname === '/';
     footer.site-footer .disclaimer { margin-top: 16px; font-size: 0.8rem; opacity: 0.5; }
   </style>
 </head>
-<body>
+<body
+  data-analytics-content-type={analyticsContentType}
+  data-analytics-content-slug={analyticsContentSlug}
+  data-analytics-content-title={analyticsContentTitle}
+>
   {!isHome && <div class="sd-backdrop" aria-hidden="true"></div>}
 
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
@@ -303,6 +313,17 @@ const isHome = Astro.url.pathname === '/';
   </footer>
 
   <script>
+    // Blog analytics is optional and only belongs on blog pages. Load it in
+    // its own asynchronous boundary so a blocked/stale analytics dependency
+    // can never prevent the site-wide auth navigation below from starting.
+    if (window.location.pathname.startsWith('/blog/')) {
+      import('../lib/browserAnalytics')
+        .then(({ initBrowserAnalytics }) => initBrowserAnalytics())
+        .catch(() => {
+          // Analytics must never interfere with account or navigation UI.
+        });
+    }
+
     // Site-wide: reflect sign-in state in the nav, and only show the Admin
     // links when an admin session is active. Runs on every page (this layout
     // wraps all of them) so login status stays consistent site-wide, unlike
@@ -316,27 +337,48 @@ const isHome = Astro.url.pathname === '/';
     // same reason: a logout has to be able to undo what a login did.
     const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
 
-    async function isAuthenticated(endpoint: string): Promise<boolean> {
-      try {
-        const res = await fetch(endpoint, { headers: { 'cache-control': 'no-cache' } });
-        if (!res.ok) return false;
-        return Boolean((await res.json()).authenticated);
-      } catch {
-        // Offline, or the session store isn't reachable — treat as signed
-        // out rather than leaving whatever the nav happened to show before.
-        return false;
+    interface AuthNavState {
+      authenticated: boolean;
+      isAdmin: boolean;
+    }
+
+    function applyAuthNav(state: AuthNavState) {
+      const accountLink = document.getElementById('account-nav-link');
+      if (accountLink) accountLink.textContent = state.authenticated ? 'My Stuff' : 'Sign In';
+
+      for (const el of document.querySelectorAll<HTMLElement>('[data-admin-only]')) {
+        el.style.display = state.isAdmin ? '' : 'none';
       }
     }
 
-    async function syncAuthNav() {
-      const accountLink = document.getElementById('account-nav-link');
-      if (accountLink) {
-        accountLink.textContent = (await isAuthenticated('/api/account/me')) ? 'My Stuff' : 'Sign In';
+    async function getAuthNavState(): Promise<AuthNavState> {
+      try {
+        const res = await fetch('/api/account/me', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+          headers: { 'cache-control': 'no-cache' },
+        });
+        if (!res.ok) return { authenticated: false, isAdmin: false };
+        const session = await res.json();
+        return {
+          authenticated: Boolean(session.authenticated),
+          isAdmin: Boolean(session.authenticated && session.isAdmin),
+        };
+      } catch {
+        // Offline, or the session store isn't reachable — treat as signed
+        // out rather than leaving whatever the nav happened to show before.
+        return { authenticated: false, isAdmin: false };
       }
+    }
 
-      // One check covers everything admin-only on the page: authorized =
-      // signed in at /account/ with an email in ADMIN_EMAILS
-      // (src/lib/admins.ts) — there's no separate admin login anymore.
+    let authSyncVersion = 0;
+    async function syncAuthNav() {
+      const version = ++authSyncVersion;
+      const state = await getAuthNavState();
+      if (version !== authSyncVersion) return;
+
+      // One session response covers the account label and everything
+      // admin-only, so those two pieces of navigation cannot disagree.
       //
       // Anything marked [data-admin-only] is toggled here, so a page that
       // wants an admin-only affordance (the Edit links on blog posts and the
@@ -345,10 +387,7 @@ const isHome = Astro.url.pathname === '/';
       // without a refresh. Pages should not run their own /api/admin/me
       // fetch; that's how those links ended up stuck in their page-load
       // state before.
-      const isAdmin = await isAuthenticated('/api/admin/me');
-      for (const el of document.querySelectorAll<HTMLElement>('[data-admin-only]')) {
-        el.style.display = isAdmin ? '' : 'none';
-      }
+      applyAuthNav(state);
     }
 
     syncAuthNav();
@@ -365,8 +404,14 @@ const isHome = Astro.url.pathname === '/';
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') touchActivity();
     });
-    window.addEventListener(AUTH_CHANGED_EVENT, () => {
-      syncAuthNav();
+    window.addEventListener(AUTH_CHANGED_EVENT, (event) => {
+      const detail = (event as CustomEvent<Partial<AuthNavState>>).detail;
+      if (typeof detail?.authenticated === 'boolean' && typeof detail?.isAdmin === 'boolean') {
+        authSyncVersion += 1;
+        applyAuthNav({ authenticated: detail.authenticated, isAdmin: detail.isAdmin });
+      } else {
+        syncAuthNav();
+      }
       touchActivity();
     });
   </script>

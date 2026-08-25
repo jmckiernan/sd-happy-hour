@@ -30,7 +30,14 @@ const relatedVenues = venues
 
 const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
-<Layout title={`${title} | SD Happy Hours Blog`} description={description} image={heroImage}>
+<Layout
+  title={`${title} | SD Happy Hours Blog`}
+  description={description}
+  image={heroImage}
+  analyticsContentType="blog_post"
+  analyticsContentSlug={slug}
+  analyticsContentTitle={title}
+>
   <style>
     .post-header {
       max-width: 760px;
@@ -209,7 +216,7 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       <ul>
         {relatedVenues.map((v) => (
           <li>
-            <a href={`/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/`}>
+            <a data-analytics-link="mentioned_venue" href={`/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/`}>
               {v.name} <span class="time">— {formatTime(v.startTime)}–{formatTime(v.endTime)}, {v.neighborhood}</span>
             </a>
           </li>
@@ -221,7 +228,7 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
   {(prev || next) && (
     <nav class="post-pager" aria-label="More blog posts">
       {prev && (
-        <a class="pager-link prev" href={`/blog/${prev.slug}/`} rel="prev">
+        <a class="pager-link prev" data-analytics-link="previous_post" href={`/blog/${prev.slug}/`} rel="prev">
           <span class="pager-arrow" aria-hidden="true">&#8592;</span>
           <span>
             <span class="pager-label">Previous</span>
@@ -230,7 +237,7 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
         </a>
       )}
       {next && (
-        <a class="pager-link next" href={`/blog/${next.slug}/`} rel="next">
+        <a class="pager-link next" data-analytics-link="next_post" href={`/blog/${next.slug}/`} rel="next">
           <span>
             <span class="pager-label">Next</span>
             <span class="pager-title">{next.title}</span>

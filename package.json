@@ -14,11 +14,12 @@
     "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
     "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
-    "test": "npm run validate:data && npm run test:images && npm run test:venue-management && npm run test:shared-lists && npm run test:user-intelligence && npm run test:live-promotions && npm run test:live-promotions:phase3:ui && npm run test:live-promotions:migration:guard && npm run test:live-promotions:phase2:db:guard",
+    "test": "npm run validate:data && npm run test:images && npm run test:venue-management && npm run test:shared-lists && npm run test:user-intelligence && npm run test:blog-analytics && npm run test:live-promotions && npm run test:live-promotions:phase3:ui && npm run test:live-promotions:migration:guard && npm run test:live-promotions:phase2:db:guard",
     "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs",
     "test:venue-management": "node tests/build-venue-management-test.mjs && node .data/tests/venue-management.bundle.mjs",
     "test:shared-lists": "node tests/build-shared-lists-test.mjs && node .data/tests/shared-lists.bundle.mjs && node tests/unified-saved-lists-migration.test.mjs",
     "test:user-intelligence": "node tests/build-admin-user-intelligence-test.mjs && node .data/tests/admin-user-intelligence.bundle.mjs",
+    "test:blog-analytics": "esbuild tests/blog-analytics.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/blog-analytics.bundle.mjs && node .data/tests/blog-analytics.bundle.mjs",
     "test:live-promotions": "esbuild tests/live-promotions.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions.bundle.mjs && node .data/tests/live-promotions.bundle.mjs",
     "test:live-promotions:phase3:ui": "esbuild tests/live-promotions-phase3-ui.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/live-promotions-phase3-ui.bundle.mjs && node .data/tests/live-promotions-phase3-ui.bundle.mjs",
     "test:live-promotions:phase3:e2e": "playwright test",
@@ -39,7 +40,8 @@
     "@octokit/rest": "^21.0.2",
     "astro": "^7.1.3",
     "google-auth-library": "^10.9.0",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "posthog-js": "^1.418.16"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

@@ -29,7 +29,7 @@ function cookies(userId = null) {
 }
 
 function listContext({ userId = null, token = null, track = false } = {}) {
-  const url = new URL('https://sdhappyhours.com/api/lists/list-1');
+  const url = new URL('https://happyhoursd.com/api/lists/list-1');
   if (token) url.searchParams.set('invite', token);
   if (track) url.searchParams.set('track', '1');
   return { params: { id: 'list-1' }, url, cookies: cookies(userId) };
@@ -43,7 +43,7 @@ function sharesContext(userId) {
   return {
     params: { id: 'list-1' },
     cookies: cookies(userId),
-    request: new Request('https://sdhappyhours.com/api/lists/list-1/shares'),
+    request: new Request('https://happyhoursd.com/api/lists/list-1/shares'),
   };
 }
 
@@ -111,7 +111,7 @@ async function main() {
   assert.equal(result.status, 200);
   assert.equal(
     result.body.access.find((entry) => entry.isLinkInvite).inviteUrl,
-    'https://sdhappyhours.com/lists/list-1/?invite=72af67fb-78d0-4fad-8939-69af156a10dc'
+    'https://happyhoursd.com/lists/list-1/?invite=72af67fb-78d0-4fad-8939-69af156a10dc'
   );
   result = await responseJson(await getShares(sharesContext('viewer')));
   assert.equal(result.status, 200);
@@ -146,7 +146,7 @@ async function main() {
   result = await responseJson(await acceptInvite({
     params: { identifier: 'invite-1' },
     cookies: cookies('new-collaborator'),
-    request: new Request('https://sdhappyhours.com/api/list-invites/invite-1/accept', {
+    request: new Request('https://happyhoursd.com/api/list-invites/invite-1/accept', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token: 'valid-editor-link' }),

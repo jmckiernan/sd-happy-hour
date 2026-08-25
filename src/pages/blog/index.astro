@@ -10,6 +10,8 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
 <Layout
   title="Blog | SD Happy Hours"
   description="Guides, roundups, and news about San Diego's happy hour scene — from Little Italy to Pacific Beach."
+  analyticsContentType="blog_index"
+  analyticsContentTitle="SD Happy Hours Blog"
 >
   <style>
     .post-list {
@@ -140,7 +142,7 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
          inside it — nesting anchors is invalid and browsers break the outer
          one. It's a sibling positioned over the card instead. */
       <div class="post-card-wrap">
-        <a class="post-card" href={`/blog/${post.id}/`}>
+        <a class="post-card" data-analytics-link="post_card" href={`/blog/${post.id}/`}>
           <div class="post-thumb">
             <img
               src={getPostImage(post.data.heroImage, post.data.venues, 'card')}

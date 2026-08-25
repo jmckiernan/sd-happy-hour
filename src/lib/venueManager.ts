@@ -1,7 +1,7 @@
 import type { AstroCookies } from 'astro';
 import { getSession } from './session';
 import { getUserById, type User } from './store';
-import { ADMIN_EMAILS } from './admins';
+import { isAdminEmail } from './admins';
 import { getVenueAccess, type VenueAccessRole } from './venueUsers';
 
 // ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ export async function getVenueManager(cookies: AstroCookies, venueId: number): P
   const user = await getUserById(session.userId);
   if (!user) return null;
 
-  if (ADMIN_EMAILS.includes(user.email)) {
+  if (isAdminEmail(user.email)) {
     return { user, isAdmin: true, claimId: null, accessRole: 'site_admin' };
   }
 

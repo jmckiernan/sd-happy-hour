@@ -24,7 +24,7 @@ export function isEmailConfigured(): boolean {
 
 export async function sendEmail(to: string, subject: string, html: string): Promise<EmailResult> {
   const apiKey = getEnv('RESEND_API_KEY');
-  const from = getEnv('RESEND_FROM_EMAIL') || 'SD Happy Hours <alerts@sdhappyhours.com>';
+  const from = getEnv('RESEND_FROM_EMAIL') || 'SD Happy Hours <alerts@happyhoursd.com>';
 
   if (!apiKey) {
     console.log(`[email:simulated] to=${to} subject=${JSON.stringify(subject)}`);

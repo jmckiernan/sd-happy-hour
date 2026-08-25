@@ -409,8 +409,18 @@ import Layout from '../layouts/Layout.astro';
     // the admin-only links showing their pre-login state until a refresh.
     const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
 
-    function announceAuthChange() {
-      window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+    function announceAuthChange(authenticated: boolean, isAdmin: boolean) {
+      // Update this page synchronously as well as notifying Layout.astro.
+      // This keeps the navigation correct even if its initial async session
+      // request is still finishing when the account response arrives.
+      const accountLink = document.getElementById('account-nav-link');
+      if (accountLink) accountLink.textContent = authenticated ? 'My Stuff' : 'Sign In';
+      for (const el of document.querySelectorAll<HTMLElement>('[data-admin-only]')) {
+        el.style.display = isAdmin ? '' : 'none';
+      }
+      window.dispatchEvent(new CustomEvent(AUTH_CHANGED_EVENT, {
+        detail: { authenticated, isAdmin },
+      }));
     }
 
     async function loadAccount() {
@@ -432,7 +442,7 @@ import Layout from '../layouts/Layout.astro';
       if (currentUser) await loadCustomLists();
       else customListState = { lists: [], pendingInvites: [] };
       render();
-      if (signedInChanged) announceAuthChange();
+      if (signedInChanged) announceAuthChange(Boolean(currentUser), Boolean(session.isAdmin));
       const nextPath = new URLSearchParams(window.location.search).get('next');
       if (currentUser && nextPath?.startsWith('/') && !nextPath.startsWith('//')) {
         window.location.replace(nextPath);
@@ -1279,7 +1289,7 @@ import Layout from '../layouts/Layout.astro';
       render();
       // Sets currentUser directly rather than going through loadAccount(), so
       // the transition check there never sees this one.
-      announceAuthChange();
+      announceAuthChange(false, false);
     });
 
     watchStuffNav();

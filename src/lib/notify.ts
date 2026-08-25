@@ -62,7 +62,7 @@ function buildEmailHtml(userName: string, happyHours: Venue[], promotions: Promo
         `<li><strong>${escapeHtml(venue.name)}</strong> — ${escapeHtml(promotion.title || promotion.description || 'A new deal is live')}</li>`
       ).join('')}</ul>`
     : '';
-  return `<p>Hi ${escapeHtml(userName)},</p>${happyHourSection}${promotionSection}<p><a href="https://sdhappyhours.com/account/#section-lists">Manage your list alerts</a></p>`;
+  return `<p>Hi ${escapeHtml(userName)},</p>${happyHourSection}${promotionSection}<p><a href="https://happyhoursd.com/account/#section-lists">Manage your list alerts</a></p>`;
 }
 
 function buildSmsBody(happyHours: Venue[], promotions: PromotionMatch[]): string {
@@ -71,7 +71,7 @@ function buildSmsBody(happyHours: Venue[], promotions: PromotionMatch[]): string
   const shown = names.slice(0, 3).join(', ');
   const extra = names.length > 3 ? ` +${names.length - 3} more` : '';
   const prefix = promotions.length && !happyHours.length ? 'Live deals' : 'Live now';
-  return `${prefix}: ${shown}${extra}. sdhappyhours.com`;
+  return `${prefix}: ${shown}${extra}. happyhoursd.com`;
 }
 
 export interface DispatchSummary {

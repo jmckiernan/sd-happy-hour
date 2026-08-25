@@ -30,7 +30,7 @@ netlify env:pull .env.development.local
 ### 2. Set up Google Sign-In (optional, but recommended)
 1. console.cloud.google.com → create a project (or reuse one) → **APIs & Services** → **Credentials**.
 2. **Create Credentials** → **OAuth client ID** → Application type **Web application**.
-3. Add your site's origin (e.g. `https://sdhappyhours.com`) under **Authorized JavaScript origins**. You don't need a redirect URI — this uses Google Identity Services' one-tap/button flow, not a redirect.
+3. Add your site's origin (e.g. `https://happyhoursd.com`) under **Authorized JavaScript origins**. You don't need a redirect URI — this uses Google Identity Services' one-tap/button flow, not a redirect.
 4. Copy the **Client ID** → set it as `GOOGLE_CLIENT_ID` in Netlify's Environment Variables.
 
 Until this is set, `/account/` automatically falls back to a plain email/password form, so accounts and saved lists still work end-to-end for local testing.

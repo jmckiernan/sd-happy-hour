@@ -35,6 +35,35 @@ async function mockSharedListBasics(page: Page) {
   await page.route('**/api/restaurant/claims', (route) => fulfill(route, { authenticated: true, claims: [] }));
 }
 
+test('account and admin navigation stay in sync when authentication changes', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  await mockSharedListBasics(page);
+  await page.route('**/api/account/me', (route) => fulfill(route, {
+    authenticated: false,
+    user: null,
+    isAdmin: false,
+  }));
+
+  await page.goto('/account/');
+  await expect.poll(() => pageErrors).toEqual([]);
+  await expect(page.locator('#account-nav-link')).toHaveText('Sign In');
+  await expect(page.locator('#admin-nav-link')).toBeHidden();
+
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('sdhh:auth-changed', {
+    detail: { authenticated: true, isAdmin: true },
+  })));
+  await expect(page.locator('#account-nav-link')).toHaveText('My Stuff');
+  await expect(page.locator('#admin-nav-link')).toBeVisible();
+  await expect(page.locator('#blog-admin-nav-link')).toBeVisible();
+
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('sdhh:auth-changed', {
+    detail: { authenticated: false, isAdmin: false },
+  })));
+  await expect(page.locator('#account-nav-link')).toHaveText('Sign In');
+  await expect(page.locator('#admin-nav-link')).toBeHidden();
+});
+
 test('account discovers owned/shared lists and creates a new custom list', async ({ page }) => {
   await mockSharedListBasics(page);
   let createdBody: Record<string, unknown> | null = null;
