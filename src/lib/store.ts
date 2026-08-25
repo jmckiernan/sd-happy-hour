@@ -30,6 +30,12 @@ export interface User {
   phone: string;
   smsConsentAt: string | null;
   weeklyDigestOptIn: boolean;
+  accountStatus: 'active' | 'inactive' | 'anonymized';
+  deactivatedAt: string | null;
+  anonymizedAt: string | null;
+  lastActivityAt: string | null;
+  locationAnalyticsConsentAt: string | null;
+  locationAnalyticsRevokedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,6 +52,12 @@ interface UserRow {
   phone: string;
   sms_consent_at: string | null;
   weekly_digest_opt_in: boolean;
+  account_status: 'active' | 'inactive' | 'anonymized';
+  deactivated_at: string | null;
+  anonymized_at: string | null;
+  last_activity_at: string | null;
+  location_analytics_consent_at: string | null;
+  location_analytics_revoked_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +75,12 @@ function mapUser(row: UserRow): User {
     phone: row.phone,
     smsConsentAt: row.sms_consent_at,
     weeklyDigestOptIn: row.weekly_digest_opt_in,
+    accountStatus: row.account_status,
+    deactivatedAt: row.deactivated_at,
+    anonymizedAt: row.anonymized_at,
+    lastActivityAt: row.last_activity_at,
+    locationAnalyticsConsentAt: row.location_analytics_consent_at,
+    locationAnalyticsRevokedAt: row.location_analytics_revoked_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -393,15 +411,22 @@ export async function createSession(role: SessionRole, subjectId: string): Promi
   const id = crypto.randomBytes(32).toString('hex');
   const rows = await sql<SessionRow>`
     INSERT INTO sessions (id, role, user_id, expires_at)
-    VALUES (${id}, ${role}, ${subjectId}, now() + make_interval(secs => ${SESSION_MAX_AGE_SECONDS}))
+    SELECT ${id}, ${role}, id, now() + make_interval(secs => ${SESSION_MAX_AGE_SECONDS})
+    FROM users WHERE id = ${subjectId} AND account_status = 'active'
     RETURNING *`;
+  if (!rows[0]) throw new RangeError('This account is not active.');
   return mapSession(rows[0]);
 }
 
 // Only ever returns unexpired sessions — an expired row is treated the same
 // as no row, matching the old TTL behavior where Redis just wouldn't have it.
 export async function getSessionById(id: string): Promise<SessionRecord | null> {
-  const rows = await sql<SessionRow>`SELECT * FROM sessions WHERE id = ${id} AND expires_at > now()`;
+  const rows = await sql<SessionRow>`
+    SELECT sessions.* FROM sessions
+    JOIN users ON users.id = sessions.user_id
+    WHERE sessions.id = ${id}
+      AND sessions.expires_at > now()
+      AND users.account_status = 'active'`;
   return rows[0] ? mapSession(rows[0]) : null;
 }
 

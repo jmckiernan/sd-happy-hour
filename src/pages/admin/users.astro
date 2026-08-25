@@ -1,0 +1,336 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Users | SD Happy Hours Admin" description="Manage users and review privacy-safe product activity.">
+  <style is:global>
+    .users-admin { --line: rgba(15,23,42,.1); }
+    .admin-bar { background:white; border-bottom:1px solid var(--line); padding:20px 24px; position:sticky; top:0; z-index:8; }
+    .admin-bar-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; gap:16px; align-items:center; flex-wrap:wrap; }
+    .admin-bar h1 { font-family:var(--font-display); font-size:1.55rem; margin:0 0 2px; }
+    .admin-bar p { color:var(--night-soft); font-size:.86rem; margin:0; }
+    .admin-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .admin-user { color:var(--night-soft); font-size:.82rem; font-weight:700; }
+    .secondary, .primary, .danger { border:0; border-radius:100px; cursor:pointer; font:inherit; font-size:.85rem; font-weight:750; padding:9px 16px; }
+    .secondary { background:var(--sand-warm); color:var(--night); }
+    .primary { background:var(--night); color:white; }
+    .danger { background:#B42318; color:white; }
+    button:disabled { opacity:.55; cursor:wait; }
+    .admin-subnav { display:flex; gap:8px; max-width:1280px; margin:12px auto 0; padding:0 24px; font-size:.82rem; flex-wrap:wrap; }
+    .admin-subnav a { text-decoration:none; font-weight:650; color:var(--night-soft); padding:6px 13px; border-radius:100px; background:var(--sand-warm); }
+    .admin-subnav a:hover { background:var(--sunset-end); color:var(--night); }
+    .admin-subnav a[aria-current="page"] { background:var(--night); color:white; }
+    .admin-main { max-width:1280px; margin:0 auto; padding:24px 24px 80px; }
+    .summary-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+    .summary-card { background:white; border:1px solid var(--line); border-radius:18px; padding:16px; }
+    .summary-label { color:var(--night-soft); font-size:.72rem; font-weight:750; letter-spacing:.05em; text-transform:uppercase; }
+    .summary-value { font-family:var(--font-display); font-size:1.45rem; margin-top:3px; }
+    .filters { background:white; border:1px solid var(--line); border-radius:18px; display:grid; grid-template-columns:minmax(240px,2fr) repeat(3,minmax(140px,1fr)); gap:10px; padding:14px; margin-bottom:16px; }
+    .filters input, .filters select, .confirm-box input, .confirm-box textarea { width:100%; border:2px solid var(--sand-warm); border-radius:12px; background:white; color:var(--night); font:inherit; padding:10px 12px; }
+    .filters input:focus, .filters select:focus, .confirm-box input:focus, .confirm-box textarea:focus { outline:2px solid var(--sunset-start); outline-offset:1px; }
+    .market-panel { background:white; border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:16px; }
+    .market-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .market-head h2 { font-family:var(--font-display); font-size:1.1rem; margin:0 0 3px; }
+    .market-head p { color:var(--night-soft); font-size:.8rem; margin:0; }
+    .area-list { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .area-chip { background:var(--sand-warm); border-radius:14px; padding:8px 11px; font-size:.78rem; }
+    .area-chip strong { display:block; font-size:.92rem; }
+    .table-shell { background:white; border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+    .table-status { color:var(--night-soft); font-size:.85rem; font-weight:650; padding:14px 16px; border-bottom:1px solid var(--line); }
+    .user-table { width:100%; border-collapse:collapse; font-size:.79rem; }
+    .user-table th { color:var(--night-soft); font-size:.68rem; letter-spacing:.05em; text-align:left; text-transform:uppercase; background:#fffaf1; padding:11px 10px; }
+    .user-table td { border-top:1px solid var(--line); padding:12px 10px; vertical-align:top; }
+    .user-table tbody tr:hover { background:#fffdf8; }
+    .user-name { font-size:.9rem; font-weight:800; }
+    .user-email { color:var(--night-soft); font-size:.75rem; overflow-wrap:anywhere; }
+    .muted { color:var(--night-soft); }
+    .pills { display:flex; gap:4px; flex-wrap:wrap; margin-top:5px; }
+    .pill { display:inline-flex; border-radius:100px; font-size:.62rem; font-weight:800; letter-spacing:.03em; padding:4px 7px; text-transform:uppercase; }
+    .pill.active { background:#DCFCE7; color:#166534; }
+    .pill.inactive { background:#FEF3C7; color:#92400E; }
+    .pill.anonymized { background:#E5E7EB; color:#374151; }
+    .pill.owner { background:#E0F2FE; color:#075985; }
+    .pill.manager { background:#EDE9FE; color:#5B21B6; }
+    .pill.admin { background:#FFE4E6; color:#9F1239; }
+    .metric-pair { white-space:nowrap; line-height:1.55; }
+    .table-footer { display:flex; justify-content:center; padding:14px; border-top:1px solid var(--line); }
+    .empty { color:var(--night-soft); padding:28px; text-align:center; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(15,23,42,.58); display:grid; place-items:center; padding:24px; z-index:40; }
+    .modal-backdrop[hidden] { display:none; }
+    .user-modal { background:white; border-radius:24px; width:min(960px,100%); max-height:min(860px,92vh); overflow:auto; box-shadow:0 22px 70px rgba(0,0,0,.24); }
+    .modal-head { position:sticky; top:0; z-index:2; background:white; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:20px 22px; }
+    .modal-head h2 { font-family:var(--font-display); font-size:1.4rem; margin:0; }
+    .modal-close { width:42px; height:42px; border:0; border-radius:50%; background:var(--sand-warm); color:var(--night); cursor:pointer; font-size:1.25rem; }
+    .modal-body { padding:20px 22px 28px; }
+    .detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .detail-card { border:1px solid var(--line); border-radius:16px; padding:14px; min-width:0; }
+    .detail-card.full { grid-column:1/-1; }
+    .detail-card h3 { font-family:var(--font-display); font-size:1rem; margin:0 0 8px; }
+    .detail-card ul { margin:0; padding-left:18px; }
+    .detail-card li { margin:5px 0; font-size:.82rem; }
+    .detail-list { display:grid; gap:7px; }
+    .detail-item { background:#fffaf1; border-radius:10px; padding:9px 10px; font-size:.78rem; }
+    .account-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .confirm-box { background:#FFF7ED; border:1px solid #FDBA74; border-radius:16px; margin-top:14px; padding:14px; }
+    .confirm-box[hidden] { display:none; }
+    .confirm-box label { display:block; font-size:.75rem; font-weight:750; margin:8px 0 4px; }
+    .confirm-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .inline-status { color:var(--night-soft); font-size:.78rem; font-weight:650; }
+    .inline-status.error { color:#B42318; }
+    @media (max-width:960px) {
+      .summary-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .filters { grid-template-columns:1fr 1fr; }
+      .table-shell { overflow-x:auto; }
+      .user-table { min-width:900px; }
+    }
+    @media (max-width:640px) {
+      .summary-row, .filters, .detail-grid { grid-template-columns:1fr; }
+      .detail-card.full { grid-column:auto; }
+      .admin-main { padding-inline:12px; }
+      .modal-backdrop { padding:8px; }
+    }
+  </style>
+
+  <div class="users-admin">
+    <header class="admin-bar">
+      <div class="admin-bar-inner">
+        <div><h1>User Intelligence</h1><p>Account administration, engagement, alerts, and privacy-safe market activity.</p></div>
+        <div class="admin-actions">
+          <span class="admin-user" id="admin-user"></span>
+          <button class="secondary" id="refresh" type="button">Refresh</button>
+          <button class="secondary" id="logout" type="button">Log out</button>
+        </div>
+      </div>
+      <nav class="admin-subnav" aria-label="Admin sections">
+        <a href="/admin/">Submissions</a>
+        <a href="/admin/users/" aria-current="page">Users</a>
+        <a href="/admin/restaurants/">Restaurant Verifications</a>
+        <a href="/admin/photos/">Photo Review</a>
+        <a href="/admin/drafts/">Posts</a>
+      </nav>
+    </header>
+
+    <main class="admin-main">
+      <section class="summary-row" aria-label="User summary">
+        <div class="summary-card"><div class="summary-label">Matching users</div><div class="summary-value" id="summary-total">—</div></div>
+        <div class="summary-card"><div class="summary-label">Shown</div><div class="summary-value" id="summary-shown">—</div></div>
+        <div class="summary-card"><div class="summary-label">Owners shown</div><div class="summary-value" id="summary-owners">—</div></div>
+        <div class="summary-card"><div class="summary-label">Notification channels</div><div class="summary-value" id="summary-channels">—</div></div>
+      </section>
+
+      <form class="filters" id="filters">
+        <input type="search" name="search" placeholder="Search name or email…" autocomplete="off" aria-label="Search users">
+        <select name="status" aria-label="Account status">
+          <option value="">All statuses</option><option value="active">Active</option>
+          <option value="inactive">Inactive</option><option value="anonymized">Anonymized</option>
+        </select>
+        <select name="role" aria-label="Restaurant or admin role">
+          <option value="">All roles</option><option value="owner">Restaurant owners</option>
+          <option value="manager">Restaurant managers</option><option value="admin">Site admins</option>
+        </select>
+        <select name="days" aria-label="Reporting period">
+          <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option>
+        </select>
+      </form>
+
+      <section class="market-panel">
+        <div class="market-head">
+          <div><h2>Market activity</h2><p>Consented approximate areas only. Merchant reporting will require at least 20 active users.</p></div>
+        </div>
+        <div class="area-list" id="area-list"><span class="muted">Loading market activity…</span></div>
+      </section>
+
+      <section class="table-shell">
+        <div class="table-status" id="table-status" aria-live="polite">Checking super-admin access…</div>
+        <table class="user-table">
+          <thead><tr>
+            <th>User</th><th>Status &amp; roles</th><th>Last activity</th><th>Sessions</th>
+            <th>Restaurants</th><th>Lists</th><th>Notifications</th><th></th>
+          </tr></thead>
+          <tbody id="user-rows"></tbody>
+        </table>
+        <div class="table-footer" id="table-footer" hidden><button class="secondary" id="load-more" type="button">Load more</button></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="user-modal" hidden>
+    <section class="user-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-head"><div><h2 id="modal-title">User details</h2><div class="muted" id="modal-subtitle"></div></div><button class="modal-close" id="modal-close" type="button" aria-label="Close">×</button></header>
+      <div class="modal-body" id="modal-body"><div class="muted">Loading…</div></div>
+    </section>
+  </div>
+
+  <script>
+    const rowsEl = document.getElementById('user-rows')!;
+    const statusEl = document.getElementById('table-status')!;
+    const filters = document.getElementById('filters') as HTMLFormElement;
+    const modal = document.getElementById('user-modal') as HTMLElement;
+    const modalBody = document.getElementById('modal-body')!;
+    const modalTitle = document.getElementById('modal-title')!;
+    const modalSubtitle = document.getElementById('modal-subtitle')!;
+    let users: any[] = [];
+    let nextCursor: string | null = null;
+    let selectedUserId: string | null = null;
+    let selectedDetail: any = null;
+    let searchTimer = 0;
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' } as Record<string,string>)[char]);
+    }
+    function formatDate(value: string | null) {
+      if (!value) return 'No recorded activity';
+      return new Intl.DateTimeFormat(undefined, { dateStyle:'medium', timeStyle:'short' }).format(new Date(value));
+    }
+    function duration(seconds: number) {
+      if (!seconds) return '—';
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.round(seconds / 60);
+      return minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+    }
+    async function api(path: string, options: RequestInit = {}) {
+      const response = await fetch(path, { ...options, headers:{ 'content-type':'application/json', ...(options.headers || {}) } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error((data.errors || ['Request failed.']).join(' '));
+      return data;
+    }
+    function rolePills(user: any) {
+      const labels: Record<string,string> = { site_admin:'Site admin', restaurant_owner:'Owner', restaurant_manager:'Manager' };
+      const classes: Record<string,string> = { site_admin:'admin', restaurant_owner:'owner', restaurant_manager:'manager' };
+      return `<div class="pills"><span class="pill ${escapeHTML(user.status)}">${escapeHTML(user.status)}</span>${user.roles.map((role:string) => `<span class="pill ${classes[role]}">${labels[role]}</span>`).join('')}</div>`;
+    }
+    function renderRows(total: number) {
+      if (!users.length) {
+        rowsEl.innerHTML = '<tr><td colspan="8" class="empty">No users match these filters.</td></tr>';
+      } else {
+        rowsEl.innerHTML = users.map((user) => `
+          <tr data-user-id="${escapeHTML(user.id)}">
+            <td><div class="user-name">${escapeHTML(user.name)}</div><div class="user-email">${escapeHTML(user.email)}</div><div class="muted">Joined ${escapeHTML(formatDate(user.createdAt))}</div></td>
+            <td>${rolePills(user)}</td>
+            <td>${escapeHTML(formatDate(user.lastActivityAt))}</td>
+            <td class="metric-pair"><strong>${user.engagement.sessions}</strong> sessions<br><span class="muted">${duration(user.engagement.averageSessionSeconds)} average</span></td>
+            <td class="metric-pair"><strong>${user.restaurants.owned}</strong> claimed<br><span class="muted">${user.restaurants.managed} managed</span></td>
+            <td class="metric-pair"><strong>${user.lists.owned}</strong> owned<br><span class="muted">${user.lists.custom} custom · ${user.lists.shared} shared</span></td>
+            <td class="metric-pair"><strong>${user.notifications.enabledChannels}</strong> on<br><span class="muted">Email ${user.notifications.email.sent} · Text ${user.notifications.text.sent}</span></td>
+            <td><button class="secondary" type="button" data-view-user>View</button></td>
+          </tr>`).join('');
+      }
+      document.getElementById('summary-total')!.textContent = String(total);
+      document.getElementById('summary-shown')!.textContent = String(users.length);
+      document.getElementById('summary-owners')!.textContent = String(users.filter((user) => user.roles.includes('restaurant_owner')).length);
+      document.getElementById('summary-channels')!.textContent = String(users.reduce((sum,user) => sum + user.notifications.enabledChannels, 0));
+      document.getElementById('table-footer')!.hidden = !nextCursor;
+    }
+    function query(cursor: string | null = null) {
+      const data = new FormData(filters);
+      const params = new URLSearchParams();
+      for (const [key,value] of data) if (String(value)) params.set(key,String(value));
+      if (cursor) params.set('cursor',cursor);
+      return params;
+    }
+    async function loadUsers(append = false) {
+      statusEl.textContent = append ? 'Loading more users…' : 'Loading users…';
+      try {
+        const data = await api(`/api/admin/users?${query(append ? nextCursor : null)}`);
+        users = append ? [...users,...data.users] : data.users;
+        nextCursor = data.nextCursor;
+        statusEl.textContent = `${data.total} matching user${data.total === 1 ? '' : 's'} · engagement from the last ${data.days} days`;
+        renderRows(data.total);
+        await loadAreas(data.days);
+      } catch (error:any) {
+        if (/access|required|sign/i.test(error.message)) { window.location.href='/account/'; return; }
+        statusEl.textContent = error.message;
+      }
+    }
+    async function loadAreas(days:number) {
+      const areaList = document.getElementById('area-list')!;
+      try {
+        const data = await api(`/api/admin/users/areas?days=${days}`);
+        areaList.innerHTML = data.areas.length ? data.areas.map((area:any) => `
+          <span class="area-chip"><strong>${area.activeUsers} active</strong>${escapeHTML(area.label)} · ${area.uses} Near me use${area.uses === 1 ? '' : 's'}${area.merchantReportable ? ' · reportable' : ''}</span>`).join('')
+          : '<span class="muted">No consented area activity in this period yet.</span>';
+      } catch { areaList.innerHTML = '<span class="muted">Market activity is unavailable.</span>'; }
+    }
+    function simpleItems(items:any[], render:(item:any)=>string, empty:string) {
+      return items.length ? `<div class="detail-list">${items.map((item) => `<div class="detail-item">${render(item)}</div>`).join('')}</div>` : `<div class="muted">${empty}</div>`;
+    }
+    function renderDetail(detail:any) {
+      selectedDetail = detail;
+      const user = detail.user;
+      modalTitle.textContent = user.name;
+      modalSubtitle.textContent = user.email;
+      const protectedAccount = user.isSiteAdmin;
+      modalBody.innerHTML = `
+        <div class="detail-grid">
+          <section class="detail-card"><h3>Account</h3>
+            <div>${rolePills({ status:user.status, roles:[...(user.isSiteAdmin ? ['site_admin'] : []), ...(detail.claims.some((c:any)=>c.status==='verified') ? ['restaurant_owner'] : []), ...(detail.managers.length ? ['restaurant_manager'] : [])] })}</div>
+            <ul><li>Joined ${escapeHTML(formatDate(user.createdAt))}</li><li>Last active: ${escapeHTML(formatDate(user.lastActivityAt))}</li><li>Weekly digest: ${user.weeklyDigestOptIn ? 'On' : 'Off'}</li><li>Text consent: ${user.smsOptedIn ? 'On' : 'Off'}</li><li>Area analytics: ${user.locationAnalyticsOptIn ? 'On' : 'Off'}</li></ul>
+          </section>
+          <section class="detail-card"><h3>Ownership dependencies</h3><ul><li>${detail.dependencies.verifiedVenueClaims} verified restaurant claim(s)</li><li>${detail.dependencies.customOwnedLists} custom owned list(s)</li></ul><div class="muted">These must transfer before anonymization.</div></section>
+          <section class="detail-card"><h3>Claimed restaurants</h3>${simpleItems(detail.claims,(claim:any)=>`<strong>${escapeHTML(claim.venueName || `Venue #${claim.venue_id}`)}</strong> · ${escapeHTML(claim.status)} · ${escapeHTML(claim.plan)}`,'No restaurant claims.')}</section>
+          <section class="detail-card"><h3>Managed restaurants</h3>${simpleItems(detail.managers,(manager:any)=>`<strong>${escapeHTML(manager.venueName || `Venue #${manager.venue_id}`)}</strong> · ${manager.role === 'full_admin' ? 'Full admin' : 'Promotions only'}`,'No restaurant manager access.')}</section>
+          <section class="detail-card full"><h3>Lists</h3>${simpleItems(detail.lists,(list:any)=>`<strong>${escapeHTML(list.title)}</strong> · ${escapeHTML(list.role)} · ${Number(list.item_count)} spots${list.system_key ? ` · ${escapeHTML(list.system_key)}` : ''}`,'No lists.')}</section>
+          <section class="detail-card"><h3>Saved alerts</h3>${simpleItems(detail.alerts,(alert:any)=>`<strong>${escapeHTML(alert.name)}</strong> · ${alert.active ? 'On' : 'Off'} · ${alert.channel_email ? 'Email ' : ''}${alert.channel_text ? 'Text' : ''}`,'No saved alerts.')}</section>
+          <section class="detail-card"><h3>List &amp; venue alerts</h3>${simpleItems([...detail.listSubscriptions,...detail.follows],(alert:any)=>alert.title ? `<strong>${escapeHTML(alert.title)}</strong> · list alerts` : `<strong>Venue #${alert.venue_id}</strong> · venue alerts`,'No list or venue alerts.')}</section>
+          <section class="detail-card full"><h3>Notification delivery</h3>${simpleItems(detail.deliveryTotals,(delivery:any)=>`<strong>${escapeHTML(delivery.channel)}</strong> · ${Number(delivery.sent || 0)} sent · ${Number(delivery.delivered || 0)} provider-delivered · ${Number(delivery.failed || 0)} failed · ${Number(delivery.simulated || 0)} simulated`,'No notification delivery history yet.')}</section>
+          <section class="detail-card full"><h3>Admin history</h3>${simpleItems(detail.actions,(action:any)=>`<strong>${escapeHTML(String(action.action).replaceAll('_',' '))}</strong> · ${escapeHTML(formatDate(action.created_at))}${action.reason ? `<br>${escapeHTML(action.reason)}` : ''}`,'No admin actions.')}</section>
+        </div>
+        ${protectedAccount ? '<p class="muted" style="margin-top:14px;">Site administrator accounts are protected from status changes.</p>' : `
+          <div class="account-actions">
+            ${user.status === 'active' ? '<button class="secondary" data-account-action="deactivate" type="button">Make inactive</button>' : ''}
+            ${user.status === 'inactive' ? '<button class="primary" data-account-action="reactivate" type="button">Reactivate</button>' : ''}
+            ${user.status !== 'anonymized' ? '<button class="danger" data-account-action="anonymize" type="button">Delete &amp; anonymize</button>' : ''}
+          </div>`}
+        <div class="confirm-box" id="confirm-box" hidden></div>`;
+    }
+    async function openUser(userId:string) {
+      selectedUserId = userId; selectedDetail = null; modal.hidden = false; document.body.style.overflow='hidden';
+      modalTitle.textContent='User details'; modalSubtitle.textContent=''; modalBody.innerHTML='<div class="muted">Loading…</div>';
+      try { renderDetail(await api(`/api/admin/users/${encodeURIComponent(userId)}`)); }
+      catch (error:any) { modalBody.innerHTML=`<div class="inline-status error">${escapeHTML(error.message)}</div>`; }
+    }
+    function closeModal() { modal.hidden=true; document.body.style.overflow=''; selectedUserId=null; selectedDetail=null; }
+    function showConfirmation(action:string) {
+      const box = document.getElementById('confirm-box')!;
+      const needsTransfer = action === 'anonymize' && (selectedDetail.dependencies.verifiedVenueClaims || selectedDetail.dependencies.customOwnedLists);
+      box.hidden=false;
+      box.innerHTML=`<strong>${action === 'anonymize' ? 'Delete and anonymize this account?' : action === 'deactivate' ? 'Make this account inactive?' : 'Reactivate this account?'}</strong>
+        ${action === 'anonymize' ? '<p class="muted">Personal details and login credentials will be removed. This cannot be undone.</p>' : ''}
+        ${needsTransfer ? '<label>Transfer owned restaurants and custom lists to</label><input type="email" data-transfer-email placeholder="Recipient account email" required>' : ''}
+        <label>Reason (optional)</label><textarea rows="2" data-reason maxlength="500"></textarea>
+        <div class="confirm-actions"><button class="${action === 'anonymize' ? 'danger' : 'primary'}" type="button" data-confirm-action="${action}">Confirm</button><button class="secondary" type="button" data-cancel-action>Cancel</button><span class="inline-status" data-action-status></span></div>`;
+      box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+    async function applyAction(action:string, button:HTMLButtonElement) {
+      if (!selectedUserId) return;
+      const box = document.getElementById('confirm-box')!;
+      const actionStatus = box.querySelector('[data-action-status]')!;
+      actionStatus.classList.remove('error'); actionStatus.textContent='Saving…'; button.disabled=true;
+      try {
+        await api(`/api/admin/users/${encodeURIComponent(selectedUserId)}`, { method:'PATCH', body:JSON.stringify({ action, reason:(box.querySelector('[data-reason]') as HTMLTextAreaElement)?.value || '', transferToEmail:(box.querySelector('[data-transfer-email]') as HTMLInputElement)?.value || '' }) });
+        const id = selectedUserId;
+        await loadUsers(false);
+        renderDetail(await api(`/api/admin/users/${encodeURIComponent(id)}`));
+      } catch (error:any) { actionStatus.classList.add('error'); actionStatus.textContent=error.message; button.disabled=false; }
+    }
+
+    rowsEl.addEventListener('click',(event) => { const button=(event.target as HTMLElement).closest('[data-view-user]'); if (button) openUser((button.closest('tr') as HTMLElement).dataset.userId!); });
+    modalBody.addEventListener('click',(event) => {
+      const target=event.target as HTMLElement;
+      const start=target.closest('[data-account-action]') as HTMLButtonElement|null;
+      if (start) { showConfirmation(start.dataset.accountAction!); return; }
+      if (target.closest('[data-cancel-action]')) { document.getElementById('confirm-box')!.hidden=true; return; }
+      const confirm=target.closest('[data-confirm-action]') as HTMLButtonElement|null;
+      if (confirm) applyAction(confirm.dataset.confirmAction!,confirm);
+    });
+    document.getElementById('modal-close')!.addEventListener('click',closeModal);
+    modal.addEventListener('click',(event)=>{ if(event.target===modal) closeModal(); });
+    document.addEventListener('keydown',(event)=>{ if(event.key==='Escape'&&!modal.hidden) closeModal(); });
+    filters.addEventListener('input',(event)=>{ window.clearTimeout(searchTimer); searchTimer=window.setTimeout(()=>loadUsers(false),(event.target as HTMLElement).getAttribute('type')==='search'?300:0); });
+    filters.addEventListener('change',()=>loadUsers(false));
+    document.getElementById('load-more')!.addEventListener('click',()=>loadUsers(true));
+    document.getElementById('refresh')!.addEventListener('click',()=>loadUsers(false));
+    document.getElementById('logout')!.addEventListener('click',async()=>{ await fetch('/api/account/logout',{method:'POST'}); window.location.href='/'; });
+    (async()=>{ const session=await fetch('/api/admin/me').then((response)=>response.json()).catch(()=>({authenticated:false})); if(!session.authenticated){window.location.href='/account/';return;} document.getElementById('admin-user')!.textContent=`Logged in as ${session.email}`; await loadUsers(false); })();
+  </script>
+</Layout>

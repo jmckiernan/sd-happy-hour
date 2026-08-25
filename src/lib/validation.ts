@@ -36,6 +36,7 @@ export function publicUser(
     phone: user.phone || '',
     smsOptedIn: Boolean(user.smsConsentAt),
     weeklyDigestOptIn: Boolean(user.weeklyDigestOptIn),
+    locationAnalyticsOptIn: Boolean(user.locationAnalyticsConsentAt && !user.locationAnalyticsRevokedAt),
     hasPassword: Boolean(user.passwordHash),
   };
 }

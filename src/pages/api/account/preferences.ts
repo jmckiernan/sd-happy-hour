@@ -3,6 +3,7 @@ import { getUserById, updateUserPreferences, listSavedSpots, listAlerts } from '
 import { publicUser, cleanString } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
+import { setLocationAnalyticsConsent } from '../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -39,6 +40,9 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     weeklyDigestOptIn: Boolean(body.weeklyDigestOptIn),
   });
   if (!updated) return errorJson(['User not found.'], 404);
-  const [savedSpots, alerts] = await Promise.all([listSavedSpots(updated.id), listAlerts(updated.id)]);
-  return json(publicUser(updated, savedSpots, alerts));
+  await setLocationAnalyticsConsent(user.id, Boolean(body.locationAnalyticsOptIn));
+  const refreshed = await getUserById(user.id);
+  if (!refreshed) return errorJson(['User not found.'], 404);
+  const [savedSpots, alerts] = await Promise.all([listSavedSpots(refreshed.id), listAlerts(refreshed.id)]);
+  return json(publicUser(refreshed, savedSpots, alerts));
 };

@@ -9,6 +9,7 @@ import {
 } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
+import { captureProductEvent } from '../../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -44,6 +45,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     alertKinds,
   });
   if (!alert) return errorJson([`You can save up to ${MAX_ALERTS_PER_USER} alerts.`], 422);
+
+  await captureProductEvent({
+    eventName: 'alert_enabled', userId: user.id,
+    properties: {
+      alert_type: alertKinds.join('+'),
+      channel: [alert.channels.email ? 'email' : '', alert.channels.text ? 'text' : ''].filter(Boolean).join('+'),
+    },
+  });
 
   const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
   return json(publicUser(user, savedSpots, alerts), 201);

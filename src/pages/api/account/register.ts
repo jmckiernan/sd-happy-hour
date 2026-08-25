@@ -4,6 +4,7 @@ import { createUser } from '../../../lib/store';
 import { publicUser, hashPassword, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
+import { captureProductEvent } from '../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -46,5 +47,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   await createSession(cookies, user.id);
+  await captureProductEvent({ eventName: 'account_created', userId: user.id, properties: { method: 'password' } });
   return json(publicUser(user, [], []), 201);
 };

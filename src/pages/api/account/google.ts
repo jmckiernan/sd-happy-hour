@@ -5,6 +5,7 @@ import { upsertUserByGoogle, listSavedSpots, listAlerts } from '../../../lib/sto
 import { publicUser, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
+import { captureProductEvent } from '../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -53,7 +54,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     shareId: crypto.randomBytes(8).toString('hex'),
   });
 
+  if (user.accountStatus !== 'active') {
+    return errorJson(['This account is inactive. Contact support if you believe this is a mistake.'], 403);
+  }
+
   await createSession(cookies, user.id);
+  await captureProductEvent({ eventName: 'login_completed', userId: user.id, properties: { method: 'google' } });
   const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
   return json(publicUser(user, savedSpots, alerts), 200);
 };

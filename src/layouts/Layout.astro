@@ -352,8 +352,22 @@ const isHome = Astro.url.pathname === '/';
     }
 
     syncAuthNav();
+    async function touchActivity() {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        await fetch('/api/activity', { method: 'POST', keepalive: true });
+      } catch {
+        // Activity reporting must never interfere with navigation or auth.
+      }
+    }
+    touchActivity();
+    window.setInterval(touchActivity, 5 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') touchActivity();
+    });
     window.addEventListener(AUTH_CHANGED_EVENT, () => {
       syncAuthNav();
+      touchActivity();
     });
   </script>
 </body>

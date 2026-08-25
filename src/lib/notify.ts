@@ -17,9 +17,22 @@ import { listLivePromotionCampaigns, type PromotionCampaign } from './promotionR
 import { getPromotionEventKey } from './notificationEvents';
 import { sendEmail } from './email';
 import { sendSms } from './sms';
+import { pruneProductAnalyticsData, recordNotificationMetric } from './productAnalytics';
 
 const RENOTIFY_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 const DEFAULT_SMS_DAILY_CAP = 2;
+
+async function safelyRecordNotificationMetric(input: {
+  userId: string;
+  channel: 'email' | 'text';
+  status: 'sent' | 'delivered' | 'failed' | 'simulated';
+}) {
+  try {
+    await recordNotificationMetric(input);
+  } catch (error) {
+    console.error('[notification metric failed]', input.userId, input.channel, error);
+  }
+}
 
 function smsDailyCap(): number {
   const raw = Number(getEnv('SMS_DAILY_CAP_PER_USER'));
@@ -129,7 +142,7 @@ export async function runAlertDispatch(): Promise<DispatchSummary> {
     simulated: false,
   };
 
-  await Promise.all([deleteExpiredSessions(), pruneNotificationLog(7)]);
+  await Promise.all([deleteExpiredSessions(), pruneNotificationLog(7), pruneProductAnalyticsData(90)]);
   if (!liveVenues.length && !promotionMatches.length) return summary;
 
   const usersById = new Map<string, UserAlertGroup>();
@@ -224,34 +237,50 @@ export async function runAlertDispatch(): Promise<DispatchSummary> {
       const subject = total === 1
         ? `${emailHappyValues[0]?.name || emailPromotionValues[0]?.venue.name} is live now`
         : `${total} spots from your alerts are live now`;
-      const result = await sendEmail(
-        user.userEmail,
-        subject,
-        buildEmailHtml(user.userName, emailHappyValues, emailPromotionValues)
-      );
-      if (result.simulated) anySimulated = true;
-      summary.emailsSent += 1;
-      notifiedThisUser = true;
-      for (const venue of emailHappyValues) {
-        newLogEntries.push({ userId: user.userId, venueId: venue.id, channel: 'email', notificationKind: 'happy_hour', eventKey: null, sentAt: nowIso });
-      }
-      for (const match of emailPromotionValues) {
-        newLogEntries.push({ userId: user.userId, venueId: match.venue.id, channel: 'email', notificationKind: 'promotion', eventKey: match.eventKey, sentAt: nowIso });
+      try {
+        const result = await sendEmail(
+          user.userEmail,
+          subject,
+          buildEmailHtml(user.userName, emailHappyValues, emailPromotionValues)
+        );
+        if (result.simulated) anySimulated = true;
+        await safelyRecordNotificationMetric({
+          userId: user.userId, channel: 'email', status: result.simulated ? 'simulated' : 'sent',
+        });
+        summary.emailsSent += 1;
+        notifiedThisUser = true;
+        for (const venue of emailHappyValues) {
+          newLogEntries.push({ userId: user.userId, venueId: venue.id, channel: 'email', notificationKind: 'happy_hour', eventKey: null, sentAt: nowIso });
+        }
+        for (const match of emailPromotionValues) {
+          newLogEntries.push({ userId: user.userId, venueId: match.venue.id, channel: 'email', notificationKind: 'promotion', eventKey: match.eventKey, sentAt: nowIso });
+        }
+      } catch (error) {
+        await safelyRecordNotificationMetric({ userId: user.userId, channel: 'email', status: 'failed' });
+        console.error('[alert email failed]', user.userId, error);
       }
     }
 
     const canText = Boolean(user.userPhone) && Boolean(user.userSmsConsentAt);
     const alreadySentToday = textSendTimestampsByUser.get(user.userId)?.size || 0;
     if (canText && alreadySentToday < cap && (textHappyValues.length || textPromotionValues.length)) {
-      const result = await sendSms(user.userPhone, buildSmsBody(textHappyValues, textPromotionValues));
-      if (result.simulated) anySimulated = true;
-      summary.textsSent += 1;
-      notifiedThisUser = true;
-      for (const venue of textHappyValues) {
-        newLogEntries.push({ userId: user.userId, venueId: venue.id, channel: 'text', notificationKind: 'happy_hour', eventKey: null, sentAt: nowIso });
-      }
-      for (const match of textPromotionValues) {
-        newLogEntries.push({ userId: user.userId, venueId: match.venue.id, channel: 'text', notificationKind: 'promotion', eventKey: match.eventKey, sentAt: nowIso });
+      try {
+        const result = await sendSms(user.userPhone, buildSmsBody(textHappyValues, textPromotionValues));
+        if (result.simulated) anySimulated = true;
+        await safelyRecordNotificationMetric({
+          userId: user.userId, channel: 'text', status: result.simulated ? 'simulated' : 'sent',
+        });
+        summary.textsSent += 1;
+        notifiedThisUser = true;
+        for (const venue of textHappyValues) {
+          newLogEntries.push({ userId: user.userId, venueId: venue.id, channel: 'text', notificationKind: 'happy_hour', eventKey: null, sentAt: nowIso });
+        }
+        for (const match of textPromotionValues) {
+          newLogEntries.push({ userId: user.userId, venueId: match.venue.id, channel: 'text', notificationKind: 'promotion', eventKey: match.eventKey, sentAt: nowIso });
+        }
+      } catch (error) {
+        await safelyRecordNotificationMetric({ userId: user.userId, channel: 'text', status: 'failed' });
+        console.error('[alert text failed]', user.userId, error);
       }
     }
     if (notifiedThisUser) summary.usersNotified += 1;

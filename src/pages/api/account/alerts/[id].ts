@@ -10,6 +10,7 @@ import {
 } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
+import { captureProductEvent } from '../../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -55,6 +56,14 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     active: body.active !== undefined ? Boolean(body.active) : undefined,
   });
   if (!updated) return errorJson(['Alert not found.'], 404);
+
+  if (body.active !== undefined && Boolean(body.active) !== existing.active) {
+    await captureProductEvent({
+      eventName: body.active ? 'alert_enabled' : 'alert_disabled',
+      userId: user.id,
+      properties: { alert_type: existing.alertKinds.join('+') },
+    });
+  }
 
   const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
   return json(publicUser(user, savedSpots, alerts));

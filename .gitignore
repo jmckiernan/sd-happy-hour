@@ -3,6 +3,7 @@ dist/
 .astro/
 .vercel/
 .env
+.env.local
 .DS_Store
 # Local-only fallback storage for accounts/submissions when no Vercel KV
 # store is connected yet — see src/lib/kv.ts and README-ACCOUNTS-SETUP.md.

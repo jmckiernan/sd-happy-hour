@@ -33,6 +33,10 @@ await build({
           if (!args.importer.includes(`${path.sep}pages${path.sep}api${path.sep}`)) return null;
           return { path: 'saved-list-store-fixture', namespace: 'shared-list-test' };
         });
+        context.onResolve({ filter: /\/lib\/productAnalytics$/ }, (args) => {
+          if (!args.importer.includes(`${path.sep}pages${path.sep}api${path.sep}`)) return null;
+          return { path: 'product-analytics-fixture', namespace: 'shared-list-test' };
+        });
 
         context.onLoad({ filter: /^shared-list-session-fixture$/, namespace: 'shared-list-test' }, () => ({
           loader: 'js',
@@ -50,6 +54,10 @@ await build({
               return { id, name: 'Fixture User', email: id + '@example.test' };
             }
           `,
+        }));
+        context.onLoad({ filter: /^product-analytics-fixture$/, namespace: 'shared-list-test' }, () => ({
+          loader: 'js',
+          contents: `export async function captureProductEvent() {}`,
         }));
         context.onLoad({ filter: /^saved-list-store-fixture$/, namespace: 'shared-list-test' }, () => ({
           loader: 'js',

@@ -403,7 +403,7 @@ const heroImage = getListingImage(venue, 'hero');
 
   <div class="venue-actions">
     <a class="btn-primary" id="venue-website" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
-    <a class="btn-secondary" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
+    <a class="btn-secondary" id="venue-directions" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
     <a
       class="btn-secondary"
       id="venue-call"
@@ -673,6 +673,18 @@ const heroImage = getListingImage(venue, 'hero');
     let isSignedIn = false;
     let isSavedToDefault = false;
     let savedState: any = null;
+
+    function trackVenueEvent(event: 'venue_viewed' | 'directions_opened') {
+      void fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ event, venueId }),
+        keepalive: true,
+      });
+    }
+
+    document.getElementById('venue-directions')!.addEventListener('click', () => trackVenueEvent('directions_opened'));
+    trackVenueEvent('venue_viewed');
 
     function renderSaveState() {
       const savedVenue = savedState?.venues?.find((entry: any) => entry.venueId === venueId);
