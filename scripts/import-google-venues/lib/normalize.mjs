@@ -82,6 +82,7 @@ export function normalizeVenue(record, nextId) {
   const website = record.websiteUri || record.website || record.googleMapsUri;
   const hh = record.happyHour;
   if (!hh?.startTime || !hh?.endTime || !hh?.days?.length) return null;
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.startTime) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.endTime)) return null;
 
   const deals = hh.deals?.length
     ? hh.deals.slice(0, 8)

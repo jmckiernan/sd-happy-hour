@@ -16,7 +16,15 @@ const WEBSITE_PATHS = [
 const USER_AGENT = 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)';
 
 function padTime(hour, minute = 0) {
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  const h = Number(hour);
+  const m = Number(minute);
+  if (!Number.isFinite(h) || !Number.isFinite(m) || m < 0 || m > 59) return null;
+  const normalizedHour = ((h % 24) + 24) % 24;
+  return `${String(normalizedHour).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function isValidTime(value) {
+  return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
 function parseClockToken(token) {
@@ -91,6 +99,7 @@ export function parseGoogleHappyHour(regularSecondaryOpeningHours = []) {
     const day = DAY_NAMES[period.open.day];
     const startTime = padTime(period.open.hour, period.open.minute || 0);
     const endTime = padTime(period.close.hour, period.close.minute || 0);
+    if (!startTime || !endTime) continue;
     const key = `${startTime}-${endTime}`;
     if (!dayTimes.has(key)) dayTimes.set(key, { startTime, endTime, days: new Set() });
     dayTimes.get(key).days.add(day);
@@ -174,8 +183,7 @@ export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
       const days = daysFromRangeText(section) || daysFromRangeText(text) || DAY_NAMES.slice(1, 6);
       const times = parseTimeRange(section) || parseTimeRange(text);
       if (!times) continue;
-
-      const deals = extractDealsFromText(section);
+      if (!isValidTime(times.startTime) || !isValidTime(times.endTime)) continue;
       return {
         ...times,
         days,
