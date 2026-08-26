@@ -2,10 +2,11 @@
 title: "Chasing the Best Taco Happy Hours in San Diego"
 description: "A local's guide to what makes a taco happy hour worth chasing in San Diego, plus the neighborhoods where you're most likely to find one."
 pubDate: 2026-08-01
+updatedDate: 2026-08-24
 author: "SD Happy Hours"
 draft: false
 aiGenerated: true
-venues: []
+venues: ["bracero-cocina", "coasterra"]
 ---
 There's a special kind of joy in a good taco happy hour — that sweet window when a $1 or $2 discount turns a "maybe I'll grab something small" into "let's get a round for the table." San Diego, being basically taco royalty by proximity to Baja, has no shortage of spots chasing that magic. The tricky part is that the *good* deals change constantly — a taqueria drops its Tuesday special, a brewery swaps in a new taco truck, a bar's "secret" fish taco hour gets less secret every month. So instead of pointing you to specific times and prices right now (those shift fast, and we only publish what's verified), let's talk about how to actually find the good stuff, and where to start looking.
 

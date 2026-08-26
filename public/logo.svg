@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">SD Happy Hours</title>
+  <desc id="desc">A San Diego sunset over the ocean with a cocktail glass.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="0.58" stop-color="#ff6b35"/>
+      <stop offset="1" stop-color="#ffd23f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="104" fill="#0f172a"/>
+  <circle cx="256" cy="230" r="176" fill="url(#sky)"/>
+  <path d="M80 272c59-17 103-17 154 0s95 17 198 0v134H80z" fill="#0891b2"/>
+  <path d="M80 309c59-17 103-17 154 0s95 17 198 0" fill="none" stroke="#fff" stroke-opacity=".72" stroke-width="13"/>
+  <path d="M303 126h101l-50 65v90" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="18"/>
+  <path d="M326 281h57" stroke="#fff" stroke-linecap="round" stroke-width="18"/>
+</svg>

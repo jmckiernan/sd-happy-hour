@@ -1,6 +1,6 @@
 ---
 title: "Welcome to SD Happy Hours"
-description: "Why we built a real-time guide to San Diego's best happy hours, and what's coming next."
+description: "Meet SD Happy Hours, a local guide built to help San Diegans find current happy hour schedules, venue details, and food and drink deals."
 pubDate: 2026-07-24
 author: "John & Shane"
 draft: false

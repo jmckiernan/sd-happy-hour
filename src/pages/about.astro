@@ -1,0 +1,77 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { breadcrumbSchema, SITE_URL } from '../lib/seo';
+
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'About SD Happy Hours', path: '/about/' },
+];
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  '@id': `${SITE_URL}/about/#page`,
+  url: `${SITE_URL}/about/`,
+  name: 'About SD Happy Hours',
+  description: 'How SD Happy Hours sources, reviews, updates, corrects, and publishes San Diego happy hour information and local guides.',
+  about: { '@id': `${SITE_URL}/#organization` },
+};
+---
+<Layout
+  title="About & Editorial Policy | SD Happy Hours"
+  description="Learn who runs SD Happy Hours and how we source, review, update, correct, and publish San Diego happy hour listings and local guides."
+  structuredData={[aboutSchema, breadcrumbSchema(breadcrumbs)]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+  <header class="page-header">
+    <h1>About SD Happy Hours</h1>
+    <p>A focused local guide for answering one deceptively difficult question: where is happy hour happening in San Diego?</p>
+  </header>
+
+  <main class="about-main">
+    <section>
+      <h2>Why we built it</h2>
+      <p>Happy hour menus change faster than traditional roundups. SD Happy Hours brings schedules, deals, neighborhood discovery, and venue links into one place so people can compare options without relying on an old menu photo.</p>
+      <p>We are an independent directory, not a restaurant chain or booking service. Venue names and trademarks belong to their respective owners.</p>
+    </section>
+
+    <section id="authors">
+      <h2>Who publishes the site</h2>
+      <p>SD Happy Hours was built by Shane and John in San Diego. Articles show an author or editorial byline, an original publication date, and an updated date when the substance of a guide changes.</p>
+    </section>
+
+    <section>
+      <h2>How listing information is handled</h2>
+      <ul>
+        <li>Community members and restaurant representatives can submit a listing with a source URL.</li>
+        <li>Submissions go through an administrative review before they are added to the public directory.</li>
+        <li>Restaurant managers can claim a listing and submit current schedule, menu, and photo updates.</li>
+        <li>A “Verified” badge means the listing has completed the site’s verification workflow. Other listings are clearly labeled as needing verification.</li>
+      </ul>
+      <p>Even verified offers can change for holidays, events, or a new menu. Every venue page links to the restaurant’s official website, and readers should confirm before making a special trip.</p>
+    </section>
+
+    <section>
+      <h2>Blog and AI editorial policy</h2>
+      <p>Guides are written to help readers compare real options, understand neighborhood tradeoffs, and plan a visit. Venue-specific prices, days, and hours in AI-assisted drafts are constrained to selected directory records; the published article identifies when AI assistance was used.</p>
+      <p>AI assistance is not a substitute for accurate sourcing. We do not intentionally fabricate visits, quotes, customer reviews, prices, or schedules. Search-friendly headings and metadata are used to describe the page accurately, not to repeat keywords.</p>
+    </section>
+
+    <section>
+      <h2>Corrections and new listings</h2>
+      <p>See a schedule that has changed or a San Diego happy hour that is missing? <a href="/submit/">Send the current details and a source link</a>. Restaurant owners can also use the <a href="/restaurant/">restaurant dashboard</a> to claim and maintain their listing.</p>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .about-main { max-width: 780px; margin: 0 auto; padding: 34px 24px 80px; }
+  .about-main section { background: rgba(255,255,255,.84); border-radius: var(--radius); margin-bottom: 18px; padding: 26px; }
+  .about-main h2 { font-family: var(--font-display); font-size: 1.45rem; margin-bottom: 10px; }
+  .about-main p, .about-main li { color: var(--night-soft); line-height: 1.7; }
+  .about-main p + p { margin-top: 12px; }
+  .about-main ul { margin-left: 22px; }
+  .about-main li + li { margin-top: 7px; }
+  .about-main a { color: var(--ocean-deep); font-weight: 700; }
+</style>

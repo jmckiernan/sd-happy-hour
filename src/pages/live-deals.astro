@@ -5,8 +5,8 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 ---
 
 <Layout
-  title="Live Deals | SD Happy Hours"
-  description="Find limited-time Live Deals happening now at San Diego restaurants and bars."
+  title="Live Happy Hour Deals in San Diego | SD Happy Hours"
+  description="Find limited-time happy hour promotions happening now at San Diego restaurants and bars, with current end times and venue details."
 >
   <LiveDealStyles />
 
@@ -443,7 +443,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
             <img
               src="${escapeHTML(imageSources.primary)}"
               alt="${escapeHTML(promotion.venue.name)}"
+              width="800"
+              height="534"
               loading="lazy"
+              decoding="async"
               data-listing-image
               data-original-src="${escapeHTML(imageSources.original)}"
               data-stock-src="${escapeHTML(imageSources.stock)}"

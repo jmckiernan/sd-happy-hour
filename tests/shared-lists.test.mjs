@@ -36,7 +36,10 @@ function listContext({ userId = null, token = null, track = false } = {}) {
 }
 
 function itemContext(userId, venueId = '1') {
-  return { params: { id: 'list-1', venueId }, cookies: cookies(userId) };
+  return {
+    params: { id: 'list-1', venueId }, cookies: cookies(userId),
+    request: new Request(`https://happyhoursd.com/api/lists/list-1/items/${venueId}`),
+  };
 }
 
 function sharesContext(userId) {
@@ -48,7 +51,10 @@ function sharesContext(userId) {
 }
 
 function defaultSaveContext(userId, venueId = '1') {
-  return { params: { venueId }, cookies: cookies(userId) };
+  return {
+    params: { venueId }, cookies: cookies(userId),
+    request: new Request(`https://happyhoursd.com/api/account/saved-venues/${venueId}`),
+  };
 }
 
 async function responseJson(response) {

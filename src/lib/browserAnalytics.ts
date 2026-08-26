@@ -32,6 +32,33 @@ export function initBrowserAnalytics(): void {
   if (initialized || typeof window === 'undefined') return;
   if (!window.location.pathname.startsWith('/blog/')) return;
 
+  // First-party content-engine measurement stays useful even when PostHog is
+  // intentionally disabled. Only generated posts carry this UUID, and the
+  // endpoint stores a bounded slug/destination rather than visitor identity.
+  const contentEngineDraftId = document.body.dataset.analyticsContentId;
+  const contentSlug = document.body.dataset.analyticsContentSlug;
+  if (contentEngineDraftId && contentSlug) {
+    fetch('/api/content-engine/click', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ event: 'article_view', draftId: contentEngineDraftId, slug: contentSlug }),
+      keepalive: true,
+    }).catch(() => {});
+    document.addEventListener('click', (event) => {
+      const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href]');
+      if (!anchor || anchor.closest('[data-admin-only]')) return;
+      fetch('/api/content-engine/click', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          event: 'article_link_click', draftId: contentEngineDraftId, slug: contentSlug,
+          destination: anchor.href, linkType: anchor.dataset.analyticsLink || linkArea(anchor),
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    });
+  }
+
   const localHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
   if (localHost && import.meta.env.PUBLIC_POSTHOG_ALLOW_LOCAL !== 'true') return;
 

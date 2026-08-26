@@ -2,8 +2,11 @@
 export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import LiveDealStyles from '../../components/LiveDealStyles.astro';
 import { getVenues, slugify, formatTime, getListingImage, getVenueImage } from '../../lib/venues';
+import { neighborhoodPath } from '../../lib/neighborhoods';
+import { breadcrumbSchema, venueSchema, withSiteName } from '../../lib/seo';
 
 
 export async function getStaticPaths() {
@@ -23,8 +26,22 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venu
 // The venue's own featured photo if an admin has set one, else the vibe stock
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
+const areaPath = neighborhoodPath(venue.neighborhood);
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Neighborhoods', path: '/neighborhoods/' },
+  ...(areaPath ? [{ name: venue.neighborhood, path: areaPath }] : []),
+  { name: venue.name, path: `/venues/${slugify(venue.name)}/` },
+];
 ---
-<Layout title={`${venue.name} Happy Hour — ${venue.neighborhood} | SD Happy Hours`} description={description} image={heroImage}>
+<Layout
+  title={withSiteName(`${venue.name} Happy Hour — ${venue.neighborhood}`)}
+  description={description}
+  image={heroImage}
+  imageAlt={`${venue.name} in ${venue.neighborhood}, San Diego`}
+  noindex={venue.seoHidden}
+  structuredData={[venueSchema(venue, heroImage, description), breadcrumbSchema(breadcrumbs)]}
+>
   <LiveDealStyles />
   <style>
     .venue-hero {
@@ -190,6 +207,7 @@ const heroImage = getListingImage(venue, 'hero');
     .btn-primary:hover { background: var(--sunset-start); }
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
     .btn-save.saved { background: var(--sunset-start); color: white; }
+    .btn-follow.following { background: var(--ocean); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
     .btn-admin-edit { align-items: center; background: rgba(8, 145, 178, 0.14); border-radius: 100px; color: var(--ocean-deep); display: inline-flex; font-size: .78rem; font-weight: 700; padding: 8px 14px; text-decoration: none; }
     .btn-admin-edit:hover { background: rgba(8, 145, 178, 0.26); }
@@ -352,8 +370,10 @@ const heroImage = getListingImage(venue, 'hero');
     }
   </style>
 
+  <Breadcrumbs items={breadcrumbs} />
+
   <div class="venue-topbar">
-    <a class="back-link" href="/">← Back to all happy hours</a>
+    <a class="back-link" href={areaPath || '/'}>← Back to {areaPath ? `${venue.neighborhood} happy hours` : 'all happy hours'}</a>
     <a
       class="btn-admin-edit"
       data-admin-only
@@ -384,6 +404,7 @@ const heroImage = getListingImage(venue, 'hero');
         width="1600"
         height="1000"
         fetchpriority="high"
+        decoding="async"
       />
       <div class="scrim"></div>
       <div class="hero-primary-badge" id="hero-primary-badge" aria-live="polite" hidden>
@@ -416,6 +437,10 @@ const heroImage = getListingImage(venue, 'hero');
       </svg>
       <span id="save-label">Save</span>
     </button>
+    <button class="btn-secondary btn-follow" id="follow-btn" data-venue-id={venue.id} aria-pressed="false">
+      <span id="follow-label">Follow live deals</span>
+    </button>
+    <button class="btn-secondary" id="share-btn" type="button">Share</button>
   </div>
 
   <section class="live-deal-wrap" id="live-deal-section" aria-labelledby="live-deal-title" hidden>
@@ -652,6 +677,10 @@ const heroImage = getListingImage(venue, 'hero');
       }
 
       setText(liveDealTitle, promotion.title);
+      if (!trackedPromotionViews.has(promotion.id)) {
+        trackedPromotionViews.add(promotion.id);
+        trackVenueEvent('promotion_view', promotion.id);
+      }
       setText(liveDealDetails, promotion.description.trim());
       liveDealDetails.hidden = !liveDealDetails.textContent;
       liveDealAlsoHappyHour.hidden = consumerState.state !== 'both';
@@ -672,18 +701,43 @@ const heroImage = getListingImage(venue, 'hero');
     const saveLabel = document.getElementById('save-label')!;
     let isSignedIn = false;
     let isSavedToDefault = false;
+    let isFollowing = false;
     let savedState: any = null;
+    const trackedPromotionViews = new Set<string>();
 
-    function trackVenueEvent(event: 'venue_viewed' | 'directions_opened') {
+    function trackVenueEvent(event: string, promotionId?: string | null) {
+      let referrerHost = '';
+      try { referrerHost = document.referrer ? new URL(document.referrer).host : ''; } catch { /* ignore */ }
       void fetch('/api/analytics/events', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ event, venueId }),
+        body: JSON.stringify({ event, venueId, promotionId: promotionId || undefined, referrerHost }),
         keepalive: true,
       });
     }
 
-    document.getElementById('venue-directions')!.addEventListener('click', () => trackVenueEvent('directions_opened'));
+    function activePromotionId() {
+      return promotionSnapshot.data?.promotions?.[0]?.id || null;
+    }
+
+    function trackPromotionIntent() {
+      const promotionId = activePromotionId();
+      if (promotionId) trackVenueEvent('promotion_click', promotionId);
+    }
+
+    document.getElementById('venue-website')!.addEventListener('click', () => {
+      trackVenueEvent('website_click');
+      trackPromotionIntent();
+    });
+    document.getElementById('venue-call')!.addEventListener('click', () => {
+      trackVenueEvent('call_click');
+      trackPromotionIntent();
+    });
+    document.getElementById('venue-directions')!.addEventListener('click', () => {
+      trackVenueEvent('directions_opened');
+      trackPromotionIntent();
+    });
+    liveDealSignIn.addEventListener('click', trackPromotionIntent);
     trackVenueEvent('venue_viewed');
 
     function renderSaveState() {
@@ -700,14 +754,31 @@ const heroImage = getListingImage(venue, 'hero');
 
     async function init() {
       try {
-        const res = await fetch('/api/account/me');
-        const session = await res.json();
+        const [sessionResponse, followsResponse] = await Promise.all([
+          fetch('/api/account/me'),
+          fetch('/api/account/follows'),
+        ]);
+        const session = await sessionResponse.json();
         isSignedIn = Boolean(session.authenticated);
         savedState = session.user?.saved || null;
         renderSaveState();
+        if (followsResponse.ok) {
+          const follows = await followsResponse.json();
+          isFollowing = Boolean(follows.follows?.some((follow: any) => follow.venueId === venueId));
+        }
+        renderFollowState();
       } catch {
         // leave defaults
       }
+    }
+
+    const followBtn = document.getElementById('follow-btn') as HTMLButtonElement;
+    const followLabel = document.getElementById('follow-label')!;
+    function renderFollowState() {
+      followBtn.disabled = false;
+      followBtn.classList.toggle('following', isFollowing);
+      followBtn.setAttribute('aria-pressed', String(isFollowing));
+      followLabel.textContent = isFollowing ? 'Following live deals' : 'Follow live deals';
     }
 
     saveBtn.addEventListener('click', async () => {
@@ -729,6 +800,43 @@ const heroImage = getListingImage(venue, 'hero');
         console.error('[venue quick save]', error);
       } finally {
         renderSaveState();
+      }
+    });
+
+    followBtn.addEventListener('click', async () => {
+      if (!isSignedIn) {
+        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      followBtn.disabled = true;
+      followLabel.textContent = isFollowing ? 'Unfollowing...' : 'Following...';
+      try {
+        const response = await fetch(`/api/account/follows/${venueId}`, isFollowing
+          ? { method: 'DELETE' }
+          : {
+              method: 'PUT',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ promotionAlertsEnabled: true, channels: { email: true } }),
+            });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((data.errors || ['Could not update this follow.']).join(' '));
+        isFollowing = !isFollowing;
+      } catch (error) {
+        console.error('[venue follow]', error);
+      } finally {
+        renderFollowState();
+      }
+    });
+
+    document.getElementById('share-btn')!.addEventListener('click', async () => {
+      const shareData = { title: document.title, text: `Check out ${document.querySelector('h1')?.textContent || 'this happy hour'}`, url: window.location.href };
+      try {
+        if (navigator.share) await navigator.share(shareData);
+        else await navigator.clipboard.writeText(window.location.href);
+        trackVenueEvent('share');
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        console.error('[venue share]', error);
       }
     });
 

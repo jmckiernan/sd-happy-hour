@@ -7,6 +7,10 @@ import {
   VenueFollowServiceError,
   type VenueFollowPatch,
 } from '../../../../lib/venueFollowService';
+import { captureMerchantEvent, deviceTypeFromUserAgent } from '../../../../lib/merchantAnalytics';
+import { ensureMerchantAnalyticsIdentity } from '../../../../lib/merchantAnalyticsIdentity';
+import { getVenueFollowForUpdate } from '../../../../lib/venueFollowRepo';
+import { sql } from '../../../../lib/db';
 
 export const prerender = false;
 
@@ -68,7 +72,17 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   if (errors.length) return errorJson(errors, 422);
 
   try {
-    return json(await saveVenueFollow(session.userId, Number(params.venueId), patch));
+    const venueId = Number(params.venueId);
+    const result = await saveVenueFollow(session.userId, venueId, patch);
+    const identity = ensureMerchantAnalyticsIdentity(cookies, new URL(request.url).protocol === 'https:');
+    const common = {
+      venueId, userId: session.userId, visitorId: identity.visitorId, visitId: identity.visitId,
+      authenticated: true, source: 'venue_page', deviceType: deviceTypeFromUserAgent(request.headers.get('user-agent')),
+    } as const;
+    if (result.created) await captureMerchantEvent({ eventName: 'follow', ...common });
+    if (result.alertsBecameEnabled) await captureMerchantEvent({ eventName: 'alert_subscribe', ...common });
+    if (result.alertsBecameDisabled) await captureMerchantEvent({ eventName: 'alert_unsubscribe', ...common });
+    return json(result);
   } catch (error) {
     const response = serviceErrorResponse(error);
     if (response) return response;
@@ -78,12 +92,25 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 
 export const PATCH = PUT;
 
-export const DELETE: APIRoute = async ({ params, cookies }) => {
+export const DELETE: APIRoute = async ({ params, cookies, request }) => {
   const session = await getSession(cookies);
   if (!session) return errorJson(['User login required.'], 401);
   try {
-    await removeVenueFollow(session.userId, Number(params.venueId));
-    return json({ ok: true, venueId: Number(params.venueId) });
+    const venueId = Number(params.venueId);
+    const existing = await getVenueFollowForUpdate(session.userId, venueId, sql);
+    const removed = await removeVenueFollow(session.userId, venueId);
+    if (removed) {
+      const identity = ensureMerchantAnalyticsIdentity(cookies, new URL(request.url).protocol === 'https:');
+      const common = {
+        venueId, userId: session.userId, visitorId: identity.visitorId, visitId: identity.visitId,
+        authenticated: true, source: 'venue_page', deviceType: deviceTypeFromUserAgent(request.headers.get('user-agent')),
+      } as const;
+      await captureMerchantEvent({ eventName: 'unfollow', ...common });
+      if (existing?.happyHourAlertsEnabled || existing?.promotionAlertsEnabled) {
+        await captureMerchantEvent({ eventName: 'alert_unsubscribe', ...common });
+      }
+    }
+    return json({ ok: true, venueId });
   } catch (error) {
     const response = serviceErrorResponse(error);
     if (response) return response;

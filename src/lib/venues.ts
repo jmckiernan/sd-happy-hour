@@ -26,6 +26,9 @@ export interface Venue {
   vibe: string;
   website: string;
   verified: boolean;
+  /** Keep known test or incomplete listings available to product QA without
+   * allowing them into search indexes or neighborhood discovery pages. */
+  seoHidden?: boolean;
   // Optional metadata captured on submissions (src/pages/submit.astro) and
   // shown in the admin review queue. Older/seed venues won't have these.
   sourceUrl?: string;

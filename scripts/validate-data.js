@@ -52,6 +52,7 @@ function validateListing(listing, label) {
   if (!hasString(listing.vibe)) errors.push(`${label}: vibe is required.`);
   if (!isUrl(listing.website)) errors.push(`${label}: website must be an http(s) URL.`);
   if (typeof listing.verified !== 'boolean') errors.push(`${label}: verified must be boolean.`);
+  if ('seoHidden' in listing && typeof listing.seoHidden !== 'boolean') errors.push(`${label}: seoHidden must be boolean when present.`);
   if (!('lastVerifiedAt' in listing)) errors.push(`${label}: lastVerifiedAt is required, even when null.`);
   if (!isUrl(listing.sourceUrl)) errors.push(`${label}: sourceUrl must be an http(s) URL.`);
   if (!hasStringArray(listing.dealTypes)) errors.push(`${label}: dealTypes must be a non-empty string array.`);

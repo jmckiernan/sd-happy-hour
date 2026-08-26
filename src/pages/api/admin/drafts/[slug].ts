@@ -88,6 +88,7 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 
     let lines = setField(file.lines, 'title', title.trim());
     lines = setField(lines, 'description', description.trim());
+    lines = setField(lines, 'updatedDate', new Date().toISOString().slice(0, 10));
     if (Array.isArray(venues)) {
       lines = setField(lines, 'venues', venues.map((v: string) => String(v).trim()).filter(Boolean));
     }

@@ -5,6 +5,10 @@ import Layout from '../../layouts/Layout.astro';
 const posthogWebAnalyticsUrl = 'https://us.posthog.com/project/575257/web';
 const posthogBlogDashboardUrl = 'https://us.posthog.com/project/575257/dashboard/2028794';
 const searchConsoleUrl = 'https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain%3Ahappyhoursd.com';
+const richResultsUrl = 'https://search.google.com/test/rich-results?url=https%3A%2F%2Fhappyhoursd.com%2F';
+const pageSpeedUrl = 'https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fhappyhoursd.com%2F';
+const bingWebmasterUrl = 'https://www.bing.com/webmasters/about';
+const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
 ---
 <Layout title="Analytics & SEO | SD Happy Hours Admin" description="Open the reporting tools for SD Happy Hours.">
   <style>
@@ -45,6 +49,22 @@ const searchConsoleUrl = 'https://search.google.com/search-console/performance/s
           <a class="action" href={searchConsoleUrl} target="_blank" rel="noreferrer">Open Search Performance ↗</a>
         </div>
       </section>
+      <section class="tool-card">
+        <h2>Google validation tools</h2>
+        <p>Test Core Web Vitals and confirm that Google can read the site's venue, article, and breadcrumb structured data after each deployment.</p>
+        <div class="actions">
+          <a class="action" href={pageSpeedUrl} target="_blank" rel="noreferrer">Run PageSpeed ↗</a>
+          <a class="action secondary" href={richResultsUrl} target="_blank" rel="noreferrer">Test rich results ↗</a>
+        </div>
+      </section>
+      <section class="tool-card">
+        <h2>Free crawl and search tools</h2>
+        <p>Bing Webmaster Tools provides search reporting and a site scan. Ahrefs Free adds a recurring crawl, backlink data, and on-page issue reports for a verified site.</p>
+        <div class="actions">
+          <a class="action" href={bingWebmasterUrl} target="_blank" rel="noreferrer">Open Bing Webmaster ↗</a>
+          <a class="action secondary" href={ahrefsUrl} target="_blank" rel="noreferrer">Open Ahrefs Free ↗</a>
+        </div>
+      </section>
     </div>
 
     <section class="event-list">
@@ -58,7 +78,7 @@ const searchConsoleUrl = 'https://search.google.com/search-console/performance/s
         <li>Referrer and UTM attribution</li>
         <li>Page-level web vitals</li>
       </ul>
-      <p class="notice">Session replay, form-content capture, and broad click autocapture are disabled. Google may omit low-volume queries for searcher privacy.</p>
+      <p class="notice"><strong>Launch check:</strong> public crawlers currently receive Netlify's 401 access screen. Remove site-wide visitor protection before submitting the sitemap or running external crawls. Session replay, form-content capture, and broad click autocapture are disabled. Google may omit low-volume queries for searcher privacy.</p>
     </section>
   </main>
 

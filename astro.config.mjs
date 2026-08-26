@@ -6,7 +6,14 @@ export default defineConfig({
   site: 'https://happyhoursd.com',
   output: 'server',
   adapter: netlify(),
-  integrations: [sitemap()],
+  integrations: [sitemap({
+    filter: (page) => {
+      const pathname = new URL(page).pathname;
+      const privatePrefixes = ['/account', '/admin', '/alerts', '/lists', '/restaurant', '/submit'];
+      return !privatePrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+        && pathname !== '/venues/your-mother-s-house/';
+    },
+  })],
   vite: {
     server: {
       watch: {

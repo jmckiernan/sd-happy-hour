@@ -786,6 +786,7 @@
     "vibe": "rooftop",
     "website": "https://gmail.com",
     "verified": false,
+    "seoHidden": true,
     "lastVerifiedAt": null,
     "sourceUrl": "https://google.com",
     "dealTypes": [

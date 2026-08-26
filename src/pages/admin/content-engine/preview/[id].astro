@@ -1,0 +1,755 @@
+---
+export const prerender = false;
+import Layout from '../../../../layouts/Layout.astro';
+import Breadcrumbs from '../../../../components/Breadcrumbs.astro';
+import { getAdminUser } from '../../../../lib/admins';
+import { getEditorialCluster, getGeneratedDraft } from '../../../../lib/contentEngine/repo';
+import { renderMarkdown } from '../../../../lib/markdown';
+
+const id = Astro.params.id!;
+const admin = await getAdminUser(Astro.cookies);
+const embed = Astro.url.searchParams.get('embed') === '1';
+
+let draft: Awaited<ReturnType<typeof getGeneratedDraft>> = null;
+let cluster: Awaited<ReturnType<typeof getEditorialCluster>> = null;
+let loadError: string | null = null;
+let bodyHtml = '';
+
+if (admin) {
+  try {
+    draft = await getGeneratedDraft(id);
+    if (!draft) loadError = 'Draft not found — it may have been published or removed.';
+    else {
+      cluster = await getEditorialCluster(draft.clusterId!);
+      bodyHtml = renderMarkdown(draft.bodyMarkdown);
+    }
+  } catch (err: any) {
+    loadError = err.message;
+  }
+}
+
+const isBlog = draft?.contentType === 'blog';
+const isNewsletter = draft?.contentType === 'newsletter';
+const inReview = draft?.status === 'review';
+const dateStr = draft?.createdAt
+  ? new Date(draft.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : '';
+const slugTag = (tag: string) => tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const breadcrumbs = draft ? [
+  { name: 'Home', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: draft.title, path: draft.slug ? `/blog/${draft.slug}/` : '/blog/' },
+] : [];
+const provenance = cluster
+  ? cluster.items.flatMap((item) => item.provenance)
+  : [];
+---
+<Layout
+  title={draft ? `Preview: ${draft.title} | Content Engine` : 'Draft Preview | Content Engine'}
+  description="Preview a content-engine draft before publishing."
+>
+  <style is:global>
+    .ce-preview-bar {
+      background: white;
+      border-bottom: 1px solid rgba(15,23,42,.08);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .ce-preview-bar-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ce-preview-bar h1 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      margin: 0 0 4px;
+    }
+    .ce-preview-bar p { color: var(--night-soft); font-size: .82rem; margin: 0; }
+    .ce-preview-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ce-preview-actions button, .ce-preview-actions a {
+      border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer;
+      font: inherit; font-weight: 700; text-decoration: none;
+    }
+    .ce-preview-actions .primary { background: var(--night); color: white; }
+    .ce-preview-actions .primary:hover { background: var(--sunset-start); }
+    .ce-preview-actions .secondary { background: var(--sand-warm); color: var(--night); }
+    .ce-preview-actions .secondary:hover { background: var(--sunset-end); }
+    .ce-preview-actions .danger { background: #FEE2E2; color: #991B1B; }
+    .ce-preview-actions .danger:hover { background: #FECACA; }
+    .ce-preview-actions .good { background: var(--palm); color: white; }
+    .ce-preview-actions .good:hover { background: #16A34A; }
+    .ce-preview-actions button:disabled { opacity: .5; cursor: not-allowed; }
+    #ce-preview-msg { max-width: 900px; margin: 12px auto 0; padding: 0 24px; font-size: .85rem; font-weight: 600; min-height: 1.2em; }
+    #ce-preview-msg.ok { color: #166534; }
+    #ce-preview-msg.err { color: #991B1B; }
+
+    .post-header { max-width: 760px; margin: 0 auto; padding: 48px 24px 24px; }
+    .post-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .post-header .meta { font-size: .85rem; color: var(--night-soft); }
+    .post-header h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.75rem); line-height: 1.1; margin-bottom: 12px; }
+    .post-header .description { font-size: 1.1rem; color: var(--night-soft); }
+    .editorial-note {
+      background: var(--sand-warm); border-radius: var(--radius-sm); color: var(--night-soft);
+      font-size: .8rem; line-height: 1.5; margin-top: 14px; padding: 10px 13px;
+    }
+    .post-hero { max-width: 900px; margin: 0 auto 32px; padding: 0 24px; }
+    .post-hero .frame {
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+    }
+    .post-hero img {
+      width: 100%; height: clamp(220px, 40vw, 420px); object-fit: cover; display: block;
+    }
+    .post-body {
+      max-width: 760px; margin: 0 auto; padding: 0 24px 48px;
+      background: rgba(255, 251, 245, 0.70); border-radius: var(--radius);
+      font-size: 1.05rem; line-height: 1.75;
+    }
+    .post-body h2 { font-family: var(--font-display); margin: 32px 0 12px; }
+    .post-body h3 { margin: 24px 0 8px; }
+    .post-body p { margin-bottom: 16px; }
+    .post-body a { color: var(--ocean); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; }
+    .post-taxonomy {
+      max-width: 760px; margin: -22px auto 32px; padding: 0 24px;
+      display: flex; flex-wrap: wrap; gap: 7px;
+    }
+    .post-taxonomy a {
+      background: var(--sand-warm); border-radius: 999px; color: var(--night-soft);
+      font-size: .76rem; font-weight: 700; padding: 6px 10px; text-decoration: none;
+    }
+    .post-taxonomy a:hover { background: var(--sunset-end); color: var(--night); }
+
+    .newsletter-shell { max-width: 640px; margin: 0 auto; padding: 32px 24px 64px; }
+    .newsletter-shell .subject {
+      font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.1rem);
+      line-height: 1.15; margin-bottom: 8px;
+    }
+    .newsletter-shell .preheader { color: var(--night-soft); font-size: 1rem; margin-bottom: 24px; }
+    .newsletter-body {
+      background: white; border-radius: var(--radius); padding: 28px 24px;
+      box-shadow: 0 2px 10px rgba(15,23,42,.06); font-size: 1rem; line-height: 1.65;
+    }
+    .newsletter-body h2 { font-family: var(--font-display); margin: 24px 0 10px; font-size: 1.2rem; }
+    .newsletter-body p { margin-bottom: 14px; }
+    .newsletter-body a { color: var(--ocean); }
+
+    .ce-edit-panel {
+      max-width: 760px; margin: 0 auto; padding: 24px 24px 80px;
+      display: none;
+    }
+    .ce-edit-panel.open { display: block; }
+    .ce-edit-panel label {
+      color: var(--night-soft); display: block; font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em; margin: 20px 0 6px;
+    }
+    .ce-edit-panel label:first-of-type { margin-top: 0; }
+    .ce-edit-panel input, .ce-edit-panel textarea {
+      width: 100%; padding: 12px 14px; border: 2px solid var(--sand-warm);
+      border-radius: var(--radius-sm); font: inherit; font-size: .95rem; color: var(--night);
+    }
+    .ce-edit-panel textarea.body-field {
+      min-height: 420px; font-family: ui-monospace, monospace; font-size: .88rem; line-height: 1.6;
+    }
+    .ce-edit-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+    .ce-edit-actions button {
+      border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; font: inherit; font-weight: 700;
+    }
+    .ce-edit-actions .save { background: var(--night); color: white; }
+    .ce-edit-actions .cancel { background: var(--sand-warm); color: var(--night); }
+    .ce-edit-actions button:disabled { opacity: .5; cursor: not-allowed; }
+    #ce-edit-msg { font-size: .85rem; font-weight: 600; margin-top: 10px; min-height: 1.2em; }
+    #ce-edit-msg.ok { color: #166534; }
+    #ce-edit-msg.err { color: #991B1B; }
+    .ce-provenance {
+      max-width: 760px; margin: 0 auto 48px; padding: 0 24px;
+      font-size: .82rem; color: var(--night-soft);
+    }
+    .ce-provenance summary { cursor: pointer; font-weight: 700; }
+    .ce-provenance ul { margin: 8px 0 0 18px; }
+    .ce-provenance a { color: var(--ocean-deep); }
+    .ce-locked { text-align: center; padding: 70px 24px; }
+    .ce-locked a {
+      display: inline-flex; background: var(--night); color: white; padding: 12px 22px;
+      border-radius: 999px; text-decoration: none; font-weight: 700;
+    }
+    .hidden { display: none !important; }
+
+    .ce-dialog-backdrop {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 32px 16px; overflow-y: auto;
+      background: rgba(15, 23, 42, 0.62);
+    }
+    .ce-dialog-backdrop.hidden { display: none; }
+    .ce-dialog {
+      background: white; border-radius: var(--radius); width: min(520px, 100%);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.28); padding: 24px 24px 22px;
+    }
+    .ce-dialog.wide { width: min(680px, 100%); }
+    .ce-dialog-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 12px; margin-bottom: 10px;
+    }
+    .ce-dialog-head h2 {
+      font-family: var(--font-display); font-size: 1.35rem; line-height: 1.2; margin: 0;
+    }
+    .ce-dialog-x {
+      background: none; border: 0; color: var(--night-soft); cursor: pointer;
+      font-size: 1.6rem; line-height: 1; padding: 0 4px; margin: 0;
+    }
+    .ce-dialog-x:hover { color: var(--night); }
+    .ce-dialog-copy { color: var(--night-soft); font-size: .88rem; line-height: 1.55; margin: 0 0 18px; }
+    .ce-dialog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .ce-dialog label {
+      display: grid; gap: 6px; font-size: .78rem; font-weight: 700;
+      color: var(--night-soft); text-transform: uppercase; letter-spacing: .04em;
+    }
+    .ce-dialog input, .ce-dialog textarea {
+      width: 100%; padding: 12px 14px; border: 2px solid var(--sand-warm);
+      border-radius: var(--radius-sm); font: inherit; font-size: .95rem; color: var(--night);
+      text-transform: none; letter-spacing: normal; font-weight: 400;
+    }
+    .ce-dialog input:focus, .ce-dialog textarea:focus {
+      border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12); outline: none;
+    }
+    .ce-dialog textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+    .ce-dialog-hint { font-size: .8rem; color: var(--night-soft); line-height: 1.5; margin: 0 0 16px; }
+    .ce-dialog-hint strong { color: var(--night); }
+    .ce-dialog-hint .good { color: #166534; font-weight: 600; }
+    .ce-dialog-hint .bad { color: #991B1B; font-weight: 600; }
+    .ce-dialog-error { color: #991B1B; font-size: .82rem; font-weight: 600; min-height: 1.2em; margin-bottom: 12px; }
+    .ce-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .ce-dialog-actions button {
+      border: 0; border-radius: 999px; padding: 11px 18px; cursor: pointer;
+      font: inherit; font-weight: 700;
+    }
+    .ce-dialog-actions .primary { background: var(--night); color: white; }
+    .ce-dialog-actions .primary:hover { background: var(--sunset-start); }
+    .ce-dialog-actions .good { background: var(--palm); color: white; }
+    .ce-dialog-actions .good:hover { background: #16A34A; }
+    .ce-dialog-actions .danger { background: #FEE2E2; color: #991B1B; }
+    .ce-dialog-actions .danger:hover { background: #FECACA; }
+    .ce-dialog-actions .secondary { background: var(--sand-warm); color: var(--night); }
+    .ce-dialog-actions .secondary:hover { background: var(--sunset-end); }
+    .ce-dialog-actions button:disabled { opacity: .5; cursor: not-allowed; }
+    .ce-dialog-image {
+      width: 100%; margin-bottom: 14px; border-radius: var(--radius-sm);
+      border: 2px solid var(--sand-warm); background: var(--sand-warm);
+      max-height: 220px; object-fit: cover; display: block;
+    }
+    .ce-dialog-warning {
+      background: #FEF3C7; border-radius: var(--radius-sm); color: #92400E;
+      font-size: .82rem; line-height: 1.5; padding: 12px 14px; margin-bottom: 16px;
+    }
+    @media (max-width: 560px) { .ce-dialog-grid { grid-template-columns: 1fr; } }
+  </style>
+
+  {!admin && (
+    <div class="ce-locked">
+      <h1>Draft preview</h1>
+      <p>Authorized admin sign-in is required.</p>
+      <a href="/account/">Sign in</a>
+    </div>
+  )}
+
+  {admin && loadError && (
+    <div class="ce-locked">
+      <h1>Draft preview</h1>
+      <p>{loadError}</p>
+      <a href="/admin/content-engine/">Back to content engine</a>
+    </div>
+  )}
+
+  {admin && draft && (
+    <>
+      <div class="ce-preview-bar">
+        <div class="ce-preview-bar-inner">
+          <div>
+            <h1>{isBlog ? 'Blog preview' : 'Newsletter preview'}</h1>
+            <p>
+              {inReview ? 'Review how this draft would look before approving.' : `Status: ${draft.status}`}
+              {' · '}
+              Quality {Math.round(Number(draft.qualityScore || 0) * 100)}%
+            </p>
+          </div>
+          <div class="ce-preview-actions">
+            {embed && <button type="button" class="secondary" id="ce-close-preview">Close preview</button>}
+            {!embed && <a class="secondary" href="/admin/content-engine/">Back to queue</a>}
+            <button type="button" class="secondary" id="ce-toggle-edit">Edit fields</button>
+            <button type="button" class="secondary" id="ce-regenerate">Regenerate copy/title</button>
+            {isBlog && (
+              <>
+                <button type="button" class="secondary" id="ce-generate-image">Generate new image</button>
+                {draft.heroImageUrl && <button type="button" class="secondary" id="ce-edit-image">Edit current image</button>}
+              </>
+            )}
+            {inReview && isBlog && (
+              <>
+                <button type="button" class="good" id="ce-publish">Approve &amp; publish</button>
+                <button type="button" class="secondary" id="ce-schedule">Schedule</button>
+              </>
+            )}
+            {inReview && isNewsletter && <button type="button" class="good" id="ce-approve">Approve newsletter</button>}
+            {inReview && <button type="button" class="danger" id="ce-reject">Reject</button>}
+          </div>
+        </div>
+        <div id="ce-preview-msg"></div>
+      </div>
+
+      <div id="ce-view-mode">
+        {isBlog ? (
+          <>
+            <Breadcrumbs items={breadcrumbs} />
+            <article>
+              <div class="post-header">
+                <div class="post-header-top">
+                  <div class="meta">
+                    By <a href="/about/#authors">SD Happy Hours</a>
+                    · Published <time datetime={draft.createdAt || ''}>{dateStr}</time>
+                    · <span>Draft preview</span>
+                  </div>
+                </div>
+                <h1>{draft.title}</h1>
+                <p class="description">{draft.description}</p>
+                <p class="editorial-note">Created with AI assistance and published by SD Happy Hours. Venue-specific details come from the directory data linked below; always confirm current offers with the venue.</p>
+              </div>
+
+              {draft.heroImageUrl && (
+                <div class="post-hero">
+                  <div class="frame">
+                    <img src={draft.heroImageUrl} alt={draft.title} width="1600" height="900" fetchpriority="high" decoding="async" />
+                  </div>
+                </div>
+              )}
+
+              <div class="post-body" set:html={bodyHtml} />
+
+              {(draft.tags.length > 0 || draft.dates.length > 0 || draft.locations.length > 0 || draft.brands.length > 0 || draft.eventTypes.length > 0) && (
+                <nav class="post-taxonomy" aria-label="Article topics">
+                  {draft.dates.map((date) => <a href={`/blog/date/${date}/`}>{date}</a>)}
+                  {[...new Set([...draft.tags, ...draft.locations, ...draft.brands, ...draft.eventTypes])].map((tag) => (
+                    <a href={`/blog/tag/${slugTag(tag)}/`}>{tag}</a>
+                  ))}
+                </nav>
+              )}
+            </article>
+          </>
+        ) : (
+          <div class="newsletter-shell">
+            <p class="meta" style="color:var(--night-soft);font-size:.85rem;margin-bottom:12px;">Newsletter edition preview · not sent externally</p>
+            <h1 class="subject">{draft.title}</h1>
+            <p class="preheader">{draft.description}</p>
+            <div class="newsletter-body" set:html={bodyHtml} />
+          </div>
+        )}
+
+        {provenance.length > 0 && (
+          <details class="ce-provenance">
+            <summary>Source provenance ({provenance.length})</summary>
+            <ul>
+              {provenance.map((source) => (
+                <li>
+                  <a href={source.sourceUrl} target="_blank" rel="noreferrer">{source.sourceName}</a>
+                  {source.sourcePublishedAt ? ` · ${new Date(source.sourcePublishedAt).toLocaleDateString('en-US')}` : ''}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </div>
+
+      <form id="ce-edit-panel" class="ce-edit-panel">
+        <label for="ce-edit-title">Title</label>
+        <input id="ce-edit-title" name="title" value={draft.title} required />
+
+        {isBlog && (
+          <>
+            <label for="ce-edit-slug">Slug</label>
+            <input id="ce-edit-slug" name="slug" value={draft.slug || ''} />
+          </>
+        )}
+
+        <label for="ce-edit-description">{isNewsletter ? 'Preheader' : 'Description'}</label>
+        <textarea id="ce-edit-description" name="description" rows="3" required>{draft.description}</textarea>
+
+        {isBlog && (
+          <>
+            <label for="ce-edit-meta">Meta description</label>
+            <textarea id="ce-edit-meta" name="metaDescription" rows="2">{draft.seoMetadata?.metaDescription || ''}</textarea>
+            <label for="ce-edit-hero">Hero image URL</label>
+            <input id="ce-edit-hero" name="heroImageUrl" value={draft.heroImageUrl || ''} />
+          </>
+        )}
+
+        <label for="ce-edit-tags">Tags (comma separated)</label>
+        <input id="ce-edit-tags" name="tags" value={draft.tags.join(', ')} />
+        <label for="ce-edit-dates">Event dates (YYYY-MM-DD)</label>
+        <input id="ce-edit-dates" name="dates" value={draft.dates.join(', ')} />
+        <label for="ce-edit-locations">Locations</label>
+        <input id="ce-edit-locations" name="locations" value={draft.locations.join(', ')} />
+        <label for="ce-edit-brands">Venues/brands</label>
+        <input id="ce-edit-brands" name="brands" value={draft.brands.join(', ')} />
+        <label for="ce-edit-event-types">Event types</label>
+        <input id="ce-edit-event-types" name="eventTypes" value={draft.eventTypes.join(', ')} />
+
+        <label for="ce-edit-body">Markdown body</label>
+        <textarea id="ce-edit-body" class="body-field" name="bodyMarkdown" required>{draft.bodyMarkdown}</textarea>
+
+        <div class="ce-edit-actions">
+          <button type="submit" class="save">Save &amp; refresh preview</button>
+          <button type="button" class="cancel" id="ce-cancel-edit">Cancel</button>
+        </div>
+        <div id="ce-edit-msg"></div>
+      </form>
+
+      <div id="ce-dialog-backdrop" class="ce-dialog-backdrop hidden" aria-hidden="true">
+        <div id="ce-schedule-dialog" class="ce-dialog hidden" role="dialog" aria-labelledby="ce-schedule-title">
+          <div class="ce-dialog-head">
+            <h2 id="ce-schedule-title">Schedule publication</h2>
+            <button type="button" class="ce-dialog-x" data-close-dialog aria-label="Close">&times;</button>
+          </div>
+          <p class="ce-dialog-copy">Pick when this post should go live. It stays in review until the scheduled time, then publishes automatically.</p>
+          <form id="ce-schedule-form">
+            <div class="ce-dialog-grid">
+              <label>Date<input type="date" name="date" required /></label>
+              <label>Time<input type="time" name="time" required step="300" /></label>
+            </div>
+            <p class="ce-dialog-hint" id="ce-schedule-summary">Times use your local timezone.</p>
+            <div class="ce-dialog-error" id="ce-schedule-error"></div>
+            <div class="ce-dialog-actions">
+              <button type="button" class="secondary" data-close-dialog>Cancel</button>
+              <button type="submit" class="primary">Schedule post</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="ce-image-dialog" class="ce-dialog wide hidden" role="dialog" aria-labelledby="ce-image-title">
+          <div class="ce-dialog-head">
+            <h2 id="ce-image-title">Edit current image</h2>
+            <button type="button" class="ce-dialog-x" data-close-dialog aria-label="Close">&times;</button>
+          </div>
+          <p class="ce-dialog-copy">Describe the finished look you want. The model keeps the same photo, framing, and crop — only what you describe changes.</p>
+          {draft.heroImageUrl && <img class="ce-dialog-image" src={draft.heroImageUrl} alt="Current hero image" />}
+          <form id="ce-image-form">
+            <label for="ce-image-prompt">What should change?</label>
+            <textarea id="ce-image-prompt" name="prompt" required placeholder="e.g. bright midday sun through the front windows"></textarea>
+            <p class="ce-dialog-hint">
+              <span class="good">✓ "add a potted palm in the front left corner"</span><br />
+              <span class="good">✓ "warm string lights along the patio rail"</span><br />
+              <span class="bad">✗ "brighter" or "warmer" — too vague to land visibly</span>
+            </p>
+            <div class="ce-dialog-error" id="ce-image-error"></div>
+            <div class="ce-dialog-actions">
+              <button type="button" class="secondary" data-close-dialog>Cancel</button>
+              <button type="submit" class="primary">Apply image edit</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="ce-regenerate-dialog" class="ce-dialog hidden" role="dialog" aria-labelledby="ce-regenerate-title">
+          <div class="ce-dialog-head">
+            <h2 id="ce-regenerate-title">Regenerate copy &amp; title?</h2>
+            <button type="button" class="ce-dialog-x" data-close-dialog aria-label="Close">&times;</button>
+          </div>
+          <div class="ce-dialog-warning">
+            This rewrites the blog post and newsletter from the same source cluster. Your manual edits to both drafts will be replaced.
+          </div>
+          <p class="ce-dialog-copy">Use this when the angle is right but the wording needs a fresh pass. The source bundle and facts stay the same.</p>
+          <div class="ce-dialog-error" id="ce-regenerate-error"></div>
+          <div class="ce-dialog-actions">
+            <button type="button" class="secondary" data-close-dialog>Keep current copy</button>
+            <button type="button" class="primary" id="ce-regenerate-confirm">Regenerate both drafts</button>
+          </div>
+        </div>
+
+        <div id="ce-publish-dialog" class="ce-dialog hidden" role="dialog" aria-labelledby="ce-publish-title">
+          <div class="ce-dialog-head">
+            <h2 id="ce-publish-title">Publish this post?</h2>
+            <button type="button" class="ce-dialog-x" data-close-dialog aria-label="Close">&times;</button>
+          </div>
+          <p class="ce-dialog-copy">This approves the draft and commits it to the live blog. It usually appears on the site within a couple of minutes after deploy.</p>
+          <div class="ce-dialog-error" id="ce-publish-error"></div>
+          <div class="ce-dialog-actions">
+            <button type="button" class="secondary" data-close-dialog>Not yet</button>
+            <button type="button" class="good" id="ce-publish-confirm">Approve &amp; publish</button>
+          </div>
+        </div>
+
+        <div id="ce-reject-dialog" class="ce-dialog hidden" role="dialog" aria-labelledby="ce-reject-title">
+          <div class="ce-dialog-head">
+            <h2 id="ce-reject-title">Reject this draft?</h2>
+            <button type="button" class="ce-dialog-x" data-close-dialog aria-label="Close">&times;</button>
+          </div>
+          <p class="ce-dialog-copy">The draft leaves the review queue but stays in the audit trail. You can still inspect it later in the content engine history.</p>
+          <div class="ce-dialog-error" id="ce-reject-error"></div>
+          <div class="ce-dialog-actions">
+            <button type="button" class="secondary" data-close-dialog>Keep in review</button>
+            <button type="button" class="danger" id="ce-reject-confirm">Reject draft</button>
+          </div>
+        </div>
+      </div>
+    </>
+  )}
+
+  {admin && draft && (
+    <script define:vars={{ draftId: draft.id, embedMode: embed, draftSlug: draft.slug || 'content-engine', heroImageUrl: draft.heroImageUrl || '' }}>
+      const msgEl = document.getElementById('ce-preview-msg');
+      const editMsg = document.getElementById('ce-edit-msg');
+      const viewMode = document.getElementById('ce-view-mode');
+      const editPanel = document.getElementById('ce-edit-panel');
+      const dialogBackdrop = document.getElementById('ce-dialog-backdrop');
+      const scheduleForm = document.getElementById('ce-schedule-form');
+      const scheduleSummary = document.getElementById('ce-schedule-summary');
+      const imageForm = document.getElementById('ce-image-form');
+      const actionButtons = () => Array.from(document.querySelectorAll('.ce-preview-actions button:not(#ce-close-preview)'));
+
+      const dialogs = {
+        schedule: document.getElementById('ce-schedule-dialog'),
+        image: document.getElementById('ce-image-dialog'),
+        regenerate: document.getElementById('ce-regenerate-dialog'),
+        publish: document.getElementById('ce-publish-dialog'),
+        reject: document.getElementById('ce-reject-dialog'),
+      };
+
+      function notifyParent(type) {
+        if (!embedMode) return;
+        window.parent.postMessage({ source: 'content-engine-preview', type, draftId }, '*');
+      }
+
+      function setBusy(busy, message = '') {
+        actionButtons().forEach((btn) => { btn.disabled = busy; });
+        if (msgEl) {
+          msgEl.className = message ? '' : '';
+          msgEl.textContent = message;
+        }
+      }
+
+      async function api(path, options = {}) {
+        const response = await fetch(path, {
+          ...options,
+          headers: { 'content-type': 'application/json', ...(options.headers || {}) },
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error((data.errors || [data.error || 'Request failed.']).join('\n'));
+        return data;
+      }
+
+      function openDialog(name) {
+        Object.values(dialogs).forEach((dialog) => dialog?.classList.add('hidden'));
+        dialogBackdrop?.classList.remove('hidden');
+        dialogBackdrop?.setAttribute('aria-hidden', 'false');
+        dialogs[name]?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDialog() {
+        dialogBackdrop?.classList.add('hidden');
+        dialogBackdrop?.setAttribute('aria-hidden', 'true');
+        Object.values(dialogs).forEach((dialog) => dialog?.classList.add('hidden'));
+        document.body.style.overflow = '';
+        ['ce-schedule-error', 'ce-image-error', 'ce-regenerate-error', 'ce-publish-error', 'ce-reject-error']
+          .forEach((id) => { const el = document.getElementById(id); if (el) el.textContent = ''; });
+      }
+
+      function defaultScheduleValues() {
+        const next = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        next.setMinutes(0, 0, 0);
+        next.setHours(9);
+        const pad = (n) => String(n).padStart(2, '0');
+        return {
+          date: `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`,
+          time: `${pad(next.getHours())}:${pad(next.getMinutes())}`,
+        };
+      }
+
+      function updateScheduleSummary() {
+        if (!scheduleForm || !scheduleSummary) return;
+        const date = scheduleForm.date.value;
+        const time = scheduleForm.time.value;
+        if (!date || !time) {
+          scheduleSummary.textContent = 'Times use your local timezone.';
+          return;
+        }
+        const scheduled = new Date(`${date}T${time}:00`);
+        if (!Number.isFinite(scheduled.valueOf())) {
+          scheduleSummary.textContent = 'Choose a valid date and time.';
+          return;
+        }
+        scheduleSummary.innerHTML = scheduled <= new Date()
+          ? '<strong>Choose a future date and time.</strong>'
+          : `Scheduled for <strong>${scheduled.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</strong> (your local time).`;
+      }
+
+      document.getElementById('ce-close-preview')?.addEventListener('click', () => notifyParent('close'));
+
+      document.getElementById('ce-toggle-edit')?.addEventListener('click', () => {
+        editPanel?.classList.add('open');
+        viewMode?.classList.add('hidden');
+      });
+
+      document.getElementById('ce-cancel-edit')?.addEventListener('click', () => {
+        editPanel?.classList.remove('open');
+        viewMode?.classList.remove('hidden');
+        if (editMsg) { editMsg.textContent = ''; editMsg.className = ''; }
+      });
+
+      editPanel?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const csv = (name) => String(new FormData(form).get(name) || '').split(',').map((v) => v.trim()).filter(Boolean);
+        const body = {
+          title: form.title.value.trim(),
+          description: form.description.value.trim(),
+          bodyMarkdown: form.bodyMarkdown.value.trim(),
+          tags: csv('tags'),
+          dates: csv('dates'),
+          locations: csv('locations'),
+          brands: csv('brands'),
+          eventTypes: csv('eventTypes'),
+        };
+        if (form.slug) body.slug = form.slug.value.trim();
+        if (form.heroImageUrl) body.heroImageUrl = form.heroImageUrl.value.trim();
+        if (form.metaDescription) body.seoMetadata = { metaDescription: form.metaDescription.value.trim() };
+
+        const saveBtn = form.querySelector('.save');
+        saveBtn.disabled = true;
+        if (editMsg) { editMsg.className = ''; editMsg.textContent = 'Saving…'; }
+
+        try {
+          await api(`/api/admin/content-engine/drafts/${draftId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+          });
+          if (editMsg) { editMsg.className = 'ok'; editMsg.textContent = 'Saved — refreshing preview…'; }
+          notifyParent('updated');
+          setTimeout(() => window.location.reload(), 400);
+        } catch (error) {
+          if (editMsg) { editMsg.className = 'err'; editMsg.textContent = error.message; }
+          saveBtn.disabled = false;
+        }
+      });
+
+      async function runAction(action, extra = {}) {
+        setBusy(true, 'Working…');
+        closeDialog();
+        try {
+          if (action === 'edit-image') {
+            const edited = await api('/api/admin/edit-image', {
+              method: 'POST',
+              body: JSON.stringify({ sourceUrl: heroImageUrl, prompt: extra.prompt, slug: draftSlug }),
+            });
+            await api(`/api/admin/content-engine/drafts/${draftId}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ heroImageUrl: edited.url }),
+            });
+          } else {
+            await api(`/api/admin/content-engine/drafts/${draftId}`, {
+              method: 'POST',
+              body: JSON.stringify({ action, ...extra }),
+            });
+          }
+          if (msgEl) { msgEl.className = 'ok'; msgEl.textContent = 'Done — refreshing preview…'; }
+          notifyParent('updated');
+          setTimeout(() => window.location.reload(), 500);
+        } catch (error) {
+          if (msgEl) { msgEl.className = 'err'; msgEl.textContent = error.message; }
+          setBusy(false);
+        }
+      }
+
+      document.querySelectorAll('[data-close-dialog]').forEach((button) => {
+        button.addEventListener('click', closeDialog);
+      });
+      dialogBackdrop?.addEventListener('click', (event) => {
+        if (event.target === dialogBackdrop) closeDialog();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && dialogBackdrop && !dialogBackdrop.classList.contains('hidden')) closeDialog();
+      });
+
+      document.getElementById('ce-schedule')?.addEventListener('click', () => {
+        if (!scheduleForm) return;
+        const defaults = defaultScheduleValues();
+        scheduleForm.date.value = defaults.date;
+        scheduleForm.date.min = new Date().toISOString().slice(0, 10);
+        scheduleForm.time.value = defaults.time;
+        updateScheduleSummary();
+        openDialog('schedule');
+        scheduleForm.date.focus();
+      });
+
+      scheduleForm?.date.addEventListener('change', updateScheduleSummary);
+      scheduleForm?.time.addEventListener('change', updateScheduleSummary);
+      scheduleForm?.time.addEventListener('input', updateScheduleSummary);
+
+      scheduleForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const errorEl = document.getElementById('ce-schedule-error');
+        const submitBtn = scheduleForm.querySelector('[type="submit"]');
+        const scheduled = new Date(`${scheduleForm.date.value}T${scheduleForm.time.value}:00`);
+        if (!Number.isFinite(scheduled.valueOf()) || scheduled <= new Date()) {
+          if (errorEl) errorEl.textContent = 'Choose a future date and time.';
+          return;
+        }
+        if (errorEl) errorEl.textContent = '';
+        submitBtn.disabled = true;
+        await runAction('schedule', { scheduledFor: scheduled.toISOString() });
+        submitBtn.disabled = false;
+      });
+
+      document.getElementById('ce-edit-image')?.addEventListener('click', () => {
+        if (imageForm) imageForm.prompt.value = '';
+        document.getElementById('ce-image-error').textContent = '';
+        openDialog('image');
+        imageForm?.prompt.focus();
+      });
+
+      imageForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const errorEl = document.getElementById('ce-image-error');
+        const prompt = imageForm.prompt.value.trim();
+        if (!prompt) {
+          if (errorEl) errorEl.textContent = 'Describe the change you want first.';
+          return;
+        }
+        if (errorEl) errorEl.textContent = '';
+        const submitBtn = imageForm.querySelector('[type="submit"]');
+        submitBtn.disabled = true;
+        await runAction('edit-image', { prompt });
+        submitBtn.disabled = false;
+      });
+
+      document.getElementById('ce-regenerate')?.addEventListener('click', () => openDialog('regenerate'));
+      document.getElementById('ce-regenerate-confirm')?.addEventListener('click', async (event) => {
+        event.currentTarget.disabled = true;
+        await runAction('regenerate');
+        event.currentTarget.disabled = false;
+      });
+
+      document.getElementById('ce-publish')?.addEventListener('click', () => openDialog('publish'));
+      document.getElementById('ce-publish-confirm')?.addEventListener('click', async (event) => {
+        event.currentTarget.disabled = true;
+        await runAction('publish');
+        event.currentTarget.disabled = false;
+      });
+
+      document.getElementById('ce-reject')?.addEventListener('click', () => openDialog('reject'));
+      document.getElementById('ce-reject-confirm')?.addEventListener('click', async (event) => {
+        event.currentTarget.disabled = true;
+        await runAction('reject');
+        event.currentTarget.disabled = false;
+      });
+
+      document.getElementById('ce-generate-image')?.addEventListener('click', () => runAction('image'));
+      document.getElementById('ce-approve')?.addEventListener('click', () => runAction('approve'));
+    </script>
+  )}
+</Layout>

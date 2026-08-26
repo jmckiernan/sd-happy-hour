@@ -1,0 +1,21 @@
+---
+export const prerender = true;
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { breadcrumbSchema, itemListSchema } from '../../../lib/seo';
+
+export async function getStaticPaths() {
+  const slug = (value:string)=>value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const tags = [...new Set(posts.flatMap((post) => [...post.data.tags,...post.data.locations,...post.data.brands,...post.data.eventTypes]).map(slug).filter(Boolean))].sort();
+  return tags.map((tag) => ({ params:{tag}, props:{tag,posts:posts.filter((post)=>[...post.data.tags,...post.data.locations,...post.data.brands,...post.data.eventTypes].some((value)=>slug(value)===tag))} }));
+}
+const {tag,posts}=Astro.props; const label=tag.replace(/-/g,' ').replace(/\b\w/g,(char:string)=>char.toUpperCase());
+const breadcrumbs=[{name:'Home',path:'/'},{name:'Blog',path:'/blog/'},{name:label,path:`/blog/tag/${tag}/`}];
+---
+<Layout title={`${label} in San Diego | SD Happy Hours`} description={`Browse current and archived SD Happy Hours stories about ${label} across San Diego County.`} structuredData={[breadcrumbSchema(breadcrumbs),itemListSchema(`${label} articles`,posts.map((post)=>({name:post.data.title,path:`/blog/${post.id}/`})))]}>
+  <Breadcrumbs items={breadcrumbs}/><header class="page-header"><h1>{label}</h1><p>Current and archived San Diego County stories organized by topic, location, venue, or event type.</p></header>
+  <main class="archive-list">{posts.map((post)=><article><h2><a href={`/blog/${post.id}/`}>{post.data.title}</a></h2><p>{post.data.description}</p></article>)}</main>
+  <style>.archive-list{max-width:820px;margin:28px auto 70px;padding:0 24px}.archive-list article{background:white;border-radius:14px;padding:20px;margin-bottom:12px}.archive-list a{text-decoration:none}.archive-list p{color:var(--night-soft);margin-top:7px}</style>
+</Layout>

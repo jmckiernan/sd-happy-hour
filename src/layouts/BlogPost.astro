@@ -1,6 +1,8 @@
 ---
 import Layout from './Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { getVenueBySlug, formatTime } from '../lib/venues';
+import { articleSchema, breadcrumbSchema, withSiteName } from '../lib/seo';
 
 export interface PostLink {
   slug: string;
@@ -14,29 +16,60 @@ export interface Props {
   updatedDate?: Date;
   author: string;
   heroImage?: string;
+  heroFallback?: string;
   venues?: string[];
   slug: string;
+  wordCount: number;
+  keywords?: string[];
+  aiGenerated?: boolean;
+  metaDescription?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  tags?: string[];
+  dates?: string[];
+  locations?: string[];
+  brands?: string[];
+  eventTypes?: string[];
+  sourceUrls?: string[];
+  contentEngineId?: string;
   /** Adjacent posts in /blog/ order (newest first), for the pager at the
    * bottom. Null at either end of the archive. */
   prev?: PostLink | null;
   next?: PostLink | null;
 }
 
-const { title, description, pubDate, updatedDate, author, heroImage, venues = [], slug, prev = null, next = null } = Astro.props;
+const { title, description, pubDate, updatedDate, author, heroImage, heroFallback, venues = [], slug, wordCount, keywords = [], aiGenerated = false, metaDescription = description, ogTitle = title, ogDescription = description, tags = [], dates = [], locations = [], brands = [], eventTypes = [], sourceUrls = [], contentEngineId, prev = null, next = null } = Astro.props;
 
 const relatedVenues = venues
   .map((slug) => getVenueBySlug(slug))
   .filter((v): v is NonNullable<typeof v> => Boolean(v));
 
 const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const resolvedImage = heroImage || '/images/backdrop.webp';
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: title, path: `/blog/${slug}/` },
+];
 ---
 <Layout
-  title={`${title} | SD Happy Hours Blog`}
-  description={description}
-  image={heroImage}
+  title={withSiteName(title)}
+  description={metaDescription}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  image={resolvedImage}
+  imageAlt={title}
+  ogType="article"
+  publishedTime={pubDate}
+  modifiedTime={updatedDate || pubDate}
+  structuredData={[
+    articleSchema({ title, description, slug, image: resolvedImage, author, pubDate, updatedDate, wordCount, keywords }),
+    breadcrumbSchema(breadcrumbs),
+  ]}
   analyticsContentType="blog_post"
   analyticsContentSlug={slug}
   analyticsContentTitle={title}
+  analyticsContentId={contentEngineId}
 >
   <style>
     .post-header {
@@ -80,6 +113,15 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       font-size: 1.1rem;
       color: var(--night-soft);
     }
+    .editorial-note {
+      background: var(--sand-warm);
+      border-radius: var(--radius-sm);
+      color: var(--night-soft);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      margin-top: 14px;
+      padding: 10px 13px;
+    }
     .post-hero {
       max-width: 900px;
       margin: 0 auto 32px;
@@ -112,6 +154,9 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
     .post-body p { margin-bottom: 16px; }
     .post-body a { color: var(--ocean); }
     .post-body ul, .post-body ol { margin: 0 0 16px 24px; }
+    .post-taxonomy { max-width: 760px; margin: -22px auto 32px; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 7px; }
+    .post-taxonomy a { background: var(--sand-warm); border-radius: 999px; color: var(--night-soft); font-size: .76rem; font-weight: 700; padding: 6px 10px; text-decoration: none; }
+    .post-taxonomy a:hover { background: var(--sunset-end); color: var(--night); }
 
     .related-venues {
       max-width: 760px;
@@ -189,19 +234,31 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
     }
   </style>
 
+  <Breadcrumbs items={breadcrumbs} />
+
+  <article>
   <div class="post-header">
     <div class="post-header-top">
-      <div class="meta">By {author} · {dateStr}{updatedDate && ` (updated ${updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`}</div>
+      <div class="meta">By <a href="/about/#authors">{author}</a> · Published <time datetime={pubDate.toISOString()}>{dateStr}</time>{updatedDate && <> · Updated <time datetime={updatedDate.toISOString()}>{updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time></>}</div>
       <a id="admin-edit-link" class="admin-edit-link" data-admin-only style="display:none;" href={`/admin/drafts/${slug}/`}>✎ Edit Post</a>
     </div>
     <h1>{title}</h1>
     <p class="description">{description}</p>
+    {aiGenerated && <p class="editorial-note">Created with AI assistance and published by SD Happy Hours. Venue-specific details come from the directory data linked below; always confirm current offers with the venue.</p>}
   </div>
 
   {heroImage && (
     <div class="post-hero">
       <div class="frame">
-        <img src={heroImage} alt={title} />
+        <img
+          src={heroImage}
+          alt={title}
+          width="1600"
+          height="900"
+          fetchpriority="high"
+          decoding="async"
+          data-fallback-src={heroFallback}
+        />
       </div>
     </div>
   )}
@@ -209,6 +266,15 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
   <div class="post-body">
     <slot />
   </div>
+
+  {(tags.length > 0 || dates.length > 0 || locations.length > 0 || brands.length > 0 || eventTypes.length > 0) && (
+    <nav class="post-taxonomy" aria-label="Article topics">
+      {dates.map((date) => <a href={`/blog/date/${date}/`}>{date}</a>)}
+      {[...new Set([...tags, ...locations, ...brands, ...eventTypes])].map((tag) => (
+        <a href={`/blog/tag/${tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/`}>{tag}</a>
+      ))}
+    </nav>
+  )}
 
   {relatedVenues.length > 0 && (
     <div class="related-venues">
@@ -247,6 +313,20 @@ const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'l
       )}
     </nav>
   )}
+  </article>
+
+  <script>
+    const hero = document.querySelector<HTMLImageElement>('.post-hero img[data-fallback-src]');
+    if (hero) {
+      const useFallback = () => {
+        const fallback = hero.dataset.fallbackSrc;
+        if (!fallback || hero.src.endsWith(fallback)) return;
+        hero.src = fallback;
+      };
+      hero.addEventListener('error', useFallback, { once: true });
+      if (hero.complete && hero.naturalWidth === 0) useFallback();
+    }
+  </script>
 
   {/* The "Edit Post" link above is revealed by Layout.astro's
       [data-admin-only] sweep. This used to run its own /api/admin/me fetch

@@ -1,0 +1,29 @@
+---
+import type { BreadcrumbItem } from '../lib/seo';
+
+export interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    {items.map((item, index) => (
+      <li>
+        {index < items.length - 1
+          ? <a href={item.path}>{item.name}</a>
+          : <span aria-current="page">{item.name}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs { max-width: 960px; margin: 0 auto; padding: 20px 24px 0; }
+  .breadcrumbs ol { align-items: center; display: flex; flex-wrap: wrap; gap: 7px; list-style: none; }
+  .breadcrumbs li { color: var(--night-soft); font-size: 0.78rem; }
+  .breadcrumbs li + li::before { content: '/'; margin-right: 7px; opacity: 0.5; }
+  .breadcrumbs a { color: var(--ocean-deep); font-weight: 650; text-decoration: none; }
+  .breadcrumbs a:hover { text-decoration: underline; }
+</style>

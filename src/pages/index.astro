@@ -2,11 +2,19 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import LiveDealStyles from '../components/LiveDealStyles.astro';
+import { getVenues, slugify } from '../lib/venues';
+import { itemListSchema } from '../lib/seo';
+
+const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
 ---
 <Layout
-  title="SD Happy Hours — Where San Diego Drinks"
-  description="Find happy hours happening right now in San Diego. Real-time deals from Little Italy to Pacific Beach."
+  title="San Diego Happy Hours Happening Now | SD Happy Hours"
+  description="Find current San Diego happy hours, food and drink specials, and venue details by neighborhood, day, deal type, and distance."
   transparentNav={true}
+  structuredData={itemListSchema('San Diego happy hour venues', indexableVenues.map((venue) => ({
+    name: venue.name,
+    path: `/venues/${slugify(venue.name)}/`,
+  })))}
 >
   <LiveDealStyles />
 
@@ -1231,7 +1239,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
                   <img
                     src="${escapeHTML(imageSources.primary)}"
                     alt="${escapeHTML(h.name)}"
+                    width="800"
+                    height="534"
                     loading="lazy"
+                    decoding="async"
                     data-listing-image
                     data-original-src="${escapeHTML(imageSources.original)}"
                     data-stock-src="${escapeHTML(imageSources.stock)}"

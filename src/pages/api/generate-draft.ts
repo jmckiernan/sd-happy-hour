@@ -7,15 +7,26 @@ export const prerender = false;
 
 const CONTENT_BRIEF = `You write for the SD Happy Hours blog, a real-time San Diego happy hour discovery site.
 
-Voice: friendly, knowledgeable local friend giving you the inside scoop — not a generic listicle, not overly salesy.
-Format: Markdown. Use a short intro, then organized sections (headings, occasional lists), and a short closing line.
-Length: roughly 400-700 words unless the angle calls for more.
+Voice: clear, useful San Diego editor — specific and conversational, never a generic listicle, never overly salesy, and never pretending to have visited a place unless the editor's source material says so.
+Search intent: answer the exact question implied by the angle. Put the useful answer early, use natural San Diego and neighborhood language, and never repeat a phrase just to target a keyword.
+Format: Markdown. Use a short answer-first intro, descriptive H2 sections, H3s only when needed, short paragraphs, and lists or comparison criteria when they make scanning easier.
+Length: roughly 650-1,000 words for a search-focused guide. Every paragraph must add a fact, comparison, decision aid, or practical local tip.
+
+SEO and editorial requirements:
+- Keep the title clear, accurate, and ideally 45-60 characters. Put the core topic before clever wording.
+- Write a unique description of roughly 120-155 characters that explains what the reader will be able to compare, find, or decide.
+- Mention San Diego naturally in the introduction and use specific neighborhood names only where relevant.
+- When verified venues are supplied, give each important venue a descriptive section and include its exact name. The site automatically adds links from the post to selected venue pages.
+- Include practical planning context when supported: which option suits a date, group, view, food-first visit, early start, or later window; transit/parking guidance may be general but must not be invented as a venue fact.
+- End with a concise decision summary or before-you-go checklist, not filler.
+- Do not write vague padding about the site's database, SEO, keywords, or the fact that you are an AI.
 
 Hard rules, never break these:
 - Only state a venue's hours, days, or deals if they are given to you explicitly in the "VERIFIED VENUE DATA" block below. Quote them exactly.
 - Never invent, estimate, or guess at a specific venue's hours, prices, or deals. If you don't have verified data for a venue mentioned in the source material, describe it in general terms only (vibe, neighborhood, food type) and do not state specific numbers.
 - Do not fabricate quotes, reviews, or claims about a venue you have no data for.
 - If the source material conflicts with the verified venue data, trust the verified venue data.
+- Do not call unverified directory data "verified" in the article. Use phrases like "our current listing" and remind readers that offers can change.
 
 Output in exactly this format, with nothing before or after it — no JSON, no markdown fences, no commentary:
 

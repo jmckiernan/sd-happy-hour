@@ -15,6 +15,12 @@
 [functions."dispatch-alerts"]
   schedule = "*/15 * * * *"
 
+[functions."dispatch-merchant-reports"]
+  schedule = "17 * * * *"
+
+[functions."run-content-engine"]
+  schedule = "5 15,23 * * *"
+
 # Astro's Netlify adapter loads the Netlify Vite plugin during `astro dev`, so
 # local Functions, Blobs, redirects, and environment emulation do not need the
 # Netlify CLI proxy. `npm run dev:netlify` keeps the familiar port 8888 URL.

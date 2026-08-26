@@ -37,6 +37,14 @@ await build({
           if (!args.importer.includes(`${path.sep}pages${path.sep}api${path.sep}`)) return null;
           return { path: 'product-analytics-fixture', namespace: 'shared-list-test' };
         });
+        context.onResolve({ filter: /\/lib\/merchantAnalytics$/ }, (args) => {
+          if (!args.importer.includes(`${path.sep}pages${path.sep}api${path.sep}`)) return null;
+          return { path: 'merchant-analytics-fixture', namespace: 'shared-list-test' };
+        });
+        context.onResolve({ filter: /\/lib\/merchantAnalyticsIdentity$/ }, (args) => {
+          if (!args.importer.includes(`${path.sep}pages${path.sep}api${path.sep}`)) return null;
+          return { path: 'merchant-analytics-identity-fixture', namespace: 'shared-list-test' };
+        });
 
         context.onLoad({ filter: /^shared-list-session-fixture$/, namespace: 'shared-list-test' }, () => ({
           loader: 'js',
@@ -58,6 +66,24 @@ await build({
         context.onLoad({ filter: /^product-analytics-fixture$/, namespace: 'shared-list-test' }, () => ({
           loader: 'js',
           contents: `export async function captureProductEvent() {}`,
+        }));
+        context.onLoad({ filter: /^merchant-analytics-fixture$/, namespace: 'shared-list-test' }, () => ({
+          loader: 'js',
+          contents: `
+            export async function captureMerchantEvent() {}
+            export function deviceTypeFromUserAgent() { return 'unknown'; }
+          `,
+        }));
+        context.onLoad({ filter: /^merchant-analytics-identity-fixture$/, namespace: 'shared-list-test' }, () => ({
+          loader: 'js',
+          contents: `
+            export function ensureMerchantAnalyticsIdentity() {
+              return {
+                visitorId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                visitId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+              };
+            }
+          `,
         }));
         context.onLoad({ filter: /^saved-list-store-fixture$/, namespace: 'shared-list-test' }, () => ({
           loader: 'js',

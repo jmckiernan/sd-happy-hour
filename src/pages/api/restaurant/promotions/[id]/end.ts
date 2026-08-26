@@ -3,6 +3,7 @@ import { errorJson, json, readJsonBody } from '../../../../../lib/api';
 import { merchantPromotionEnvelope, promotionServiceErrorResponse } from '../../../../../lib/promotionDtos';
 import { endPromotion } from '../../../../../lib/promotionService';
 import { getSession } from '../../../../../lib/session';
+import { captureMerchantEvent } from '../../../../../lib/merchantAnalytics';
 
 export const prerender = false;
 
@@ -19,6 +20,11 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
   }
   try {
     const result = await endPromotion(session.userId, params.id || '');
+    await captureMerchantEvent({
+      eventName: 'campaign_end', venueId: result.promotion.venueId,
+      promotionId: result.promotion.id, userId: session.userId,
+      authenticated: true, source: 'merchant_dashboard',
+    });
     return json(merchantPromotionEnvelope(result.serverNow, result.promotion, result.entitlement));
   } catch (error) {
     const response = promotionServiceErrorResponse(error);

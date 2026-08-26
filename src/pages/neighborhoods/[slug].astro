@@ -1,0 +1,125 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getNeighborhoodProfiles } from '../../lib/neighborhoods';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+import { formatTime, getListingImage, getVenueImage, slugify } from '../../lib/venues';
+
+export function getStaticPaths() {
+  return getNeighborhoodProfiles().map((profile) => ({
+    params: { slug: profile.slug },
+    props: { profile },
+  }));
+}
+
+const { profile } = Astro.props;
+const allNeighborhoods = getNeighborhoodProfiles();
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Neighborhoods', path: '/neighborhoods/' },
+  { name: profile.name, path: `/neighborhoods/${profile.slug}/` },
+];
+const nearby = profile.nearby
+  .map((name: string) => allNeighborhoods.find((area) => area.name === name))
+  .filter(Boolean);
+---
+<Layout
+  title={`Best Happy Hours in ${profile.name}, San Diego | SD Happy Hours`}
+  description={profile.shortDescription}
+  image={getListingImage(profile.venues[0], 'hero')}
+  imageAlt={`Happy hour in ${profile.name}, San Diego`}
+  structuredData={[
+    breadcrumbSchema(breadcrumbs),
+    itemListSchema(`Happy hours in ${profile.name}, San Diego`, profile.venues.map((venue: any) => ({
+      name: venue.name,
+      path: `/venues/${slugify(venue.name)}/`,
+    }))),
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+  <header class="page-header neighborhood-header">
+    <p class="eyebrow">San Diego neighborhood guide</p>
+    <h1>Happy Hours in {profile.name}</h1>
+    <p>{profile.shortDescription}</p>
+  </header>
+
+  <main class="neighborhood-main">
+    <section class="local-intro" aria-labelledby="about-area">
+      <h2 id="about-area">Plan a {profile.name} happy hour</h2>
+      {profile.overview.map((paragraph: string) => <p>{paragraph}</p>)}
+      <p class="planning-tip"><strong>Local planning tip:</strong> {profile.planningTip}</p>
+    </section>
+
+    <section aria-labelledby="area-listings">
+      <h2 id="area-listings">Current {profile.name} happy hour listings</h2>
+      <p class="freshness-note">Deals can change. Open a venue to review its details and use the official website link to confirm before visiting.</p>
+      <div class="venue-grid">
+        {profile.venues.map((venue: any) => (
+          <article class="venue-result">
+            <a class="venue-image" href={`/venues/${slugify(venue.name)}/`} tabindex="-1" aria-hidden="true">
+              <img
+                src={getListingImage(venue, 'card')}
+                alt=""
+                width="800"
+                height="534"
+                loading="lazy"
+                data-fallback-src={getVenueImage(venue.vibe, 'card')}
+              />
+            </a>
+            <div class="venue-copy">
+              <p class="schedule">{venue.days.join(', ')} · {formatTime(venue.startTime)}–{formatTime(venue.endTime)}</p>
+              <h3><a href={`/venues/${slugify(venue.name)}/`}>{venue.name}</a></h3>
+              <p class="address">{venue.address}, San Diego, CA</p>
+              <ul>{venue.deals.slice(0, 4).map((deal: string) => <li>{deal}</li>)}</ul>
+              <a class="details" href={`/venues/${slugify(venue.name)}/`}>View {venue.name} details →</a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    {nearby.length > 0 && (
+      <nav class="nearby" aria-label="Nearby San Diego happy hour neighborhoods">
+        <h2>Explore nearby neighborhoods</h2>
+        <div>{nearby.map((area: any) => <a href={`/neighborhoods/${area.slug}/`}>{area.name}</a>)}</div>
+      </nav>
+    )}
+  </main>
+  <script>
+    for (const image of document.querySelectorAll<HTMLImageElement>('img[data-fallback-src]')) {
+      const useFallback = () => {
+        const fallback = image.dataset.fallbackSrc;
+        if (!fallback || image.src.endsWith(fallback)) return;
+        image.src = fallback;
+      };
+      image.addEventListener('error', useFallback, { once: true });
+      if (image.complete && image.naturalWidth === 0) useFallback();
+    }
+  </script>
+</Layout>
+
+<style>
+  .neighborhood-header .eyebrow { color: var(--sunset-start); font-size: .74rem; font-weight: 800; letter-spacing: .08em; margin-bottom: 7px; text-transform: uppercase; }
+  .neighborhood-main { max-width: 1040px; margin: 0 auto; padding: 34px 24px 80px; }
+  .local-intro { background: rgba(255,255,255,.82); border-radius: var(--radius); margin-bottom: 42px; padding: 28px; }
+  .local-intro h2, .neighborhood-main > section > h2, .nearby h2 { font-family: var(--font-display); margin-bottom: 12px; }
+  .local-intro p { color: var(--night-soft); line-height: 1.7; margin-bottom: 13px; }
+  .local-intro .planning-tip { background: var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); margin: 18px 0 0; padding: 14px 16px; }
+  .freshness-note { color: var(--night-soft); line-height: 1.55; margin: -4px 0 20px; }
+  .venue-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .venue-result { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 8px 28px rgba(15,23,42,.08); }
+  .venue-image { display: block; height: 210px; }
+  .venue-image img { height: 100%; object-fit: cover; width: 100%; }
+  .venue-copy { padding: 22px; }
+  .schedule { color: var(--sunset-start); font-size: .74rem; font-weight: 800; line-height: 1.45; margin-bottom: 8px; text-transform: uppercase; }
+  .venue-copy h3 { font-family: var(--font-display); font-size: 1.45rem; margin-bottom: 4px; }
+  .venue-copy h3 a { text-decoration: none; }
+  .address { color: var(--night-soft); font-size: .86rem; margin-bottom: 14px; }
+  .venue-copy ul { margin: 0 0 16px 20px; line-height: 1.55; }
+  .details { color: var(--ocean-deep); font-weight: 750; }
+  .nearby { background: var(--sand-warm); border-radius: var(--radius); margin-top: 42px; padding: 24px; }
+  .nearby div { display: flex; flex-wrap: wrap; gap: 10px; }
+  .nearby a { background: white; border-radius: 100px; font-weight: 700; padding: 9px 15px; text-decoration: none; }
+  @media (max-width: 720px) { .venue-grid { grid-template-columns: 1fr; } }
+</style>

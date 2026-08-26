@@ -4,6 +4,7 @@
 // This lets the admin UI preview and publish a draft without anyone
 // opening GitHub's own editor.
 import { Octokit } from '@octokit/rest';
+import { getEnv } from './env';
 
 const BLOG_DIR = 'src/content/blog';
 
@@ -15,10 +16,10 @@ export interface GitHubTarget {
 }
 
 export function getGitHubTarget(): GitHubTarget {
-  const owner = import.meta.env.GITHUB_OWNER;
-  const repo = import.meta.env.GITHUB_REPO;
-  const branch = import.meta.env.GITHUB_BRANCH || 'main';
-  const token = import.meta.env.GITHUB_TOKEN;
+  const owner = getEnv('GITHUB_OWNER');
+  const repo = getEnv('GITHUB_REPO');
+  const branch = getEnv('GITHUB_BRANCH') || 'main';
+  const token = getEnv('GITHUB_TOKEN');
   if (!owner || !repo || !token) {
     throw new Error('Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.');
   }
@@ -33,6 +34,7 @@ export interface ParsedFrontmatter {
   title: string;
   description: string;
   pubDate: string;
+  updatedDate?: string;
   author: string;
   draft: boolean;
   aiGenerated: boolean;
@@ -81,6 +83,7 @@ export function parseFrontmatter(lines: string[]): ParsedFrontmatter {
     title: get('title') ?? '(untitled)',
     description: get('description') ?? '',
     pubDate: String(get('pubDate') ?? ''),
+    updatedDate: get('updatedDate') ? String(get('updatedDate')) : undefined,
     author: get('author') ?? 'SD Happy Hours',
     draft: Boolean(get('draft')),
     aiGenerated: Boolean(get('aiGenerated')),

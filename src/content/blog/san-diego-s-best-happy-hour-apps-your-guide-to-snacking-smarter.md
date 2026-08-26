@@ -1,11 +1,12 @@
 ---
-title: "San Diego's Best Happy Hour Apps: Your Guide to Snacking Smarter"
-description: "A local's take on what makes a happy hour appetizer menu truly worth chasing across San Diego, from crispy classics to unexpected upgrades."
+title: "Best Happy Hour Appetizers in San Diego: Local Guide"
+description: "Find San Diego happy hours with discounted appetizers and learn what to look for in shareable snacks, portions, and neighborhood bar menus."
 pubDate: 2026-07-30
+updatedDate: 2026-08-24
 author: "SD Happy Hours"
 draft: false
 aiGenerated: true
-venues: []
+venues: ["craft-commerce", "rustic-root", "pacific-beach-alehouse"]
 heroImage: "/api/images/san-diego-s-best-happy-hour-apps-your-guide-to-snacking-smar-1786986785069-6a1c9686.png"
 ---
 Let's be honest: happy hour is really about the apps. Sure, the discounted drinks get you in the door, but it's the food that decides whether you're staying for one round or settling in for the whole evening. San Diego has no shortage of spots slinging good bites at good prices — the trick is knowing what to look for (and where to look).

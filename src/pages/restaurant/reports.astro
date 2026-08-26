@@ -1,0 +1,453 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { isAdminEmail } from '../../lib/adminIdentity';
+import { listMerchantReportVenues } from '../../lib/merchantEntitlements';
+import { getSession } from '../../lib/session';
+import { getUserById } from '../../lib/store';
+
+const session = await getSession(Astro.cookies);
+if (!session) return Astro.redirect(`/account/?next=${encodeURIComponent('/restaurant/reports/')}`);
+const user = await getUserById(session.userId);
+if (!user) return Astro.redirect(`/account/?next=${encodeURIComponent('/restaurant/reports/')}`);
+const venues = await listMerchantReportVenues(user.id, isAdminEmail(user.email));
+const requestedVenueId = Number(Astro.url.searchParams.get('venueId'));
+const selectedVenue = venues.find((venue) => venue.venueId === requestedVenueId) || venues[0] || null;
+const publicVenues = venues.map(({ ownerUserId: _ownerUserId, ...venue }) => venue);
+const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: selectedVenue?.venueId ?? null, email: user.email })
+  .replace(/</g, '\\u003c');
+---
+<Layout
+  title="Restaurant Reports | SD Happy Hours"
+  description="Private performance reports for restaurant owners and administrators."
+  noindex={true}
+>
+  <style>
+    .reports-page { max-width: 1240px; margin: 0 auto; padding: 38px 24px 90px; }
+    .reports-topline { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 28px; }
+    .reports-eyebrow { color: var(--sunset-start); font-size: .72rem; font-weight: 850; letter-spacing: .15em; margin-bottom: 8px; text-transform: uppercase; }
+    .reports-topline h1 { font-family: var(--font-display); font-size: clamp(2.15rem, 5vw, 3.6rem); line-height: 1; margin: 0 0 10px; }
+    .reports-topline p { color: var(--night-soft); margin: 0; max-width: 670px; }
+    .dashboard-link { border: 2px solid var(--night); border-radius: 999px; color: var(--night); flex: 0 0 auto; font-size: .85rem; font-weight: 800; padding: 10px 17px; text-decoration: none; }
+    .dashboard-link:hover { background: var(--night); color: white; }
+    .report-toolbar { align-items: end; background: white; border: 1px solid rgba(32,18,56,.08); border-radius: 18px; box-shadow: 0 14px 40px rgba(32,18,56,.07); display: grid; gap: 18px; grid-template-columns: minmax(220px, 1.2fr) minmax(390px, 2fr) auto; margin-bottom: 24px; padding: 18px; }
+    .control-label { color: var(--night-soft); display: block; font-size: .7rem; font-weight: 800; letter-spacing: .08em; margin-bottom: 7px; text-transform: uppercase; }
+    .venue-select { appearance: none; background: var(--sand-warm); border: 2px solid transparent; border-radius: 12px; color: var(--night); font: inherit; font-size: .9rem; font-weight: 750; padding: 11px 36px 11px 12px; width: 100%; }
+    .venue-select:focus { border-color: var(--sunset-start); outline: none; }
+    .range-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .range-pill { background: var(--sand-warm); border: 0; border-radius: 999px; color: var(--night-soft); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 750; padding: 9px 13px; }
+    .range-pill.active { background: var(--night); color: white; }
+    .custom-range { display: flex; gap: 7px; margin-top: 8px; }
+    .custom-range[hidden] { display: none; }
+    .custom-range input { border: 1px solid rgba(32,18,56,.16); border-radius: 9px; color: var(--night); font: inherit; font-size: .78rem; padding: 8px; min-width: 0; }
+    .export-actions { display: flex; gap: 8px; }
+    .export-button { align-items: center; background: var(--night); border: 0; border-radius: 11px; color: white; display: inline-flex; font-size: .8rem; font-weight: 800; justify-content: center; min-height: 40px; padding: 0 14px; text-decoration: none; white-space: nowrap; }
+    .export-button.pdf { background: var(--sunset-start); }
+    .export-button:hover { transform: translateY(-1px); }
+    .report-status { align-items: center; background: white; border-radius: 16px; color: var(--night-soft); display: flex; font-weight: 650; gap: 10px; justify-content: center; min-height: 120px; padding: 30px; text-align: center; }
+    .report-status[hidden] { display: none; }
+    .spinner { animation: reports-spin .8s linear infinite; border: 3px solid var(--sand-warm); border-top-color: var(--sunset-start); border-radius: 50%; height: 22px; width: 22px; }
+    @keyframes reports-spin { to { transform: rotate(360deg); } }
+    .report-content[hidden] { display: none; }
+    .summary-grid { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0,1fr)); margin-bottom: 22px; }
+    .metric-card { background: white; border: 1px solid rgba(32,18,56,.07); border-radius: 16px; min-height: 126px; overflow: hidden; padding: 17px; position: relative; }
+    .metric-card::before { background: var(--metric-accent, var(--sunset-start)); content: ''; inset: 0 auto 0 0; position: absolute; width: 5px; }
+    .metric-card .label { color: var(--night-soft); font-size: .7rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .metric-card .value { color: var(--night); font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; line-height: 1.05; margin: 9px 0 5px; }
+    .metric-card .detail { color: var(--night-soft); font-size: .75rem; }
+    .report-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.65fr) minmax(300px, .85fr); margin-bottom: 22px; }
+    .report-panel { background: white; border: 1px solid rgba(32,18,56,.07); border-radius: 18px; padding: 20px; }
+    .panel-head { align-items: start; display: flex; gap: 16px; justify-content: space-between; margin-bottom: 17px; }
+    .panel-head h2 { font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 3px; }
+    .panel-head p { color: var(--night-soft); font-size: .78rem; margin: 0; }
+    .trend-legend { color: var(--night-soft); display: flex; font-size: .72rem; gap: 11px; white-space: nowrap; }
+    .trend-legend span::before { background: var(--legend); border-radius: 3px; content: ''; display: inline-block; height: 7px; margin-right: 4px; width: 7px; }
+    .trend-chart { align-items: end; border-bottom: 1px solid rgba(32,18,56,.1); display: flex; gap: 3px; height: 226px; overflow-x: auto; padding: 14px 0 25px; }
+    .trend-day { align-items: stretch; display: flex; flex: 1 0 15px; gap: 2px; height: 100%; min-width: 15px; position: relative; }
+    .trend-bar { align-self: end; background: var(--sunset-start); border-radius: 4px 4px 1px 1px; min-height: 2px; width: 52%; }
+    .trend-bar.unique { background: var(--ocean); }
+    .trend-day .date { bottom: -20px; color: var(--night-soft); font-size: .58rem; left: 50%; position: absolute; transform: translateX(-50%); white-space: nowrap; }
+    .intent-list { display: grid; gap: 1px; }
+    .intent-row { align-items: center; border-bottom: 1px solid var(--sand-warm); display: grid; gap: 9px; grid-template-columns: minmax(0,1fr) 48px 60px; padding: 10px 0; }
+    .intent-row:last-child { border-bottom: 0; }
+    .intent-row strong { font-size: .83rem; }
+    .intent-count { color: var(--night-soft); font-size: .78rem; text-align: right; }
+    .rate { background: rgba(14,116,144,.1); border-radius: 999px; color: var(--ocean); font-size: .72rem; font-weight: 850; padding: 5px 7px; text-align: center; }
+    .audience-strip { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; }
+    .audience-card { background: var(--night); border-radius: 16px; color: white; padding: 18px; }
+    .audience-card .value { color: var(--sunset-end); font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; }
+    .audience-card .label { color: rgba(255,255,255,.72); font-size: .75rem; margin-top: 3px; }
+    .table-wrap { overflow-x: auto; }
+    .report-table { border-collapse: collapse; font-size: .8rem; width: 100%; }
+    .report-table th { color: var(--night-soft); font-size: .68rem; letter-spacing: .06em; padding: 9px; text-align: left; text-transform: uppercase; }
+    .report-table th:not(:first-child), .report-table td:not(:first-child) { text-align: right; }
+    .report-table td { border-top: 1px solid var(--sand-warm); padding: 12px 9px; }
+    .report-table td:first-child { font-weight: 750; min-width: 190px; }
+    .state-pill { background: var(--sand-warm); border-radius: 999px; display: inline-block; font-size: .68rem; font-weight: 750; padding: 4px 7px; text-transform: capitalize; }
+    .comparison-list { display: grid; gap: 13px; }
+    .comparison-row { display: grid; gap: 5px; grid-template-columns: minmax(110px, .8fr) minmax(160px, 2fr) auto; align-items: center; }
+    .comparison-name { font-size: .78rem; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .comparison-track { background: var(--sand-warm); border-radius: 999px; height: 9px; overflow: hidden; }
+    .comparison-fill { background: linear-gradient(90deg,var(--sunset-start),var(--sunset-end)); border-radius: inherit; height: 100%; min-width: 2px; }
+    .comparison-value { color: var(--night-soft); font-size: .7rem; min-width: 78px; text-align: right; }
+    .bottom-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; margin-top: 22px; }
+    .activity-list { list-style: none; margin: 0; padding: 0; }
+    .activity-list li { align-items: center; border-bottom: 1px solid var(--sand-warm); display: flex; font-size: .78rem; gap: 9px; justify-content: space-between; padding: 9px 0; }
+    .activity-list li:last-child { border: 0; }
+    .activity-event { font-weight: 750; text-transform: capitalize; }
+    .activity-meta { color: var(--night-soft); font-size: .68rem; text-align: right; }
+    .email-form { display: grid; gap: 12px; }
+    .email-row { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .email-form label { color: var(--night-soft); font-size: .7rem; font-weight: 800; }
+    .email-form select, .email-form input { background: var(--sand-warm); border: 1px solid transparent; border-radius: 10px; color: var(--night); font: inherit; margin-top: 5px; padding: 10px; width: 100%; }
+    .email-form button, .access-form button { background: var(--sunset-start); border: 0; border-radius: 999px; color: white; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 850; padding: 11px 17px; }
+    .email-status, .access-status { color: var(--night-soft); font-size: .75rem; min-height: 1em; }
+    .definition-note { background: var(--sand-warm); border-radius: 13px; color: var(--night-soft); font-size: .75rem; line-height: 1.55; margin-top: 22px; padding: 15px; }
+    .paid-gate { background: linear-gradient(145deg,#201238,#3e225e); border-radius: 20px; color: white; margin-top: 10px; padding: clamp(25px,5vw,48px); text-align: center; }
+    .paid-gate[hidden] { display: none; }
+    .paid-gate h2 { color: white; font-family: var(--font-display); font-size: 2rem; margin: 0 0 10px; }
+    .paid-gate p { color: rgba(255,255,255,.75); margin: 0 auto 18px; max-width: 590px; }
+    .access-form { display: flex; gap: 8px; justify-content: center; margin: 0 auto; max-width: 470px; }
+    .access-form[hidden] { display: none; }
+    .access-form input { border: 2px solid transparent; border-radius: 999px; flex: 1; font: inherit; font-weight: 750; padding: 11px 16px; text-transform: uppercase; }
+    .empty-note { color: var(--night-soft); font-size: .82rem; padding: 18px 0; text-align: center; }
+    @media (max-width: 940px) {
+      .report-toolbar { grid-template-columns: 1fr 1.4fr; }
+      .export-actions { grid-column: 1 / -1; }
+      .summary-grid { grid-template-columns: repeat(2,1fr); }
+      .report-grid, .bottom-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .reports-page { padding: 28px 14px 70px; }
+      .reports-topline { display: block; }
+      .dashboard-link { display: inline-block; margin-top: 18px; }
+      .report-toolbar { grid-template-columns: 1fr; }
+      .export-actions { grid-column: auto; }
+      .summary-grid, .audience-strip { grid-template-columns: 1fr; }
+      .metric-card { min-height: 104px; }
+      .email-row { grid-template-columns: 1fr; }
+      .access-form { flex-direction: column; }
+    }
+  </style>
+
+  <main class="reports-page">
+    <header class="reports-topline">
+      <div>
+        <div class="reports-eyebrow">Merchant intelligence</div>
+        <h1>Restaurant reports</h1>
+        <p>See which visits turn into calls, website traffic, directions, saves, and campaign engagement.</p>
+      </div>
+      <a class="dashboard-link" href="/restaurant/">Merchant dashboard</a>
+    </header>
+
+    {venues.length === 0 ? (
+      <section class="report-status">
+        <div>You need a verified owner or full-admin restaurant role before reports are available.</div>
+      </section>
+    ) : (
+      <>
+        <section class="report-toolbar" aria-label="Report filters">
+          <label>
+            <span class="control-label">Restaurant</span>
+            <select class="venue-select" id="report-venue">
+              {venues.map((venue) => (
+                <option value={venue.venueId} selected={venue.venueId === selectedVenue?.venueId}>
+                  {venue.venueName}{venue.paid ? '' : ' - access required'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div>
+            <span class="control-label">Time range</span>
+            <div class="range-pills" role="group" aria-label="Time range">
+              <button class="range-pill" data-range="7d">7 days</button>
+              <button class="range-pill active" data-range="30d">30 days</button>
+              <button class="range-pill" data-range="90d">90 days</button>
+              <button class="range-pill" data-range="custom">Custom</button>
+            </div>
+            <div class="custom-range" id="custom-range" hidden>
+              <input id="range-from" type="date" aria-label="Report start date">
+              <input id="range-to" type="date" aria-label="Report end date">
+            </div>
+          </div>
+          <div>
+            <span class="control-label">Export</span>
+            <div class="export-actions">
+              <a class="export-button" id="export-csv" href="#">CSV</a>
+              <a class="export-button pdf" id="export-pdf" href="#">PDF report</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="paid-gate" id="paid-gate" hidden>
+          <h2>Reporting access required</h2>
+          <p id="paid-gate-copy">Analytics, exports, and automatic email reports are part of the paid merchant experience. If you received a restaurant access code, redeem it here.</p>
+          <form class="access-form" id="access-form">
+            <input id="access-code" name="code" autocomplete="off" placeholder="SDHH-XXXX-XXXX-XXXX" aria-label="Restaurant access code" required>
+            <button type="submit">Redeem code</button>
+          </form>
+          <div class="access-status" id="access-status" role="status"></div>
+        </section>
+
+        <section class="report-status" id="report-status">
+          <span class="spinner" aria-hidden="true"></span><span>Building your report...</span>
+        </section>
+
+        <div class="report-content" id="report-content" hidden>
+          <section class="summary-grid" id="summary-grid"></section>
+
+          <div class="report-grid">
+            <section class="report-panel">
+              <div class="panel-head">
+                <div><h2>Visit trend</h2><p>Daily venue discovery and unique 30-minute visits</p></div>
+                <div class="trend-legend"><span style="--legend:var(--sunset-start)">Views</span><span style="--legend:var(--ocean)">Unique</span></div>
+              </div>
+              <div class="trend-chart" id="trend-chart" aria-label="Daily visit trend chart"></div>
+            </section>
+            <section class="report-panel">
+              <div class="panel-head"><div><h2>High-intent actions</h2><p>Unique action visits divided by unique venue visits</p></div></div>
+              <div class="intent-list" id="intent-list"></div>
+            </section>
+          </div>
+
+          <section class="audience-strip" id="audience-strip"></section>
+
+          <div class="report-grid">
+            <section class="report-panel">
+              <div class="panel-head"><div><h2>Campaign performance</h2><p>Promotion views, clicks, and unique-visit engagement</p></div></div>
+              <div class="table-wrap"><table class="report-table"><thead><tr><th>Campaign</th><th>Status</th><th>Views</th><th>Clicks</th><th>Unique</th><th>Rate</th></tr></thead><tbody id="campaign-body"></tbody></table></div>
+            </section>
+            <section class="report-panel">
+              <div class="panel-head"><div><h2>Restaurant comparison</h2><p>Performance across restaurants you control</p></div></div>
+              <div class="comparison-list" id="comparison-list"></div>
+            </section>
+          </div>
+
+          <div class="bottom-grid">
+            <section class="report-panel">
+              <div class="panel-head"><div><h2>Recent activity</h2><p>Latest merchant-value actions in this range</p></div></div>
+              <ul class="activity-list" id="activity-list"></ul>
+            </section>
+            <section class="report-panel">
+              <div class="panel-head"><div><h2>Email this report</h2><p>Delivered to the signed-in account email</p></div></div>
+              <form class="email-form" id="email-form">
+                <div class="email-row">
+                  <label>Frequency<select id="email-frequency"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+                  <label id="weekly-day-label">Send on<select id="email-weekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option></select></label>
+                  <label id="monthly-day-label" hidden>Day of month<input id="email-monthday" type="number" min="1" max="28" value="1"></label>
+                </div>
+                <div class="email-row">
+                  <label>Delivery time<select id="email-hour"><option value="8">8:00 AM Pacific</option><option value="9">9:00 AM Pacific</option><option value="12">12:00 PM Pacific</option><option value="17">5:00 PM Pacific</option></select></label>
+                  <label>Recipient<input value={user.email} disabled></label>
+                </div>
+                <div><button type="submit">Save email schedule</button></div>
+                <div class="email-status" id="email-status" role="status"></div>
+              </form>
+            </section>
+          </div>
+          <div class="definition-note" id="definition-note"></div>
+        </div>
+      </>
+    )}
+  </main>
+
+  <script id="report-bootstrap" type="application/json" set:html={bootstrap}></script>
+  <script>
+    interface VenueOption { venueId:number; venueName:string; paid:boolean; role:string }
+    interface Bootstrap { venues:VenueOption[]; selectedVenueId:number|null; email:string }
+    const bootstrap: Bootstrap = JSON.parse(document.getElementById('report-bootstrap')?.textContent || '{}');
+    const venueSelect = document.getElementById('report-venue') as HTMLSelectElement | null;
+    if (venueSelect) {
+      const reportStatus = document.getElementById('report-status')!;
+      const reportContent = document.getElementById('report-content')!;
+      const paidGate = document.getElementById('paid-gate')!;
+      const paidGateCopy = document.getElementById('paid-gate-copy')!;
+      const accessForm = document.getElementById('access-form') as HTMLFormElement;
+      const accessStatus = document.getElementById('access-status')!;
+      const customRange = document.getElementById('custom-range')!;
+      const fromInput = document.getElementById('range-from') as HTMLInputElement;
+      const toInput = document.getElementById('range-to') as HTMLInputElement;
+      const format = new Intl.NumberFormat('en-US');
+      let selectedVenueId = Number(venueSelect.value || bootstrap.selectedVenueId);
+      let selectedRange = '30d';
+      let requestVersion = 0;
+
+      const escapeHTML = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+      } as Record<string,string>)[char]);
+      const percent = (value:number) => `${Number(value || 0).toFixed(value % 1 ? 1 : 0)}%`;
+      const selectedVenue = () => bootstrap.venues.find((venue) => venue.venueId === selectedVenueId)!;
+      const rangeQuery = () => selectedRange === 'custom'
+        ? `range=custom&from=${encodeURIComponent(fromInput.value)}&to=${encodeURIComponent(toInput.value)}`
+        : `range=${selectedRange}`;
+
+      function updateExports() {
+        const base = `/api/restaurant/reports/export?venueId=${selectedVenueId}&${rangeQuery()}`;
+        (document.getElementById('export-csv') as HTMLAnchorElement).href = `${base}&format=csv`;
+        (document.getElementById('export-pdf') as HTMLAnchorElement).href = `${base}&format=pdf`;
+      }
+
+      function status(message:string, loading=false) {
+        reportStatus.innerHTML = `${loading ? '<span class="spinner" aria-hidden="true"></span>' : ''}<span>${escapeHTML(message)}</span>`;
+        reportStatus.hidden = false;
+        reportContent.hidden = true;
+      }
+
+      function metric(label:string, value:string, detail:string, accent:string) {
+        return `<article class="metric-card" style="--metric-accent:${accent}"><div class="label">${escapeHTML(label)}</div><div class="value">${escapeHTML(value)}</div><div class="detail">${escapeHTML(detail)}</div></article>`;
+      }
+
+      function render(report:any) {
+        const s = report.summary;
+        document.getElementById('summary-grid')!.innerHTML = [
+          metric('Unique visits',format.format(s.uniqueVisits),`${format.format(s.totalViews)} total views`,'#FF6B35'),
+          metric('Unique users',format.format(s.uniqueUsers),'Signed-in + anonymous visitors','#7C3AED'),
+          metric('Website CTR',percent(s.websiteRate),`${format.format(s.websiteClicks)} website clicks`,'#0E7490'),
+          metric('Directions rate',percent(s.directionsRate),`${format.format(s.directionsClicks)} map opens`,'#16835A'),
+          metric('Call rate',percent(s.callRate),`${format.format(s.callClicks)} call taps`,'#D97706'),
+          metric('Campaign engagement',percent(s.campaignEngagementRate),`${format.format(s.promotionClicks)} promotion clicks`,'#DB2777'),
+          metric('Authenticated views',format.format(s.authenticatedViews),`${format.format(s.unauthenticatedViews)} signed-out views`,'#2563EB'),
+          metric('Campaigns launched',format.format(s.campaignsLaunched),`${format.format(s.promotionViews)} promotion views`,'#4F46E5'),
+        ].join('');
+
+        const max = Math.max(1,...report.trend.flatMap((point:any)=>[point.views,point.uniqueVisits]));
+        const labelEvery = Math.max(1,Math.ceil(report.trend.length/7));
+        document.getElementById('trend-chart')!.innerHTML = report.trend.map((point:any,index:number)=>`
+          <div class="trend-day" title="${escapeHTML(point.date)}: ${point.views} views, ${point.uniqueVisits} unique visits">
+            <span class="trend-bar" style="height:${Math.max(1,(point.views/max)*100)}%"></span>
+            <span class="trend-bar unique" style="height:${Math.max(1,(point.uniqueVisits/max)*100)}%"></span>
+            ${index % labelEvery === 0 || index === report.trend.length-1 ? `<span class="date">${escapeHTML(point.date.slice(5))}</span>` : ''}
+          </div>`).join('');
+
+        const actions = [
+          ['Website clicks',s.websiteClicks,s.websiteRate],['Calls',s.callClicks,s.callRate],
+          ['Directions',s.directionsClicks,s.directionsRate],['Saves',s.saves,s.saveRate],
+          ['Shares',s.shares,s.shareRate],['Follows',s.follows,s.followRate],
+        ];
+        document.getElementById('intent-list')!.innerHTML = actions.map(([label,count,rate])=>`
+          <div class="intent-row"><strong>${label}</strong><span class="intent-count">${format.format(Number(count))}</span><span class="rate">${percent(Number(rate))}</span></div>`).join('');
+
+        document.getElementById('audience-strip')!.innerHTML = [
+          ['Current savers',report.audience.currentSavers],['Current followers',report.audience.currentFollowers],['Alert subscribers',report.audience.currentAlertSubscribers],
+        ].map(([label,value])=>`<article class="audience-card"><div class="value">${format.format(Number(value))}</div><div class="label">${label}</div></article>`).join('');
+
+        const campaignBody = document.getElementById('campaign-body')!;
+        campaignBody.innerHTML = report.campaigns.length ? report.campaigns.map((campaign:any)=>`
+          <tr><td>${escapeHTML(campaign.title)}</td><td><span class="state-pill">${escapeHTML(campaign.state)}</span></td><td>${format.format(campaign.views)}</td><td>${format.format(campaign.clicks)}</td><td>${format.format(campaign.uniqueViewVisits)}</td><td><strong>${percent(campaign.engagementRate)}</strong></td></tr>`).join('')
+          : '<tr><td colspan="6" class="empty-note">No campaigns in this range yet.</td></tr>';
+
+        const maxVisits = Math.max(1,...report.comparison.map((venue:any)=>venue.uniqueVisits));
+        document.getElementById('comparison-list')!.innerHTML = report.comparison.map((venue:any)=>`
+          <div class="comparison-row"><div class="comparison-name" title="${escapeHTML(venue.venueName)}">${escapeHTML(venue.venueName)}</div><div class="comparison-track"><div class="comparison-fill" style="width:${(venue.uniqueVisits/maxVisits)*100}%"></div></div><div class="comparison-value">${format.format(venue.uniqueVisits)} · ${percent(venue.actionRate)}</div></div>`).join('') || '<div class="empty-note">No comparison data yet.</div>';
+
+        const eventLabel = (name:string) => name.replaceAll('_',' ');
+        document.getElementById('activity-list')!.innerHTML = report.recentActivity.length ? report.recentActivity.map((event:any)=>`
+          <li><span class="activity-event">${escapeHTML(eventLabel(event.eventName))}</span><span class="activity-meta">${new Date(event.occurredAt).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}<br>${escapeHTML(event.deviceType)}</span></li>`).join('')
+          : '<li class="empty-note">No high-intent activity in this range yet.</li>';
+        document.getElementById('definition-note')!.textContent = `${report.definitions.uniqueVisits} ${report.definitions.conversionRate} ${report.definitions.revenueProxy}`;
+        reportStatus.hidden = true;
+        reportContent.hidden = false;
+      }
+
+      async function loadSchedule() {
+        const emailStatus = document.getElementById('email-status')!;
+        emailStatus.textContent = '';
+        try {
+          const response = await fetch(`/api/restaurant/reports/schedule?venueId=${selectedVenueId}`);
+          const data = await response.json();
+          if (!response.ok) throw new Error((data.errors||['Could not load schedule.']).join(' '));
+          if (!data.schedule) return;
+          (document.getElementById('email-frequency') as HTMLSelectElement).value = data.schedule.frequency;
+          (document.getElementById('email-weekday') as HTMLSelectElement).value = String(data.schedule.dayOfWeek);
+          (document.getElementById('email-monthday') as HTMLInputElement).value = String(data.schedule.dayOfMonth);
+          (document.getElementById('email-hour') as HTMLSelectElement).value = String(data.schedule.sendHourLocal);
+          toggleScheduleDay();
+          emailStatus.textContent = `Next report: ${new Date(data.schedule.nextSendAt).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} Pacific`;
+        } catch (error) { emailStatus.textContent = error instanceof Error ? error.message : 'Could not load schedule.'; }
+      }
+
+      async function loadReport() {
+        const version = ++requestVersion;
+        history.replaceState(null,'',`/restaurant/reports/?venueId=${selectedVenueId}`);
+        updateExports();
+        const venue = selectedVenue();
+        paidGate.hidden = venue.paid;
+        if (!venue.paid) {
+          const canRedeem = venue.role === 'owner';
+          accessForm.hidden = !canRedeem;
+          accessStatus.textContent = canRedeem ? '' : 'Ask the restaurant owner to activate reporting access.';
+          paidGateCopy.textContent = canRedeem
+            ? 'Analytics, exports, and automatic email reports are part of the paid merchant experience. If you received a restaurant access code, redeem it here.'
+            : 'Analytics, exports, and automatic email reports are part of the paid merchant experience.';
+          reportStatus.hidden = true; reportContent.hidden = true; return;
+        }
+        paidGate.hidden = true;
+        if (selectedRange === 'custom' && (!fromInput.value || !toInput.value)) {
+          status('Choose both dates to build a custom report.'); return;
+        }
+        status('Building your report...',true);
+        try {
+          const response = await fetch(`/api/restaurant/reports?venueId=${selectedVenueId}&${rangeQuery()}`,{cache:'no-store'});
+          const data = await response.json();
+          if (version !== requestVersion) return;
+          if (!response.ok) throw new Error((data.errors||['Could not load this report.']).join(' '));
+          render(data.report);
+          void loadSchedule();
+        } catch (error) {
+          if (version !== requestVersion) return;
+          status(error instanceof Error ? error.message : 'Could not load this report.');
+        }
+      }
+
+      venueSelect.addEventListener('change',()=>{selectedVenueId=Number(venueSelect.value);void loadReport();});
+      document.querySelectorAll<HTMLButtonElement>('[data-range]').forEach((button)=>button.addEventListener('click',()=>{
+        selectedRange=button.dataset.range || '30d';
+        document.querySelectorAll('[data-range]').forEach((item)=>item.classList.toggle('active',item===button));
+        customRange.hidden=selectedRange!=='custom';
+        void loadReport();
+      }));
+      fromInput.addEventListener('change',()=>void loadReport());
+      toInput.addEventListener('change',()=>void loadReport());
+
+      function toggleScheduleDay() {
+        const monthly=(document.getElementById('email-frequency') as HTMLSelectElement).value==='monthly';
+        (document.getElementById('weekly-day-label') as HTMLElement).hidden=monthly;
+        (document.getElementById('monthly-day-label') as HTMLElement).hidden=!monthly;
+      }
+      document.getElementById('email-frequency')!.addEventListener('change',toggleScheduleDay);
+      document.getElementById('email-form')!.addEventListener('submit',async(event)=>{
+        event.preventDefault();
+        const emailStatus=document.getElementById('email-status')!;
+        emailStatus.textContent='Saving...';
+        try {
+          const response=await fetch('/api/restaurant/reports/schedule',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({
+            venueId:selectedVenueId,
+            frequency:(document.getElementById('email-frequency') as HTMLSelectElement).value,
+            dayOfWeek:Number((document.getElementById('email-weekday') as HTMLSelectElement).value),
+            dayOfMonth:Number((document.getElementById('email-monthday') as HTMLInputElement).value),
+            sendHourLocal:Number((document.getElementById('email-hour') as HTMLSelectElement).value),
+          })});
+          const data=await response.json();
+          if(!response.ok)throw new Error((data.errors||['Could not save schedule.']).join(' '));
+          emailStatus.textContent=`Saved. Next report: ${new Date(data.schedule.nextSendAt).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} Pacific`;
+        }catch(error){emailStatus.textContent=error instanceof Error?error.message:'Could not save schedule.';}
+      });
+
+      document.getElementById('access-form')!.addEventListener('submit',async(event)=>{
+        event.preventDefault();
+        accessStatus.textContent='Checking code...';
+        try {
+          const response=await fetch('/api/restaurant/reports/redeem',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({venueId:selectedVenueId,code:(document.getElementById('access-code') as HTMLInputElement).value})});
+          const data=await response.json();
+          if(!response.ok)throw new Error((data.errors||['Could not redeem code.']).join(' '));
+          selectedVenue().paid=true;
+          accessStatus.textContent='Access unlocked. Loading your report...';
+          void loadReport();
+        }catch(error){accessStatus.textContent=error instanceof Error?error.message:'Could not redeem code.';}
+      });
+
+      updateExports();
+      void loadReport();
+    }
+  </script>
+</Layout>

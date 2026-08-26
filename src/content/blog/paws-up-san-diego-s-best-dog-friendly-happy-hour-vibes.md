@@ -2,10 +2,11 @@
 title: "Paws Up: San Diego's Best Dog-Friendly Happy Hour Vibes"
 description: "A local's guide to sniffing out San Diego's most pup-welcoming patios for happy hour, without the guesswork."
 pubDate: 2026-07-30
+updatedDate: 2026-08-24
 author: "SD Happy Hours"
 draft: false
 aiGenerated: true
-venues: []
+venues: ["the-patio-on-lamont"]
 heroImage: "/api/images/paws-up-san-diego-s-best-dog-friendly-happy-hour-vibes-1786986601943-b4c228a6.png"
 ---
 If your dog thinks "happy hour" means a car ride and a patio full of new best friends, you're not alone. San Diego's love affair with outdoor drinking and dining makes it one of the most dog-friendly happy hour cities around — you just have to know where to look (and what to ask when you get there).

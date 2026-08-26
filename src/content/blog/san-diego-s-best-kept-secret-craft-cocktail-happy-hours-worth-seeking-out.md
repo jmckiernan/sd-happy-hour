@@ -1,11 +1,12 @@
 ---
-title: "San Diego's Best-Kept Secret: Craft Cocktail Happy Hours Worth Seeking Out"
+title: "Best Craft Cocktail Happy Hours in San Diego"
 description: "A local's guide to hunting down San Diego's most creative, artisan-level cocktail happy hours—and what to look for when you find one."
 pubDate: 2026-07-30
+updatedDate: 2026-08-24
 author: "SD Happy Hours"
 draft: false
 aiGenerated: true
-venues: []
+venues: ["craft-commerce", "raised-by-wolves", "false-idol", "polite-provisions", "kindred"]
 heroImage: "/api/images/san-diego-s-best-kept-secret-craft-cocktail-happy-hours-wort-1786986885688-90ee5566.png"
 ---
 If you've ever ordered a "well drink special" and gotten a sad, watered-down pour, you know the difference between a *real* happy hour and a phoned-in one. San Diego has quietly become a serious craft cocktail town, and the good news is that a lot of that talent shows up during happy hour, not just on the full-price menu. You just have to know what you're looking for.

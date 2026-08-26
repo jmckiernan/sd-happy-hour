@@ -5,6 +5,8 @@
 // parts (text and/or an inline image) and returns an image back — so one
 // function covers both call sites, same as callGeminiImage([{text}]) for
 // generation vs callGeminiImage([{inlineData}, {text}]) for editing.
+import { getEnv } from './env';
+
 const DEFAULT_MODEL = 'gemini-2.5-flash-image';
 
 export interface GeminiPart {
@@ -18,9 +20,9 @@ export interface GeneratedImage {
 }
 
 export async function callGeminiImage(parts: GeminiPart[]): Promise<GeneratedImage> {
-  const apiKey = import.meta.env.GEMINI_API_KEY;
+  const apiKey = getEnv('GEMINI_API_KEY');
   if (!apiKey) throw new Error('Missing GEMINI_API_KEY env var.');
-  const model = import.meta.env.GEMINI_IMAGE_MODEL || DEFAULT_MODEL;
+  const model = getEnv('GEMINI_IMAGE_MODEL') || DEFAULT_MODEL;
 
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: 'POST',

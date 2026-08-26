@@ -36,7 +36,7 @@ const STORE_NAME = 'blog-images';
 // between netlify dev (where we want local storage) and actual deployed functions.
 export function isNetlifyBlobsAvailable(): boolean {
   // If we're in dev mode (either Vite DEV or NETLIFY_DEV), use local storage
-  if (import.meta.env.DEV) return false;
+  if ((import.meta as any).env?.DEV === true) return false;
   if (process.env.NETLIFY_DEV === 'true') return false;
   if (process.env.CONTEXT === 'dev') return false;
 
@@ -51,7 +51,7 @@ export function isNetlifyBlobsAvailable(): boolean {
 // substituted by Vite at build time, so unlike the env sniffing above it
 // can't be wrong at runtime.
 export function isLocalImageStorageAvailable(): boolean {
-  return import.meta.env.DEV === true;
+  return (import.meta as any).env?.DEV === true;
 }
 
 // Guards every code path that would otherwise reach for local disk. If a

@@ -583,6 +583,9 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           <a class="public-page-link" href="/venues/${encodeURIComponent(claim.venueSlug)}/">
             View public page →
           </a>
+          ${canManageListing ? `<a class="manage-link" href="/restaurant/reports/?venueId=${claim.venueId}">
+            Reports →
+          </a>` : ''}
           ${claim.accessRole === 'owner' ? `<a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/users/">
             Managing users →
           </a>` : ''}

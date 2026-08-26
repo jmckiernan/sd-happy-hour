@@ -2,10 +2,11 @@
 title: "Weekend Happy Hours in San Diego: What to Know Before You Go"
 description: "A local's guide to hunting down great weekend happy hours across San Diego, plus what to watch for since weekend deals work differently than weekday ones."
 pubDate: 2026-08-02
+updatedDate: 2026-08-24
 author: "SD Happy Hours"
 draft: false
 aiGenerated: true
-venues: []
+venues: ["the-rose-wine-bar"]
 heroImage: "/api/images/weekend-happy-hours-in-san-diego-what-to-know-before-you-go-1786818582769-6e6c5fc0.png"
 ---
 Weekend happy hour in San Diego is a different animal than your standard Tuesday-after-work special. Fewer spots run them, the ones that do tend to get packed fast, and the deals themselves can look totally different from the weekday menu. If you're used to just wandering into your go-to bar at 5pm on a Friday and expecting the same $6 margaritas, Saturday and Sunday might surprise you.

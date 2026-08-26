@@ -3,6 +3,7 @@ import { listVenueClaims, getUserById } from '../../../../lib/store';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson } from '../../../../lib/api';
 import { getVenues } from '../../../../lib/venues';
+import { getMerchantEntitlement } from '../../../../lib/merchantEntitlements';
 
 export const prerender = false;
 
@@ -21,7 +22,7 @@ export const GET: APIRoute = async ({ cookies }) => {
   const users = await Promise.all(userIds.map((id) => getUserById(id)));
   const usersById = new Map(users.filter(Boolean).map((u) => [u!.id, u!]));
 
-  const enriched = claims.map((claim) => {
+  const enriched = await Promise.all(claims.map(async (claim) => {
     const venue = venues.find((v) => v.id === claim.venueId);
     const user = usersById.get(claim.userId);
     return {
@@ -30,8 +31,9 @@ export const GET: APIRoute = async ({ cookies }) => {
       venueWebsite: venue?.website ?? null,
       userName: user?.name ?? 'Unknown',
       userEmail: user?.email ?? 'unknown',
+      reportingEntitlement: claim.status === 'verified' ? await getMerchantEntitlement(claim.venueId) : null,
     };
-  });
+  }));
 
   return json(enriched);
 };

@@ -43,6 +43,9 @@ export interface AccountVenueFollowsResult {
 export interface SaveVenueFollowResult {
   follow: VenueFollow;
   smsTextEligible: boolean;
+  created: boolean;
+  alertsBecameEnabled: boolean;
+  alertsBecameDisabled: boolean;
 }
 
 interface SmsEligibilityRow {
@@ -97,7 +100,15 @@ export async function saveVenueFollow(
       channelText: patch.channels?.text ?? existing?.channels.text ?? false,
     };
     const follow = await replaceVenueFollow(userId, venueId, next, tx);
-    return { follow, smsTextEligible: smsTextEligible(user) };
+    const hadAlerts = Boolean(existing?.happyHourAlertsEnabled || existing?.promotionAlertsEnabled);
+    const hasAlerts = follow.happyHourAlertsEnabled || follow.promotionAlertsEnabled;
+    return {
+      follow,
+      smsTextEligible: smsTextEligible(user),
+      created: !existing,
+      alertsBecameEnabled: !hadAlerts && hasAlerts,
+      alertsBecameDisabled: hadAlerts && !hasAlerts,
+    };
   });
 }
 

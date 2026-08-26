@@ -3,6 +3,8 @@ import { errorJson, json, readJsonBody } from '../../../../../lib/api';
 import { merchantPromotionEnvelope, promotionServiceErrorResponse } from '../../../../../lib/promotionDtos';
 import { startPromotionNow } from '../../../../../lib/promotionService';
 import { getSession } from '../../../../../lib/session';
+import { captureMerchantEvent } from '../../../../../lib/merchantAnalytics';
+import { captureProductEvent } from '../../../../../lib/productAnalytics';
 
 export const prerender = false;
 
@@ -22,6 +24,17 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
     const result = await startPromotionNow(session.userId, params.id || '', {
       ...(Object.hasOwn(body, 'endsAt') ? { endsAt: body.endsAt } : {}),
     });
+    await Promise.all([
+      captureMerchantEvent({
+        eventName: 'campaign_launch', venueId: result.promotion.venueId,
+        promotionId: result.promotion.id, userId: session.userId,
+        authenticated: true, source: 'merchant_dashboard',
+      }),
+      captureProductEvent({
+        eventName: 'promotion_launched', userId: session.userId,
+        properties: { venue_id: result.promotion.venueId, promotion_type: result.promotion.type },
+      }),
+    ]);
     return json(merchantPromotionEnvelope(result.serverNow, result.promotion, result.entitlement));
   } catch (error) {
     const response = promotionServiceErrorResponse(error);

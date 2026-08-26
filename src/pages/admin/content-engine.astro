@@ -1,0 +1,296 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Content Engine | SD Happy Hours Admin" description="Discover, review, and publish current San Diego content.">
+  <style is:global>
+    .ce-shell { max-width: 1180px; margin: 0 auto; padding: 0 22px 80px; }
+    .ce-header { background: white; border-bottom: 1px solid rgba(15,23,42,.08); padding: 20px 24px 14px; position: sticky; top: 0; z-index: 5; }
+    .ce-header-inner { max-width: 1180px; margin: auto; display: flex; justify-content: space-between; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .ce-header h1 { font-family: var(--font-display); font-size: 1.5rem; margin: 0; }
+    .ce-header p { color: var(--night-soft); font-size: .86rem; }
+    .ce-nav { max-width: 1180px; margin: 12px auto 0; display: flex; gap: 7px; flex-wrap: wrap; font-size: .82rem; }
+    .ce-nav a { text-decoration: none; font-weight: 650; color: var(--night-soft); padding: 6px 12px; border-radius: 999px; background: var(--sand-warm); }
+    .ce-nav a[aria-current="page"] { background: var(--night); color: white; }
+    .ce-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ce-actions button, .ce-button { border: 0; border-radius: 999px; padding: 10px 16px; background: var(--night); color: white; font: inherit; font-weight: 750; cursor: pointer; text-decoration: none; }
+    .ce-actions button.secondary, .ce-button.secondary { background: var(--sand-warm); color: var(--night); }
+    .ce-actions button:disabled, .ce-button:disabled { opacity: .5; cursor: wait; }
+    .ce-status { margin: 20px 0 12px; color: var(--night-soft); font-weight: 650; min-height: 1.5em; }
+    .ce-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); gap: 12px; margin-bottom: 20px; }
+    .ce-stat, .ce-panel, .ce-card { background: rgba(255,255,255,.94); border-radius: 14px; box-shadow: 0 2px 10px rgba(15,23,42,.05); }
+    .ce-stat { padding: 16px; }
+    .ce-stat strong { display: block; font-size: 1.55rem; }
+    .ce-stat span { color: var(--night-soft); font-size: .78rem; }
+    button.ce-stat-filter {
+      width: 100%; text-align: left; cursor: pointer; border: 2px solid transparent;
+      font: inherit; color: inherit; transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    button.ce-stat-filter:hover { border-color: rgba(15, 23, 42, 0.12); }
+    button.ce-stat-filter[aria-pressed="true"] {
+      border-color: var(--night); box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+    }
+    .ce-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    .ce-tabs button { border: 2px solid var(--sand-warm); background: white; border-radius: 999px; padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    .ce-tabs button[aria-selected="true"] { background: var(--night); border-color: var(--night); color: white; }
+    .ce-panel { padding: 20px; }
+    .ce-panel[hidden] { display: none; }
+    .ce-panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .ce-panel h2 { font-family: var(--font-display); font-size: 1.35rem; }
+    .ce-panel-head p { color: var(--night-soft); font-size: .86rem; }
+    .ce-grid { display: grid; gap: 12px; }
+    .ce-card { padding: 16px; border: 1px solid rgba(15,23,42,.07); }
+    .ce-card h3 { font-size: 1.04rem; margin: 0 0 5px; }
+    .ce-meta { color: var(--night-soft); font-size: .8rem; line-height: 1.45; }
+    .ce-copy { margin: 10px 0; font-size: .9rem; line-height: 1.5; color: var(--night-soft); }
+    .ce-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+    .ce-pill { border-radius: 999px; padding: 4px 8px; font-size: .68rem; font-weight: 750; background: var(--sand-warm); }
+    .ce-pill.good { background: #DCFCE7; color: #166534; }
+    .ce-pill.warn { background: #FEF3C7; color: #92400E; }
+    .ce-pill.bad { background: #FEE2E2; color: #991B1B; }
+    .ce-pill.info { background: #E0F2FE; color: #075985; }
+    .ce-card-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
+    .ce-card-actions button { border: 0; border-radius: 999px; padding: 8px 12px; background: var(--night); color: white; font: inherit; font-size: .78rem; font-weight: 750; cursor: pointer; }
+    .ce-card-actions button.alt { background: var(--sand-warm); color: var(--night); }
+    .ce-card-actions button.danger { background: #FEE2E2; color: #991B1B; }
+    .ce-card-actions button:disabled { opacity: .5; }
+    .ce-source-list { margin: 8px 0 0 18px; font-size: .78rem; color: var(--night-soft); }
+    .ce-source-list a { color: var(--ocean-deep); }
+    .ce-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-bottom: 22px; padding: 16px; background: var(--sand-warm); border-radius: 12px; }
+    .ce-form .full { grid-column: 1 / -1; }
+    .ce-form label { display: grid; gap: 5px; font-size: .78rem; font-weight: 750; color: var(--night-soft); }
+    .ce-form input, .ce-form select, .ce-form textarea { width: 100%; border: 1px solid #CBD5E1; border-radius: 9px; background: white; padding: 9px 10px; font: inherit; color: var(--night); }
+    .ce-check { display: flex !important; grid-auto-flow: column; justify-content: start; align-items: center; }
+    .ce-check input { width: auto; }
+    .ce-settings { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 14px; }
+    .ce-settings label { display: grid; gap: 6px; font-size: .8rem; font-weight: 700; }
+    .ce-settings input, .ce-settings select { padding: 9px; border: 1px solid #CBD5E1; border-radius: 8px; }
+    .ce-empty { color: var(--night-soft); padding: 20px 0; }
+    .ce-run-table { width: 100%; border-collapse: collapse; font-size: .78rem; margin-top: 18px; }
+    .ce-run-table th, .ce-run-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--sand-warm); }
+    .ce-error { color: #B91C1C; font-size: .82rem; white-space: pre-wrap; margin-top: 8px; }
+    .ce-locked { text-align: center; padding: 70px 20px; }
+    .ce-preview-backdrop { position: fixed; inset: 0; z-index: 500; background: rgba(15,23,42,.72); display: flex; flex-direction: column; }
+    .ce-preview-backdrop[hidden] { display: none; }
+    .ce-preview-chrome { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; background: #0F172A; color: white; flex-shrink: 0; }
+    .ce-preview-chrome p { margin: 0; font-size: .82rem; opacity: .85; }
+    .ce-preview-chrome button { border: 0; border-radius: 999px; padding: 8px 14px; background: rgba(255,255,255,.14); color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    .ce-preview-chrome button:hover { background: rgba(255,255,255,.24); }
+    .ce-preview-frame { flex: 1; width: 100%; border: 0; background: var(--sand); }
+    @media(max-width:720px){ .ce-form{grid-template-columns:1fr}.ce-form .full{grid-column:1}.ce-header{position:relative}.ce-run-table{display:block;overflow:auto} }
+  </style>
+
+  <div id="ce-locked" class="ce-locked" hidden>
+    <h1>Content Engine</h1><p>Authorized admin sign-in is required.</p><a class="ce-button" href="/account/">Sign in</a>
+  </div>
+
+  <div id="ce-app" hidden>
+    <header class="ce-header">
+      <div class="ce-header-inner">
+        <div><h1>Always-current Content Engine</h1><p>San Diego County discovery, drafting, review, publishing, and newsletter repurposing.</p></div>
+        <div class="ce-actions"><span id="ce-user" class="ce-meta"></span><button id="ce-run">Run pipeline now</button><button id="ce-refresh" class="secondary">Refresh</button></div>
+      </div>
+      <nav class="ce-nav">
+        <a href="/admin/">Submissions</a><a href="/admin/users/">Users</a><a href="/admin/analytics/">Analytics</a>
+        <a href="/admin/restaurants/">Restaurant Verifications</a><a href="/admin/photos/">Photo Review</a>
+        <a href="/admin/drafts/">Posts</a><a href="/admin/content-engine/" aria-current="page">Content Engine</a>
+      </nav>
+    </header>
+
+    <main class="ce-shell">
+      <div id="ce-status" class="ce-status" aria-live="polite">Loading content engine…</div>
+      <section id="ce-summary" class="ce-summary"></section>
+      <div class="ce-tabs" role="tablist" aria-label="Content engine views">
+        <button role="tab" data-tab="drafts" aria-selected="true">Review queue</button>
+        <button role="tab" data-tab="sources" aria-selected="false">Sources</button>
+        <button role="tab" data-tab="items" aria-selected="false">Items</button>
+        <button role="tab" data-tab="clusters" aria-selected="false">Clusters</button>
+        <button role="tab" data-tab="settings" aria-selected="false">Settings & analytics</button>
+      </div>
+
+      <section class="ce-panel" data-panel="drafts"><div class="ce-panel-head"><div><h2>Review queue</h2><p id="ce-drafts-filter-label">Open a preview to read the full draft, edit fields, regenerate copy, manage images, and approve or reject.</p></div></div><div id="ce-drafts" class="ce-grid"></div></section>
+
+      <section class="ce-panel" data-panel="sources" hidden>
+        <div class="ce-panel-head"><div><h2>Discovery sources</h2><p>Add Google Alert feeds, RSS/Atom feeds, semantic event pages, Reddit feeds, or trusted webhooks.</p></div></div>
+        <form id="ce-source-form" class="ce-form">
+          <label>Name<input name="name" required placeholder="Venue or feed name" /></label>
+          <label>Type<select name="kind"><option value="rss">RSS</option><option value="atom">Atom</option><option value="google_alert">Google Alert</option><option value="reddit_rss">Reddit RSS</option><option value="json_ld">Semantic event page</option><option value="webhook">Event webhook</option></select></label>
+          <label class="full">URL<input name="url" type="url" required placeholder="https://…" /></label>
+          <label>Trust score (0–1)<input name="trustScore" type="number" value="0.6" min="0" max="1" step="0.01" /></label>
+          <label>Image policy<select name="imagePolicy"><option value="none">Never reuse</option><option value="first_party">First-party promotional</option><option value="attributed">Licensed/attributed</option></select></label>
+          <label class="full">Include keywords (comma separated)<input name="keywords" placeholder="event, live music, happy hour" /></label>
+          <label class="ce-check"><input name="countyScoped" type="checkbox" /> Source is already limited to San Diego County</label>
+          <label class="ce-check"><input name="enabled" type="checkbox" checked /> Enabled</label>
+          <div class="full"><button class="ce-button" type="submit">Add source</button><span id="ce-source-error" class="ce-error"></span></div>
+        </form>
+        <div id="ce-sources" class="ce-grid"></div>
+      </section>
+
+      <section class="ce-panel" data-panel="items" hidden><div class="ce-panel-head"><div><h2>Normalized items</h2><p>County filtering, confidence, deduplication, and every source observation.</p></div></div><div id="ce-items" class="ce-grid"></div></section>
+      <section class="ce-panel" data-panel="clusters" hidden><div class="ce-panel-head"><div><h2>Editorial clusters</h2><p>Source bundles and the angle chosen for each story.</p></div></div><div id="ce-clusters" class="ce-grid"></div></section>
+
+      <section class="ce-panel" data-panel="settings" hidden>
+        <div class="ce-panel-head"><div><h2>Safety settings</h2><p>Auto-publishing stays off until explicitly enabled and every quality guard passes.</p></div></div>
+        <form id="ce-settings-form" class="ce-settings">
+          <label class="ce-check"><input name="autoPublishEnabled" type="checkbox" /> Enable auto-publish</label>
+          <label class="ce-check"><input name="requireMultipleSources" type="checkbox" /> Require multiple sources</label>
+          <label class="ce-check"><input name="generateImages" type="checkbox" /> Generate missing images</label>
+          <label>Auto-publish quality<input name="autoPublishMinQuality" type="number" min="0" max="1" step=".01" /></label>
+          <label>Minimum item confidence<input name="minItemConfidence" type="number" min="0" max="1" step=".01" /></label>
+          <label>Minimum cluster score<input name="minClusterScore" type="number" min="0" max="1" step=".01" /></label>
+          <label>Run schedule<select name="runSchedule"><option value="twice_daily">Twice daily</option><option value="daily">Daily</option><option value="manual">Manual only</option></select></label>
+          <div><button class="ce-button" type="submit">Save settings</button></div>
+        </form>
+        <div id="ce-settings-error" class="ce-error"></div>
+        <h2 style="margin-top:28px">Last 30 days</h2><div id="ce-analytics" class="ce-summary"></div>
+        <h2>Recent runs</h2><div id="ce-runs"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="ce-preview-backdrop" class="ce-preview-backdrop" hidden>
+    <div class="ce-preview-chrome">
+      <p>Live draft preview — article actions are inside the preview.</p>
+      <button type="button" id="ce-preview-close">Close preview</button>
+    </div>
+    <iframe id="ce-preview-frame" class="ce-preview-frame" title="Draft preview"></iframe>
+  </div>
+
+  <script>
+    const state: { data: any; previewId: string | null; draftFilter: string | null } = { data: null, previewId: null, draftFilter: null };
+    const draftFilterLabels: Record<string, string> = {
+      review: 'Drafts waiting for review',
+      scheduled: 'Scheduled drafts',
+      published: 'Published drafts',
+      blog: 'Blog articles',
+      newsletter: 'Newsletter editions',
+    };
+    const $ = (id: string) => document.getElementById(id)!;
+    const esc = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'} as any)[char]);
+    const list = (value: unknown) => Array.isArray(value) ? value : [];
+    const fmt = (value: unknown) => value ? new Date(String(value)).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+    const pct = (value: unknown) => `${Math.round(Number(value || 0) * 100)}%`;
+    const pill = (label: string, tone = '') => `<span class="ce-pill ${tone}">${esc(label)}</span>`;
+    const statusTone = (status: string) => status === 'published' || status === 'accepted' || status === 'completed' ? 'good' : status === 'rejected' || status === 'failed' ? 'bad' : status === 'review' || status === 'partial' ? 'warn' : 'info';
+    function setStatus(message: string) { $('ce-status').textContent = message; }
+    async function api(path: string, options: RequestInit = {}) {
+      const response = await fetch(path, { ...options, headers: {'content-type':'application/json',...(options.headers||{})} });
+      const data = await response.json();
+      if (!response.ok) throw new Error((data.errors || [data.error || 'Request failed.']).join('\n'));
+      return data;
+    }
+    function sourceList(sources: any[]) {
+      if (!sources.length) return '<p class="ce-meta">No provenance recorded.</p>';
+      return `<ul class="ce-source-list">${sources.map((source) => `<li><a href="${esc(source.sourceUrl)}" target="_blank" rel="noreferrer">${esc(source.sourceName)}</a> · trust ${pct(source.trustScore)}${source.sourcePublishedAt ? ` · ${fmt(source.sourcePublishedAt)}` : ''}</li>`).join('')}</ul>`;
+    }
+    function draftMatchesFilter(draft: any) {
+      if (!state.draftFilter) return true;
+      if (state.draftFilter === 'review') return draft.status === 'review';
+      if (state.draftFilter === 'scheduled') return draft.status === 'scheduled';
+      if (state.draftFilter === 'published') return draft.status === 'published';
+      if (state.draftFilter === 'blog') return draft.contentType === 'blog';
+      if (state.draftFilter === 'newsletter') return draft.contentType === 'newsletter';
+      return true;
+    }
+    function renderSummary() {
+      const counts = state.data.overview.counts || {};
+      const metrics = [
+        ['enabled_sources', 'Sources', false],
+        ['items', 'Items', false],
+        ['clusters', 'Clusters', false],
+        ['drafts_in_review', 'Drafts to review', 'review'],
+        ['articles', 'Articles', 'blog'],
+        ['scheduled', 'Scheduled', 'scheduled'],
+        ['published', 'Published', 'published'],
+        ['newsletters', 'Newsletters', 'newsletter'],
+      ] as const;
+      $('ce-summary').innerHTML = metrics.map(([key, label, filter]) => {
+        const value = esc(counts[key] || 0);
+        if (!filter) return `<div class="ce-stat"><strong>${value}</strong><span>${label}</span></div>`;
+        const active = state.draftFilter === filter;
+        return `<button type="button" class="ce-stat ce-stat-filter" data-filter="${filter}" aria-pressed="${active}"><strong>${value}</strong><span>${label}</span></button>`;
+      }).join('');
+    }
+    function renderDrafts() {
+      const clusters = new Map(state.data.clusters.map((cluster: any) => [cluster.id, cluster]));
+      const drafts = [...state.data.drafts]
+        .filter(draftMatchesFilter)
+        .sort((a: any, b: any) => (a.status === 'review' ? -1 : 1) - (b.status === 'review' ? -1 : 1));
+      const filterLabel = $('ce-drafts-filter-label');
+      if (filterLabel) {
+        filterLabel.textContent = state.draftFilter
+          ? `Showing ${draftFilterLabels[state.draftFilter] || 'filtered drafts'}. Click the stat again to show everything.`
+          : 'Open a preview to read the full draft, edit fields, regenerate copy, manage images, and approve or reject.';
+      }
+      $('ce-drafts').innerHTML = drafts.length ? drafts.map((draft: any) => {
+        const cluster: any = clusters.get(draft.clusterId);
+        const sources = cluster ? cluster.items.flatMap((item: any) => item.provenance) : [];
+        return `<article class="ce-card" data-draft-id="${esc(draft.id)}"><div class="ce-panel-head"><div><h3>${esc(draft.title)}</h3><div class="ce-meta">${esc(draft.contentType)} · ${fmt(draft.createdAt)} · quality ${pct(draft.qualityScore)}</div></div><div>${pill(draft.status,statusTone(draft.status))} ${pill(draft.contentType === 'newsletter' ? 'Newsletter' : 'Blog','info')}</div></div>
+          <p class="ce-copy">${esc(draft.description).slice(0, 220)}${String(draft.description || '').length > 220 ? '…' : ''}</p><div class="ce-pills">${list(draft.tags).slice(0,8).map((tag:any)=>pill(tag)).join('')}${list(draft.qualityFlags).map((flag:any)=>pill(flag,'warn')).join('')}</div>
+          <details><summary class="ce-meta">Source provenance (${sources.length})</summary>${sourceList(sources)}</details>
+          <div class="ce-card-actions"><button data-action="preview">Preview ${draft.contentType === 'newsletter' ? 'newsletter' : 'article'}</button></div></article>`;
+      }).join('') : `<p class="ce-empty">${state.draftFilter ? 'No drafts match this filter.' : 'No generated drafts yet. Run the pipeline after configuring sources.'}</p>`;
+    }
+    function setDraftFilter(filter: string | null) {
+      state.draftFilter = filter;
+      document.querySelectorAll('[data-tab="drafts"]').forEach((tab) => tab.setAttribute('aria-selected', 'true'));
+      document.querySelectorAll('[data-tab]:not([data-tab="drafts"])').forEach((tab) => tab.setAttribute('aria-selected', 'false'));
+      document.querySelectorAll('[data-panel]').forEach((panel) => {
+        panel.toggleAttribute('hidden', panel.getAttribute('data-panel') !== 'drafts');
+      });
+      renderSummary();
+      renderDrafts();
+    }
+    function renderSources() {
+      $('ce-sources').innerHTML = state.data.sources.map((source: any) => `<article class="ce-card" data-source-id="${esc(source.id)}"><div class="ce-panel-head"><div><h3>${esc(source.name)}</h3><div class="ce-meta">${esc(source.kind)} · trust ${pct(source.trustScore)} · ${source.countyScoped ? 'county-scoped' : 'location checked per item'}</div></div>${pill(source.enabled ? 'Enabled' : 'Paused',source.enabled?'good':'warn')}</div><a class="ce-meta" href="${esc(source.url)}" target="_blank" rel="noreferrer">${esc(source.url)}</a><p class="ce-meta">Last success: ${fmt(source.lastSuccessAt)}${source.lastError ? ` · Error: ${esc(source.lastError)}` : ''}</p><div class="ce-card-actions"><button class="alt" data-source-toggle>${source.enabled ? 'Pause' : 'Enable'}</button><button class="alt" data-run-source>Run only this source</button></div><div class="ce-error"></div></article>`).join('');
+    }
+    function renderItems() {
+      $('ce-items').innerHTML = state.data.items.length ? state.data.items.map((item: any) => `<article class="ce-card"><div class="ce-panel-head"><div><h3>${esc(item.title)}</h3><div class="ce-meta">${esc(item.venueName || 'Venue not identified')} · ${esc(item.neighborhood || item.area || 'Area needs review')} · ${fmt(item.eventStartAt)}</div></div><div>${pill(item.status,statusTone(item.status))} ${pill(pct(item.confidenceScore),'info')}</div></div><p class="ce-copy">${esc(item.description).slice(0,650)}</p><div class="ce-pills">${list(item.eventTypes).map((type:any)=>pill(type)).join('')}${list(item.qualityFlags).map((flag:any)=>pill(flag,'warn')).join('')}</div><details><summary class="ce-meta">${item.provenance.length} source observation${item.provenance.length===1?'':'s'}</summary>${sourceList(item.provenance)}</details></article>`).join('') : '<p class="ce-empty">No items ingested yet.</p>';
+    }
+    function renderClusters() {
+      $('ce-clusters').innerHTML = state.data.clusters.length ? state.data.clusters.map((cluster: any) => `<article class="ce-card"><div class="ce-panel-head"><div><h3>${esc(cluster.workingTitle)}</h3><div class="ce-meta">${esc(cluster.clusterType)} · editorial ${pct(cluster.editorialScore)} · confidence ${pct(cluster.confidenceScore)}</div></div>${pill(`${cluster.items.length} items`,'info')}</div><p class="ce-copy"><strong>Angle:</strong> ${esc(cluster.angle)}</p><ol class="ce-source-list">${cluster.items.map((item:any)=>`<li>${esc(item.title)} · ${fmt(item.eventStartAt)}</li>`).join('')}</ol><details><summary class="ce-meta">Inspect all provenance</summary>${sourceList(cluster.items.flatMap((item:any)=>item.provenance))}</details></article>`).join('') : '<p class="ce-empty">No clusters created yet.</p>';
+    }
+    function renderSettings() {
+      const form = $('ce-settings-form') as HTMLFormElement; const settings = state.data.settings;
+      for (const key of ['autoPublishEnabled','requireMultipleSources','generateImages']) (form.elements.namedItem(key) as HTMLInputElement).checked = Boolean(settings[key]);
+      for (const key of ['autoPublishMinQuality','minItemConfidence','minClusterScore','runSchedule']) (form.elements.namedItem(key) as HTMLInputElement).value = settings[key];
+      $('ce-analytics').innerHTML = list(state.data.overview.analytics).map((row:any)=>`<div class="ce-stat"><strong>${esc(row.count)}</strong><span>${esc(row.event_name).replaceAll('_',' ')}</span></div>`).join('') || '<p class="ce-empty">No engine events in the last 30 days.</p>';
+      const runs = list(state.data.overview.recentRuns);
+      $('ce-runs').innerHTML = runs.length ? `<table class="ce-run-table"><thead><tr><th>Started</th><th>Trigger</th><th>Status</th><th>Fetched</th><th>New / merged</th><th>Clusters / drafts</th></tr></thead><tbody>${runs.map((run:any)=>`<tr><td>${fmt(run.started_at)}</td><td>${esc(run.trigger_type)}</td><td>${pill(run.status,statusTone(run.status))}</td><td>${esc(run.items_fetched)}</td><td>${esc(run.items_created)} / ${esc(run.items_merged)}</td><td>${esc(run.clusters_created)} / ${esc(run.drafts_created)}</td></tr>`).join('')}</tbody></table>` : '<p class="ce-empty">No pipeline runs yet.</p>';
+    }
+    function render() { renderSummary(); renderDrafts(); renderSources(); renderItems(); renderClusters(); renderSettings(); }
+    async function load() { setStatus('Loading content engine…'); state.data = await api('/api/admin/content-engine'); render(); setStatus('Ready. All generated content remains review-first.'); }
+    function openPreview(id: string) {
+      state.previewId = id;
+      const frame = $('ce-preview-frame') as HTMLIFrameElement;
+      frame.src = `/admin/content-engine/preview/${encodeURIComponent(id)}/?embed=1`;
+      $('ce-preview-backdrop').hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closePreview(reload = false) {
+      $('ce-preview-backdrop').hidden = true;
+      ($('ce-preview-frame') as HTMLIFrameElement).src = 'about:blank';
+      state.previewId = null;
+      document.body.style.overflow = '';
+      if (reload) load().catch((error) => setStatus(error.message));
+    }
+    document.querySelectorAll('[data-tab]').forEach((button)=>button.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach((tab)=>tab.setAttribute('aria-selected',String(tab===button)));document.querySelectorAll('[data-panel]').forEach((panel)=>panel.toggleAttribute('hidden',panel.getAttribute('data-panel')!==(button as HTMLElement).dataset.tab));}));
+    $('ce-summary').addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-filter]');
+      if (!button) return;
+      const next = button.dataset.filter || null;
+      setDraftFilter(state.draftFilter === next ? null : next);
+    });
+    $('ce-preview-close').addEventListener('click',()=>closePreview(true));
+    $('ce-preview-backdrop').addEventListener('click',(event)=>{if(event.target===$('ce-preview-backdrop'))closePreview(true)});
+    window.addEventListener('message',(event)=>{if(event.data?.source!=='content-engine-preview')return;if(event.data.type==='close')closePreview(true);else if(event.data.type==='updated')load().catch((error)=>setStatus(error.message))});
+    document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&!$('ce-preview-backdrop').hidden)closePreview(true)});
+    $('ce-refresh').addEventListener('click',()=>load().catch((error)=>setStatus(error.message)));
+    $('ce-run').addEventListener('click',async()=>{const button=$('ce-run') as HTMLButtonElement;button.disabled=true;setStatus('Running discovery, clustering, and drafting…');try{const result=await api('/api/admin/content-engine/run',{method:'POST',body:'{}'});setStatus(`Run ${result.status}: ${result.itemsCreated} new, ${result.itemsMerged} merged, ${result.clustersCreated} clusters, ${result.draftsCreated} drafts.`);await load()}catch(error:any){setStatus(error.message)}finally{button.disabled=false}});
+    $('ce-source-form').addEventListener('submit',async(event)=>{event.preventDefault();const form=event.currentTarget as HTMLFormElement;const data=new FormData(form);$('ce-source-error').textContent='';try{await api('/api/admin/content-engine/sources',{method:'POST',body:JSON.stringify({name:data.get('name'),kind:data.get('kind'),url:data.get('url'),trustScore:Number(data.get('trustScore')),imagePolicy:data.get('imagePolicy'),countyScoped:data.get('countyScoped')==='on',enabled:data.get('enabled')==='on',config:{includeKeywords:String(data.get('keywords')||'').split(',').map(v=>v.trim()).filter(Boolean)}})});form.reset();(form.elements.namedItem('enabled') as HTMLInputElement).checked=true;await load()}catch(error:any){$('ce-source-error').textContent=error.message}});
+    $('ce-sources').addEventListener('click',async(event)=>{const card=(event.target as HTMLElement).closest<HTMLElement>('[data-source-id]');if(!card)return;const source=state.data.sources.find((item:any)=>item.id===card.dataset.sourceId);const errorEl=card.querySelector<HTMLElement>('.ce-error')!;try{if((event.target as HTMLElement).closest('[data-source-toggle]'))await api(`/api/admin/content-engine/sources/${source.id}`,{method:'PATCH',body:JSON.stringify({enabled:!source.enabled})});else if((event.target as HTMLElement).closest('[data-run-source]'))await api('/api/admin/content-engine/run',{method:'POST',body:JSON.stringify({sourceIds:[source.id]})});else return;await load()}catch(error:any){errorEl.textContent=error.message}});
+    $('ce-drafts').addEventListener('click',(event)=>{const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button[data-action="preview"]');const card=button?.closest<HTMLElement>('[data-draft-id]');if(!button||!card)return;openPreview(card.dataset.draftId!)});
+    $('ce-settings-form').addEventListener('submit',async(event)=>{event.preventDefault();const form=event.currentTarget as HTMLFormElement;const data=new FormData(form);$('ce-settings-error').textContent='';try{await api('/api/admin/content-engine/settings',{method:'PUT',body:JSON.stringify({autoPublishEnabled:data.get('autoPublishEnabled')==='on',requireMultipleSources:data.get('requireMultipleSources')==='on',generateImages:data.get('generateImages')==='on',autoPublishMinQuality:Number(data.get('autoPublishMinQuality')),minItemConfidence:Number(data.get('minItemConfidence')),minClusterScore:Number(data.get('minClusterScore')),runSchedule:data.get('runSchedule')})});await load()}catch(error:any){$('ce-settings-error').textContent=error.message}});
+    (async()=>{try{const session=await api('/api/admin/me');if(!session.authenticated){$('ce-locked').hidden=false;return}$('ce-user').textContent=session.email;$('ce-app').hidden=false;await load()}catch{$('ce-locked').hidden=false}})();
+  </script>
+</Layout>

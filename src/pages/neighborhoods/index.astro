@@ -1,0 +1,78 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getNeighborhoodProfiles } from '../../lib/neighborhoods';
+import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
+import { getListingImage, getVenueImage } from '../../lib/venues';
+
+const neighborhoods = getNeighborhoodProfiles();
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'San Diego neighborhoods', path: '/neighborhoods/' },
+];
+---
+<Layout
+  title="San Diego Happy Hours by Neighborhood | SD Happy Hours"
+  description="Explore current happy hour times and deals by San Diego neighborhood, from Little Italy and North Park to Pacific Beach and the Gaslamp Quarter."
+  structuredData={[
+    breadcrumbSchema(breadcrumbs),
+    itemListSchema('San Diego happy hour neighborhoods', neighborhoods.map((area) => ({
+      name: area.name,
+      path: `/neighborhoods/${area.slug}/`,
+    }))),
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+  <header class="page-header">
+    <h1>San Diego Happy Hours by Neighborhood</h1>
+    <p>Pick an area to compare current schedules, food and drink specials, and local planning tips.</p>
+  </header>
+
+  <main class="neighborhood-index">
+    <div class="area-grid">
+      {neighborhoods.map((area) => (
+        <a class="area-card" href={`/neighborhoods/${area.slug}/`}>
+          <img
+            src={getListingImage(area.venues[0], 'card')}
+            alt={`Happy hour in ${area.name}, San Diego`}
+            width="800"
+            height="534"
+            loading="lazy"
+            data-fallback-src={getVenueImage(area.venues[0].vibe, 'card')}
+          />
+          <div>
+            <p class="count">{area.venues.length} {area.venues.length === 1 ? 'venue' : 'venues'}</p>
+            <h2>{area.name}</h2>
+            <p>{area.shortDescription}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
+  <script>
+    for (const image of document.querySelectorAll<HTMLImageElement>('img[data-fallback-src]')) {
+      const useFallback = () => {
+        const fallback = image.dataset.fallbackSrc;
+        if (!fallback || image.src.endsWith(fallback)) return;
+        image.src = fallback;
+      };
+      image.addEventListener('error', useFallback, { once: true });
+      if (image.complete && image.naturalWidth === 0) useFallback();
+    }
+  </script>
+</Layout>
+
+<style>
+  .neighborhood-index { max-width: 1080px; margin: 0 auto; padding: 34px 24px 80px; }
+  .area-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .area-card { background: white; border-radius: var(--radius); color: inherit; display: grid; grid-template-columns: 190px 1fr; overflow: hidden; text-decoration: none; box-shadow: 0 8px 28px rgba(15,23,42,.08); }
+  .area-card img { height: 100%; min-height: 190px; object-fit: cover; width: 100%; }
+  .area-card > div { padding: 22px; }
+  .area-card .count { color: var(--sunset-start); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin-bottom: 6px; text-transform: uppercase; }
+  .area-card h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 8px; }
+  .area-card p:last-child { color: var(--night-soft); line-height: 1.55; }
+  .area-card:hover h2 { color: var(--sunset-start); }
+  @media (max-width: 800px) { .area-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .area-card { grid-template-columns: 1fr; } .area-card img { height: 180px; min-height: 0; } }
+</style>
