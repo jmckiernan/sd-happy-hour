@@ -36,6 +36,7 @@ npm run import:venues:merge                # write to happy-hours.json
 npm run import:venues:cleanup              # dedupe deals, strip HTML junk, replace placeholders with "Happy hour"
 npm run import:venues:photos               # download Google Places photos → public/images/venues/
 npm run import:venues:refresh-deals        # re-scrape websites for venues still on the "Happy hour" fallback
+npm run import:venues:classify-neighborhoods  # re-assign neighborhoods from lat/lng + address
 ```
 
 ## Smoke test (cheap)

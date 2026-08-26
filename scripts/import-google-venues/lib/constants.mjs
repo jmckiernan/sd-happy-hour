@@ -32,14 +32,4 @@ export const DAY_ABBR = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6
 export const DEAL_TYPES = ['beer', 'cocktails', 'wine', 'food', 'oysters', 'entertainment'];
 export const FEATURES = ['patio', 'dog friendly', 'date night', 'group friendly', 'waterfront', 'rooftop', 'casual', 'upscale'];
 
-/** Rough bounding boxes for neighborhood assignment. */
-export const NEIGHBORHOOD_BOXES = [
-  { name: 'Little Italy', minLat: 32.721, maxLat: 32.728, minLng: -117.176, maxLng: -117.164 },
-  { name: 'Gaslamp', minLat: 32.706, maxLat: 32.718, minLng: -117.168, maxLng: -117.154 },
-  { name: 'North Park', minLat: 32.728, maxLat: 32.752, minLng: -117.138, maxLng: -117.118 },
-  { name: 'South Park', minLat: 32.716, maxLat: 32.728, minLng: -117.130, maxLng: -117.118 },
-  { name: 'Pacific Beach', minLat: 32.790, maxLat: 32.812, minLng: -117.260, maxLng: -117.230 },
-  { name: 'UTC', minLat: 32.868, maxLat: 32.892, minLng: -117.220, maxLng: -117.200 },
-  { name: 'Harbor Island', minLat: 32.718, maxLat: 32.728, minLng: -117.200, maxLng: -117.188 },
-  { name: 'Middletown', minLat: 32.728, maxLat: 32.738, minLng: -117.178, maxLng: -117.168 },
-];
+export { NEIGHBORHOOD_BOXES } from './neighborhood-assign.mjs';

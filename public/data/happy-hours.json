@@ -270,7 +270,7 @@
   {
     "id": 8,
     "name": "Juniper & Ivy",
-    "neighborhood": "Little Italy",
+    "neighborhood": "Middletown",
     "address": "2228 Kettner Blvd",
     "lat": 32.7285,
     "lng": -117.1698,
@@ -351,7 +351,7 @@
   {
     "id": 10,
     "name": "Herb & Wood",
-    "neighborhood": "Little Italy",
+    "neighborhood": "Middletown",
     "address": "2210 Kettner Blvd",
     "lat": 32.7283,
     "lng": -117.1698,
@@ -429,7 +429,7 @@
   {
     "id": 12,
     "name": "Polite Provisions",
-    "neighborhood": "North Park",
+    "neighborhood": "Normal Heights",
     "address": "4696 30th St",
     "lat": 32.7573,
     "lng": -117.1296,
@@ -505,7 +505,7 @@
   {
     "id": 14,
     "name": "The Crack Shack",
-    "neighborhood": "Little Italy",
+    "neighborhood": "Middletown",
     "address": "2266 Kettner Blvd",
     "lat": 32.7289,
     "lng": -117.1699,
@@ -585,7 +585,7 @@
   {
     "id": 16,
     "name": "Coin-Op Game Room",
-    "neighborhood": "North Park",
+    "neighborhood": "Normal Heights",
     "address": "3926 30th St",
     "lat": 32.7532,
     "lng": -117.1296,
@@ -663,7 +663,7 @@
   {
     "id": 18,
     "name": "Luce Bar & Kitchen",
-    "neighborhood": "Middletown",
+    "neighborhood": "Little Italy",
     "address": "1950 India St",
     "lat": 32.7253,
     "lng": -117.1688,
@@ -703,7 +703,7 @@
   {
     "id": 19,
     "name": "Kindred",
-    "neighborhood": "South Park",
+    "neighborhood": "North Park",
     "address": "1503 30th St",
     "lat": 32.7308,
     "lng": -117.1296,
@@ -780,7 +780,7 @@
   {
     "id": 21,
     "name": "Your Mother's House",
-    "neighborhood": "your mom's neighborhood",
+    "neighborhood": "Gaslamp",
     "address": "123 Your Mother's House rd",
     "lat": 32.7157,
     "lng": -117.1611,
@@ -815,7 +815,7 @@
   {
     "id": 22,
     "name": "Plaza Bonita",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "3030 Plaza Bonita Rd #2075, National City, CA 91950, USA",
     "lat": 32.656186,
     "lng": -117.065741,
@@ -850,7 +850,7 @@
   {
     "id": 23,
     "name": "Mission Valley",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "1640 Camino Del Rio N, San Diego, CA 92108, USA",
     "lat": 32.7685992,
     "lng": -117.1480084,
@@ -884,7 +884,7 @@
   {
     "id": 24,
     "name": "Cafe Coyote",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2461 San Diego Ave, San Diego, CA 92110, USA",
     "lat": 32.752151399999995,
     "lng": -117.19438749999999,
@@ -954,7 +954,7 @@
   {
     "id": 26,
     "name": "Phil's BBQ",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "3750 Sports Arena Blvd, San Diego, CA 92110, USA",
     "lat": 32.7548759,
     "lng": -117.2158625,
@@ -989,7 +989,7 @@
   {
     "id": 27,
     "name": "Steamy Piggy",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "4681 Convoy St # A, San Diego, CA 92111, USA",
     "lat": 32.825631099999995,
     "lng": -117.15458009999998,
@@ -1025,7 +1025,7 @@
   {
     "id": 28,
     "name": "Casa Guadalajara",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "4105 Taylor St, San Diego, CA 92110, USA",
     "lat": 32.756824099999996,
     "lng": -117.19814239999998,
@@ -1061,7 +1061,7 @@
   {
     "id": 29,
     "name": "Old Town Mexican Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2489 San Diego Ave, San Diego, CA 92110, USA",
     "lat": 32.7524148,
     "lng": -117.1946457,
@@ -1131,7 +1131,7 @@
   {
     "id": 31,
     "name": "Liberty Public Market",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2820 Historic Decatur Rd, San Diego, CA 92106, USA",
     "lat": 32.7400774,
     "lng": -117.2110573,
@@ -1165,7 +1165,7 @@
   {
     "id": 32,
     "name": "Dave & Buster's San Diego",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "2931 Camino Del Rio N, San Diego, CA 92108, USA",
     "lat": 32.7727419,
     "lng": -117.1314573,
@@ -1201,7 +1201,7 @@
   {
     "id": 33,
     "name": "The Fish Market",
-    "neighborhood": "San Diego",
+    "neighborhood": "Embarcadero",
     "address": "750 N Harbor Dr, San Diego, CA 92101, USA",
     "lat": 32.712301599999996,
     "lng": -117.1755992,
@@ -1269,7 +1269,7 @@
   {
     "id": 35,
     "name": "Point Loma Seafoods",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2805 Emerson St, San Diego, CA 92106, USA",
     "lat": 32.7232519,
     "lng": -117.22786279999998,
@@ -1302,7 +1302,7 @@
   {
     "id": 36,
     "name": "Rockin' Baja Lobster - Old Town",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "3890 Twiggs St, San Diego, CA 92110, USA",
     "lat": 32.7519926,
     "lng": -117.19717239999999,
@@ -1336,7 +1336,7 @@
   {
     "id": 37,
     "name": "The Cheesecake Factory",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "7067 Friars Rd, San Diego, CA 92108, USA",
     "lat": 32.76918,
     "lng": -117.1656,
@@ -1372,7 +1372,7 @@
   {
     "id": 38,
     "name": "Fisherman's Restaurant & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "611 Avenida Victoria, San Clemente, CA 92672, USA",
     "lat": 33.419427999999996,
     "lng": -117.62019629999999,
@@ -1478,7 +1478,7 @@
   {
     "id": 41,
     "name": "Hash House A Go Go",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3628 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7439003,
     "lng": -117.16069719999999,
@@ -1583,7 +1583,7 @@
   {
     "id": 44,
     "name": "Blue Water Seafood Market & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3667 India St, San Diego, CA 92103, USA",
     "lat": 32.7419596,
     "lng": -117.17990789999999,
@@ -1623,7 +1623,7 @@
   {
     "id": 45,
     "name": "Casa De Pico",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "5500 Grossmont Center Dr, La Mesa, CA 91942, USA",
     "lat": 32.780094999999996,
     "lng": -117.00996249999999,
@@ -1692,7 +1692,7 @@
   {
     "id": 47,
     "name": "Tom Ham's Lighthouse",
-    "neighborhood": "Harbor Island",
+    "neighborhood": "Point Loma",
     "address": "2150 Harbor Island Dr, San Diego, CA 92101, USA",
     "lat": 32.7241648,
     "lng": -117.21308379999999,
@@ -1726,7 +1726,7 @@
   {
     "id": 48,
     "name": "Snooze, an A.M. Eatery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3940 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7489865,
     "lng": -117.16074160000001,
@@ -1830,7 +1830,7 @@
   {
     "id": 51,
     "name": "BJ's Restaurant & Brewhouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "5500 Grossmont Center Dr, La Mesa, CA 91942, USA",
     "lat": 32.780023,
     "lng": -117.0101801,
@@ -1901,7 +1901,7 @@
   {
     "id": 53,
     "name": "South Beach Bar & Grille",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5059 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.747443,
     "lng": -117.25233899999999,
@@ -1935,7 +1935,7 @@
   {
     "id": 54,
     "name": "RAKIRAKI Ramen & Tsukemen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "4646 Convoy St 102 - A, San Diego, CA 92111, USA",
     "lat": 32.8246803,
     "lng": -117.1554718,
@@ -1969,7 +1969,7 @@
   {
     "id": 55,
     "name": "Karl Strauss Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "9675 Scranton Rd, San Diego, CA 92121, USA",
     "lat": 32.8965493,
     "lng": -117.20178089999999,
@@ -2010,7 +2010,7 @@
   {
     "id": 56,
     "name": "Phil's BBQ",
-    "neighborhood": "San Diego",
+    "neighborhood": "Santee",
     "address": "9816 Mission Gorge Rd, Santee, CA 92071, USA",
     "lat": 32.8404922,
     "lng": -116.9832752,
@@ -2045,7 +2045,7 @@
   {
     "id": 57,
     "name": "Yard House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "1640 Camino Del Rio N Spc 157, San Diego, CA 92108, USA",
     "lat": 32.7679319,
     "lng": -117.1487525,
@@ -2152,7 +2152,7 @@
   {
     "id": 60,
     "name": "Bali Hai Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2230 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.7194332,
     "lng": -117.22041799999998,
@@ -2186,7 +2186,7 @@
   {
     "id": 61,
     "name": "BJ's Restaurant & Brewhouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "555 Broadway Ste 1019, Chula Vista, CA 91910, USA",
     "lat": 32.630479099999995,
     "lng": -117.0871853,
@@ -2221,7 +2221,7 @@
   {
     "id": 62,
     "name": "Kings Inn San Diego",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "1333 Hotel Cir S, San Diego, CA 92108, USA",
     "lat": 32.7588229,
     "lng": -117.1751243,
@@ -2362,7 +2362,7 @@
   {
     "id": 66,
     "name": "The Prado at Balboa Park",
-    "neighborhood": "San Diego",
+    "neighborhood": "Balboa Park",
     "address": "1549 El Prado Ste 12, San Diego, CA 92101, USA",
     "lat": 32.7310908,
     "lng": -117.1495581,
@@ -2432,7 +2432,7 @@
   {
     "id": 68,
     "name": "Anthony's Fish Grotto",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "9530 Murray Dr, La Mesa, CA 91942, USA",
     "lat": 32.7799184,
     "lng": -116.99244689999999,
@@ -2501,7 +2501,7 @@
   {
     "id": 70,
     "name": "Miguel's Cocina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2444 San Diego Ave, San Diego, CA 92110, USA",
     "lat": 32.7522672,
     "lng": -117.19367190000001,
@@ -2535,7 +2535,7 @@
   {
     "id": 71,
     "name": "La Bella Pizza",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "373 3rd Ave, Chula Vista, CA 91910, USA",
     "lat": 32.6385297,
     "lng": -117.0785812,
@@ -2570,7 +2570,7 @@
   {
     "id": 72,
     "name": "Casa De Bandini at The Forum",
-    "neighborhood": "Carlsbad",
+    "neighborhood": "Encinitas",
     "address": "1901 Calle Barcelona, Carlsbad, CA 92009, USA",
     "lat": 33.0714202,
     "lng": -117.26719829999999,
@@ -2606,7 +2606,7 @@
   {
     "id": 73,
     "name": "Rockin' Baja Lobster - Oceanside",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "258 Harbor Dr, Oceanside, CA 92054, USA",
     "lat": 33.2047021,
     "lng": -117.3899118,
@@ -2640,7 +2640,7 @@
   {
     "id": 74,
     "name": "Buona Forchetta - South Park",
-    "neighborhood": "San Diego",
+    "neighborhood": "East Village",
     "address": "3001 Beech St, San Diego, CA 92102, USA",
     "lat": 32.721163499999996,
     "lng": -117.1300386,
@@ -2676,7 +2676,7 @@
   {
     "id": 75,
     "name": "Brigantine Seafood & Oyster Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "9350 Fuerte Dr, La Mesa, CA 91941, USA",
     "lat": 32.7783805,
     "lng": -116.99548180000001,
@@ -2848,7 +2848,7 @@
   {
     "id": 80,
     "name": "Sushi Deli 3",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "7986 Armour St, San Diego, CA 92111, USA",
     "lat": 32.820187,
     "lng": -117.15144500000001,
@@ -2881,7 +2881,7 @@
   {
     "id": 81,
     "name": "Cali BBQ",
-    "neighborhood": "San Diego",
+    "neighborhood": "Spring Valley",
     "address": "8910 Troy St, Spring Valley, CA 91977, USA",
     "lat": 32.736897299999995,
     "lng": -117.00795260000001,
@@ -2915,7 +2915,7 @@
   {
     "id": 82,
     "name": "Belching Beaver Brewery Tavern and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "302 E Broadway, Vista, CA 92084, USA",
     "lat": 33.202106199999996,
     "lng": -117.2410768,
@@ -2985,7 +2985,7 @@
   {
     "id": 84,
     "name": "BJ's Restaurant & Brewhouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "204 E Via Rancho Pkwy, Escondido, CA 92025, USA",
     "lat": 33.070109300000006,
     "lng": -117.06876090000002,
@@ -3020,7 +3020,7 @@
   {
     "id": 85,
     "name": "Yard House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "40770 Winchester Rd Ste 750, Temecula, CA 92591, USA",
     "lat": 33.524170000000005,
     "lng": -117.15356999999999,
@@ -3055,7 +3055,7 @@
   {
     "id": 86,
     "name": "Jimmy's Famous American Tavern - Point Loma",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "4990 N Harbor Dr, San Diego, CA 92106, USA",
     "lat": 32.7250863,
     "lng": -117.2243302,
@@ -3089,7 +3089,7 @@
   {
     "id": 87,
     "name": "Guadalajara Mexican Grill & Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "27780 Jefferson Ave, Temecula, CA 92590, USA",
     "lat": 33.511003699999996,
     "lng": -117.1572017,
@@ -3301,7 +3301,7 @@
   {
     "id": 93,
     "name": "The Cheesecake Factory",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd, Chula Vista, CA 91915, USA",
     "lat": 32.6244125,
     "lng": -116.9655529,
@@ -3337,7 +3337,7 @@
   {
     "id": 94,
     "name": "OB Noodle House & Sake Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "2218 Cable St, San Diego, CA 92107, USA",
     "lat": 32.751347599999995,
     "lng": -117.24481770000001,
@@ -3371,7 +3371,7 @@
   {
     "id": 95,
     "name": "Hacienda Casa Blanca Mexican Restaurant & Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "700 N Johnson Ave SteA, El Cajon, CA 92020, USA",
     "lat": 32.8043141,
     "lng": -116.971961,
@@ -3406,7 +3406,7 @@
   {
     "id": 96,
     "name": "Burger Bench Escondido",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "237 E Grand Ave, Escondido, CA 92025, USA",
     "lat": 33.1226102,
     "lng": -117.07924229999999,
@@ -3440,7 +3440,7 @@
   {
     "id": 97,
     "name": "Wonderland Ocean Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5083 Santa Monica Ave Ste 2B, San Diego, CA 92107, USA",
     "lat": 32.7483812,
     "lng": -117.25192380000001,
@@ -3548,7 +3548,7 @@
   {
     "id": 100,
     "name": "Bluewater Grill Seafood Restaurant & Market Temecula",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "26700 Ynez Ct, Temecula, CA 92591, USA",
     "lat": 33.5122314,
     "lng": -117.15170839999999,
@@ -3723,7 +3723,7 @@
   {
     "id": 105,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "800 Paseo del Rey, Chula Vista, CA 91910, USA",
     "lat": 32.636485,
     "lng": -117.02877499999998,
@@ -3793,7 +3793,7 @@
   {
     "id": 107,
     "name": "Marie Callender's",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "6950 Alvarado Rd, San Diego, CA 92120, USA",
     "lat": 32.7744608,
     "lng": -117.0484122,
@@ -3827,7 +3827,7 @@
   {
     "id": 108,
     "name": "The Galley",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "550 Marina Pkwy # D3, Chula Vista, CA 91910, USA",
     "lat": 32.6259379,
     "lng": -117.10210210000001,
@@ -3862,7 +3862,7 @@
   {
     "id": 109,
     "name": "Restaurante Chicho's",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Calle Onceava No. 8389, Marron, 22015 Tijuana, B.C., Mexico",
     "lat": 32.5250335,
     "lng": -117.02359609999999,
@@ -4073,7 +4073,7 @@
   {
     "id": 115,
     "name": "Shakespeare Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3701 India St, San Diego, CA 92103, USA",
     "lat": 32.7426168,
     "lng": -117.1804507,
@@ -4107,7 +4107,7 @@
   {
     "id": 116,
     "name": "BJ's Restaurant & Brewhouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "26500 Ynez Rd, Temecula, CA 92591, USA",
     "lat": 33.5196508,
     "lng": -117.15600049999999,
@@ -4142,7 +4142,7 @@
   {
     "id": 117,
     "name": "Lucille's Smokehouse Bar-B-Que",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "40748 Winchester Rd, Temecula, CA 92591, USA",
     "lat": 33.5257024,
     "lng": -117.15192789999998,
@@ -4251,7 +4251,7 @@
   {
     "id": 120,
     "name": "Mi Guadalajara Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "525 W 2nd Ave, Escondido, CA 92025, USA",
     "lat": 33.117557,
     "lng": -117.086726,
@@ -4285,7 +4285,7 @@
   {
     "id": 121,
     "name": "Pizza Nova",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "5050 N Harbor Dr, San Diego, CA 92106, USA",
     "lat": 32.7250134,
     "lng": -117.22549370000002,
@@ -4353,7 +4353,7 @@
   {
     "id": 123,
     "name": "Local Tap House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "308 S Coast Hwy, Oceanside, CA 92054, USA",
     "lat": 33.1927324,
     "lng": -117.37649219999999,
@@ -4387,7 +4387,7 @@
   {
     "id": 124,
     "name": "Baja Betty's",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "1421 University Ave, San Diego, CA 92103, USA",
     "lat": 32.748206599999996,
     "lng": -117.15064999999998,
@@ -4418,7 +4418,7 @@
   {
     "id": 125,
     "name": "Punch Bowl Social",
-    "neighborhood": "San Diego",
+    "neighborhood": "East Village",
     "address": "1485 E St, San Diego, CA 92101, USA",
     "lat": 32.7144471,
     "lng": -117.1508319,
@@ -4452,7 +4452,7 @@
   {
     "id": 126,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "4252 Camino Del Rio N, San Diego, CA 92108, USA",
     "lat": 32.779699,
     "lng": -117.103315,
@@ -4520,7 +4520,7 @@
   {
     "id": 128,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8285 Fletcher Pkwy, La Mesa, CA 91942, USA",
     "lat": 32.776956000000006,
     "lng": -117.01832900000001,
@@ -4554,7 +4554,7 @@
   {
     "id": 129,
     "name": "Oceanside Broiler",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "1325 N Harbor Dr, Oceanside, CA 92054, USA",
     "lat": 33.206474899999996,
     "lng": -117.39221799999999,
@@ -4589,7 +4589,7 @@
   {
     "id": 130,
     "name": "Filippi's Pizza Grotto Kearny Mesa",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "5353 Kearny Villa Rd, San Diego, CA 92123, USA",
     "lat": 32.8304596,
     "lng": -117.13980099999999,
@@ -4697,7 +4697,7 @@
   {
     "id": 133,
     "name": "Red Robin Gourmet Burgers and Brews",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "3030 Plaza Bonita Rd #2520, National City, CA 91950, USA",
     "lat": 32.6544443,
     "lng": -117.06584689999998,
@@ -4731,7 +4731,7 @@
   {
     "id": 134,
     "name": "Ciao Ristorante Italiano",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "2015 E Vista Way, Vista, CA 92084, USA",
     "lat": 33.2307894,
     "lng": -117.22574499999997,
@@ -4768,7 +4768,7 @@
   {
     "id": 135,
     "name": "Karl Strauss Brewing Company",
-    "neighborhood": "Gaslamp",
+    "neighborhood": "Little Italy",
     "address": "1157 Columbia St Ste 1167, San Diego, CA 92101, USA",
     "lat": 32.717459,
     "lng": -117.16721799999998,
@@ -4805,7 +4805,7 @@
   {
     "id": 136,
     "name": "Louisiana Purchase",
-    "neighborhood": "San Diego",
+    "neighborhood": "North Park",
     "address": "2305 University Ave, San Diego, CA 92104, USA",
     "lat": 32.7482983,
     "lng": -117.13979509999999,
@@ -4875,7 +4875,7 @@
   {
     "id": 138,
     "name": "Las Olas",
-    "neighborhood": "San Diego",
+    "neighborhood": "Solana Beach",
     "address": "2655 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.011213999999995,
     "lng": -117.2788577,
@@ -4908,7 +4908,7 @@
   {
     "id": 139,
     "name": "BJ's Restaurant & Brewhouse",
-    "neighborhood": "8785 Villa La Jolla Dr",
+    "neighborhood": "La Jolla",
     "address": "8785 Villa La Jolla Dr, La Jolla, CA 92037, USA",
     "lat": 32.867933799999996,
     "lng": -117.23311760000001,
@@ -4943,7 +4943,7 @@
   {
     "id": 140,
     "name": "OB Noodle House Bar 1502",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "4993 Niagara Ave, San Diego, CA 92107, USA",
     "lat": 32.7457251,
     "lng": -117.25184709999998,
@@ -5010,7 +5010,7 @@
   {
     "id": 142,
     "name": "Gossip Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "1220 University Ave, San Diego, CA 92103, USA",
     "lat": 32.7488029,
     "lng": -117.15307620000002,
@@ -5044,7 +5044,7 @@
   {
     "id": 143,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "3494 Sports Arena Blvd, San Diego, CA 92110, USA",
     "lat": 32.753899,
     "lng": -117.211075,
@@ -5078,7 +5078,7 @@
   {
     "id": 144,
     "name": "El Agave Restaurant & Tequileria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2304 San Diego Ave B, San Diego, CA 92110, USA",
     "lat": 32.7496746,
     "lng": -117.19217750000001,
@@ -5113,7 +5113,7 @@
   {
     "id": 145,
     "name": "Sandbar Sports Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Beach",
     "address": "718 Ventura Pl, San Diego, CA 92109, USA",
     "lat": 32.7722073,
     "lng": -117.252482,
@@ -5148,7 +5148,7 @@
   {
     "id": 146,
     "name": "The Hills Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8758 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7705926,
     "lng": -117.0088964,
@@ -5184,7 +5184,7 @@
   {
     "id": 147,
     "name": "South of Nick's San Clemente | Mexican Kitchen + Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "110 N El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.427672699999995,
     "lng": -117.61310759999999,
@@ -5217,7 +5217,7 @@
   {
     "id": 148,
     "name": "Red Robin Gourmet Burgers and Brews",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "200 E Via Rancho Pkwy, Escondido, CA 92025, USA",
     "lat": 33.0718335,
     "lng": -117.0672022,
@@ -5285,7 +5285,7 @@
   {
     "id": 150,
     "name": "Public House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Miguel Alemán Valdez 2664, America, 22044 Tijuana, B.C., Mexico",
     "lat": 32.518787599999996,
     "lng": -117.0196045,
@@ -5353,7 +5353,7 @@
   {
     "id": 152,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Santee",
     "address": "9804 Mission Gorge Rd, Santee, CA 92071, USA",
     "lat": 32.839036,
     "lng": -116.981925,
@@ -5387,7 +5387,7 @@
   {
     "id": 153,
     "name": "Eddie V's Prime Seafood",
-    "neighborhood": "San Diego",
+    "neighborhood": "Embarcadero",
     "address": "789 W Harbor Dr Ste 158, San Diego, CA 92101, USA",
     "lat": 32.7104936,
     "lng": -117.1706613,
@@ -5427,7 +5427,7 @@
   {
     "id": 154,
     "name": "Cocina Del Charro",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1020 W San Marcos Blvd Ste 50, San Marcos, CA 92078, USA",
     "lat": 33.1355104,
     "lng": -117.18893109999998,
@@ -5461,7 +5461,7 @@
   {
     "id": 155,
     "name": "Brigantine Seafood & Oyster Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2725 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.7208559,
     "lng": -117.22849599999999,
@@ -5495,7 +5495,7 @@
   {
     "id": 156,
     "name": "Havana Kitchen | Cuban Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "41955 5th St #101, Temecula, CA 92590, USA",
     "lat": 33.4952225,
     "lng": -117.15024220000001,
@@ -5529,7 +5529,7 @@
   {
     "id": 157,
     "name": "Ponce's Mexican Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4050 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7634628,
     "lng": -117.1082107,
@@ -5596,7 +5596,7 @@
   {
     "id": 159,
     "name": "The Lion's Share",
-    "neighborhood": "San Diego",
+    "neighborhood": "Embarcadero",
     "address": "629 Kettner Blvd, San Diego, CA 92101, USA",
     "lat": 32.7119496,
     "lng": -117.1689918,
@@ -5632,7 +5632,7 @@
   {
     "id": 160,
     "name": "The Fish Market - Solana Beach",
-    "neighborhood": "Solana Beach",
+    "neighborhood": "Del Mar",
     "address": "640 Via De La Valle, Solana Beach, CA 92075, USA",
     "lat": 32.9797527,
     "lng": -117.25756779999999,
@@ -5666,7 +5666,7 @@
   {
     "id": 161,
     "name": "Eastbound Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Lakeside",
     "address": "10053 Maine Ave, Lakeside, CA 92040, USA",
     "lat": 32.8612604,
     "lng": -116.92198859999999,
@@ -5701,7 +5701,7 @@
   {
     "id": 162,
     "name": "Phở Hòa",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "4717 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7558013,
     "lng": -117.0928958,
@@ -5737,7 +5737,7 @@
   {
     "id": 163,
     "name": "Applebee's Grill + Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2508 Jamacha Rd, El Cajon, CA 92019, USA",
     "lat": 32.744585799999996,
     "lng": -116.93110529999998,
@@ -5773,7 +5773,7 @@
   {
     "id": 164,
     "name": "Pit Stop Diner",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "3825 Mission Ave D1, Oceanside, CA 92058, USA",
     "lat": 33.2257892,
     "lng": -117.33046329999999,
@@ -5808,7 +5808,7 @@
   {
     "id": 165,
     "name": "insideOUT",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "1642 University Ave, San Diego, CA 92103, USA",
     "lat": 32.7485748,
     "lng": -117.14863740000001,
@@ -5844,7 +5844,7 @@
   {
     "id": 166,
     "name": "Z Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bonsall",
     "address": "5256 S Mission Rd suite 1301, Bonsall, CA 92003, USA",
     "lat": 33.2966665,
     "lng": -117.223013,
@@ -5880,7 +5880,7 @@
   {
     "id": 167,
     "name": "Common Theory",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "4805 Convoy St, San Diego, CA 92111, USA",
     "lat": 32.8294036,
     "lng": -117.1527594,
@@ -5915,7 +5915,7 @@
   {
     "id": 168,
     "name": "Jimmy Carter's Mexican Café",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3172 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.738569399999996,
     "lng": -117.1605417,
@@ -5949,7 +5949,7 @@
   {
     "id": 169,
     "name": "Ketch Grill and Taps",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2614 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.7207649,
     "lng": -117.22744139999999,
@@ -5984,7 +5984,7 @@
   {
     "id": 170,
     "name": "Burgers & Beer",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "41577 Margarita Rd #101, Temecula, CA 92591, USA",
     "lat": 33.5223599,
     "lng": -117.15278739999998,
@@ -6020,7 +6020,7 @@
   {
     "id": 171,
     "name": "La Cocina De Reyes",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "32459 Temecula Pkwy Ste D103, Temecula, CA 92592, USA",
     "lat": 33.4828028,
     "lng": -117.08993249999999,
@@ -6054,7 +6054,7 @@
   {
     "id": 172,
     "name": "Bay Park Fish Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "4121 Ashton St, San Diego, CA 92110, USA",
     "lat": 32.7815272,
     "lng": -117.20661,
@@ -6094,7 +6094,7 @@
   {
     "id": 173,
     "name": "Cinépolis Luxury Cinemas Del Mar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12905 El Camino Real, San Diego, CA 92130, USA",
     "lat": 32.952033899999996,
     "lng": -117.2324136,
@@ -6128,7 +6128,7 @@
   {
     "id": 174,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Scripps Ranch",
     "address": "10184 Scripps Highlands Dr, San Diego, CA 92131, USA",
     "lat": 32.937121,
     "lng": -117.10959199999998,
@@ -6162,7 +6162,7 @@
   {
     "id": 175,
     "name": "Ruth's Chris Steak House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "11582 El Camino Real, San Diego, CA 92130, USA",
     "lat": 32.9280602,
     "lng": -117.23892829999998,
@@ -6268,7 +6268,7 @@
   {
     "id": 178,
     "name": "On The Border Mexican Grill & Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "10789 Westview Pkwy, San Diego, CA 92126, USA",
     "lat": 32.9167694,
     "lng": -117.12001939999998,
@@ -6304,7 +6304,7 @@
   {
     "id": 179,
     "name": "Casa Machado Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "3750 John J Montgomery Dr, San Diego, CA 92123, USA",
     "lat": 32.8127778,
     "lng": -117.1413889,
@@ -6374,7 +6374,7 @@
   {
     "id": 181,
     "name": "Abbey's Real Texas BBQ",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "6904 Miramar Rd #211, San Diego, CA 92121, USA",
     "lat": 32.879141,
     "lng": -117.16738500000001,
@@ -6479,7 +6479,7 @@
   {
     "id": 184,
     "name": "False Idol",
-    "neighborhood": "San Diego",
+    "neighborhood": "Little Italy",
     "address": "675 W Beech St, San Diego, CA 92101, USA",
     "lat": 32.7207772,
     "lng": -117.16893079999998,
@@ -6512,7 +6512,7 @@
   {
     "id": 185,
     "name": "Dirty Birds College Area",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "6499 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.765735600000006,
     "lng": -117.0593566,
@@ -6547,7 +6547,7 @@
   {
     "id": 186,
     "name": "Mission Ave Bar and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "711 Mission Ave, Oceanside, CA 92054, USA",
     "lat": 33.196901499999996,
     "lng": -117.3775379,
@@ -6584,7 +6584,7 @@
   {
     "id": 187,
     "name": "Del's Hideout",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "5351 Adobe Falls Rd, San Diego, CA 92120, USA",
     "lat": 32.781388299999996,
     "lng": -117.08360460000002,
@@ -6617,7 +6617,7 @@
   {
     "id": 188,
     "name": "Flying Pig Pub & Kitchen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "509 Mission Ave, Oceanside, CA 92054, USA",
     "lat": 33.195988299999996,
     "lng": -117.37895019999999,
@@ -6652,7 +6652,7 @@
   {
     "id": 189,
     "name": "Texas Lil's Mesquite Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "28495 Old Town Front St, Temecula, CA 92590, USA",
     "lat": 33.4939343,
     "lng": -117.15071269999999,
@@ -6755,7 +6755,7 @@
   {
     "id": 192,
     "name": "Casa Gabriela",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8384 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7658491,
     "lng": -117.01753099999998,
@@ -6827,7 +6827,7 @@
   {
     "id": 194,
     "name": "Harbor Town Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "1125 Rosecrans St, San Diego, CA 92106, USA",
     "lat": 32.7215747,
     "lng": -117.2313491,
@@ -6863,7 +6863,7 @@
   {
     "id": 195,
     "name": "P.F. Chang's",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd #1401, Chula Vista, CA 91915, USA",
     "lat": 32.6218196,
     "lng": -116.96550180000001,
@@ -6899,7 +6899,7 @@
   {
     "id": 196,
     "name": "Islands Restaurant Mira Mesa",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "10669 Westview Pkwy, San Diego, CA 92126, USA",
     "lat": 32.9148,
     "lng": -117.11874399999999,
@@ -6931,7 +6931,7 @@
   {
     "id": 197,
     "name": "Islands Restaurant Mission Valley",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "2441 Fenton Pkwy, San Diego, CA 92108, USA",
     "lat": 32.781566999999995,
     "lng": -117.13041000000001,
@@ -6963,7 +6963,7 @@
   {
     "id": 198,
     "name": "Applebee's Grill + Bar",
-    "neighborhood": "1216 Auto Park Way",
+    "neighborhood": "Escondido",
     "address": "1216 Auto Park Way, Escondido, CA 92029, USA",
     "lat": 33.110020899999995,
     "lng": -117.09839009999999,
@@ -6999,7 +6999,7 @@
   {
     "id": 199,
     "name": "Baily's | Old Town Temecula",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "28699 Old Town Front St, Temecula, CA 92590, USA",
     "lat": 33.492,
     "lng": -117.1474528,
@@ -7034,7 +7034,7 @@
   {
     "id": 200,
     "name": "Cheba Hut \"Toasted\" Subs",
-    "neighborhood": "San Diego",
+    "neighborhood": "College Area",
     "address": "4800 Art St, San Diego, CA 92115, USA",
     "lat": 32.765046,
     "lng": -117.06130739999999,
@@ -7068,7 +7068,7 @@
   {
     "id": 201,
     "name": "Red Robin Gourmet Burgers and Brews",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "40820 Winchester Rd #1070, Temecula, CA 92591, USA",
     "lat": 33.5256987,
     "lng": -117.1526471,
@@ -7103,7 +7103,7 @@
   {
     "id": 202,
     "name": "El Pueblo Mexican Food & Bar - Carmel Valley",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "5965 Village Way e107, San Diego, CA 92130, USA",
     "lat": 32.9618649,
     "lng": -117.1894643,
@@ -7139,7 +7139,7 @@
   {
     "id": 203,
     "name": "Trust",
-    "neighborhood": "3752 Park Blvd",
+    "neighborhood": "Hillcrest",
     "address": "3752 Park Blvd, San Diego, CA 92103, USA",
     "lat": 32.7466663,
     "lng": -117.14675729999999,
@@ -7245,7 +7245,7 @@
   {
     "id": 206,
     "name": "Giardino",
-    "neighborhood": "San Diego",
+    "neighborhood": "Lemon Grove",
     "address": "8131 Broadway, Lemon Grove, CA 91945, USA",
     "lat": 32.743462199999996,
     "lng": -117.02195529999999,
@@ -7315,7 +7315,7 @@
   {
     "id": 208,
     "name": "Madison",
-    "neighborhood": "4622 Park Blvd",
+    "neighborhood": "Mission Valley",
     "address": "4622 Park Blvd, San Diego, CA 92116, USA",
     "lat": 32.7614508,
     "lng": -117.14645650000001,
@@ -7350,7 +7350,7 @@
   {
     "id": 209,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "2627 Vista Way, Oceanside, CA 92054, USA",
     "lat": 33.182932,
     "lng": -117.33103799999999,
@@ -7384,7 +7384,7 @@
   {
     "id": 210,
     "name": "McGregor's Bar and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "10475 San Diego Mission Rd, San Diego, CA 92108, USA",
     "lat": 32.7844116,
     "lng": -117.11102419999999,
@@ -7454,7 +7454,7 @@
   {
     "id": 212,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "1105 W Valley Pkwy, Escondido, CA 92025, USA",
     "lat": 33.116085,
     "lng": -117.097003,
@@ -7488,7 +7488,7 @@
   {
     "id": 213,
     "name": "The Rabbit Hole",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "3377 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7631057,
     "lng": -117.1210771,
@@ -7561,7 +7561,7 @@
   {
     "id": 215,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "255 Vista Village Dr, Vista, CA 92083, USA",
     "lat": 33.197534,
     "lng": -117.248281,
@@ -7595,7 +7595,7 @@
   {
     "id": 216,
     "name": "Brewski's Bar & Arcade",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "8670 Miramar Rd, San Diego, CA 92126, USA",
     "lat": 32.8942382,
     "lng": -117.13739319999998,
@@ -7668,7 +7668,7 @@
   {
     "id": 218,
     "name": "Corkfire",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "44501 Rainbow Canyon Rd, Temecula, CA 92592, USA",
     "lat": 33.4686796,
     "lng": -117.13318979999998,
@@ -7704,7 +7704,7 @@
   {
     "id": 219,
     "name": "Carvers Steaks & Chops",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "11940 Bernardo Plaza Dr, San Diego, CA 92128, USA",
     "lat": 33.022171799999995,
     "lng": -117.07328270000001,
@@ -7805,7 +7805,7 @@
   {
     "id": 222,
     "name": "Kaiserhof Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "2253 Sunset Cliffs Blvd, San Diego, CA 92107, USA",
     "lat": 32.7505529,
     "lng": -117.2423886,
@@ -7837,7 +7837,7 @@
   {
     "id": 223,
     "name": "Miss B's Coconut Club",
-    "neighborhood": "San Diego",
+    "neighborhood": "Pacific Beach",
     "address": "3704 Mission Blvd, San Diego, CA 92109, USA",
     "lat": 32.7826467,
     "lng": -117.2527368,
@@ -7871,7 +7871,7 @@
   {
     "id": 224,
     "name": "Brigantine Seafood & Oyster Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "13445 Poway Rd, Poway, CA 92064, USA",
     "lat": 32.9559942,
     "lng": -117.04023850000002,
@@ -7905,7 +7905,7 @@
   {
     "id": 225,
     "name": "Applebee's Grill + Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "9480 Mira Mesa Blvd, San Diego, CA 92126, USA",
     "lat": 32.9180291,
     "lng": -117.1209033,
@@ -7941,7 +7941,7 @@
   {
     "id": 226,
     "name": "Churchill's Pub & Grille",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "887 W San Marcos Blvd, San Marcos, CA 92078, USA",
     "lat": 33.1354103,
     "lng": -117.18469999999999,
@@ -8046,7 +8046,7 @@
   {
     "id": 229,
     "name": "Benihana - Temecula",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "26420 Ynez Rd, Temecula, CA 92591, USA",
     "lat": 33.524336399999996,
     "lng": -117.1591674,
@@ -8114,7 +8114,7 @@
   {
     "id": 231,
     "name": "Islands Restaurant Temecula",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "40497 Margarita Rd, Temecula, CA 92591, USA",
     "lat": 33.52736,
     "lng": -117.14961999999998,
@@ -8216,7 +8216,7 @@
   {
     "id": 234,
     "name": "Lighthouse Oyster Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "262 S Harbor Dr #201, Oceanside, CA 92054, USA",
     "lat": 33.2047692,
     "lng": -117.3894486,
@@ -8251,7 +8251,7 @@
   {
     "id": 235,
     "name": "Madras Cafe Indian Restaurant & Catering",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "10066 Pacific Heights Blvd #106, San Diego, CA 92121, USA",
     "lat": 32.9008039,
     "lng": -117.1929538,
@@ -8321,7 +8321,7 @@
   {
     "id": 237,
     "name": "The Vineyard Rose Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "34843 Rancho California Rd, Temecula, CA 92591, USA",
     "lat": 33.5342475,
     "lng": -117.0537593,
@@ -8358,7 +8358,7 @@
   {
     "id": 238,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "4060 Clairemont Mesa Blvd, San Diego, CA 92117, USA",
     "lat": 32.829620999999996,
     "lng": -117.20216299999998,
@@ -8392,7 +8392,7 @@
   {
     "id": 239,
     "name": "Aero Club Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3365 India St, San Diego, CA 92103, USA",
     "lat": 32.7381483,
     "lng": -117.17646799999999,
@@ -8427,7 +8427,7 @@
   {
     "id": 240,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "27645 Ynez Rd, Temecula, CA 92591, USA",
     "lat": 33.50280800000001,
     "lng": -117.15003100000001,
@@ -8461,7 +8461,7 @@
   {
     "id": 241,
     "name": "O'Sullivan's Irish Pub Escondido",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "118 E Grand Ave, Escondido, CA 92025, USA",
     "lat": 33.1220359,
     "lng": -117.0811091,
@@ -8532,7 +8532,7 @@
   {
     "id": 243,
     "name": "The Joint Sushi & Tapas",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "4902 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.746009199999996,
     "lng": -117.249335,
@@ -8570,7 +8570,7 @@
   {
     "id": 244,
     "name": "Gravity Heights",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "9920 Pacific Heights Blvd, San Diego, CA 92121, USA",
     "lat": 32.900639,
     "lng": -117.1912098,
@@ -8606,7 +8606,7 @@
   {
     "id": 245,
     "name": "The Cork and Craft",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "16990 Via Tazon, San Diego, CA 92127, USA",
     "lat": 33.023547799999996,
     "lng": -117.0859325,
@@ -8642,7 +8642,7 @@
   {
     "id": 246,
     "name": "Bullpen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "8199 Clairemont Mesa Blvd, San Diego, CA 92111, USA",
     "lat": 32.8323847,
     "lng": -117.1481063,
@@ -8678,7 +8678,7 @@
   {
     "id": 247,
     "name": "Islands Restaurant Chula Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2255 Otay Lakes Rd, Chula Vista, CA 91915, USA",
     "lat": 32.64781,
     "lng": -116.967445,
@@ -8714,7 +8714,7 @@
   {
     "id": 248,
     "name": "Public House Temecula",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "41971 Main St, Temecula, CA 92590, USA",
     "lat": 33.493561500000006,
     "lng": -117.1484215,
@@ -8746,7 +8746,7 @@
   {
     "id": 249,
     "name": "Woodstock's Pizza SDSU",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "6145 El Cajon Blvd Ste 3P, San Diego, CA 92115, USA",
     "lat": 32.7608768,
     "lng": -117.06586139999999,
@@ -8779,7 +8779,7 @@
   {
     "id": 250,
     "name": "Johnny B's Burgers, Brew & Spirits",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8393 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.765685,
     "lng": -117.01701899999999,
@@ -8851,7 +8851,7 @@
   {
     "id": 252,
     "name": "Downtown Cafe Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "182 E Main St, El Cajon, CA 92020, USA",
     "lat": 32.795190999999996,
     "lng": -116.96056670000002,
@@ -8884,7 +8884,7 @@
   {
     "id": 253,
     "name": "Izakaya Naruto",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "1216 3rd Ave, Chula Vista, CA 91911, USA",
     "lat": 32.609476199999996,
     "lng": -117.06785259999998,
@@ -8920,7 +8920,7 @@
   {
     "id": 254,
     "name": "The Holding Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5046 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.7474892,
     "lng": -117.2518226,
@@ -8988,7 +8988,7 @@
   {
     "id": 256,
     "name": "Hapa J's",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "2016 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.416578,
     "lng": -117.6020692,
@@ -9020,7 +9020,7 @@
   {
     "id": 257,
     "name": "Harney Oceanside & Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "301 Mission Ave, Oceanside, CA 92054, USA",
     "lat": 33.1948685,
     "lng": -117.38083759999999,
@@ -9087,7 +9087,7 @@
   {
     "id": 259,
     "name": "The Draft Restaurant and Sports Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "4225 Oceanside Blvd, Oceanside, CA 92056, USA",
     "lat": 33.2068939,
     "lng": -117.2832718,
@@ -9125,7 +9125,7 @@
   {
     "id": 260,
     "name": "Savoie | Italian Eatery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd #720, Chula Vista, CA 91915, USA",
     "lat": 32.6253291,
     "lng": -116.96641029999999,
@@ -9161,7 +9161,7 @@
   {
     "id": 261,
     "name": "Chili's Grill & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd Ste.2400, Chula Vista, CA 91915, USA",
     "lat": 32.623055,
     "lng": -116.96624,
@@ -9195,7 +9195,7 @@
   {
     "id": 262,
     "name": "Corteza Madre",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Miguel Alemán Valdez 3042, Gabilondo, 22410 Tijuana, B.C., Mexico",
     "lat": 32.5155241,
     "lng": -117.019207,
@@ -9229,7 +9229,7 @@
   {
     "id": 263,
     "name": "Islands Restaurant Carmel Mountain",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "12224 Carmel Mountain Rd, San Diego, CA 92128, USA",
     "lat": 32.986194999999995,
     "lng": -117.07605999999998,
@@ -9330,7 +9330,7 @@
   {
     "id": 266,
     "name": "Amalfi Cucina Italiana - San Marcos",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1035 La Bonita Dr, San Marcos, CA 92078, USA",
     "lat": 33.1239622,
     "lng": -117.2078017,
@@ -9400,7 +9400,7 @@
   {
     "id": 268,
     "name": "Killer Pizza From Mars",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "3772 Mission Ave Unit 127, Oceanside, CA 92058, USA",
     "lat": 33.227236999999995,
     "lng": -117.332533,
@@ -9469,7 +9469,7 @@
   {
     "id": 270,
     "name": "La Doña",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "1852 Bacon St, San Diego, CA 92107, USA",
     "lat": 32.7463128,
     "lng": -117.2518496,
@@ -9505,7 +9505,7 @@
   {
     "id": 271,
     "name": "Ki's Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Solana Beach",
     "address": "2591 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0122889,
     "lng": -117.2791278,
@@ -9541,7 +9541,7 @@
   {
     "id": 272,
     "name": "Asada Cantina + Kitchen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "225 W Avenida Vista Hermosa Ste G, San Clemente, CA 92672, USA",
     "lat": 33.4389193,
     "lng": -117.62941149999999,
@@ -9578,7 +9578,7 @@
   {
     "id": 273,
     "name": "Enzo's BBQ Ale House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "4141 Oceanside Blvd, Oceanside, CA 92056, USA",
     "lat": 33.2061591,
     "lng": -117.28749689999998,
@@ -9718,7 +9718,7 @@
   {
     "id": 277,
     "name": "Winstons Beach Club",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "1921 Bacon St, San Diego, CA 92107, USA",
     "lat": 32.7471129,
     "lng": -117.2507172,
@@ -9750,7 +9750,7 @@
   {
     "id": 278,
     "name": "Killarney's Restaurant & Irish Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "32475 Temecula Pkwy Ste G101, Temecula, CA 92592, USA",
     "lat": 33.481516,
     "lng": -117.08978099999999,
@@ -9854,7 +9854,7 @@
   {
     "id": 281,
     "name": "Mainstream Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "13385 Poway Rd, Poway, CA 92064, USA",
     "lat": 32.955242,
     "lng": -117.04107899999998,
@@ -9956,7 +9956,7 @@
   {
     "id": 284,
     "name": "Smokey and The Brisket BBQ",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "5465 Lake Murray Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7792361,
     "lng": -117.0377832,
@@ -9991,7 +9991,7 @@
   {
     "id": 285,
     "name": "Por Favor El Cajon",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "148 E Main St, El Cajon, CA 92020, USA",
     "lat": 32.7951184,
     "lng": -116.9613418,
@@ -10099,7 +10099,7 @@
   {
     "id": 288,
     "name": "Khan's Cave Grill & Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "9350 Clairemont Mesa Blvd F, San Diego, CA 92123, USA",
     "lat": 32.8324421,
     "lng": -117.12703289999999,
@@ -10132,7 +10132,7 @@
   {
     "id": 289,
     "name": "Point Break Bar and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2743 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.7211111,
     "lng": -117.2288889,
@@ -10168,7 +10168,7 @@
   {
     "id": 290,
     "name": "The Privateer Coal Fire Pizza",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "1706 S Coast Hwy, Oceanside, CA 92054, USA",
     "lat": 33.1766722,
     "lng": -117.36292259999999,
@@ -10204,7 +10204,7 @@
   {
     "id": 291,
     "name": "North Italia",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "3715 Caminito Ct Ste 680, San Diego, CA 92130, USA",
     "lat": 32.9520135,
     "lng": -117.23455960000001,
@@ -10275,7 +10275,7 @@
   {
     "id": 293,
     "name": "Riviera Supper Club and Turquoise Room",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "7777 University Ave, La Mesa, CA 91941, USA",
     "lat": 32.7622865,
     "lng": -117.02962550000001,
@@ -10313,7 +10313,7 @@
   {
     "id": 294,
     "name": "Hooleys Public House",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2955 Jamacha Rd Suite 21A, El Cajon, CA 92019, USA",
     "lat": 32.7371289,
     "lng": -116.93993329999999,
@@ -10346,7 +10346,7 @@
   {
     "id": 295,
     "name": "The Mining Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "579 Grand Ave, San Marcos, CA 92078, USA",
     "lat": 33.1370922,
     "lng": -117.17672499999999,
@@ -10382,7 +10382,7 @@
   {
     "id": 296,
     "name": "Offshore Tavern & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2253 Morena Blvd, San Diego, CA 92110, USA",
     "lat": 32.785801,
     "lng": -117.20614699999999,
@@ -10417,7 +10417,7 @@
   {
     "id": 297,
     "name": "Toasted Gastrobrunch",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "339 N Cleveland St, Oceanside, CA 92054, USA",
     "lat": 33.1960905,
     "lng": -117.3821985,
@@ -10489,7 +10489,7 @@
   {
     "id": 299,
     "name": "Working Class",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4095 30th St, San Diego, CA 92104, USA",
     "lat": 32.752063,
     "lng": -117.1299853,
@@ -10524,7 +10524,7 @@
   {
     "id": 300,
     "name": "Cicciotti's Trattoria Italiana",
-    "neighborhood": "San Diego",
+    "neighborhood": "Encinitas",
     "address": "1933 San Elijo Ave, Cardiff, CA 92007, USA",
     "lat": 33.0233333,
     "lng": -117.28361110000002,
@@ -10560,7 +10560,7 @@
   {
     "id": 301,
     "name": "Karl Strauss Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "40868 Winchester Rd, Temecula, CA 92591, USA",
     "lat": 33.524916999999995,
     "lng": -117.15911899999999,
@@ -10596,7 +10596,7 @@
   {
     "id": 302,
     "name": "The Stand - American Classics Redefined",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "12045 Carmel Mountain Rd #303, San Diego, CA 92128, USA",
     "lat": 32.9831368,
     "lng": -117.0754826,
@@ -10630,7 +10630,7 @@
   {
     "id": 303,
     "name": "California Pizza Kitchen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "Center, 2015 Birch Rd, Chula Vista, CA 91915, USA",
     "lat": 32.6254889,
     "lng": -116.9658124,
@@ -10665,7 +10665,7 @@
   {
     "id": 304,
     "name": "Chicago Bros Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "10423 San Diego Mission Rd, San Diego, CA 92108, USA",
     "lat": 32.784896499999995,
     "lng": -117.11155740000001,
@@ -10739,7 +10739,7 @@
   {
     "id": 306,
     "name": "La Puerta",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "4020 Goldfinch St, San Diego, CA 92103, USA",
     "lat": 32.7503533,
     "lng": -117.17165139999999,
@@ -10776,7 +10776,7 @@
   {
     "id": 307,
     "name": "Pizza Nova",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "141 N Twin Oaks Valley Rd, San Marcos, CA 92069, USA",
     "lat": 33.1402564,
     "lng": -117.1627324,
@@ -10846,7 +10846,7 @@
   {
     "id": 309,
     "name": "Oggi's",
-    "neighborhood": "San Diego",
+    "neighborhood": "Santee",
     "address": "9828 Mission Gorge Rd Ste A, Santee, CA 92071, USA",
     "lat": 32.8407931,
     "lng": -116.98152669999999,
@@ -10881,7 +10881,7 @@
   {
     "id": 310,
     "name": "Karl Strauss Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "10448 Reserve Dr, San Diego, CA 92127, USA",
     "lat": 33.021451,
     "lng": -117.1133981,
@@ -10917,7 +10917,7 @@
   {
     "id": 311,
     "name": "Pappalecco",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4202 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.763374999999996,
     "lng": -117.10458720000001,
@@ -10952,7 +10952,7 @@
   {
     "id": 312,
     "name": "Blade 1936",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "401 Seagaze Dr, Oceanside, CA 92054, USA",
     "lat": 33.1945796,
     "lng": -117.3791914,
@@ -10985,7 +10985,7 @@
   {
     "id": 313,
     "name": "Oscar's Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "29375 Rancho California Rd, Temecula, CA 92591, USA",
     "lat": 33.5032759,
     "lng": -117.1464663,
@@ -11018,7 +11018,7 @@
   {
     "id": 314,
     "name": "Park & Rec",
-    "neighborhood": "4612 Park Blvd",
+    "neighborhood": "Mission Valley",
     "address": "4612 Park Blvd, San Diego, CA 92116, USA",
     "lat": 32.761382999999995,
     "lng": -117.1466219,
@@ -11087,7 +11087,7 @@
   {
     "id": 316,
     "name": "Emiliano's Mexican Restaurant and Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "6690 Mission Gorge Rd E, San Diego, CA 92120, USA",
     "lat": 32.794274,
     "lng": -117.0974768,
@@ -11118,7 +11118,7 @@
   {
     "id": 317,
     "name": "Rookies Sports Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "2216 S El Camino Real #104, Oceanside, CA 92054, USA",
     "lat": 33.1861666,
     "lng": -117.3272157,
@@ -11153,7 +11153,7 @@
   {
     "id": 318,
     "name": "Ojos Locos Sports Cantina - Chula Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "693 Palomar St, Chula Vista, CA 91911, USA",
     "lat": 32.604915,
     "lng": -117.08428090000001,
@@ -11188,7 +11188,7 @@
   {
     "id": 319,
     "name": "Lokul Jamul Tap & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Jamul",
     "address": "12930 Campo Rd, Jamul, CA 91935, USA",
     "lat": 32.7286589,
     "lng": -116.9089108,
@@ -11223,7 +11223,7 @@
   {
     "id": 320,
     "name": "Carmelita Molino y Cocina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Jiménez 7771, Independencia, 22055 Tijuana, B.C., Mexico",
     "lat": 32.5239816,
     "lng": -117.0417593,
@@ -11257,7 +11257,7 @@
   {
     "id": 321,
     "name": "Love Boat Sushi Oceanside",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "125 Old Grove Rd, Oceanside, CA 92057, USA",
     "lat": 33.2297029,
     "lng": -117.3080705,
@@ -11323,7 +11323,7 @@
   {
     "id": 323,
     "name": "Por Vida",
-    "neighborhood": "San Diego",
+    "neighborhood": "Coronado",
     "address": "2146 Logan Ave, San Diego, CA 92113, USA",
     "lat": 32.6987309,
     "lng": -117.1400682,
@@ -11355,7 +11355,7 @@
   {
     "id": 324,
     "name": "The 3rd Corner Wine Shop & Bistro",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "2265 Bacon St, San Diego, CA 92107, USA",
     "lat": 32.752818999999995,
     "lng": -117.24572579999999,
@@ -11390,7 +11390,7 @@
   {
     "id": 325,
     "name": "Bay Hill Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "3010 Clairemont Dr, San Diego, CA 92117, USA",
     "lat": 32.7945911,
     "lng": -117.19470249999999,
@@ -11424,7 +11424,7 @@
   {
     "id": 326,
     "name": "Aqua Mare Cucina Italiana",
-    "neighborhood": "Del Mar",
+    "neighborhood": "Carmel Valley",
     "address": "2282 Carmel Valley Rd, Del Mar, CA 92014, USA",
     "lat": 32.9334917,
     "lng": -117.25353399999999,
@@ -11461,7 +11461,7 @@
   {
     "id": 327,
     "name": "Shaks Mediterranean Bistro",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "406 Main St, Vista, CA 92084, USA",
     "lat": 33.2035637,
     "lng": -117.24042109999999,
@@ -11498,7 +11498,7 @@
   {
     "id": 328,
     "name": "Zen Curry and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "41653 Margarita Rd #104, Temecula, CA 92591, USA",
     "lat": 33.520405499999995,
     "lng": -117.1513792,
@@ -11535,7 +11535,7 @@
   {
     "id": 329,
     "name": "Oggi's Sports | Brewhouse | Pizza",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "2245 Fenton Pkwy Ste 101, San Diego, CA 92108, USA",
     "lat": 32.7798763,
     "lng": -117.1291756,
@@ -11570,7 +11570,7 @@
   {
     "id": 330,
     "name": "Antique Row Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "1185 E Main St, El Cajon, CA 92021, USA",
     "lat": 32.794754,
     "lng": -116.9411011,
@@ -11606,7 +11606,7 @@
   {
     "id": 331,
     "name": "TapRoom Beer Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2000 El Cajon Blvd, San Diego, CA 92104, USA",
     "lat": 32.755516799999995,
     "lng": -117.14356629999999,
@@ -11677,7 +11677,7 @@
   {
     "id": 333,
     "name": "Cordiano Winery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "15732 Highland Valley Rd, Escondido, CA 92025, USA",
     "lat": 33.0681028,
     "lng": -116.99171389999998,
@@ -11850,7 +11850,7 @@
   {
     "id": 338,
     "name": "MOM'S Pizza & Pasta",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "3422 Tripp Ct Ste A, San Diego, CA 92121, USA",
     "lat": 32.915380299999995,
     "lng": -117.2344184,
@@ -11884,7 +11884,7 @@
   {
     "id": 339,
     "name": "Old Venice Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2910 Cañon St, San Diego, CA 92106, USA",
     "lat": 32.7211667,
     "lng": -117.2310006,
@@ -11920,7 +11920,7 @@
   {
     "id": 340,
     "name": "Dija Mara",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "232 S Coast Hwy, Oceanside, CA 92054, USA",
     "lat": 33.1933828,
     "lng": -117.3771229,
@@ -11955,7 +11955,7 @@
   {
     "id": 341,
     "name": "Centifonti's Bar & Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8365 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7654148,
     "lng": -117.0175706,
@@ -11990,7 +11990,7 @@
   {
     "id": 342,
     "name": "Swami's Cafe Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "20 Main St #100, Vista, CA 92084, USA",
     "lat": 33.2000142,
     "lng": -117.24541200000002,
@@ -12026,7 +12026,7 @@
   {
     "id": 343,
     "name": "The Kraken",
-    "neighborhood": "San Diego",
+    "neighborhood": "Solana Beach",
     "address": "2531 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0134669,
     "lng": -117.2795293,
@@ -12060,7 +12060,7 @@
   {
     "id": 344,
     "name": "Amalfi Marina Bar (Dockside)",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1035 La Bonita Dr Suite B, San Marcos, CA 92078, USA",
     "lat": 33.1238813,
     "lng": -117.2075972,
@@ -12096,7 +12096,7 @@
   {
     "id": 345,
     "name": "Mariscos El Pacifico Fallbrook",
-    "neighborhood": "San Diego",
+    "neighborhood": "Fallbrook",
     "address": "111 N Vine St, Fallbrook, CA 92028, USA",
     "lat": 33.3823767,
     "lng": -117.25006819999999,
@@ -12131,7 +12131,7 @@
   {
     "id": 346,
     "name": "Northside Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "2228 Bacon St, San Diego, CA 92107, USA",
     "lat": 32.7525858,
     "lng": -117.2463812,
@@ -12169,7 +12169,7 @@
   {
     "id": 347,
     "name": "San Diego Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "10450 Friars Rd, San Diego, CA 92120, USA",
     "lat": 32.7922743,
     "lng": -117.098967,
@@ -12239,7 +12239,7 @@
   {
     "id": 349,
     "name": "Gibroni's Pizza",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "555 N El Camino Real Ste e, San Clemente, CA 92672, USA",
     "lat": 33.4300638,
     "lng": -117.6165683,
@@ -12274,7 +12274,7 @@
   {
     "id": 350,
     "name": "Cardiff Beach Bar @ Tower 13",
-    "neighborhood": "San Diego",
+    "neighborhood": "Solana Beach",
     "address": "2633 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0116146,
     "lng": -117.2791053,
@@ -12343,7 +12343,7 @@
   {
     "id": 352,
     "name": "Bleu Bohème",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4090 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7634548,
     "lng": -117.1075274,
@@ -12405,7 +12405,7 @@
   {
     "id": 354,
     "name": "The Shack Bar & Grill",
-    "neighborhood": "6941 La Jolla Blvd",
+    "neighborhood": "La Jolla",
     "address": "6941 La Jolla Blvd, La Jolla, CA 92037, USA",
     "lat": 32.832664,
     "lng": -117.27662199999999,
@@ -12477,7 +12477,7 @@
   {
     "id": 356,
     "name": "Dolci Cafe Italiano",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2650 Jamacha Rd #121, El Cajon, CA 92019, USA",
     "lat": 32.744558399999995,
     "lng": -116.93302229999999,
@@ -12512,7 +12512,7 @@
   {
     "id": 357,
     "name": "The Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2415 Morena Blvd, San Diego, CA 92110, USA",
     "lat": 32.7876093,
     "lng": -117.2059335,
@@ -12543,7 +12543,7 @@
   {
     "id": 358,
     "name": "Societe Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "8262 Clairemont Mesa Blvd, San Diego, CA 92111, USA",
     "lat": 32.833881999999996,
     "lng": -117.14637219999999,
@@ -12615,7 +12615,7 @@
   {
     "id": 360,
     "name": "The Harp",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "4935 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.7459944,
     "lng": -117.2501877,
@@ -12728,7 +12728,7 @@
   {
     "id": 363,
     "name": "Tony Pepperoni",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "805 College Blvd, Oceanside, CA 92057, USA",
     "lat": 33.240691,
     "lng": -117.29305339999998,
@@ -12763,7 +12763,7 @@
   {
     "id": 364,
     "name": "Farland Aleworks",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Av. 20 de Noviembre 12613, 20 de Noviembre, 22100 Tijuana, B.C., Mexico",
     "lat": 32.5114513,
     "lng": -116.9905519,
@@ -12792,7 +12792,7 @@
   {
     "id": 365,
     "name": "Wu Lan Ramen Tap House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "4645 Frazee Rd, Oceanside, CA 92057, USA",
     "lat": 33.23723100000001,
     "lng": -117.2969813,
@@ -12894,7 +12894,7 @@
   {
     "id": 368,
     "name": "Otay Sushi & Crab",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "872 Eastlake Pkwy #510, Chula Vista, CA 91914, USA",
     "lat": 32.6527788,
     "lng": -116.97004589999999,
@@ -12964,7 +12964,7 @@
   {
     "id": 370,
     "name": "KnB Bistro",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "6380 Del Cerro Blvd, San Diego, CA 92120, USA",
     "lat": 32.784016199999996,
     "lng": -117.05993300000002,
@@ -12998,7 +12998,7 @@
   {
     "id": 371,
     "name": "Tom Cat Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "9388 Mira Mesa Blvd, San Diego, CA 92126, USA",
     "lat": 32.917866,
     "lng": -117.1234995,
@@ -13030,7 +13030,7 @@
   {
     "id": 372,
     "name": "Number One Fifth Avenue",
-    "neighborhood": "San Diego",
+    "neighborhood": "Hillcrest",
     "address": "3845 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7477778,
     "lng": -117.1602778,
@@ -13066,7 +13066,7 @@
   {
     "id": 373,
     "name": "Knotty Barrel Rancho Penasquitos",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "13211 Black Mountain Rd, San Diego, CA 92129, USA",
     "lat": 32.9578019,
     "lng": -117.12629779999999,
@@ -13098,7 +13098,7 @@
   {
     "id": 374,
     "name": "Bellamy's Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "417 W Grand Ave, Escondido, CA 92025, USA",
     "lat": 33.119217000000006,
     "lng": -117.08580930000001,
@@ -13134,7 +13134,7 @@
   {
     "id": 375,
     "name": "Mount Palomar Winery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "33820 Rancho California Rd, Temecula, CA 92591, USA",
     "lat": 33.529612,
     "lng": -117.074002,
@@ -13170,7 +13170,7 @@
   {
     "id": 376,
     "name": "Ocean Beach Brewery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5041 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.7472516,
     "lng": -117.25195239999998,
@@ -13241,7 +13241,7 @@
   {
     "id": 378,
     "name": "Bayside Landing",
-    "neighborhood": "San Diego",
+    "neighborhood": "Pacific Beach",
     "address": "3780 Ingraham St, San Diego, CA 92109, USA",
     "lat": 32.7884525,
     "lng": -117.2376075,
@@ -13275,7 +13275,7 @@
   {
     "id": 379,
     "name": "Press Box Sports Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2990 Jamacha Rd #120, El Cajon, CA 92019, USA",
     "lat": 32.7404104,
     "lng": -116.94216189999997,
@@ -13346,7 +13346,7 @@
   {
     "id": 381,
     "name": "Aromas of India",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "5270 Baltimore Dr, La Mesa, CA 91942, USA",
     "lat": 32.7752328,
     "lng": -117.02770369999999,
@@ -13382,7 +13382,7 @@
   {
     "id": 382,
     "name": "Sunshine Company Saloon",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5028 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.747375,
     "lng": -117.2513988,
@@ -13418,7 +13418,7 @@
   {
     "id": 383,
     "name": "Vogue Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "230 3rd Ave, Chula Vista, CA 91910, USA",
     "lat": 32.643592,
     "lng": -117.08115699999999,
@@ -13452,7 +13452,7 @@
   {
     "id": 384,
     "name": "Uncle Bob's",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "32483 Temecula Pkwy, Temecula, CA 92592, USA",
     "lat": 33.4822744,
     "lng": -117.089751,
@@ -13520,7 +13520,7 @@
   {
     "id": 386,
     "name": "Blue Wave Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2051 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.713567999999995,
     "lng": -117.2273582,
@@ -13554,7 +13554,7 @@
   {
     "id": 387,
     "name": "Davanti Enoteca",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12955 El Camino Real, San Diego, CA 92130, USA",
     "lat": 32.9526477,
     "lng": -117.2321853,
@@ -13588,7 +13588,7 @@
   {
     "id": 388,
     "name": "Konnichiwa Sushi & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8350 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7655506,
     "lng": -117.01808949999999,
@@ -13622,7 +13622,7 @@
   {
     "id": 389,
     "name": "Pal Joey's Cocktail Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "5147 Waring Rd, San Diego, CA 92120, USA",
     "lat": 32.790896,
     "lng": -117.08109549999999,
@@ -13660,7 +13660,7 @@
   {
     "id": 390,
     "name": "New OC Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "2369 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4127629,
     "lng": -117.60028430000001,
@@ -13695,7 +13695,7 @@
   {
     "id": 391,
     "name": "Aquarius Bar & Grille",
-    "neighborhood": "San Diego",
+    "neighborhood": "Pacific Beach",
     "address": "1548 Quivira Way, San Diego, CA 92109, USA",
     "lat": 32.7591556,
     "lng": -117.23879369999997,
@@ -13728,7 +13728,7 @@
   {
     "id": 392,
     "name": "Players Sports Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "328 S Twin Oaks Valley Rd, San Marcos, CA 92078, USA",
     "lat": 33.1299158,
     "lng": -117.16530340000001,
@@ -13762,7 +13762,7 @@
   {
     "id": 393,
     "name": "Oggi's Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "425 S Melrose Dr, Vista, CA 92081, USA",
     "lat": 33.1892171,
     "lng": -117.2542227,
@@ -13839,7 +13839,7 @@
   {
     "id": 395,
     "name": "The Amigo Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "1333 Hotel Cir S, San Diego, CA 92108, USA",
     "lat": 32.7586412,
     "lng": -117.1751359,
@@ -13873,7 +13873,7 @@
   {
     "id": 396,
     "name": "Buona Forchetta - San Marcos",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "250 North City Dr Ste 3, San Marcos, CA 92078, USA",
     "lat": 33.1350632,
     "lng": -117.1596348,
@@ -13909,7 +13909,7 @@
   {
     "id": 397,
     "name": "Wheat & Water",
-    "neighborhood": "5737 La Jolla Blvd",
+    "neighborhood": "La Jolla",
     "address": "5737 La Jolla Blvd, La Jolla, CA 92037, USA",
     "lat": 32.816488899999996,
     "lng": -117.27093889999998,
@@ -13945,7 +13945,7 @@
   {
     "id": 398,
     "name": "Kingfisher",
-    "neighborhood": "San Diego",
+    "neighborhood": "East Village",
     "address": "2469 Broadway, San Diego, CA 92102, USA",
     "lat": 32.715545299999995,
     "lng": -117.1410437,
@@ -13978,7 +13978,7 @@
   {
     "id": 399,
     "name": "Veranda Restaurant & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "17550 Bernardo Oaks Dr, San Diego, CA 92128, USA",
     "lat": 33.0314376,
     "lng": -117.06716739999997,
@@ -14014,7 +14014,7 @@
   {
     "id": 400,
     "name": "Caffe Tazza",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "374 E H St, Chula Vista, CA 91910, USA",
     "lat": 32.639733299999996,
     "lng": -117.04949719999999,
@@ -14121,7 +14121,7 @@
   {
     "id": 403,
     "name": "3N1 Sports Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2330 Proctor Valley Rd #101, Chula Vista, CA 91914, USA",
     "lat": 32.660516099999995,
     "lng": -116.9707722,
@@ -14154,7 +14154,7 @@
   {
     "id": 404,
     "name": "Kimball Bar & Eatery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "740 Bay Marina Dr, National City, CA 91950, USA",
     "lat": 32.6593565,
     "lng": -117.10923109999997,
@@ -14190,7 +14190,7 @@
   {
     "id": 405,
     "name": "JT's Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "5821 Mission Gorge Rd, San Diego, CA 92120, USA",
     "lat": 32.7811889,
     "lng": -117.10088789999999,
@@ -14226,7 +14226,7 @@
   {
     "id": 406,
     "name": "Buckboard's BBQ & Brew",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "975 Greenfield Dr, El Cajon, CA 92021, USA",
     "lat": 32.8130807,
     "lng": -116.9485569,
@@ -14259,7 +14259,7 @@
   {
     "id": 407,
     "name": "Main Tap Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "518 E Main St, El Cajon, CA 92020, USA",
     "lat": 32.795249399999996,
     "lng": -116.95599070000002,
@@ -14292,7 +14292,7 @@
   {
     "id": 408,
     "name": "Mangia e Bevi",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "3613 Ocean Ranch Blvd Ste. 100, Oceanside, CA 92056, USA",
     "lat": 33.209915099999996,
     "lng": -117.31161490000001,
@@ -14330,7 +14330,7 @@
   {
     "id": 409,
     "name": "Covewood Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Pacific Beach",
     "address": "1775 E Mission Bay Dr., San Diego, CA 92109, USA",
     "lat": 32.779480299999996,
     "lng": -117.21143169999998,
@@ -14367,7 +14367,7 @@
   {
     "id": 410,
     "name": "Novo Brazil Brewing - Otay Ranch",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd #1017, Chula Vista, CA 91915, USA",
     "lat": 32.6236677,
     "lng": -116.9670999,
@@ -14401,7 +14401,7 @@
   {
     "id": 411,
     "name": "Vittorio's Italian Trattoria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Peñasquitos",
     "address": "7875 Highlands Village Pl b105, San Diego, CA 92129, USA",
     "lat": 32.9617462,
     "lng": -117.15324639999999,
@@ -14441,7 +14441,7 @@
   {
     "id": 412,
     "name": "Ultimate Vineyards @ Maurice Car’rie Winery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "34225 Rancho California Rd, Temecula, CA 92592, USA",
     "lat": 33.5278455,
     "lng": -117.0653147,
@@ -14473,7 +14473,7 @@
   {
     "id": 413,
     "name": "Cafe Luna",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "11040 Rancho Carmel Dr #2, San Diego, CA 92128, USA",
     "lat": 32.977511,
     "lng": -117.0826828,
@@ -14509,7 +14509,7 @@
   {
     "id": 414,
     "name": "Curbside Eatery & Drinkery",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8353 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.765341,
     "lng": -117.01769350000001,
@@ -14542,7 +14542,7 @@
   {
     "id": 415,
     "name": "Peking Wok Chinese Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bonsall",
     "address": "5256 S Mission Rd #303, Bonsall, CA 92003, USA",
     "lat": 33.2965861,
     "lng": -117.2216639,
@@ -14577,7 +14577,7 @@
   {
     "id": 416,
     "name": "Chef JUN - Bay Ho",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "4033 Avati Dr, San Diego, CA 92117, USA",
     "lat": 32.814051899999995,
     "lng": -117.2166062,
@@ -14611,7 +14611,7 @@
   {
     "id": 417,
     "name": "Sushi Exchange",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Peñasquitos",
     "address": "13859 Carmel Valley Rd, San Diego, CA 92130, USA",
     "lat": 32.970324,
     "lng": -117.1607965,
@@ -14749,7 +14749,7 @@
   {
     "id": 421,
     "name": "Swami's Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "16475 Paseo Del Sur #105, San Diego, CA 92127, USA",
     "lat": 33.0206097,
     "lng": -117.1237789,
@@ -14785,7 +14785,7 @@
   {
     "id": 422,
     "name": "We Be OB",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "5020 W Point Loma Blvd, San Diego, CA 92107, USA",
     "lat": 32.753598,
     "lng": -117.24551,
@@ -14821,7 +14821,7 @@
   {
     "id": 423,
     "name": "Fast Times",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "3065 Clairemont Dr, San Diego, CA 92117, USA",
     "lat": 32.7952742,
     "lng": -117.19315050000002,
@@ -14861,7 +14861,7 @@
   {
     "id": 424,
     "name": "Camel's Bar and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "10330 Friars Rd #106, San Diego, CA 92120, USA",
     "lat": 32.7914634,
     "lng": -117.100748,
@@ -14898,7 +14898,7 @@
   {
     "id": 425,
     "name": "Waverly",
-    "neighborhood": "San Diego",
+    "neighborhood": "Encinitas",
     "address": "2005 San Elijo Ave, Cardiff, CA 92007, USA",
     "lat": 33.0224265,
     "lng": -117.2826369,
@@ -14934,7 +14934,7 @@
   {
     "id": 426,
     "name": "Club Marina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "1310 Scott St, San Diego, CA 92106, USA",
     "lat": 32.723436,
     "lng": -117.228975,
@@ -14970,7 +14970,7 @@
   {
     "id": 427,
     "name": "Culinary Dropout",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12875 El Camino Real, San Diego, CA 92130, USA",
     "lat": 32.9516152,
     "lng": -117.23265789999999,
@@ -15004,7 +15004,7 @@
   {
     "id": 428,
     "name": "Fresco Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bonsall",
     "address": "5256 Mission Rd #601, Bonsall, CA 92003, USA",
     "lat": 33.296079999999996,
     "lng": -117.22154049999999,
@@ -15040,7 +15040,7 @@
   {
     "id": 429,
     "name": "Prohibition Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "2004 E Vista Way, Vista, CA 92084, USA",
     "lat": 33.23046,
     "lng": -117.22661699999999,
@@ -15110,7 +15110,7 @@
   {
     "id": 431,
     "name": "Aaharn56 Thai cuisine",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "9975 Carmel Mountain Rd SuiteG-1, San Diego, CA 92129, USA",
     "lat": 32.9602631,
     "lng": -117.11176889999999,
@@ -15147,7 +15147,7 @@
   {
     "id": 432,
     "name": "Ensamble 43",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Av Revolución 740-744, El Refugio, 21440 Tecate, B.C., Mexico",
     "lat": 32.571759799999995,
     "lng": -116.65079270000001,
@@ -15181,7 +15181,7 @@
   {
     "id": 433,
     "name": "Mediterraneo",
-    "neighborhood": "San Diego",
+    "neighborhood": "Alpine",
     "address": "1347 Tavern Rd, Alpine, CA 91901, USA",
     "lat": 32.8369512,
     "lng": -116.7777274,
@@ -15225,7 +15225,7 @@
   {
     "id": 434,
     "name": "Grand Comedy Club & Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "200 E Via Rancho Pkwy #125, Escondido, CA 92025, USA",
     "lat": 33.070735899999995,
     "lng": -117.0648744,
@@ -15266,7 +15266,7 @@
   {
     "id": 435,
     "name": "Garbatella",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2015 Birch Rd Ste 2500, Chula Vista, CA 91915, USA",
     "lat": 32.6230477,
     "lng": -116.96661599999997,
@@ -15300,7 +15300,7 @@
   {
     "id": 436,
     "name": "Secco",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "301 Pier View Wy, Oceanside, CA 92054, USA",
     "lat": 33.1958394,
     "lng": -117.3815464,
@@ -15374,7 +15374,7 @@
   {
     "id": 438,
     "name": "Copper Kings San Marcos",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "925 W San Marcos Blvd # B, San Marcos, CA 92078, USA",
     "lat": 33.1349033,
     "lng": -117.18543179999999,
@@ -15408,7 +15408,7 @@
   {
     "id": 439,
     "name": "Active Culture",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "111 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4274965,
     "lng": -117.6123203,
@@ -15444,7 +15444,7 @@
   {
     "id": 440,
     "name": "The Haven Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4051 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7631367,
     "lng": -117.10826089999999,
@@ -15478,7 +15478,7 @@
   {
     "id": 441,
     "name": "Shores Bar + Kitchen",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1001 W San Marcos Blvd #195, San Marcos, CA 92078, USA",
     "lat": 33.1340023,
     "lng": -117.18876770000001,
@@ -15515,7 +15515,7 @@
   {
     "id": 442,
     "name": "counterpoint",
-    "neighborhood": "San Diego",
+    "neighborhood": "East Village",
     "address": "830 25th St, San Diego, CA 92102, USA",
     "lat": 32.7144054,
     "lng": -117.14046800000001,
@@ -15545,7 +15545,7 @@
   {
     "id": 443,
     "name": "Til-Two Club",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "4746 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7561967,
     "lng": -117.09243579999999,
@@ -15616,7 +15616,7 @@
   {
     "id": 445,
     "name": "BoujieMana",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "3545 Aero Ct Ste B, San Diego, CA 92123, USA",
     "lat": 32.8067668,
     "lng": -117.1482186,
@@ -15684,7 +15684,7 @@
   {
     "id": 447,
     "name": "Board & Brew",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "979 Avenida Pico Unit C, San Clemente, CA 92673, USA",
     "lat": 33.4561134,
     "lng": -117.60454179999999,
@@ -15721,7 +15721,7 @@
   {
     "id": 448,
     "name": "Yi Sushi",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "2650 Jamacha Rd #139, El Cajon, CA 92019, USA",
     "lat": 32.745,
     "lng": -116.9327778,
@@ -15757,7 +15757,7 @@
   {
     "id": 449,
     "name": "Limoncello Modern Italian",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8273 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.764587500000005,
     "lng": -117.0193618,
@@ -15830,7 +15830,7 @@
   {
     "id": 451,
     "name": "Park Social",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "8720 Ariva Ct Ste 10, San Diego, CA 92123, USA",
     "lat": 32.8280543,
     "lng": -117.1397438,
@@ -15861,7 +15861,7 @@
   {
     "id": 452,
     "name": "Casa Nori Sushi Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "1730 E Palomar St, Chula Vista, CA 91913, USA",
     "lat": 32.6317107,
     "lng": -116.98521140000001,
@@ -15894,7 +15894,7 @@
   {
     "id": 453,
     "name": "The Tower Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "City Heights",
     "address": "4757 University Ave, San Diego, CA 92105, USA",
     "lat": 32.749397,
     "lng": -117.09180669999999,
@@ -15930,7 +15930,7 @@
   {
     "id": 454,
     "name": "Dirty Birds Ocean Beach",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "1929 Cable St, San Diego, CA 92107, USA",
     "lat": 32.7462278,
     "lng": -117.2485301,
@@ -15964,7 +15964,7 @@
   {
     "id": 455,
     "name": "Finney's Crafthouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "212 N Tremont St, Oceanside, CA 92054, USA",
     "lat": 33.1958455,
     "lng": -117.3805385,
@@ -15999,7 +15999,7 @@
   {
     "id": 456,
     "name": "Acropolis Greek Grill",
-    "neighborhood": "3295 Business Park Dr Ste d",
+    "neighborhood": "Vista",
     "address": "3295 Business Park Dr Ste d, Vista, CA 92081, USA",
     "lat": 33.1318246,
     "lng": -117.2296609,
@@ -16035,7 +16035,7 @@
   {
     "id": 457,
     "name": "The Coal Bunker",
-    "neighborhood": "San Diego",
+    "neighborhood": "Fallbrook",
     "address": "232 S Main Ave, Fallbrook, CA 92028, USA",
     "lat": 33.3805274,
     "lng": -117.25121299999999,
@@ -16103,7 +16103,7 @@
   {
     "id": 459,
     "name": "Aromi Italian Cuisine",
-    "neighborhood": "7200 Parkway Dr",
+    "neighborhood": "La Mesa",
     "address": "7200 Parkway Dr, La Mesa, CA 91942, USA",
     "lat": 32.7734942,
     "lng": -117.04221589999999,
@@ -16137,7 +16137,7 @@
   {
     "id": 460,
     "name": "The Par Lounge and Deck",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ramona",
     "address": "24157 San Vicente Rd, Ramona, CA 92065, USA",
     "lat": 33.002277299999996,
     "lng": -116.80589289999999,
@@ -16172,7 +16172,7 @@
   {
     "id": 461,
     "name": "Indya Restaurant & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "4577 Clairemont Dr, San Diego, CA 92117, USA",
     "lat": 32.8271265,
     "lng": -117.20587499999999,
@@ -16208,7 +16208,7 @@
   {
     "id": 462,
     "name": "Harry's Sports Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Fallbrook",
     "address": "125 S Main Ave, Fallbrook, CA 92028, USA",
     "lat": 33.3815956,
     "lng": -117.2515945,
@@ -16277,7 +16277,7 @@
   {
     "id": 464,
     "name": "Sakura Sushi",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "30010 Temecula Pkwy Ste 101, Temecula, CA 92592, USA",
     "lat": 33.479192999999995,
     "lng": -117.13654340000001,
@@ -16313,7 +16313,7 @@
   {
     "id": 465,
     "name": "Hopnonymous Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "7705 Convoy Ct, San Diego, CA 92111, USA",
     "lat": 32.8345479,
     "lng": -117.15445319999999,
@@ -16351,7 +16351,7 @@
   {
     "id": 466,
     "name": "McGuffie's Live",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "8515 Navajo Rd, San Diego, CA 92119, USA",
     "lat": 32.8026092,
     "lng": -117.01313719999997,
@@ -16387,7 +16387,7 @@
   {
     "id": 467,
     "name": "San Vicente Resort",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ramona",
     "address": "24157 San Vicente Rd, Ramona, CA 92065, USA",
     "lat": 33.002221500000005,
     "lng": -116.80584189999999,
@@ -16472,7 +16472,7 @@
   {
     "id": 469,
     "name": "Papagayos Grill and Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2220 Otay Lakes Rd #505, Chula Vista, CA 91915, USA",
     "lat": 32.646076799999996,
     "lng": -116.96825179999999,
@@ -16509,7 +16509,7 @@
   {
     "id": 470,
     "name": "Hearth House",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "5505 Jackson Dr, La Mesa, CA 91942, USA",
     "lat": 32.7790077,
     "lng": -117.01818940000001,
@@ -16546,7 +16546,7 @@
   {
     "id": 471,
     "name": "Sea & Sky",
-    "neighborhood": "7955 La Jolla Shores Dr",
+    "neighborhood": "La Jolla",
     "address": "7955 La Jolla Shores Dr, La Jolla, CA 92037, USA",
     "lat": 32.8511949,
     "lng": -117.253239,
@@ -16584,7 +16584,7 @@
   {
     "id": 472,
     "name": "Rockwell's Bakery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "101 W Avenida Vista Hermosa Suite 116, San Clemente, CA 92672, USA",
     "lat": 33.4383802,
     "lng": -117.6264685,
@@ -16620,7 +16620,7 @@
   {
     "id": 473,
     "name": "Rosati's Pizza Pub and Sports Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "5855 Mission Gorge Rd, San Diego, CA 92120, USA",
     "lat": 32.7818867,
     "lng": -117.10024100000001,
@@ -16659,7 +16659,7 @@
   {
     "id": 474,
     "name": "Mastiff Kitchen La Mesa",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "4253 Palm Ave, La Mesa, CA 91941, USA",
     "lat": 32.7561423,
     "lng": -117.01414480000001,
@@ -16693,7 +16693,7 @@
   {
     "id": 475,
     "name": "Fratello's Italian Kitchen + Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "647 Camino De Los Mares #126, San Clemente, CA 92673, USA",
     "lat": 33.4587509,
     "lng": -117.64955359999999,
@@ -16727,7 +16727,7 @@
   {
     "id": 476,
     "name": "Ryan Bros Coffee of San Marcos",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "133 N Twin Oaks Valley Rd Ste110, San Marcos, CA 92069, USA",
     "lat": 33.1398633,
     "lng": -117.1625062,
@@ -16765,7 +16765,7 @@
   {
     "id": 477,
     "name": "The Pizza Taproom",
-    "neighborhood": "8657 Villa La Jolla Dr Ste 127",
+    "neighborhood": "La Jolla",
     "address": "8657 Villa La Jolla Dr Ste 127, La Jolla, CA 92037, USA",
     "lat": 32.8652656,
     "lng": -117.231528,
@@ -16800,7 +16800,7 @@
   {
     "id": 478,
     "name": "Surfing Crab Escondido",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "202 E Via Rancho Pkwy, Escondido, CA 92025, USA",
     "lat": 33.069496199999996,
     "lng": -117.06805349999999,
@@ -16832,7 +16832,7 @@
   {
     "id": 479,
     "name": "MammaMia Deli Market - Gino & Gianni's Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "4231 Spring St, La Mesa, CA 91941, USA",
     "lat": 32.7560582,
     "lng": -117.01467740000001,
@@ -16866,7 +16866,7 @@
   {
     "id": 480,
     "name": "The Burger Joint and Brew",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "7094 Miramar Rd Unit 122, San Diego, CA 92121, USA",
     "lat": 32.8798199,
     "lng": -117.16167659999999,
@@ -16901,7 +16901,7 @@
   {
     "id": 481,
     "name": "The Craft Creamery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "1302 Rosecrans St, San Diego, CA 92106, USA",
     "lat": 32.724069799999995,
     "lng": -117.2301401,
@@ -16974,7 +16974,7 @@
   {
     "id": 483,
     "name": "Fresco Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Peñasquitos",
     "address": "13350 Camino Del Sur Suite 3A, San Diego, CA 92129, USA",
     "lat": 32.9637477,
     "lng": -117.1509206,
@@ -17009,7 +17009,7 @@
   {
     "id": 484,
     "name": "Hendo's Barrel House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "27901 Jefferson Ave #100, Temecula, CA 92590, USA",
     "lat": 33.510793,
     "lng": -117.1583442,
@@ -17083,7 +17083,7 @@
   {
     "id": 486,
     "name": "Shanes Pizza and Pints",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1523 San Elijo Rd S #109, San Marcos, CA 92078, USA",
     "lat": 33.097097999999995,
     "lng": -117.20023200000001,
@@ -17116,7 +17116,7 @@
   {
     "id": 487,
     "name": "Primos Mexican Food & Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "801 S Twin Oaks Valley Rd, San Marcos, CA 92078, USA",
     "lat": 33.1232702,
     "lng": -117.16570309999999,
@@ -17179,7 +17179,7 @@
   {
     "id": 489,
     "name": "Naturally Desi Cafe 'n' Catering",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "16769 Bernardo Center Dr Ste K 10, San Diego, CA 92128, USA",
     "lat": 33.017149599999996,
     "lng": -117.07405879999999,
@@ -17287,7 +17287,7 @@
   {
     "id": 492,
     "name": "Sky Deck at Del Mar Highlands Town Center",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12841 El Camino Real Ste 206, San Diego, CA 92130, USA",
     "lat": 32.9498093,
     "lng": -117.23367959999999,
@@ -17321,7 +17321,7 @@
   {
     "id": 493,
     "name": "College Billiards",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "5303 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7573858,
     "lng": -117.0815581,
@@ -17359,7 +17359,7 @@
   {
     "id": 494,
     "name": "Kababayan Bakery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Spring Valley",
     "address": "8423 Paradise Valley Rd # B, Spring Valley, CA 91977, USA",
     "lat": 32.6973041,
     "lng": -117.01767609999999,
@@ -17461,7 +17461,7 @@
   {
     "id": 497,
     "name": "Trattoria da Sofia",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4055 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7630625,
     "lng": -117.1081469,
@@ -17497,7 +17497,7 @@
   {
     "id": 498,
     "name": "JP's Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Clairemont",
     "address": "10436 Clairemont Mesa Blvd. (at, Santo Rd, San Diego, CA 92124, USA",
     "lat": 32.830254499999995,
     "lng": -117.10464180000001,
@@ -17531,7 +17531,7 @@
   {
     "id": 499,
     "name": "Kilowatt Brewing Ocean Beach",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "1875 Cable St, San Diego, CA 92107, USA",
     "lat": 32.7453553,
     "lng": -117.24946109999999,
@@ -17565,7 +17565,7 @@
   {
     "id": 500,
     "name": "Maya's Cookies",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Carlos",
     "address": "4760 Mission Gorge Pl, San Diego, CA 92120, USA",
     "lat": 32.781591399999996,
     "lng": -117.09136540000002,
@@ -17632,7 +17632,7 @@
   {
     "id": 502,
     "name": "Backdraft Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bonsall",
     "address": "5525 Mission Rd Ste F, Bonsall, CA 92003, USA",
     "lat": 33.2902935,
     "lng": -117.2266298,
@@ -17670,7 +17670,7 @@
   {
     "id": 503,
     "name": "Evan’s Deli & Brew",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "3944 W Point Loma Blvd Ste D-E, San Diego, CA 92110, USA",
     "lat": 32.7557391,
     "lng": -117.2218135,
@@ -17707,7 +17707,7 @@
   {
     "id": 504,
     "name": "Goody's Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "206 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4267225,
     "lng": -117.61213839999998,
@@ -17744,7 +17744,7 @@
   {
     "id": 505,
     "name": "Nick & G's Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Santa Fe",
     "address": "6106 Paseo Delicias, Rancho Santa Fe, CA 92067, USA",
     "lat": 33.0205474,
     "lng": -117.20276419999999,
@@ -17781,7 +17781,7 @@
   {
     "id": 506,
     "name": "AVANT Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "17550 Bernardo Oaks Dr, San Diego, CA 92128, USA",
     "lat": 33.0312003,
     "lng": -117.06707819999998,
@@ -17848,7 +17848,7 @@
   {
     "id": 508,
     "name": "The Regal Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8344 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.7654442,
     "lng": -117.01819750000001,
@@ -17887,7 +17887,7 @@
   {
     "id": 509,
     "name": "LHK Noodle Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mira Mesa",
     "address": "10606 Camino Ruiz #2, San Diego, CA 92126, USA",
     "lat": 32.910038199999995,
     "lng": -117.1447903,
@@ -17959,7 +17959,7 @@
   {
     "id": 511,
     "name": "Lúdica Cervecería",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "López Lucio 4775-Int. B, Lopezlucio, 22106 Tijuana, B.C., Mexico",
     "lat": 32.5036614,
     "lng": -116.98049089999998,
@@ -17994,7 +17994,7 @@
   {
     "id": 512,
     "name": "Brewjería Taproom & Kitchen",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "241 3rd Ave c, Chula Vista, CA 91910, USA",
     "lat": 32.6433728,
     "lng": -117.08037340000001,
@@ -18027,7 +18027,7 @@
   {
     "id": 513,
     "name": "Coffee Hub and Cafe (Now Juno's)",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2907 Shelter Island Dr Unit 107, San Diego, CA 92106, USA",
     "lat": 32.721826,
     "lng": -117.23061829999997,
@@ -18060,7 +18060,7 @@
   {
     "id": 514,
     "name": "Kilowatt Brewing Kearny Mesa",
-    "neighborhood": "San Diego",
+    "neighborhood": "Kearny Mesa",
     "address": "7576 Clairemont Mesa Blvd, San Diego, CA 92111, USA",
     "lat": 32.8329854,
     "lng": -117.1563781,
@@ -18129,7 +18129,7 @@
   {
     "id": 516,
     "name": "Misadventure & Co",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "2420 Grand Ave c, Vista, CA 92081, USA",
     "lat": 33.154955199999996,
     "lng": -117.22325339999999,
@@ -18165,7 +18165,7 @@
   {
     "id": 517,
     "name": "Z South",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bonsall",
     "address": "5256 S Mission Rd Ste 907, Bonsall, CA 92003, USA",
     "lat": 33.2960483,
     "lng": -117.22263450000001,
@@ -18201,7 +18201,7 @@
   {
     "id": 518,
     "name": "The WineSellar & Brasserie",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "9550 Waples St #115, San Diego, CA 92121, USA",
     "lat": 32.903599,
     "lng": -117.18309699999999,
@@ -18236,7 +18236,7 @@
   {
     "id": 519,
     "name": "Chula Vista Brewery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "294 Third Ave, Chula Vista, CA 91910, USA",
     "lat": 32.6415337,
     "lng": -117.08035059999999,
@@ -18271,7 +18271,7 @@
   {
     "id": 520,
     "name": "Caffé Adesso",
-    "neighborhood": "San Diego",
+    "neighborhood": "Alpine",
     "address": "1140 Tavern Rd, Alpine, CA 91901, USA",
     "lat": 32.8416286,
     "lng": -116.78112979999999,
@@ -18378,7 +18378,7 @@
   {
     "id": 523,
     "name": "The Oaks Grille",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ramona",
     "address": "24157 San Vicente Rd, Ramona, CA 92065, USA",
     "lat": 33.002277299999996,
     "lng": -116.8058853,
@@ -18418,7 +18418,7 @@
   {
     "id": 524,
     "name": "Surfside Fish House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "10585 Scripps Poway Pkwy Ste D, San Diego, CA 92131, USA",
     "lat": 32.9357495,
     "lng": -117.0996036,
@@ -18453,7 +18453,7 @@
   {
     "id": 525,
     "name": "SETS Kitchen & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1628 San Elijo Rd S, San Marcos, CA 92078, USA",
     "lat": 33.097661699999996,
     "lng": -117.20020269999998,
@@ -18487,7 +18487,7 @@
   {
     "id": 526,
     "name": "Bolero at Europa Village",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "41150 Via Europa, Temecula, CA 92591, USA",
     "lat": 33.5228604,
     "lng": -117.08652879999998,
@@ -18519,7 +18519,7 @@
   {
     "id": 527,
     "name": "CAFÉ COMUNAL",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Av. Rio Bravo, Marron, 22015 Tijuana, B.C., Mexico",
     "lat": 32.5201918,
     "lng": -117.0195227,
@@ -18552,7 +18552,7 @@
   {
     "id": 528,
     "name": "Shooters Cocktails",
-    "neighborhood": "San Diego",
+    "neighborhood": "Spring Valley",
     "address": "10761 Jamacha Blvd Ste c, Spring Valley, CA 91978, USA",
     "lat": 32.729084,
     "lng": -116.96157069999998,
@@ -18588,7 +18588,7 @@
   {
     "id": 529,
     "name": "The Henry",
-    "neighborhood": "Carlsbad",
+    "neighborhood": "Encinitas",
     "address": "1935 Calle Barcelona Suite 170, Carlsbad, CA 92009, USA",
     "lat": 33.0726126,
     "lng": -117.26627970000001,
@@ -18657,7 +18657,7 @@
   {
     "id": 531,
     "name": "AIR CONDITIONED Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "4673 30th St, San Diego, CA 92116, USA",
     "lat": 32.7623879,
     "lng": -117.13006739999999,
@@ -18690,7 +18690,7 @@
   {
     "id": 532,
     "name": "Rock On Pizza East Coast Style Thin Crust",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "3440 Del Lago Blvd Ste k, Escondido, CA 92029, USA",
     "lat": 33.0707923,
     "lng": -117.07039999999999,
@@ -18726,7 +18726,7 @@
   {
     "id": 533,
     "name": "Postino Del Mar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "3745 Paseo Pl Ste 800, San Diego, CA 92130, USA",
     "lat": 32.9520435,
     "lng": -117.2350067,
@@ -18763,7 +18763,7 @@
   {
     "id": 534,
     "name": "Gravity Heights Mission Valley",
-    "neighborhood": "San Diego",
+    "neighborhood": "Mission Valley",
     "address": "525 Camino De La Reina, San Diego, CA 92108, USA",
     "lat": 32.766246599999995,
     "lng": -117.1601168,
@@ -18797,7 +18797,7 @@
   {
     "id": 535,
     "name": "San Elijo Vine & Tap",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1231 Elfin Forest Rd W Ste 110, San Marcos, CA 92078, USA",
     "lat": 33.0976754,
     "lng": -117.19980240000001,
@@ -18832,7 +18832,7 @@
   {
     "id": 536,
     "name": "Kilolibra Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Av. Benito Juárez 265, Primera, 21400 Tecate, B.C., Mexico",
     "lat": 32.5738145,
     "lng": -116.6258809,
@@ -18865,7 +18865,7 @@
   {
     "id": 537,
     "name": "N City Sports Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "2511 Sweetwater Rd, National City, CA 91950, USA",
     "lat": 32.6602556,
     "lng": -117.07190279999999,
@@ -18898,7 +18898,7 @@
   {
     "id": 538,
     "name": "Starbucks",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "14136 Olde Hwy 80, El Cajon, CA 92021, USA",
     "lat": 32.8443,
     "lng": -116.87965,
@@ -18933,7 +18933,7 @@
   {
     "id": 539,
     "name": "Craft House Sky Deck",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12841 El Camino Real Ste 202, San Diego, CA 92130, USA",
     "lat": 32.9497858,
     "lng": -117.23383199999999,
@@ -18968,7 +18968,7 @@
   {
     "id": 540,
     "name": "Prey Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "110 Main St, Vista, CA 92083, USA",
     "lat": 33.201929899999996,
     "lng": -117.2432857,
@@ -19005,7 +19005,7 @@
   {
     "id": 541,
     "name": "TERI Common Grounds Café & Coffee Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "555 Deer Springs Rd, San Marcos, CA 92069, USA",
     "lat": 33.191536,
     "lng": -117.1501736,
@@ -19039,7 +19039,7 @@
   {
     "id": 542,
     "name": "Firangi Restaurant & Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "201 E Grand Ave, Escondido, CA 92025, USA",
     "lat": 33.1222938,
     "lng": -117.07988519999999,
@@ -19077,7 +19077,7 @@
   {
     "id": 543,
     "name": "Native Oaks Golf Club",
-    "neighborhood": "San Diego",
+    "neighborhood": "Valley Center",
     "address": "14616 Woods Valley Rd, Valley Center, CA 92082, USA",
     "lat": 33.2080876,
     "lng": -117.0267581,
@@ -19112,7 +19112,7 @@
   {
     "id": 544,
     "name": "Deli Stop Sports Pub",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Bernardo",
     "address": "13173 Black Mountain Rd, San Diego, CA 92129, USA",
     "lat": 32.9567139,
     "lng": -117.12638059999999,
@@ -19182,7 +19182,7 @@
   {
     "id": 546,
     "name": "Seven Seas Bar and Grill Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "324 Main St, Vista, CA 92084, USA",
     "lat": 33.2032246,
     "lng": -117.2411101,
@@ -19219,7 +19219,7 @@
   {
     "id": 547,
     "name": "The Cellar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "Inside of Ponte Vineyard Inn, 35001 Rancho California Rd, Temecula, CA 92591, USA",
     "lat": 33.5357281,
     "lng": -117.05127079999998,
@@ -19254,7 +19254,7 @@
   {
     "id": 548,
     "name": "Burbuja Boba Tea House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Pdte. Elías Calles 43, Primera, 21400 Tecate, B.C., Mexico",
     "lat": 32.5731696,
     "lng": -116.62889589999999,
@@ -19288,7 +19288,7 @@
   {
     "id": 549,
     "name": "The Bowl Ramen & Izakaya",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "4953 Newport Ave, San Diego, CA 92107, USA",
     "lat": 32.7461777,
     "lng": -117.25050309999999,
@@ -19323,7 +19323,7 @@
   {
     "id": 550,
     "name": "T&T Tacos & Tequila Grill & Cantina",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "12205 Scripps Poway Pkwy e101, Poway, CA 92064, USA",
     "lat": 32.9343123,
     "lng": -117.06236620000001,
@@ -19358,7 +19358,7 @@
   {
     "id": 551,
     "name": "Bay Club Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "The Bay Club Hotel and Marina, 2131 Shelter Island Dr, San Diego, CA 92106, USA",
     "lat": 32.7157098,
     "lng": -117.22461299999998,
@@ -19394,7 +19394,7 @@
   {
     "id": 552,
     "name": "Sushi Roka Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "13425 Poway Rd, Poway, CA 92064, USA",
     "lat": 32.9551745,
     "lng": -117.04033210000001,
@@ -19429,7 +19429,7 @@
   {
     "id": 553,
     "name": "Inka Mama's San Clemente",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "111 W Avenida Palizada #303, San Clemente, CA 92672, USA",
     "lat": 33.4292126,
     "lng": -117.61547390000001,
@@ -19465,7 +19465,7 @@
   {
     "id": 554,
     "name": "BallPark Pizza SC",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "831 Via Suerte #101, San Clemente, CA 92673, USA",
     "lat": 33.4635306,
     "lng": -117.5983833,
@@ -19498,7 +19498,7 @@
   {
     "id": 555,
     "name": "Domaine Artefact Vineyard & Winery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "15406 Highland Valley Rd, Escondido, CA 92025, USA",
     "lat": 33.0669155,
     "lng": -117.0017521,
@@ -19529,7 +19529,7 @@
   {
     "id": 556,
     "name": "Burger Bench Vista",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "230 Main St, Vista, CA 92084, USA",
     "lat": 33.202785899999995,
     "lng": -117.24193690000001,
@@ -19563,7 +19563,7 @@
   {
     "id": 557,
     "name": "Tony Pepperoni Pizzeria",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "1860 University Dr, Vista, CA 92083, USA",
     "lat": 33.1707874,
     "lng": -117.21740729999998,
@@ -19599,7 +19599,7 @@
   {
     "id": 558,
     "name": "La Barrita Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Spring Valley",
     "address": "546 Grand Ave, Spring Valley, CA 91977, USA",
     "lat": 32.7071987,
     "lng": -116.99801699999999,
@@ -19631,7 +19631,7 @@
   {
     "id": 559,
     "name": "The Elwood",
-    "neighborhood": "San Diego",
+    "neighborhood": "Chula Vista",
     "address": "725 Broadway, Chula Vista, CA 91910, USA",
     "lat": 32.6232155,
     "lng": -117.0861886,
@@ -19697,7 +19697,7 @@
   {
     "id": 561,
     "name": "Red Tail Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "3007 Dehesa Rd, El Cajon, CA 92019, USA",
     "lat": 32.784394999999996,
     "lng": -116.8839308,
@@ -19736,7 +19736,7 @@
   {
     "id": 562,
     "name": "The Wine Pub & Restaurant (Now Juno's)",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "2907 Shelter Island Dr Unit 108, San Diego, CA 92106, USA",
     "lat": 32.7217973,
     "lng": -117.23065799999999,
@@ -19843,7 +19843,7 @@
   {
     "id": 565,
     "name": "Understory Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Carmel Valley",
     "address": "12841 El Camino Real Ste 209-210, San Diego, CA 92130, USA",
     "lat": 32.9495917,
     "lng": -117.233548,
@@ -19877,7 +19877,7 @@
   {
     "id": 566,
     "name": "Urban Sweet Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "803 S Twin Oaks Valley Rd, San Marcos, CA 92078, USA",
     "lat": 33.122945200000004,
     "lng": -117.1653015,
@@ -19913,7 +19913,7 @@
   {
     "id": 567,
     "name": "Outrigger Tavern",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "1920 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.41711420000001,
     "lng": -117.60271449999999,
@@ -19951,7 +19951,7 @@
   {
     "id": 568,
     "name": "Temecula Sports Lounge/Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "27911 Jefferson Ave #104, Temecula, CA 92590, USA",
     "lat": 33.5103241,
     "lng": -117.15771579999999,
@@ -19983,7 +19983,7 @@
   {
     "id": 569,
     "name": "Relentless Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "42030 Avenida Alvarado F, Temecula, CA 92590, USA",
     "lat": 33.5125197,
     "lng": -117.16823710000001,
@@ -20017,7 +20017,7 @@
   {
     "id": 570,
     "name": "Krazy Kooters",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "215 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4268492,
     "lng": -117.6116013,
@@ -20051,7 +20051,7 @@
   {
     "id": 571,
     "name": "Ebullition Brew Works Pub and Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Temecula",
     "address": "45440 Pechanga Pkwy Ste 501, Temecula, CA 92592, USA",
     "lat": 33.4538426,
     "lng": -117.1011485,
@@ -20153,7 +20153,7 @@
   {
     "id": 574,
     "name": "The Lobby Tiki Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "408 Pier View Wy, Oceanside, CA 92054, USA",
     "lat": 33.1965976,
     "lng": -117.3808013,
@@ -20190,7 +20190,7 @@
   {
     "id": 575,
     "name": "Barnoa Wine Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "831 Via Suerte, San Clemente, CA 92673, USA",
     "lat": 33.4636257,
     "lng": -117.5982007,
@@ -20226,7 +20226,7 @@
   {
     "id": 576,
     "name": "Kilowatt Craft Beer & Cocktails Oceanside",
-    "neighborhood": "San Diego",
+    "neighborhood": "Oceanside",
     "address": "406 Mission Ave, Oceanside, CA 92054, USA",
     "lat": 33.1957975,
     "lng": -117.38022679999999,
@@ -20262,7 +20262,7 @@
   {
     "id": 577,
     "name": "Meadiocrity Mead",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Marcos",
     "address": "1365 Grand Ave Ste 100, San Marcos, CA 92078, USA",
     "lat": 33.1433982,
     "lng": -117.19374649999997,
@@ -20333,7 +20333,7 @@
   {
     "id": 579,
     "name": "Castelli & Pizarro Coffee Shop - Wine Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Rancho Peñasquitos",
     "address": "8220 Merge Ave, San Diego, CA 92129, USA",
     "lat": 32.9537465,
     "lng": -117.1499111,
@@ -20366,7 +20366,7 @@
   {
     "id": 580,
     "name": "Bar Traza",
-    "neighborhood": "Del Mar",
+    "neighborhood": "Carlsbad",
     "address": "2100 Costa Del Mar Rd, Carlsbad, CA 92009, USA",
     "lat": 33.0920182,
     "lng": -117.2643539,
@@ -20399,7 +20399,7 @@
   {
     "id": 581,
     "name": "Buona Forchetta San Clemente",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "1014 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4210944,
     "lng": -117.60832439999999,
@@ -20435,7 +20435,7 @@
   {
     "id": 582,
     "name": "Severin Liquor Deli & Wine Cellar",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "5980 Severin Dr, La Mesa, CA 91942, USA",
     "lat": 32.78652840000001,
     "lng": -116.9990847,
@@ -20469,7 +20469,7 @@
   {
     "id": 583,
     "name": "Embolden Beer Co.",
-    "neighborhood": "San Diego",
+    "neighborhood": "Sorrento Valley",
     "address": "8655 Production Ave Ste A, San Diego, CA 92121, USA",
     "lat": 32.8828916,
     "lng": -117.1649948,
@@ -20542,7 +20542,7 @@
   {
     "id": 585,
     "name": "Barn Door Public House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Escondido",
     "address": "2500 S Escondido Blvd, Escondido, CA 92025, USA",
     "lat": 33.0903786,
     "lng": -117.0718229,
@@ -20572,7 +20572,7 @@
   {
     "id": 586,
     "name": "Retreat Pool & Cabanas",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "5469 Casino Way, El Cajon, CA 92019, USA",
     "lat": 32.78594410000001,
     "lng": -116.83237469999999,
@@ -20679,7 +20679,7 @@
   {
     "id": 589,
     "name": "The Pearl Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "1410 Rosecrans St, San Diego, CA 92106, USA",
     "lat": 32.7252635,
     "lng": -117.2289846,
@@ -20713,7 +20713,7 @@
   {
     "id": 590,
     "name": "Ponyboy",
-    "neighborhood": "San Diego",
+    "neighborhood": "Point Loma",
     "address": "1410 Rosecrans St, San Diego, CA 92106, USA",
     "lat": 32.725335099999995,
     "lng": -117.22904069999998,
@@ -20747,7 +20747,7 @@
   {
     "id": 591,
     "name": "Societe Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Old Town",
     "address": "2415 San Diego Ave #111, San Diego, CA 92110, USA",
     "lat": 32.751385899999995,
     "lng": -117.19356270000002,
@@ -20853,7 +20853,7 @@
   {
     "id": 594,
     "name": "Majorette",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "6344 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7643913,
     "lng": -117.0621461,
@@ -20886,7 +20886,7 @@
   {
     "id": 595,
     "name": "Tour de Tapas",
-    "neighborhood": "San Diego",
+    "neighborhood": "La Mesa",
     "address": "8323 La Mesa Blvd, La Mesa, CA 91942, USA",
     "lat": 32.764977,
     "lng": -117.01837990000001,
@@ -20953,7 +20953,7 @@
   {
     "id": 597,
     "name": "Uvas Winery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Poway",
     "address": "14053 Midland Rd, Poway, CA 92064, USA",
     "lat": 32.9689394,
     "lng": -117.03583639999998,
@@ -20987,7 +20987,7 @@
   {
     "id": 598,
     "name": "Backstreet Brewery",
-    "neighborhood": "San Diego",
+    "neighborhood": "Vista",
     "address": "15 Main St #100, Vista, CA 92083, USA",
     "lat": 33.200096,
     "lng": -117.24472499999999,
@@ -21023,7 +21023,7 @@
   {
     "id": 599,
     "name": "Franco's Famous San Clemente",
-    "neighborhood": "San Diego",
+    "neighborhood": "San Clemente",
     "address": "207 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4269792,
     "lng": -117.6117361,
@@ -21057,7 +21057,7 @@
   {
     "id": 600,
     "name": "Nueve Coffee Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Del Pedernal 1215, Playas de Tijuana, Jardines Playas de Tijuana, 22500 Tijuana, B.C., Mexico",
     "lat": 32.5248384,
     "lng": -117.11018609999999,
@@ -21091,7 +21091,7 @@
   {
     "id": 601,
     "name": "KOGI by 260",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "La Pechuga, 22424 Tijuana, B.C., Mexico",
     "lat": 32.530181899999995,
     "lng": -116.957416,
@@ -21125,7 +21125,7 @@
   {
     "id": 602,
     "name": "Kenda’s Coffee & Beauty",
-    "neighborhood": "San Diego",
+    "neighborhood": "Tijuana",
     "address": "Durango 11050, Guadalupe Victoria, 22426 Tijuana, B.C., Mexico",
     "lat": 32.5177692,
     "lng": -116.9774097,
@@ -21191,7 +21191,7 @@
   {
     "id": 604,
     "name": "The Mesa Bar & Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "El Cajon",
     "address": "6164 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.763107399999996,
     "lng": -117.06485850000001,
@@ -21222,7 +21222,7 @@
   {
     "id": 605,
     "name": "Kilowatt Brewing OB Tasting Room",
-    "neighborhood": "San Diego",
+    "neighborhood": "Ocean Beach",
     "address": "1875 Cable St, San Diego, CA 92107, USA",
     "lat": 32.7453646,
     "lng": -117.2494467,
@@ -21256,7 +21256,7 @@
   {
     "id": 606,
     "name": "Hopnonymous Brewing - Normal Heights",
-    "neighborhood": "San Diego",
+    "neighborhood": "Normal Heights",
     "address": "3514 Adams Ave, San Diego, CA 92116, USA",
     "lat": 32.7635164,
     "lng": -117.11693860000001,
@@ -21290,7 +21290,7 @@
   {
     "id": 607,
     "name": "Night Parade Brewing Company",
-    "neighborhood": "San Diego",
+    "neighborhood": "Scripps Ranch",
     "address": "9879 Hibert St Ste f, San Diego, CA 92131, USA",
     "lat": 32.9131431,
     "lng": -117.1128921,
@@ -21321,7 +21321,7 @@
   {
     "id": 608,
     "name": "Buon Cibo Italian Specialties",
-    "neighborhood": "San Diego",
+    "neighborhood": "Scripps Ranch",
     "address": "10380 Spring Canyon Rd, San Diego, CA 92131, USA",
     "lat": 32.9355586,
     "lng": -117.09633620000001,

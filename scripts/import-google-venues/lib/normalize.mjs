@@ -1,5 +1,6 @@
-import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES, FEATURES, NEIGHBORHOOD_BOXES } from './constants.mjs';
+import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES, FEATURES } from './constants.mjs';
 import { finalizeDeals } from './deals.mjs';
+import { assignNeighborhood } from './neighborhood-assign.mjs';
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -11,29 +12,7 @@ function inCounty(lat, lng) {
 }
 
 export function guessNeighborhood(lat, lng, formattedAddress = '') {
-  for (const box of NEIGHBORHOOD_BOXES) {
-    if (lat >= box.minLat && lat <= box.maxLat && lng >= box.minLng && lng <= box.maxLng) {
-      return box.name;
-    }
-  }
-  const parts = formattedAddress.split(',').map((part) => part.trim());
-  for (const component of parts) {
-    const hit = NEIGHBORHOOD_BOXES.find((box) => component.toLowerCase().includes(box.name.toLowerCase()));
-    if (hit) return hit.name;
-  }
-  for (const part of parts) {
-    if (/quarter|district|park|beach|jolla|hillcrest|obrien/i.test(part) && !/county|california|united states|usa/i.test(part)) {
-      return part.replace(/\s+(CA|California)\s+\d{5}.*$/i, '').trim() || part;
-    }
-  }
-  if (/la jolla/i.test(formattedAddress)) return 'La Jolla';
-  if (/hillcrest/i.test(formattedAddress)) return 'Hillcrest';
-  if (/ocean beach|\bOB\b/i.test(formattedAddress)) return 'Ocean Beach';
-  if (/del mar/i.test(formattedAddress)) return 'Del Mar';
-  if (/carlsbad/i.test(formattedAddress)) return 'Carlsbad';
-  if (/encinitas/i.test(formattedAddress)) return 'Encinitas';
-  if (/coronado/i.test(formattedAddress)) return 'Coronado';
-  return 'San Diego';
+  return assignNeighborhood(lat, lng, formattedAddress);
 }
 
 function inferVibe(primaryType, types = []) {
