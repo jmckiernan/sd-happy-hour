@@ -9,7 +9,7 @@ author: "SD Happy Hours"
 draft: false
 aiGenerated: true
 venues: []
-heroImage: "/api/images/san-diego-aug-25-guide-pickleball-lego-city-deals-1787719756760-3b2b786d.png"
+heroImage: "/api/images/san-diego-aug-25-guide-pickleball-lego-city-deals-1787721200882-58175c34.png"
 tags: ["san-diego-events", "gaslamp-quarter", "north-city-san-marcos", "happy-hour-deals", "pickleball", "live-music-san-diego", "carmel-valley", "north-park", "san-diego", "neighborhood-guide", "community", "theater", "happy-hour", "live-music", "comedy"]
 dates: ["2026-08-25", "2026-08-26"]
 locations: ["San Diego"]
@@ -18,8 +18,8 @@ eventTypes: ["community", "theater", "happy-hour", "live-music", "comedy"]
 hashtags: ["#SanDiego", "#GaslampQuarter", "#SDHappyHours", "#PaddleHour", "#NorthPark", "#SanMarcos", "#ThingsToDoSD"]
 sourceUrls: ["https://www.sandiegoreader.com/events/2026/aug/26/north-city-invites-san-diego-famili/?et=365054", "https://www.sandiegoreader.com/events/2026/aug/25/north-city-invites-san-diego-famili/?et=365053", "https://www.sandiegoreader.com/events/2026/aug/26/dirty-drinks-15b38940/?et=365081", "https://www.sandiegoreader.com/events/2026/aug/25/dirty-drinks-15b38940/?et=365080", "https://www.sandiegoreader.com/events/2026/aug/25/sneaking-in-the-backdoor-of-poetry-/?et=362158", "https://www.sandiegoreader.com/events/2026/aug/25/gaslamp-quarter-urban-pickleball/?et=364343", "https://www.sandiegoreader.com/events/2026/aug/25/book-marketing-for-authors/?et=360837", "https://www.sandiegoreader.com/events/2026/aug/25/alzheimers-association-communicatin-0876258a/?et=364756", "https://www.sandiegoreader.com/events/2026/aug/25/hybrid-waves-from-the-pacific-rim-a/?et=365032", "https://www.sandiegoreader.com/events/2026/aug/26/write-a-winning-nonfiction-book-pro/?et=361716"]
 contentEngineId: "ffe545e8-ff6f-4ea6-876b-d41ccf99fc58"
+updatedDate: "2026-08-26"
 ---
-
 ## The short answer
 
 If you want one plan for Tuesday, **[August 25](/blog/date/2026-08-25/)**: head to the Gaslamp Quarter, where Fifth Avenue turns into a 13-court pickleball venue with DJ Spitz, a non-alcoholic Zero-Proof Garden, and wristband-access food and drink specials at nearby restaurants. If you'd rather stay local and low-key, North Park's Mabel's Gone Fishing is pouring "dirty drinks" for a good cause, and Carmel Valley has a free concert if you want something quieter. Here's how the day (and the week around it) breaks down.
