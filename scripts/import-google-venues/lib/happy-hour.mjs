@@ -1,3 +1,4 @@
+import { cleanDeals, decodeHtmlEntities, finalizeDeals } from './deals.mjs';
 import { DAY_ABBR, DAY_NAMES } from './constants.mjs';
 import { sleep } from './io.mjs';
 
@@ -35,7 +36,7 @@ function parseClockToken(token) {
   const meridiem = (match[3] || '').toLowerCase();
   if (meridiem === 'pm' && hour < 12) hour += 12;
   if (meridiem === 'am' && hour === 12) hour = 0;
-  if (!meridiem && hour <= 6) hour += 12; // assume afternoon for happy hour
+  if (!meridiem && hour <= 6) hour += 12;
   return padTime(hour, minute);
 }
 
@@ -60,31 +61,57 @@ function daysFromRangeText(text) {
 }
 
 function parseTimeRange(text) {
-  const patterns = [
-    /(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*[-–—to]+\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i,
-    /(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*[-–—to]+\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i,
-  ];
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (!match) continue;
-    const start = parseClockToken(match[1]);
-    const end = parseClockToken(match[2]);
-    if (start && end) return { startTime: start, endTime: end };
-  }
+  const match = text.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*[-–—to]+\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+  if (!match) return null;
+  const start = parseClockToken(match[1]);
+  const end = parseClockToken(match[2]);
+  if (start && end) return { startTime: start, endTime: end };
   return null;
+}
+
+function htmlToText(html) {
+  return decodeHtmlEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|li|div|h\d)>/gi, '\n')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  );
+}
+
+function extractHappyHourHtml(html) {
+  const lower = html.toLowerCase();
+  const index = lower.indexOf('happy hour');
+  if (index === -1) return null;
+  return html.slice(Math.max(0, index - 400), Math.min(html.length, index + 6000));
+}
+
+function extractDealsFromHtml(html) {
+  const section = extractHappyHourHtml(html);
+  if (!section) return [];
+  const deals = [];
+  for (const match of section.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)) {
+    deals.push(htmlToText(match[1]));
+  }
+  for (const match of section.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+    deals.push(htmlToText(match[1]));
+  }
+  return cleanDeals(deals);
 }
 
 function extractDealsFromText(text) {
   const lines = text.split(/\n+/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const deals = [];
-  for (const line of lines.slice(0, 40)) {
+  for (const line of lines.slice(0, 60)) {
     if (line.length < 4 || line.length > 120) continue;
-    if (!/happy hour/i.test(line) && !/\$\d|half[- ]?price|\d+%\s*off|special/i.test(line)) continue;
-    if (/copyright|©|privacy|cookie|javascript/i.test(line)) continue;
-    deals.push(line.replace(/^[-•*]\s*/, ''));
-    if (deals.length >= 6) break;
+    if (!/happy hour/i.test(line) && !/\$\d|half[- ]?price|\d+%\s*off|\d+\s*for\s*\$|special/i.test(line)) continue;
+    deals.push(line);
   }
-  return deals;
+  return cleanDeals(deals);
 }
 
 export function parseGoogleHappyHour(regularSecondaryOpeningHours = []) {
@@ -128,19 +155,7 @@ export function parseGoogleHappyHour(regularSecondaryOpeningHours = []) {
   };
 }
 
-function htmlToText(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, '\n')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
-async function fetchPageText(url) {
+async function fetchPageHtml(url) {
   const response = await fetch(url, {
     headers: { 'User-Agent': USER_AGENT, Accept: 'text/html,application/xhtml+xml' },
     redirect: 'follow',
@@ -149,17 +164,14 @@ async function fetchPageText(url) {
   if (!response.ok) return null;
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html') && !contentType.includes('text/plain')) return null;
-  const html = (await response.text()).slice(0, 500_000);
-  return htmlToText(html);
+  return (await response.text()).slice(0, 500_000);
 }
 
 function extractHappyHourSection(text) {
   const lower = text.toLowerCase();
   const index = lower.indexOf('happy hour');
   if (index === -1) return null;
-  const start = Math.max(0, index - 200);
-  const end = Math.min(text.length, index + 2500);
-  return text.slice(start, end);
+  return text.slice(Math.max(0, index - 200), Math.min(text.length, index + 2500));
 }
 
 export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
@@ -174,9 +186,10 @@ export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
   for (const suffix of WEBSITE_PATHS) {
     const url = suffix ? `${origin}${suffix}` : websiteUri;
     try {
-      const text = await fetchPageText(url);
+      const html = await fetchPageHtml(url);
       await sleep(delayMs);
-      if (!text) continue;
+      if (!html) continue;
+      const text = htmlToText(html);
       const section = extractHappyHourSection(text) || text.slice(0, 4000);
       if (!/happy hour/i.test(section)) continue;
 
@@ -184,12 +197,18 @@ export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
       const times = parseTimeRange(section) || parseTimeRange(text);
       if (!times) continue;
       if (!isValidTime(times.startTime) || !isValidTime(times.endTime)) continue;
+
+      const deals = finalizeDeals([
+        ...extractDealsFromHtml(html),
+        ...extractDealsFromText(section),
+      ]);
+
       return {
         ...times,
         days,
-        deals: deals.length ? deals : ['Happy hour specials — confirm current offers with the venue'],
+        deals,
         source: 'website',
-        confidence: deals.length ? 'medium' : 'low',
+        confidence: deals.length === 1 && deals[0] === 'Happy hour' ? 'low' : 'medium',
         sourcePage: url,
         raw: section.slice(0, 500),
       };
@@ -202,6 +221,8 @@ export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
 
 export async function resolveHappyHour(place) {
   const google = parseGoogleHappyHour(place.regularSecondaryOpeningHours);
-  if (google) return google;
+  if (google) {
+    return { ...google, deals: finalizeDeals(google.deals || []) };
+  }
   return extractWebsiteHappyHour(place.websiteUri);
 }

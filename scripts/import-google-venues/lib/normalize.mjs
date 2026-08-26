@@ -1,4 +1,5 @@
 import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES, FEATURES, NEIGHBORHOOD_BOXES } from './constants.mjs';
+import { finalizeDeals } from './deals.mjs';
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -84,9 +85,7 @@ export function normalizeVenue(record, nextId) {
   if (!hh?.startTime || !hh?.endTime || !hh?.days?.length) return null;
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.startTime) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.endTime)) return null;
 
-  const deals = hh.deals?.length
-    ? hh.deals.slice(0, 8)
-    : ['Happy hour specials — confirm current offers with the venue'];
+  const deals = finalizeDeals(hh.deals || []);
 
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
   if (!website || !/^https?:\/\//i.test(website)) return null;

@@ -98,3 +98,36 @@ export function placeIdKey(place) {
 export function displayName(place) {
   return place.displayName?.text || place.displayName || '';
 }
+
+export async function placePhotoUri(placeId, maxHeightPx = 1200, delayMs = 200) {
+  const photo = await downloadPlacePhoto(placeId, maxHeightPx, delayMs);
+  return photo?.uri || null;
+}
+
+export async function downloadPlacePhoto(placeId, maxHeightPx = 1200, delayMs = 200) {
+  const id = placeId.replace(/^places\//, '');
+  const details = await placesFetch(`/places/${id}`, {
+    fieldMask: 'photos',
+  });
+  await sleep(delayMs);
+  const photoName = details.photos?.[0]?.name;
+  if (!photoName) return null;
+
+  const response = await fetch(
+    `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=${maxHeightPx}&skipHttpRedirect=true`,
+    {
+      headers: { 'X-Goog-Api-Key': apiKey() },
+      signal: AbortSignal.timeout(30_000),
+    }
+  );
+  if (!response.ok) return null;
+  const data = await response.json();
+  const uri = data.photoUri;
+  if (!uri) return null;
+
+  const imageResponse = await fetch(uri, { signal: AbortSignal.timeout(60_000) });
+  if (!imageResponse.ok) return null;
+  const bytes = new Uint8Array(await imageResponse.arrayBuffer());
+  const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+  return { uri, bytes, contentType };
+}

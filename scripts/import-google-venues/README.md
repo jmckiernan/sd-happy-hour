@@ -31,6 +31,11 @@ npm run import:venues:extract
 npm run import:venues:stage
 npm run import:venues:merge -- --dry-run   # preview
 npm run import:venues:merge                # write to happy-hours.json
+
+# Post-import cleanup (run after merge or when fixing listing quality)
+npm run import:venues:cleanup              # dedupe deals, strip HTML junk, replace placeholders with "Happy hour"
+npm run import:venues:photos               # download Google Places photos → public/images/venues/
+npm run import:venues:refresh-deals        # re-scrape websites for venues still on the "Happy hour" fallback
 ```
 
 ## Smoke test (cheap)
