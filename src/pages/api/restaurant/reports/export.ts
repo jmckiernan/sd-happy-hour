@@ -43,7 +43,13 @@ export const GET: APIRoute = async ({ url, cookies }) => {
   });
   const filename = `${safeFilename(report.venue.name)}-${range.preset}-report.${format}`;
   if (format === 'pdf') {
-    const body = await merchantReportPdf(report);
+    let body: Buffer;
+    try {
+      body = await merchantReportPdf(report);
+    } catch (error) {
+      console.error('[merchant reports] PDF export failed:', error);
+      return errorJson([error instanceof Error ? error.message : 'PDF export failed.'], 502);
+    }
     const responseBody = body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength) as ArrayBuffer;
     return new Response(responseBody, {
       headers: {

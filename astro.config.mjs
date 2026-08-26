@@ -15,6 +15,11 @@ export default defineConfig({
     },
   })],
   vite: {
+    ssr: {
+      // pdfkit reads built-in AFM font metrics from disk at runtime; bundling
+      // it into the SSR function breaks PDF exports on Netlify.
+      external: ['pdfkit'],
+    },
     server: {
       watch: {
         // Running `npm run build` while `astro dev` is up drops a couple

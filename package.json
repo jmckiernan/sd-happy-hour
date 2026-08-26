@@ -15,6 +15,7 @@
     "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
     "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
+    "seed:merchant-analytics": "node --env-file-if-exists=.env scripts/seed-merchant-analytics.mjs",
     "test": "npm run validate:data && npm run test:images && npm run test:venue-management && npm run test:shared-lists && npm run test:user-intelligence && npm run test:blog-analytics && npm run test:content-engine && npm run test:live-promotions && npm run test:live-promotions:phase3:ui && npm run test:merchant-reporting && npm run test:live-promotions:migration:guard && npm run test:live-promotions:phase2:db:guard",
     "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs",
     "test:venue-management": "node tests/build-venue-management-test.mjs && node .data/tests/venue-management.bundle.mjs",
