@@ -3,7 +3,7 @@ export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import { getPostImage } from '../../lib/venues';
+import { getPostImage, getPostImageFallback } from '../../lib/venues';
 import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -165,7 +165,7 @@ const breadcrumbs = [
               height="450"
               loading="lazy"
               decoding="async"
-              data-fallback-src={getPostImage(undefined, post.data.venues, 'card')}
+              data-fallback-src={getPostImageFallback(post.data.heroImage, post.data.venues, 'card')}
             />
           </div>
           <div class="post-card-body">

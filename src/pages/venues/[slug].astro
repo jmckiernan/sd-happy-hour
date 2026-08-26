@@ -889,6 +889,7 @@ const breadcrumbs = [
      * so it serves the original there. */
     function sized(url: string, width: number) {
       if (!url.startsWith('/') || url.startsWith('/.netlify/images')) return url;
+      if (url.startsWith('/api/images/')) return url;
       if (!import.meta.env.PROD) return url;
       return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=80`;
     }

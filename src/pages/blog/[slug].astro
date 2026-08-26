@@ -2,7 +2,7 @@
 export const prerender = true;
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getPostImage, getVenueBySlug } from '../../lib/venues';
+import { getPostImage, getPostImageFallback, getVenueBySlug } from '../../lib/venues';
 
 // Newest first, matching /blog/ — so the prev/next arrows on a post walk the
 // index in the order the visitor saw it there.
@@ -28,7 +28,7 @@ const venueKeywords = post.data.venues
   .flatMap((venue) => [venue!.name, `${venue!.neighborhood} happy hour`]);
 const keywords = ['San Diego happy hour', ...venueKeywords, ...post.data.tags, ...post.data.locations, ...post.data.brands, ...post.data.eventTypes];
 const heroImage = getPostImage(post.data.heroImage, post.data.venues, 'hero');
-const heroFallback = getPostImage(undefined, post.data.venues, 'hero');
+const heroFallback = getPostImageFallback(post.data.heroImage, post.data.venues, 'hero');
 ---
 <BlogPost
   title={post.data.title}

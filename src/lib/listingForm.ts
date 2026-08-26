@@ -68,6 +68,7 @@ export function previewSrc(url: string, width = 320): string {
   if (!url) return '';
   if (!import.meta.env.PROD) return url;
   if (!url.startsWith('/') || url.startsWith('/.netlify/images')) return url;
+  if (url.startsWith('/api/images/')) return url;
   return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=75`;
 }
 

@@ -139,11 +139,14 @@ const IMAGE_SIZES = {
  * - Anything not rooted at `/`. Remote sources need a `remote_images`
  *   allowlist in netlify.toml, and a post's heroImage can be any URL an admin
  *   pasted, so those pass through untouched rather than 400ing.
+ * - Blob-backed uploads at `/api/images/` — served by a server function, not
+ *   a static file Netlify Image CDN can fetch — so those stay direct too.
  * - Already-transformed URLs, so wrapping twice is a no-op.
  */
 function throughImageCdn(src: string, size: 'card' | 'hero'): string {
   if (!import.meta.env.PROD) return src;
   if (!src.startsWith('/') || src.startsWith('/.netlify/images')) return src;
+  if (src.startsWith('/api/images/')) return src;
   const { w, q } = IMAGE_SIZES[size];
   return `/.netlify/images?url=${encodeURIComponent(src)}&w=${w}&q=${q}`;
 }
@@ -196,4 +199,14 @@ export function getPostImage(
   if (heroImage) return throughImageCdn(heroImage, size);
   const firstVenue = venueSlugs.map(getVenueBySlug).find((v): v is Venue => Boolean(v));
   return getVenueImage(firstVenue?.vibe || '', size);
+}
+
+/** Fallback when a post's primary image 404s — reuse the stored hero URL, not a vibe stock photo. */
+export function getPostImageFallback(
+  heroImage: string | undefined,
+  venueSlugs: string[] = [],
+  size: 'card' | 'hero' = 'card'
+): string {
+  if (heroImage) return heroImage;
+  return getPostImage(undefined, venueSlugs, size);
 }
