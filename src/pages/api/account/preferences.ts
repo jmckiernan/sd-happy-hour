@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getUserById, updateUserPreferences, listSavedSpots, listAlerts } from '../../../lib/store';
-import { publicUser, cleanString } from '../../../lib/validation';
+import { publicUser, cleanString, normalizeUsPhone } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { setLocationAnalyticsConsent } from '../../../lib/productAnalytics';
@@ -26,12 +26,17 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   }
 
   const smsOptIn = Boolean(body.smsOptIn);
-  const phone = cleanString(body.phone).slice(0, 20);
-  if (smsOptIn && !phone) {
+  const phoneInput = cleanString(body.phone).slice(0, 20);
+  if (smsOptIn && !phoneInput) {
     return errorJson(['Add a phone number to turn on text alerts.'], 422);
   }
-  if (phone && !/^\+?[0-9()\-.\s]{7,20}$/.test(phone)) {
-    return errorJson(['That phone number doesn’t look valid.'], 422);
+  let phone = '';
+  if (phoneInput) {
+    const normalized = normalizeUsPhone(phoneInput);
+    if (normalized === null) {
+      return errorJson(['That phone number doesn’t look valid.'], 422);
+    }
+    phone = normalized;
   }
 
   const updated = await updateUserPreferences(user.id, {

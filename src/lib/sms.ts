@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { normalizeUsPhone } from './phone';
 
 // ---------------------------------------------------------------------------
 // Text delivery via Twilio's plain REST API (no SDK dependency, same reason
@@ -18,13 +19,38 @@ import { getEnv } from './env';
 export interface SmsResult {
   sent: boolean;
   simulated: boolean;
+  messageSid?: string;
+  twilioStatus?: string;
+  errorCode?: number | null;
+  errorMessage?: string | null;
 }
 
 export function isSmsConfigured(): boolean {
   return Boolean(getEnv('TWILIO_ACCOUNT_SID') && getEnv('TWILIO_AUTH_TOKEN') && getEnv('TWILIO_FROM_NUMBER'));
 }
 
-export async function sendSms(to: string, body: string): Promise<SmsResult> {
+async function fetchTwilioMessage(sid: string): Promise<{
+  status?: string;
+  errorCode?: number | null;
+  errorMessage?: string | null;
+}> {
+  const accountSid = getEnv('TWILIO_ACCOUNT_SID');
+  const token = getEnv('TWILIO_AUTH_TOKEN');
+  if (!accountSid || !token) return {};
+
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages/${sid}.json`, {
+    headers: { Authorization: `Basic ${Buffer.from(`${accountSid}:${token}`).toString('base64')}` },
+  });
+  if (!res.ok) return {};
+  const data = await res.json();
+  return {
+    status: data.status,
+    errorCode: data.error_code ?? null,
+    errorMessage: data.error_message ?? null,
+  };
+}
+
+export async function sendSms(to: string, body: string, options?: { awaitDeliveryStatus?: boolean }): Promise<SmsResult> {
   const sid = getEnv('TWILIO_ACCOUNT_SID');
   const token = getEnv('TWILIO_AUTH_TOKEN');
   const from = getEnv('TWILIO_FROM_NUMBER');
@@ -33,8 +59,12 @@ export async function sendSms(to: string, body: string): Promise<SmsResult> {
     console.log(`[sms:simulated] to=${to} body=${JSON.stringify(body)}`);
     return { sent: false, simulated: true };
   }
+  const normalizedTo = normalizeUsPhone(to);
+  if (!normalizedTo) {
+    throw new Error(`Invalid SMS recipient number: ${to}`);
+  }
 
-  const params = new URLSearchParams({ To: to, From: from, Body: body });
+  const params = new URLSearchParams({ To: normalizedTo, From: from, Body: body });
   const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
     method: 'POST',
     headers: {
@@ -49,5 +79,25 @@ export async function sendSms(to: string, body: string): Promise<SmsResult> {
     throw new Error(`Twilio API error ${res.status}: ${text}`);
   }
 
-  return { sent: true, simulated: false };
+  const data = await res.json();
+  let twilioStatus = data.status as string | undefined;
+  let errorCode = data.error_code ?? null;
+  let errorMessage = data.error_message ?? null;
+
+  if (options?.awaitDeliveryStatus && data.sid) {
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    const latest = await fetchTwilioMessage(data.sid);
+    twilioStatus = latest.status ?? twilioStatus;
+    errorCode = latest.errorCode ?? errorCode;
+    errorMessage = latest.errorMessage ?? errorMessage;
+  }
+
+  return {
+    sent: true,
+    simulated: false,
+    messageSid: data.sid,
+    twilioStatus,
+    errorCode,
+    errorMessage,
+  };
 }

@@ -70,6 +70,8 @@ export function extractDomain(value: string): string {
   return host.replace(/^www\./, '');
 }
 
+export { normalizeUsPhone } from './phone';
+
 export function cleanString(value: unknown): string {
   return String(value ?? '').trim();
 }

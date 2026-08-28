@@ -271,6 +271,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     .channel-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--night); }
     .channel-check input { width: 16px; height: 16px; }
     .channel-note { color: var(--night-soft); font-size: 0.75rem; font-weight: 400; }
+    .channel-note a { color: var(--ocean); font-weight: 600; }
     .save-alert-panel .status { color: var(--night-soft); font-weight: 600; font-size: 0.85rem; }
     .save-alert-panel .status.error { color: #B91C1C; }
 
@@ -540,7 +541,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       <div class="save-alert-panel hidden" id="save-alert-panel">
         <input type="text" id="alert-name-input" placeholder="Name this alert (e.g. Friday Rooftop Wine)" maxlength="60">
         <label class="channel-check"><input type="checkbox" id="alert-channel-email" checked> Email</label>
-        <label class="channel-check"><input type="checkbox" id="alert-channel-text"> Text <span class="channel-note">(limited during beta)</span></label>
+        <label class="channel-check"><input type="checkbox" id="alert-channel-text"> Text <span class="channel-note" id="alert-text-note">(set up in <a href="/account/#section-preferences">My Stuff → Preferences</a>)</span></label>
         <button type="button" id="alert-save-confirm">Save Alert</button>
         <button type="button" class="secondary" id="alert-save-cancel">Cancel</button>
         <span class="status" id="alert-save-status" aria-live="polite"></span>
@@ -583,6 +584,11 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       getSanDiegoParts,
     } from '../lib/sanDiegoTime';
     import { getListingImage } from '../lib/venues';
+    import {
+      readStoredDirectoryFilters,
+      writeStoredDirectoryFilters,
+      type DirectoryFiltersState,
+    } from '../lib/directoryFilters';
 
     let baseHappyHours: any[] = [];
     let happyHours: any[] = [];
@@ -601,6 +607,8 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     let lastRenderedHadFeedData = false;
     let lastRenderedPromotionSignature = '';
     let lastRenderedVenueStateSignature = '';
+    let directoryFiltersRestored = false;
+    let persistDirectoryFiltersTimer: number | null = null;
 
     const livePromotionFeed = createLivePromotionFeed();
     let feedSnapshot: LivePromotionFeedSnapshot = livePromotionFeed.getSnapshot();
@@ -700,16 +708,133 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       return `${miles.toFixed(1)} mi`;
     }
 
+    function setSelectValue(id: string, value: string | undefined) {
+      const select = document.getElementById(id) as HTMLSelectElement | null;
+      if (!select || value === undefined) return;
+      if (!value || [...select.options].some((option) => option.value === value)) {
+        select.value = value;
+      }
+    }
+
+    function collectDirectoryFilters(): DirectoryFiltersState {
+      const listViewActive = document.getElementById('list-view-btn')!.classList.contains('active');
+      return {
+        search: (document.getElementById('search-input') as HTMLInputElement).value,
+        day: (document.getElementById('day-filter') as HTMLSelectElement).value,
+        neighborhood: (document.getElementById('neighborhood-filter') as HTMLSelectElement).value,
+        dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
+        feature: (document.getElementById('feature-filter') as HTMLSelectElement).value,
+        status: (document.getElementById('status-filter') as HTMLSelectElement).value,
+        trust: (document.getElementById('trust-filter') as HTMLSelectElement).value,
+        nearMe: userLocation ? { ...userLocation } : null,
+        view: listViewActive ? 'list' : 'map',
+      };
+    }
+
+    function persistDirectoryFilters() {
+      writeStoredDirectoryFilters(collectDirectoryFilters());
+    }
+
+    function schedulePersistDirectoryFilters() {
+      if (persistDirectoryFiltersTimer !== null) window.clearTimeout(persistDirectoryFiltersTimer);
+      persistDirectoryFiltersTimer = window.setTimeout(() => {
+        persistDirectoryFiltersTimer = null;
+        persistDirectoryFilters();
+      }, 200);
+    }
+
+    function applyNearMeLocation(location: { lat: number; lng: number }) {
+      userLocation = { lat: location.lat, lng: location.lng };
+      const btn = document.getElementById('location-btn')!;
+      const text = document.getElementById('location-text')!;
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      text.textContent = 'Sorted by distance';
+      document.getElementById('distance-info')!.textContent = 'Sorted by distance';
+      (document.getElementById('distance-info') as HTMLElement).style.display = 'inline';
+      if (map) {
+        map.setView([userLocation.lat, userLocation.lng], 13);
+      }
+    }
+
+    function clearNearMeLocation() {
+      userLocation = null;
+      const btn = document.getElementById('location-btn')!;
+      const text = document.getElementById('location-text')!;
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+      text.textContent = 'Near me';
+      (document.getElementById('distance-info') as HTMLElement).style.display = 'none';
+    }
+
+    function setViewMode(mode: 'list' | 'map') {
+      const listBtn = document.getElementById('list-view-btn')!;
+      const mapBtn = document.getElementById('map-view-btn')!;
+      const mapContainer = document.getElementById('map-container')!;
+      const grid = document.getElementById('grid')!;
+
+      if (mode === 'list') {
+        listBtn.classList.add('active');
+        mapBtn.classList.remove('active');
+        listBtn.setAttribute('aria-pressed', 'true');
+        mapBtn.setAttribute('aria-pressed', 'false');
+        mapContainer.classList.remove('active');
+        grid.classList.remove('hidden');
+        return;
+      }
+
+      mapBtn.classList.add('active');
+      listBtn.classList.remove('active');
+      mapBtn.setAttribute('aria-pressed', 'true');
+      listBtn.setAttribute('aria-pressed', 'false');
+      mapContainer.classList.add('active');
+      grid.classList.add('hidden');
+
+      if (!map) {
+        initMap();
+      }
+      window.setTimeout(() => map.invalidateSize(), 100);
+      updateMapMarkers();
+    }
+
+    function restoreDirectoryFilters() {
+      const saved = readStoredDirectoryFilters();
+      if (!saved) return;
+
+      if (saved.search !== undefined) {
+        (document.getElementById('search-input') as HTMLInputElement).value = saved.search;
+      }
+      if (saved.day !== undefined) {
+        setSelectValue('day-filter', saved.day);
+        dayFilterInitialized = true;
+        dayFilterTouched = true;
+      }
+      setSelectValue('neighborhood-filter', saved.neighborhood);
+      setSelectValue('deal-filter', saved.dealType);
+      setSelectValue('feature-filter', saved.feature);
+      setSelectValue('status-filter', saved.status);
+      setSelectValue('trust-filter', saved.trust);
+
+      if (saved.nearMe) {
+        applyNearMeLocation(saved.nearMe);
+      } else if (saved.nearMe === null) {
+        clearNearMeLocation();
+      }
+
+      if (saved.view === 'map') {
+        setViewMode('map');
+      } else if (saved.view === 'list') {
+        setViewMode('list');
+      }
+    }
+
     document.getElementById('location-btn')!.addEventListener('click', () => {
       const btn = document.getElementById('location-btn')!;
       const text = document.getElementById('location-text')!;
 
       if (userLocation) {
-        userLocation = null;
-        btn.classList.remove('active');
-        btn.setAttribute('aria-pressed', 'false');
-        text.textContent = 'Near me';
-        (document.getElementById('distance-info') as HTMLElement).style.display = 'none';
+        clearNearMeLocation();
+        persistDirectoryFilters();
         render();
         return;
       }
@@ -726,16 +851,9 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
 
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          btn.classList.add('active');
-          btn.setAttribute('aria-pressed', 'true');
-          text.textContent = 'Sorted by distance';
-          document.getElementById('distance-info')!.textContent = 'Sorted by distance';
-          (document.getElementById('distance-info') as HTMLElement).style.display = 'inline';
+          applyNearMeLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          persistDirectoryFilters();
           render();
-          if (map) {
-            map.setView([userLocation.lat, userLocation.lng], 13);
-          }
           if (shareApproximateArea) {
             try {
               await fetch('/api/activity/area', {
@@ -760,37 +878,30 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     });
 
     document.getElementById('list-view-btn')!.addEventListener('click', () => {
-      document.getElementById('list-view-btn')!.classList.add('active');
-      document.getElementById('map-view-btn')!.classList.remove('active');
-      document.getElementById('list-view-btn')!.setAttribute('aria-pressed', 'true');
-      document.getElementById('map-view-btn')!.setAttribute('aria-pressed', 'false');
-      document.getElementById('map-container')!.classList.remove('active');
-      document.getElementById('grid')!.classList.remove('hidden');
+      setViewMode('list');
+      persistDirectoryFilters();
     });
 
     document.getElementById('map-view-btn')!.addEventListener('click', () => {
-      document.getElementById('map-view-btn')!.classList.add('active');
-      document.getElementById('list-view-btn')!.classList.remove('active');
-      document.getElementById('map-view-btn')!.setAttribute('aria-pressed', 'true');
-      document.getElementById('list-view-btn')!.setAttribute('aria-pressed', 'false');
-      document.getElementById('map-container')!.classList.add('active');
-      document.getElementById('grid')!.classList.add('hidden');
-
-      if (!map) {
-        initMap();
-      }
-      setTimeout(() => map.invalidateSize(), 100);
-      updateMapMarkers();
+      setViewMode('map');
+      persistDirectoryFilters();
     });
 
     function initMap() {
       const center = userLocation || { lat: 32.7157, lng: -117.1611 };
+      const cartoKey = import.meta.env.PUBLIC_CARTO_API_KEY?.trim();
+      const tileUrl = cartoKey
+        ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(cartoKey)}`
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      const attribution = cartoKey
+        ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
       // @ts-ignore - Leaflet loaded via script tag
       map = L.map('map').setView([center.lat, center.lng], 12);
       // @ts-ignore
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
+      L.tileLayer(tileUrl, {
+        attribution,
+        maxZoom: 19,
       }).addTo(map);
     }
 
@@ -876,7 +987,17 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
         accountUser = null;
       }
 
+      updateAlertTextNote();
       render();
+    }
+
+    function updateAlertTextNote() {
+      const note = document.getElementById('alert-text-note');
+      if (!note) return;
+      const ready = Boolean(accountUser?.phone && accountUser?.smsOptedIn);
+      note.innerHTML = ready
+        ? `(texts go to ${accountUser.phone})`
+        : '(set up in <a href="/account/#section-preferences">My Stuff → Preferences</a>)';
     }
 
     async function loadAccountKeepingVenueInPlace(venueId: number) {
@@ -1028,6 +1149,11 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
       populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
+
+      if (!directoryFiltersRestored) {
+        restoreDirectoryFilters();
+        directoryFiltersRestored = true;
+      }
 
       await loadAccount();
       render();
@@ -1458,17 +1584,36 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
 
     document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
 
-    document.getElementById('search-input')!.addEventListener('input', () => render());
+    document.getElementById('search-input')!.addEventListener('input', () => {
+      render();
+      schedulePersistDirectoryFilters();
+    });
     document.getElementById('day-filter')!.addEventListener('change', () => {
       dayFilterInitialized = true;
       dayFilterTouched = true;
       render();
+      persistDirectoryFilters();
     });
-    document.getElementById('neighborhood-filter')!.addEventListener('change', () => render());
-    document.getElementById('deal-filter')!.addEventListener('change', () => render());
-    document.getElementById('feature-filter')!.addEventListener('change', () => render());
-    document.getElementById('status-filter')!.addEventListener('change', () => render());
-    document.getElementById('trust-filter')!.addEventListener('change', () => render());
+    document.getElementById('neighborhood-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
+    document.getElementById('deal-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
+    document.getElementById('feature-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
+    document.getElementById('status-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
+    document.getElementById('trust-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
 
     // "Save as Alert" — captures whatever's currently in the filter bar
     // (day/neighborhood/deal/feature/search) as a named, saved alert. Full
@@ -1515,6 +1660,11 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
         email: (document.getElementById('alert-channel-email') as HTMLInputElement).checked,
         text: (document.getElementById('alert-channel-text') as HTMLInputElement).checked,
       };
+      if (channels.text && !(accountUser?.phone && accountUser?.smsOptedIn)) {
+        saveAlertStatus.classList.add('error');
+        saveAlertStatus.textContent = 'Set up text alerts in My Stuff → Preferences first.';
+        return;
+      }
 
       saveAlertStatus.classList.remove('error');
       saveAlertStatus.textContent = 'Saving...';
@@ -1784,6 +1934,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     }, 30_000);
 
     window.addEventListener('pagehide', (event) => {
+      persistDirectoryFilters();
       livePromotionFeed.stop();
       // A cached document must not retain session-only codes. This call
       // redacts synchronously before its promise waits for an aborted request.

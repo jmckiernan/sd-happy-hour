@@ -148,6 +148,18 @@ import Layout from '../layouts/Layout.astro';
     .channel-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--night); text-transform: none; letter-spacing: 0; }
     .channel-check input { width: 16px; height: 16px; }
     .channel-note { color: var(--night-soft); font-size: 0.75rem; font-weight: 400; text-transform: none; }
+    .channel-note a { color: var(--ocean); font-weight: 600; }
+    .sms-status {
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.45;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+    }
+    .sms-status.is-ready { background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; }
+    .sms-status.is-pending { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
+    .sms-consent-note { color: var(--night-soft); font-size: 0.78rem; line-height: 1.45; margin: 0; }
     .alerts-list-head { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; }
     .alerts-grid { display: grid; gap: 14px; margin-top: 14px; }
     .alert-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 12px; padding: 16px; }
@@ -293,17 +305,24 @@ import Layout from '../layouts/Layout.astro';
       </section>
 
       <section class="panel" id="section-preferences">
-        <h2>Email &amp; text preferences</h2>
-        <p class="hint">Live-alert emails are always on for any alert with the Email channel checked — this is for everything else.</p>
+        <h2>Text alert setup</h2>
+        <p class="hint">Add your phone and opt in once here. Then enable the Text channel on any alert above.</p>
+        <div class="sms-status is-pending" id="sms-status" aria-live="polite"></div>
         <form id="preferences-form">
+          <label>Phone number (for text alerts) <input type="tel" name="phone" placeholder="(619) 555-0100" autocomplete="tel"></label>
+          <label style="flex-direction:row; align-items:flex-start; display:flex; gap:8px;">
+            <input type="checkbox" name="smsOptIn" style="width:16px;height:16px;margin-top:3px;">
+            <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">
+              Allow text alerts for alerts with the Text channel checked
+            </span>
+          </label>
+          <p class="sms-consent-note">
+            By opting in, you agree to receive automated happy hour alert texts from SD Happy Hours.
+            Message and data rates may apply. Max 2 texts per day. Reply STOP to opt out.
+          </p>
           <label style="flex-direction:row; align-items:center; display:flex; gap:8px;">
             <input type="checkbox" name="weeklyDigestOptIn" style="width:16px;height:16px;">
             <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">Send me the weekly happy hour email digest &amp; deals</span>
-          </label>
-          <label>Phone number (for text alerts) <input type="tel" name="phone" placeholder="(619) 555-0100"></label>
-          <label style="flex-direction:row; align-items:center; display:flex; gap:8px;">
-            <input type="checkbox" name="smsOptIn" style="width:16px;height:16px;">
-            <span style="text-transform:none; font-weight:600; color:var(--night); letter-spacing:0; font-size:0.9rem;">Allow text alerts for alerts with the Text channel checked</span>
           </label>
           <label style="flex-direction:row; align-items:flex-start; display:flex; gap:8px;">
             <input type="checkbox" name="locationAnalyticsOptIn" style="width:16px;height:16px;margin-top:3px;">
@@ -313,6 +332,7 @@ import Layout from '../layouts/Layout.astro';
           </label>
           <div class="form-actions">
             <button type="submit">Save preferences</button>
+            <button type="button" class="secondary" id="test-sms-btn" disabled>Send test text</button>
             <div class="status" id="preferences-status" aria-live="polite"></div>
           </div>
         </form>
@@ -1062,7 +1082,15 @@ import Layout from '../layouts/Layout.astro';
       };
     }
 
+    function smsTextEligible() {
+      return Boolean(currentUser?.phone && currentUser?.smsOptedIn);
+    }
+
     function channelFieldsHTML(channels: any) {
+      const eligible = smsTextEligible();
+      const textNote = eligible
+        ? '<span class="channel-note">(uses your phone from Preferences)</span>'
+        : '<span class="channel-note">(<a href="#section-preferences">Set up text alerts</a> first)</span>';
       return `
         <div class="channel-row">
           <label class="channel-check">
@@ -1071,7 +1099,7 @@ import Layout from '../layouts/Layout.astro';
           </label>
           <label class="channel-check">
             <input type="checkbox" data-field="channel-text" ${channels.text ? 'checked' : ''}>
-            Text <span class="channel-note">(needs a phone number in Preferences below)</span>
+            Text ${textNote}
           </label>
         </div>
       `;
@@ -1205,11 +1233,52 @@ import Layout from '../layouts/Layout.astro';
 
     function renderPreferences() {
       const form = document.getElementById('preferences-form') as HTMLFormElement;
+      const statusEl = document.getElementById('sms-status')!;
+      const testBtn = document.getElementById('test-sms-btn') as HTMLButtonElement;
       (form.querySelector('[name="weeklyDigestOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.weeklyDigestOptIn);
       (form.querySelector('[name="phone"]') as HTMLInputElement).value = currentUser.phone || '';
       (form.querySelector('[name="smsOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.smsOptedIn);
       (form.querySelector('[name="locationAnalyticsOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.locationAnalyticsOptIn);
+
+      const ready = smsTextEligible();
+      statusEl.classList.toggle('is-ready', ready);
+      statusEl.classList.toggle('is-pending', !ready);
+      statusEl.textContent = ready
+        ? `Text alerts are on for ${currentUser.phone}. Enable the Text channel on any alert, then use Send test text or wait for a live match.`
+        : 'Add your phone and check the opt-in box below to turn on text alerts.';
+      testBtn.disabled = !ready;
     }
+
+    document.getElementById('test-sms-btn')!.addEventListener('click', async () => {
+      const status = document.getElementById('preferences-status')!;
+      const button = document.getElementById('test-sms-btn') as HTMLButtonElement;
+      status.classList.remove('error');
+      status.textContent = 'Sending test text...';
+      button.disabled = true;
+      try {
+        const result = await postJson('/api/account/preferences/test-sms', {}, 'POST');
+        if (result.simulated) {
+          status.textContent = 'Twilio env vars are missing. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER to .env (or .env.local), then restart npm run dev:netlify.';
+        } else if (result.twilioStatus === 'delivered' || result.twilioStatus === 'sent') {
+          status.textContent = 'Test text delivered — check your phone.';
+        } else if (result.errorCode === 30032) {
+          status.classList.add('error');
+          status.textContent = 'Twilio accepted the message but delivery was blocked (error 30032): your toll-free number is not verified yet. Complete Toll-Free Verification in the Twilio Console.';
+        } else if (result.twilioStatus === 'undelivered' || result.twilioStatus === 'failed') {
+          status.classList.add('error');
+          status.textContent = result.errorMessage
+            ? `Twilio could not deliver the text (${result.errorMessage}).`
+            : `Twilio could not deliver the text (status: ${result.twilioStatus || 'unknown'}${result.errorCode ? `, code ${result.errorCode}` : ''}). Check Messaging logs in the Twilio Console.`;
+        } else {
+          status.textContent = `Twilio accepted the message (status: ${result.twilioStatus || 'queued'}). If nothing arrives in a minute, check Messaging logs in the Twilio Console.`;
+        }
+      } catch (err: any) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      } finally {
+        button.disabled = !smsTextEligible();
+      }
+    });
 
     document.getElementById('preferences-form')!.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -1228,6 +1297,8 @@ import Layout from '../layouts/Layout.astro';
         localStorage.setItem('sdhh_area_analytics_consent', locationAnalyticsEnabled ? 'v1' : 'no');
         status.textContent = 'Saved.';
         await loadAccount();
+        renderAlertsList();
+        renderCreateAlertForm();
       } catch (err: any) {
         status.classList.add('error');
         status.textContent = err.message;
