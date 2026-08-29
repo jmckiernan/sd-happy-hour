@@ -18,25 +18,34 @@ export { isCloudflareChallenge };
 export const USER_AGENT = 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)';
 
 /** Always guessed and sent to the model: home, menu, happy hour, specials. */
-export const CORE_CANDIDATE_PATHS = [
-  { path: '/specials--happy-hour', score: 50 },
-  { path: '/specials/happy-hour', score: 48 },
-  { path: '/happy-hour', score: 45 },
-  { path: '/happy-hours', score: 45 },
-  { path: '/happyhour', score: 40 },
-  { path: '/golden-hour', score: 40 },
-  { path: '/specials', score: 32 },
-  { path: '/menu', score: 28 },
-  { path: '/menus', score: 28 },
-  { path: '/list', score: 42 },
+/**
+ * Paths to try only when a site gives us nothing to follow.
+ *
+ * Deliberately short, and deliberately only real web conventions. Guessing is
+ * a last resort, not a strategy: every guess costs a fetch out of a small
+ * budget, and a long guess list starves the pages we actually found — that is
+ * how a splash-page venue whose menu PDF was linked from its homepage got
+ * reported as `no_candidates` while we 404'd through a dozen invented URLs.
+ *
+ * Venue-specific naming ("golden hour", Popmenu's `/list`, one restaurant's
+ * `/specials--happy-hour`) belongs in the link *recognizers* below, so those
+ * pages are still crawled when a site links them — which is evidence — rather
+ * than probed blindly on all 611 domains, which is not.
+ */
+export const CONVENTIONAL_CANDIDATE_PATHS = [
+  { path: '/happy-hour', score: 16 },
+  { path: '/happy-hours', score: 16 },
+  { path: '/happyhour', score: 14 },
+  { path: '/specials', score: 13 },
+  { path: '/menu', score: 12 },
+  { path: '/menus', score: 12 },
 ];
 
-const SECONDARY_PATH_HINTS = [
-  { path: '/promotions', score: 20 },
-  { path: '/offers', score: 18 },
-  { path: '/drinks', score: 12 },
-  { path: '/bar', score: 12 },
-];
+/**
+ * A discovered link at or above this score is real evidence (a sitemap entry,
+ * a nav link, a linked menu document), which makes guessing unnecessary.
+ */
+const EVIDENCE_SCORE = 20;
 
 const HOMEPAGE_PATH = '/';
 
@@ -72,7 +81,7 @@ export function isCoreCandidateUrl(url) {
   try {
     const path = new URL(url).pathname.toLowerCase();
     if (path === '/' || path === '') return true;
-    return CORE_CANDIDATE_PATHS.some((row) => path === row.path || path === `${row.path}/`);
+    return CONVENTIONAL_CANDIDATE_PATHS.some((row) => path === row.path || path === `${row.path}/`);
   } catch {
     return false;
   }
@@ -140,7 +149,9 @@ export async function fetchPageContent(url, fetchImpl = fetch, options = {}) {
   if (typeof response.visibleText === 'function') {
     visible = await response.visibleText();
   }
-  const merged = [visible, htmlText].filter((part) => part && part.trim()).join('\n\n');
+  const merged = dedupeTextLines(
+    [visible, htmlText].filter((part) => part && part.trim()).join('\n\n')
+  );
   const text = preferSpecialsSlice(merged, 80_000);
   return {
     url,
@@ -159,11 +170,46 @@ export async function fetchPageHtml(url, fetchImpl = fetch) {
   return content?.html ?? null;
 }
 
+/**
+ * Collapse repeated lines while keeping first-seen order.
+ *
+ * A rendered menu page is read once per tab we click, so the same nav, footer,
+ * and menu sections arrive many times over. Left alone, that redundancy blows
+ * past the per-page character budget and the truncation drops real menu
+ * sections — a happy-hour menu would keep its food and lose its drinks purely
+ * because the drinks came later in a pile of duplicates.
+ */
+export function dedupeTextLines(text) {
+  const seen = new Set();
+  const lines = [];
+  for (const raw of String(text || '').split('\n')) {
+    const line = raw.trim();
+    if (!line) {
+      // Keep single blank lines as block separators.
+      if (lines[lines.length - 1] !== '') lines.push('');
+      continue;
+    }
+    const key = line.toLowerCase().replace(/\s+/g, ' ');
+    // Short lines (prices, counts, "0") legitimately repeat.
+    if (key.length > 3) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
+    lines.push(line);
+  }
+  return lines.join('\n').trim();
+}
+
 export function htmlToText(html) {
   return decodeHtmlEntities(
     html
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      // We cap fetched HTML, which can cut a page mid-<script>. Without this
+      // the leftover tag never closes and a minified JS/JSON blob (Popmenu
+      // ships a ~200KB Apollo cache) survives as "page text", crowding the
+      // real menu out of the model's character budget.
+      .replace(/<(script|style)\b[^>]*>[\s\S]*$/i, ' ')
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/(p|li|div|h\d)>/gi, '\n')
       .replace(/<[^>]+>/g, ' ')
@@ -402,13 +448,6 @@ export function buildCandidateUrls(origin, discoveredLinks = [], options = {}) {
     scored.set(url, Math.max(scored.get(url) || 0, score));
   };
 
-  for (const row of CORE_CANDIDATE_PATHS) addPath(row.path, row.score);
-  if (!sitemapOnly) {
-    for (const row of SECONDARY_PATH_HINTS) addPath(row.path, row.score);
-  }
-
-  if (includeHomepage) addPath(HOMEPAGE_PATH, 12);
-
   for (const entry of discoveredLinks) {
     if (typeof entry === 'string') {
       if (HH_URL_RE.test(entry)) addPath(entry, 25);
@@ -420,6 +459,17 @@ export function buildCandidateUrls(origin, discoveredLinks = [], options = {}) {
   if (options.priorityUrl) {
     addPath(options.priorityUrl, 60);
   }
+
+  // Guess only when the site published nothing we could follow. A strong
+  // sitemap (`sitemapOnly`) is itself a full list of the site's pages, so a
+  // path missing from it does not exist.
+  const foundRealLinks = [...scored.values()].some((score) => score >= EVIDENCE_SCORE);
+  if (!foundRealLinks && !sitemapOnly) {
+    for (const row of CONVENTIONAL_CANDIDATE_PATHS) addPath(row.path, row.score);
+  }
+
+  // Above the guesses: the homepage is the one page we know exists.
+  if (includeHomepage) addPath(HOMEPAGE_PATH, 18);
 
   return [...scored.entries()]
     .sort((a, b) => b[1] - a[1])
@@ -524,6 +574,18 @@ export async function inventoryWebsite(websiteUri, options = {}) {
   const fetched = new Set();
   const queue = candidateUrls.slice(0, fetchLimit + 2);
   let sawBlock = homepageBlocked && !homepageContent?.ok;
+
+  // The homepage is the only page we know exists, and it's already fetched, so
+  // mine it for menu documents before spending the budget on guessed paths.
+  // Small single-page sites (a splash screen whose only content is a linked
+  // menu PDF, often on a CDN host) otherwise 404 through every guess and get
+  // reported as no_candidates with their menu one href away.
+  if (homepageHtml && !homepageBlocked) {
+    const homepageMedia = discoverSpecialsMedia(homepageHtml, websiteUri, 6);
+    for (const media of [...homepageMedia].reverse()) {
+      if (!queue.includes(media.url)) queue.unshift(media.url);
+    }
+  }
 
   while (queue.length && fetched.size < fetchLimit + 8) {
     const url = queue.shift();

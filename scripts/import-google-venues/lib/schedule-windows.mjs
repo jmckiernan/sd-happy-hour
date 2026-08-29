@@ -1,4 +1,5 @@
 import { DAY_NAMES } from './constants.mjs';
+import { daysFromRangeText, isGappedSubrange } from './day-ranges.mjs';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -56,6 +57,7 @@ export function normalizeWindow(raw) {
     endTime: isClock(raw.endTime) ? raw.endTime : (allDay ? '23:00' : raw.endTime),
     kind: ['happy_hour', 'late_night', 'weekly_special'].includes(raw.kind) ? raw.kind : (allDay ? 'weekly_special' : 'happy_hour'),
     ...(allDay ? { allDay: true } : {}),
+    ...(raw.startsAtOpen === true ? { startsAtOpen: true } : {}),
     ...(raw.label ? { label: String(raw.label).slice(0, 80) } : {}),
     ...(raw.location ? { location: String(raw.location).slice(0, 120) } : {}),
   };
@@ -139,13 +141,93 @@ export function endTimeFromOpenUntilQuote(text) {
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
+/**
+ * "OPEN–7PM" fixes the end of the window and says the start is whenever the
+ * doors open. startTime stays populated so time-of-day filtering still works,
+ * but `startsAtOpen` keeps us from printing a start time the venue never
+ * published — the board and listing say "Open until 7 PM" instead.
+ */
+/** Assumed length of an "open until X" window when the venue's opening time is unknown. */
+const OPEN_START_LEAD_MINUTES = 4 * 60;
+const EARLIEST_ASSUMED_OPEN = 11 * 60;
+
+function clockFromMinutes(minutes) {
+  const wrapped = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hour = Math.floor(wrapped / 60);
+  const minute = wrapped % 60;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function isOpenUntilEnd(endTime, openUntilEnd) {
+  return endTime === openUntilEnd || endTime === '23:59' || endTime === '00:00';
+}
+
+/**
+ * A source that says "OPEN–7PM" gives no start time, and models fill that gap
+ * with 00:00 — which then looks like operating hours and gets the whole window
+ * thrown away as implausible. Repair those windows *before* normalization: keep
+ * a bounded start so time-of-day filtering works, and flag `startsAtOpen` so
+ * nothing ever displays it.
+ *
+ * Runs on raw model windows, so it must not assume normalized shapes.
+ */
+export function repairOpenStartWindows(rawWindows = [], evidence = []) {
+  const openUntilEnd = endTimeFromOpenUntilQuote((evidence || []).map((row) => row.quote).join(' '));
+  if (!openUntilEnd) return rawWindows;
+
+  const assumedStart = clockFromMinutes(
+    Math.max(EARLIEST_ASSUMED_OPEN, minutesOfDay(openUntilEnd) - OPEN_START_LEAD_MINUTES)
+  );
+
+  return (rawWindows || []).map((window) => {
+    if (!window || window.allDay === true) return window;
+    if (!isOpenUntilEnd(window.endTime, openUntilEnd)) return window;
+    const startUsable = isClock(window.startTime)
+      && isPlausibleHappyHourWindow({ ...window, endTime: openUntilEnd, days: window.days || [] });
+    return {
+      ...window,
+      endTime: openUntilEnd,
+      startTime: startUsable ? window.startTime : assumedStart,
+      startsAtOpen: true,
+    };
+  });
+}
+
+/**
+ * When the evidence quote states a day range in the venue's own words
+ * ("SUNDAY - THURSDAY"), that range beats the model's day list.
+ *
+ * Models transcribe a range into an enumeration and sometimes drop an interior
+ * day, which silently hides a venue's happy hour on that day. Only interior
+ * days are filled, and only when the model's own days sit inside the quoted
+ * range and reach both of its ends — so a genuinely intermittent schedule
+ * ("Mon, Wed, Fri") is never widened into something the venue didn't say.
+ */
+export function repairDaysFromEvidence(windows = [], evidence = []) {
+  const quoted = (evidence || [])
+    .filter((row) => !row?.field || row.field === 'times')
+    .map((row) => daysFromRangeText(String(row?.quote || '')))
+    .filter((days) => Array.isArray(days) && days.length >= 3);
+  if (!quoted.length) return windows;
+
+  return (windows || []).map((window) => {
+    for (const range of quoted) {
+      if (isGappedSubrange(window?.days, range)) return { ...window, days: [...range] };
+    }
+    return window;
+  });
+}
+
 export function applyOpenUntilFromQuotes(windows = [], evidence = []) {
   const endTime = endTimeFromOpenUntilQuote((evidence || []).map((row) => row.quote).join(' '));
   if (!endTime) return windows;
   return windows.map((window) => {
     if (window.allDay) return window;
     if (window.endTime === '23:59' || window.endTime === '00:00') {
-      return { ...window, endTime };
+      return { ...window, endTime, startsAtOpen: true };
+    }
+    if (window.endTime === endTime) {
+      return { ...window, startsAtOpen: true };
     }
     return window;
   });

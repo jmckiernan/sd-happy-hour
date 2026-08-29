@@ -12,7 +12,15 @@ import {
   normalizeAiHappyHourResult,
   parseModelJson,
   normalizeMenuBoard,
+  scoreMenuRichness,
+  isSiteChrome,
 } from '../scripts/import-google-venues/lib/ai-extract.mjs';
+import {
+  classifyPrice,
+  classifyCategory,
+  classifyCategoryWithSource,
+  menuItemRows,
+} from '../scripts/import-google-venues/lib/menu-item-classify.mjs';
 import {
   flagVenue,
   compareVenueToScrape,
@@ -44,12 +52,20 @@ import {
 } from '../scripts/import-google-venues/lib/google-happy-hour.mjs';
 import { isPubliclyListed } from '../src/lib/listingVisibility.ts';
 import { isHappyHourActive, getHappyHourOccurrenceForDate } from '../src/lib/sanDiegoTime.ts';
-import { isPlausibleHappyHourWindow, normalizeWindows, endTimeFromOpenUntilQuote, applyOpenUntilFromQuotes } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
+import { isPlausibleHappyHourWindow, normalizeWindows, endTimeFromOpenUntilQuote, applyOpenUntilFromQuotes, repairOpenStartWindows } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
 import { classifyUrl, scoreMediaUrl, discoverSocialLinks, discoverSpecialsImages, discoverSpecialsMedia, sniffMediaFromBytes, anthropicMediaType, selectMenuFlyerPages } from '../scripts/import-google-venues/lib/media.mjs';
 import { pageMatchesVenueListing, isUsableVenueWebsite, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from '../scripts/import-google-venues/lib/website-ownership.mjs';
 import { venueMatchesQuery, venueSearchScore } from '../src/lib/venueSearch.ts';
-import { rasterizePdfPages } from '../scripts/import-google-venues/lib/pdf-raster.mjs';
-import { renderMenuBoardJpeg, menuBoardFromDealLines } from '../scripts/import-google-venues/lib/html-menu-flyer.mjs';
+import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-google-venues/lib/pdf-raster.mjs';
+import { buildBoardHtml } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
+import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
+import {
+  formatClock,
+  formatDays,
+  formatWindow,
+  menuBoardFromDealLines,
+} from '../scripts/import-google-venues/lib/menu-board-format.mjs';
+import { repairDaysFromEvidence } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
 import PDFDocument from 'pdfkit';
 import { cardSpecials, cardTimeLabel, shortDealLabel, venueDealLines } from '../src/lib/listingCopy.ts';
 import { buildVenueSlugMap, slugFromMap } from '../src/lib/venueSlug.ts';
@@ -219,9 +235,37 @@ function testGoldenHourAndListLinksAreDiscovered() {
   assert.ok(links.some((l) => l.path === '/list'), 'Golden Hour /list must be crawled');
   assert.ok(links.some((l) => /menu#menu=happy-hour/i.test(l.path)), 'Popmenu hash tabs must be kept');
   assert.ok(!links.some((l) => l.path === '/about'));
+  // Those paths are crawled because the site links them, not because we probe
+  // every domain for one venue's vocabulary.
   const guessed = buildCandidateUrls('https://kingfishersd.com', []);
-  assert.ok(guessed.some((url) => /\/list\/?$/.test(url)));
-  assert.ok(guessed.some((url) => /\/golden-hour\/?$/.test(url)));
+  assert.ok(!guessed.some((url) => /\/list\/?$/.test(url)));
+  assert.ok(!guessed.some((url) => /\/golden-hour\/?$/.test(url)));
+
+  const withLinks = buildCandidateUrls('https://kingfishersd.com', links);
+  assert.ok(withLinks.some((url) => /\/list\/?$/.test(url)));
+}
+
+function testGuessedPathsYieldToDiscoveredOnes() {
+  const discovered = [{ path: '/food-and-drink/happy-hour', score: 45 }];
+  const urls = buildCandidateUrls('https://example.com', discovered, { includeHomepage: false });
+  assert.equal(urls[0], 'https://example.com/food-and-drink/happy-hour');
+  // Nothing invented: a site that told us where its happy hour lives should
+  // not also be probed for /happy-hour, /specials, /menu…
+  assert.deepEqual(urls, ['https://example.com/food-and-drink/happy-hour']);
+
+  // With nothing discovered, conventional paths are still worth a try.
+  const blind = buildCandidateUrls('https://example.com', [], { includeHomepage: false });
+  assert.ok(blind.some((url) => /\/happy-hour$/.test(url)));
+  assert.ok(blind.some((url) => /\/menus?$/.test(url)));
+  assert.ok(!blind.some((url) => /\/drinks|\/bar$|\/offers|\/promotions/.test(url)));
+}
+
+function testHomepageOutranksGuessedPaths() {
+  const urls = buildCandidateUrls('https://example.com', []);
+  assert.ok(
+    isHomepageUrl(urls[0], 'https://example.com'),
+    'the homepage exists; guessed paths mostly 404 and eat the fetch budget'
+  );
 }
 
 function testMenuItemDetailUrlsAreNotCrawled() {
@@ -299,9 +343,9 @@ function testBuildCandidateUrlsSitemapOnly() {
     [{ path: '/specials/', score: 35 }],
     { sitemapOnly: true, includeHomepage: false }
   );
-  assert.ok(urls.some((u) => u.includes('/specials')));
-  assert.ok(urls.some((u) => /\/menu\/?$/.test(u)), 'menu stays in the core set even when sitemap is strong');
-  assert.ok(!urls.some((u) => u.includes('/drinks')), 'secondary guesses stay off when sitemap is strong');
+  // A strong sitemap lists the whole site, so anything absent from it is not
+  // a page we should be probing for.
+  assert.deepEqual(urls, ['https://example.com/specials/']);
 }
 
 async function testDiscoverFromSitemapLive() {
@@ -710,13 +754,19 @@ function testConstraintOnlyDealsAreNotChips() {
 }
 
 function testMenuBoardFromDealLinesRendersSpecials() {
-  const board = menuBoardFromDealLines(
-    ['$2 off beers, wine, cocktails & appetizers', '50% off wings & wine Wednesday'],
-    [{ days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], startTime: '12:00', endTime: '17:00' }]
-  );
+  const board = menuBoardFromDealLines([
+    '$2 off beers, wine, cocktails & appetizers',
+    '50% off wings & wine Wednesday',
+  ]);
   assert.equal(board.sections[0].items.length, 2);
-  const image = renderMenuBoardJpeg(board, { name: 'The Sandbox' });
-  assert.equal(image.bytes[0], 0xff);
+  assert.equal(board.fromDealChips, true);
+  const html = buildBoardHtml(board, {
+    name: 'The Sandbox',
+    windows: [{ days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], startTime: '12:00', endTime: '17:00' }],
+  });
+  assert.ok(html.includes('The Sandbox'));
+  assert.ok(html.includes('$2 off beers, wine, cocktails &amp; appetizers'));
+  assert.ok(html.includes('Mon–Fri 12–5 PM'));
 }
 
 function testShoppingMallIsUnlisted() {
@@ -749,19 +799,111 @@ function testShoppingMallIsUnlisted() {
   assert.ok(result.changed);
 }
 
-function testRenderMenuBoardJpeg() {
+function testBuildBoardHtmlUsesEveryItemAndTwelveHourTimes() {
   const board = normalizeMenuBoard({
-    hours: 'Mon all day · Tue–Fri 3–6pm',
     note: '10% off entire regular menu',
     sections: [
       { title: 'Food', items: [{ name: 'Esquites', price: '$6' }, { name: 'Chips & Queso', price: '$5' }, { name: 'Deviled Eggs', price: '$15' }] },
       { title: 'Drinks', items: [{ name: 'Vodka Highball', price: '$6' }, { name: 'All Draft Cocktails', price: '$10' }] },
     ],
   });
-  const image = renderMenuBoardJpeg(board, { name: 'Misadventure & Co' });
-  assert.equal(image.mediaType, 'image/jpeg');
-  assert.equal(image.bytes[0], 0xff);
-  assert.ok(image.bytes.length > 2000);
+  const html = buildBoardHtml(board, {
+    name: 'Misadventure & Co',
+    windows: [
+      { days: ['Monday'], allDay: true },
+      { days: ['Tuesday', 'Wednesday', 'Thursday', 'Friday'], startTime: '15:00', endTime: '18:00' },
+    ],
+  });
+  for (const item of ['Esquites', 'Chips &amp; Queso', 'Deviled Eggs', 'Vodka Highball', 'All Draft Cocktails']) {
+    assert.ok(html.includes(item), `board is missing ${item}`);
+  }
+  assert.ok(html.includes('Mon all day'));
+  assert.ok(html.includes('Tue–Fri 3–6 PM'));
+  // A generated board must never show a 24-hour clock.
+  assert.ok(!/\b(?:15|18):00\b/.test(html));
+}
+
+function testBoardHoursNeverPrintAFabricatedStart() {
+  const html = buildBoardHtml(
+    { sections: [{ title: 'Bites', items: [{ name: 'Crispy Chicken Wings', price: '$18' }, { name: 'Draft Beer', price: '$7' }] }] },
+    {
+      name: 'Kingfisher',
+      windows: [{
+        days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+        startTime: '17:00',
+        endTime: '19:00',
+        startsAtOpen: true,
+      }],
+    }
+  );
+  assert.ok(html.includes('Sun–Thu Open until 7 PM'));
+  assert.ok(!html.includes('5 PM–7 PM'));
+}
+
+function testOpenUntilWindowSurvivesWithoutAPublishedStart() {
+  const evidence = [{
+    url: 'http://kingfishersd.com/list',
+    quote: 'Golden Hour { - BAR ONLY - } SUNDAY - THURSDAY OPEN-7PM',
+    field: 'times',
+  }];
+  // A model with no start time to copy reaches for midnight, which reads as
+  // operating hours and used to get the whole window discarded.
+  const result = normalizeAiHappyHourResult({
+    found: true,
+    windows: [{
+      days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+      startTime: '00:00',
+      endTime: '23:59',
+      kind: 'happy_hour',
+      label: 'Golden Hour (Bar Only)',
+    }],
+    deals: ['$14 house cocktails'],
+    evidence,
+    confidence: 'high',
+  }, 'http://kingfishersd.com/list');
+
+  assert.equal(result.found, true);
+  assert.equal(result.windows.length, 1);
+  const [window] = result.windows;
+  assert.equal(window.endTime, '19:00');
+  assert.equal(window.startsAtOpen, true);
+  assert.ok(isPlausibleHappyHourWindow(window), 'repaired window must be plausible');
+  assert.deepEqual(window.days, ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']);
+}
+
+function testRepairOpenStartKeepsAPlausiblePublishedStart() {
+  const evidence = [{ url: 'https://example.com', quote: 'Happy hour open-6pm daily', field: 'times' }];
+  const [window] = repairOpenStartWindows(
+    [{ days: ['Monday'], startTime: '15:00', endTime: '18:00' }],
+    evidence
+  );
+  assert.equal(window.startTime, '15:00');
+  assert.equal(window.startsAtOpen, true);
+}
+
+function testMenuRichnessPrefersTheFullerMenuPage() {
+  // Popmenu's per-section permalink carries only the food half of the menu.
+  const foodOnly = 'HH FOOD\nHH BBQ Spareribs $9\nHH Jerk Wings (4) $9\n';
+  const foodAndDrinks = `${foodOnly}HH DRINKS\nCasa Margarita $13.50\nCalidad Lager $5.50\nAperol Spritz $14\n`;
+  assert.ok(scoreMenuRichness(foodAndDrinks) > scoreMenuRichness(foodOnly));
+  assert.ok(scoreMenuRichness('½ off wings and $2 off drafts') > 0);
+}
+
+function testMenuBoardFormatHelpers() {
+  assert.equal(formatClock('17:30'), '5:30 PM');
+  assert.equal(formatClock('15:00'), '3 PM');
+  assert.equal(formatClock('00:30'), '12:30 AM');
+  assert.equal(formatClock('nope'), '');
+  assert.equal(formatDays(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']), 'Mon–Fri');
+  assert.equal(formatDays(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']), 'Sun–Thu');
+  assert.equal(formatDays(['Monday', 'Wednesday', 'Friday']), 'Mon, Wed, Fri');
+  assert.equal(formatDays(['Friday', 'Saturday', 'Sunday']), 'Fri–Sun');
+  assert.equal(
+    formatDays(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']),
+    'Daily'
+  );
+  assert.equal(formatWindow({ days: ['Thursday'], startTime: '19:30', endTime: '22:00' }), 'Thu 7:30–10 PM');
+  assert.equal(formatWindow({ days: ['Monday'], startTime: '11:00', endTime: '13:00' }), 'Mon 11 AM–1 PM');
 }
 
 function testApplyScrapeRequiresEvidence() {
@@ -1188,7 +1330,156 @@ function testCatalogVenueSlugsAreUnique() {
   assert.equal(new Set(slugs).size, slugs.length);
 }
 
+function testJsonMenuExtractionRecoversUnrenderedSections() {
+  // Shape of a menu platform's API response: sections carry items, and only the
+  // section the visitor selected is ever rendered into the DOM.
+  const payload = {
+    data: {
+      menuSection: {
+        name: 'HH Drinks',
+        html: '<div>markup we must not mine for names</div>',
+        subsections: [
+          {
+            name: null,
+            enabledItems: [
+              { __typename: 'MenuItem', name: 'HH- Casa Margarita', price: 13.5, description: null },
+              { __typename: 'MenuItem', name: 'HH Calidad Lager', price: 5.5 },
+              { __typename: 'MenuItem', name: 'Sold Out Thing', price: 0 },
+            ],
+          },
+          {
+            name: 'HH Food',
+            enabledItems: [
+              { name: 'HH Elote Avocado Bites', price: 7 },
+              { name: 'HH Latin Sliders (2)', price: 9 },
+            ],
+          },
+        ],
+      },
+    },
+  };
+
+  const text = menuTextFromJsonResponses([{ url: 'https://x/graphql', body: JSON.stringify(payload) }]);
+  assert.match(text, /HH Drinks/);
+  assert.match(text, /HH- Casa Margarita \$13\.50/);
+  assert.match(text, /HH Calidad Lager \$5\.50/);
+  assert.match(text, /HH Food/);
+  assert.match(text, /HH Latin Sliders \(2\) \$9/);
+  // A zero price means unavailable, not free.
+  assert.doesNotMatch(text, /Sold Out Thing/);
+}
+
+function testJsonMenuExtractionIgnoresNonMenuJson() {
+  const analytics = { events: [{ name: 'page_view', amount: 0 }], config: { theme: { name: 'dark' } } };
+  assert.equal(menuTextFromJsonResponses([{ url: 'https://x/a', body: JSON.stringify(analytics) }]), '');
+  assert.equal(menuTextFromJsonResponses([{ url: 'https://x/a', body: 'not json' }]), '');
+}
+
+function testJsonMenuExtractionMergesRepeatedResponses() {
+  const first = { section: { name: 'Happy Hour', items: [{ name: 'Wings', price: 9 }] } };
+  const second = {
+    section: { name: 'Happy Hour', items: [{ name: 'Wings', price: 9 }, { name: 'Grilled Japanese Eggplant', displayPrice: '12' }] },
+  };
+  const text = menuTextFromJsonResponses([
+    { url: 'https://x/1', body: JSON.stringify(first) },
+    { url: 'https://x/2', body: JSON.stringify(second) },
+  ]);
+  assert.equal((text.match(/Wings/g) || []).length, 1);
+  assert.match(text, /Grilled Japanese Eggplant \$12/);
+}
+
+async function testOnlyHappyHourPdfsAreSentToVision() {
+  // A venue that publishes a happy-hour PDF publishes a separate one, so the
+  // filename alone is enough to accept it.
+  assert.equal(await pdfLooksLikeHappyHourMenu(Buffer.alloc(0), 'https://x.com/hh-menu.pdf'), true);
+  assert.equal(await pdfLooksLikeHappyHourMenu(Buffer.alloc(0), 'https://x.com/happy-hour-menu.pdf'), true);
+  assert.equal(await pdfLooksLikeHappyHourMenu(Buffer.alloc(0), 'https://x.com/dinner-menu.pdf'), false);
+
+  const doc = new PDFDocument({ size: [612, 792] });
+  const chunks = [];
+  doc.on('data', (chunk) => chunks.push(chunk));
+  const done = new Promise((resolve) => doc.on('end', resolve));
+  doc.fontSize(18).text('Cocktail List');
+  doc.fontSize(12).text('Fords Gin, Raspberry, Rose, Lemon, Soda $17');
+  doc.end();
+  await done;
+  const drinksBook = Buffer.concat(chunks);
+
+  // A regular menu with a text layer and no happy hour is not evidence, and
+  // reading it would invite a $17 cocktail to be reported as a deal.
+  assert.equal(
+    await pdfLooksLikeHappyHourMenu(drinksBook, 'https://x.com/PP-Second-Edition-2025-Menu.pdf'),
+    false
+  );
+}
+
+function testQuotedDayRangeFillsInADayTheModelDropped() {
+  const evidence = [{
+    url: 'https://kingfishersd.com/list',
+    quote: 'Golden Hour { - BAR ONLY - } SUNDAY - THURSDAY OPEN-7PM',
+    field: 'times',
+  }];
+  const [window] = repairDaysFromEvidence(
+    [{ days: ['Sunday', 'Monday', 'Wednesday', 'Thursday'], startTime: '17:00', endTime: '19:00' }],
+    evidence
+  );
+  assert.deepEqual(window.days, ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']);
+}
+
+function testQuotedDayRangeDoesNotWidenAnIntermittentSchedule() {
+  const evidence = [{ quote: 'Taco Tuesday and Wine Wednesday, 3-6pm', field: 'times' }];
+  const days = ['Tuesday', 'Wednesday'];
+  const [unchanged] = repairDaysFromEvidence([{ days, startTime: '15:00', endTime: '18:00' }], evidence);
+  assert.deepEqual(unchanged.days, days);
+
+  // Days that skip the middle of the quoted range are a real schedule, not a
+  // transcription slip, as long as they don't reach both ends.
+  const monFri = [{ quote: 'Happy hour Monday - Friday 4-6pm', field: 'times' }];
+  const [midweek] = repairDaysFromEvidence(
+    [{ days: ['Tuesday', 'Wednesday'], startTime: '16:00', endTime: '18:00' }],
+    monFri
+  );
+  assert.deepEqual(midweek.days, ['Tuesday', 'Wednesday']);
+}
+
+function testCloseIsPrintedInsteadOfTheStoredMidnightMinute() {
+  assert.equal(
+    formatWindow({ days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'], startTime: '22:00', endTime: '23:59' }),
+    'Sun–Thu 10 PM–Close'
+  );
+  assert.equal(
+    formatWindow({ days: ['Friday'], startTime: '15:00', endTime: '18:00' }),
+    'Fri 3–6 PM'
+  );
+}
+
+function testHappyHourPrefixesAreStrippedFromBoardCopy() {
+  const board = normalizeMenuBoard({
+    sections: [
+      {
+        title: 'HH Drinks',
+        items: [
+          { name: 'HH- Casa Margarita', price: '$13.50' },
+          { name: 'Happy Hour Wings', price: '$9.00' },
+          { name: 'HH', price: '$5' },
+        ],
+      },
+    ],
+  });
+  assert.equal(board.sections[0].title, 'Drinks');
+  assert.equal(board.sections[0].items[1].price, '$9');
+  assert.deepEqual(board.sections[0].items.map((item) => item.name), ['Casa Margarita', 'Wings', 'HH']);
+}
+
 const tests = [
+  testOnlyHappyHourPdfsAreSentToVision,
+  testQuotedDayRangeFillsInADayTheModelDropped,
+  testQuotedDayRangeDoesNotWidenAnIntermittentSchedule,
+  testCloseIsPrintedInsteadOfTheStoredMidnightMinute,
+  testHappyHourPrefixesAreStrippedFromBoardCopy,
+  testJsonMenuExtractionRecoversUnrenderedSections,
+  testJsonMenuExtractionIgnoresNonMenuJson,
+  testJsonMenuExtractionMergesRepeatedResponses,
   testAnthropicBillingErrorIsDetected,
   testParseClockToken,
   testDaysFromRangeText,
@@ -1203,6 +1494,8 @@ const tests = [
   testBuildCandidateUrlsSkipsHomepageForAi,
   testDiscoverHappyHourLinksFollowsSitePaths,
   testGoldenHourAndListLinksAreDiscovered,
+  testGuessedPathsYieldToDiscoveredOnes,
+  testHomepageOutranksGuessedPaths,
   testMenuItemDetailUrlsAreNotCrawled,
   testCloudflareChallengeIgnoresTurnstileOnLivePages,
   testBuildCandidateUrlsPrioritizesKnownSource,
@@ -1237,7 +1530,12 @@ const tests = [
   testConstraintOnlyDealsAreNotChips,
   testMenuBoardFromDealLinesRendersSpecials,
   testShoppingMallIsUnlisted,
-  testRenderMenuBoardJpeg,
+  testOpenUntilWindowSurvivesWithoutAPublishedStart,
+  testRepairOpenStartKeepsAPlausiblePublishedStart,
+  testMenuRichnessPrefersTheFullerMenuPage,
+  testBuildBoardHtmlUsesEveryItemAndTwelveHourTimes,
+  testBoardHoursNeverPrintAFabricatedStart,
+  testMenuBoardFormatHelpers,
   testApplyScrapeRequiresEvidence,
   testAiDealsDoNotNeedDollarSigns,
   testOvernightHappyHourIsActiveAfterMidnight,
@@ -1258,6 +1556,206 @@ const tests = [
   testSameNeighborhoodChainGetsStreetSuffix,
   testCatalogVenueSlugsAreUnique,
 ];
+
+function testMenuPricesBecomeComparableNumbers() {
+  assert.deepEqual(classifyPrice('$8'), {
+    priceKind: 'fixed', priceAmount: 8, priceAmountMax: null, discountAmount: null, discountPercent: null,
+  });
+  // "$6.00" and "$6" must not sort or group differently.
+  assert.equal(classifyPrice('$6.00').priceAmount, 6);
+
+  // Two sizes of one pour, not two items.
+  const range = classifyPrice('6/9');
+  assert.equal(range.priceKind, 'range');
+  assert.equal(range.priceAmount, 6);
+  assert.equal(range.priceAmountMax, 9);
+
+  assert.equal(classifyPrice('½ off').priceKind, 'half_off');
+  assert.equal(classifyPrice('½ off').discountPercent, 50);
+  assert.equal(classifyPrice('half off').discountPercent, 50);
+  assert.equal(classifyPrice('25% off').priceKind, 'percent_off');
+  assert.equal(classifyPrice('25% off').discountPercent, 25);
+  assert.equal(classifyPrice('$2 off draft').priceKind, 'amount_off');
+  assert.equal(classifyPrice('$2 off draft').discountAmount, 2);
+
+  // Prose with no number is recorded rather than guessed at.
+  assert.equal(classifyPrice('market price').priceKind, 'other');
+  assert.equal(classifyPrice('').priceAmount, null);
+}
+
+function testMenuItemsAreCategorizedForCrossVenueQueries() {
+  assert.equal(classifyCategory('Draft Beer'), 'beer');
+  assert.equal(classifyCategory('House Margarita'), 'cocktail');
+  assert.equal(classifyCategory('Pinot Noir'), 'wine');
+  assert.equal(classifyCategory('Grilled Japanese Eggplant'), 'food');
+  assert.equal(classifyCategory('Oysters on the half shell'), 'oysters');
+  assert.equal(classifyCategory('Mocktail'), 'na_beverage');
+
+  // Macro brands are only classifiable by name — there is no other signal
+  // under a generic "Drinks" heading.
+  assert.equal(classifyCategory('Coors Light', 'Drinks'), 'beer');
+  assert.equal(classifyCategory('Stella Artois (11.2oz)', 'Drinks'), 'beer');
+
+  // A frozen margarita is a cocktail, not a "rosé"-adjacent wine.
+  assert.equal(classifyCategory('Frozen Rosé Margarita'), 'cocktail');
+  // N/A beer is non-alcoholic before it is beer.
+  assert.equal(classifyCategory('N/A Beer'), 'na_beverage');
+
+  // The venue's own heading rescues house-invented names.
+  assert.equal(classifyCategory('Phrings', 'Food'), 'food');
+  assert.equal(classifyCategory('Corralejo', 'Tequila'), 'spirit');
+  // A price-only heading carries no signal, so the name has to decide.
+  assert.equal(classifyCategory('Onion Rings', '$3 Items'), 'food');
+  assert.equal(classifyCategory('Del Sol', 'Drinks'), 'other');
+}
+
+function testMenuRowsFlattenSectionsInReadingOrder() {
+  const rows = menuItemRows({
+    sections: [
+      { title: 'Bites', items: [{ name: 'Wings', price: '$8' }, { name: '', price: '$5' }] },
+      { title: 'Draft', items: [{ name: 'Pilsner', price: '6/9' }] },
+    ],
+  });
+  assert.equal(rows.length, 2, 'unnamed items are dropped');
+  assert.deepEqual(rows.map((row) => row.name), ['Wings', 'Pilsner']);
+  assert.deepEqual(rows.map((row) => row.sortOrder), [0, 1]);
+  assert.equal(rows[0].category, 'food');
+  assert.equal(rows[1].priceAmountMax, 9);
+}
+
+function testHouseNamedDrinksInheritTheirSectionsCategory() {
+  // "Del Sol" matches no keyword and "Drinks" is a useless heading, but the
+  // items printed next to it are cocktails.
+  const cocktails = menuItemRows({
+    sections: [{
+      title: 'Drinks',
+      items: [
+        { name: 'Watermelon Rita', price: '$10' },
+        { name: 'Classic Mojito', price: '$9' },
+        { name: 'Del Sol', price: '$7' },
+      ],
+    }],
+  });
+  assert.deepEqual(cocktails.map((row) => row.category), ['cocktail', 'cocktail', 'cocktail']);
+
+  // Same section heading, beer neighbours, so the unknown name is a beer.
+  const beers = menuItemRows({
+    sections: [{
+      title: 'Drinks',
+      items: [
+        { name: 'Coors Light', price: '$4' },
+        { name: 'Pacifico', price: '$5' },
+        { name: "Phil's Favorite of the Month", price: '$5' },
+      ],
+    }],
+  });
+  assert.equal(beers[2].category, 'beer');
+
+  // A genuinely mixed list must not be confidently mislabelled.
+  const mixed = menuItemRows({
+    sections: [{
+      title: 'Drinks',
+      items: [
+        { name: 'Draft Beer', price: '$5' },
+        { name: 'House Margarita', price: '$8' },
+        { name: 'Transfusion', price: '$7' },
+      ],
+    }],
+  });
+  assert.equal(mixed[2].category, 'other');
+
+  // One neighbour is not a majority to inherit from.
+  const lonely = menuItemRows({
+    sections: [{ title: '$9 Items', items: [{ name: 'Hot Sake', price: '$9' }, { name: 'Del Sol', price: '$9' }] }],
+  });
+  assert.equal(lonely[1].category, 'other');
+
+  // Inference never overrides an item that classified on its own name.
+  const explicit = menuItemRows({
+    sections: [{
+      title: 'Drinks',
+      items: [
+        { name: 'House Margarita', price: '$8' },
+        { name: 'Classic Mojito', price: '$9' },
+        { name: 'Draft Beer', price: '$5' },
+      ],
+    }],
+  });
+  assert.equal(explicit[2].category, 'beer');
+}
+
+function testModelCategoryFillsGapsButNeverOverridesTheItemName() {
+  // The case keyword rules cannot reach: the model read the whole menu.
+  assert.equal(classifyCategory('Del Sol', 'Drinks', 'cocktail'), 'cocktail');
+  assert.equal(classifyCategory('Cottons', 'Tuesday', 'food'), 'food');
+
+  // A verifiable name match wins, and the disagreement is reported.
+  const conflict = classifyCategoryWithSource('Draft Beer', 'Drinks', 'cocktail');
+  assert.equal(conflict.category, 'beer');
+  assert.equal(conflict.source, 'name');
+  assert.ok(conflict.modelDisagrees);
+
+  // A bare "other" from the model adds nothing the rules don't have, so the
+  // section heading still gets its turn.
+  assert.equal(classifyCategory('Phrings', 'Food', 'other'), 'food');
+  // Nor does a category we don't recognize.
+  assert.equal(classifyCategory('Del Sol', 'Drinks', 'beverage'), 'other');
+
+  const sourced = classifyCategoryWithSource('Del Sol', 'Drinks', 'cocktail');
+  assert.equal(sourced.source, 'model');
+  assert.ok(!sourced.modelDisagrees);
+
+  // Provenance survives into the rows a sync writes.
+  const rows = menuItemRows({
+    sections: [{ title: 'Drinks', items: [{ name: 'Del Sol', price: '$7', category: 'cocktail' }] }],
+  });
+  assert.equal(rows[0].category, 'cocktail');
+  assert.equal(rows[0].categorySource, 'model');
+}
+
+function testBrokenStorefrontTextNeverReachesABoard() {
+  assert.ok(isSiteChrome('You have no products in your Frontpage collection.'));
+  assert.ok(isSiteChrome('Menu | KINDRED Armory [empty page content]'));
+  assert.ok(isSiteChrome('Page not found'));
+  assert.ok(isSiteChrome('Add to cart'));
+  assert.ok(!isSiteChrome('Grilled Japanese Eggplant'));
+  assert.ok(!isSiteChrome('Deviled Eggs'));
+
+  // A board made only of chrome is no board at all.
+  assert.equal(
+    normalizeMenuBoard({
+      sections: [{
+        title: 'Specials',
+        items: [
+          { name: 'You have no products in your Frontpage collection.', price: '' },
+          { name: 'Menu | Somewhere [empty page content]', price: '' },
+        ],
+      }],
+    }),
+    null
+  );
+
+  const board = normalizeMenuBoard({
+    sections: [{
+      title: 'Specials',
+      items: [
+        { name: 'Add to cart', price: '' },
+        { name: 'Deviled Eggs', price: '$7' },
+        { name: 'Wings', price: '$9' },
+      ],
+    }],
+  });
+  assert.deepEqual(board.sections[0].items.map((item) => item.name), ['Deviled Eggs', 'Wings']);
+}
+
+tests.push(
+  testMenuPricesBecomeComparableNumbers,
+  testMenuItemsAreCategorizedForCrossVenueQueries,
+  testMenuRowsFlattenSectionsInReadingOrder,
+  testHouseNamedDrinksInheritTheirSectionsCategory,
+  testModelCategoryFillsGapsButNeverOverridesTheItemName,
+  testBrokenStorefrontTextNeverReachesABoard,
+);
 
 let failed = 0;
 for (const test of tests) {

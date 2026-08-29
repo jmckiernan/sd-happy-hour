@@ -19,7 +19,8 @@ import { extractFromInventory, hasAiExtraction, inventoryWebsite } from './lib/h
 import { compressDealsWithAi } from './lib/ai-extract.mjs';
 import { venueDealsNeedRewrite } from './lib/deals.mjs';
 import { persistMenuFlyers } from './lib/menu-flyers.mjs';
-import { renderMenuBoardJpeg, menuBoardFromDealLines } from './lib/html-menu-flyer.mjs';
+import { createMenuBoardRenderer } from './lib/menu-board-image.mjs';
+import { menuBoardFromDealLines } from './lib/menu-board-format.mjs';
 import { flagVenue, getRegistrableDomain } from './lib/venue-quality.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { createBrowserFetch, hasBrowserState } from './lib/playwright-browser.mjs';
@@ -28,6 +29,7 @@ import { SCRAPE_OUTCOMES } from './lib/scrape-outcome.mjs';
 import { applyScrape } from './lib/apply-scrape.mjs';
 import { isAnthropicBillingError } from './lib/anthropic-errors.mjs';
 import { alertOperator } from './lib/operator-alert.mjs';
+import { formatAiUsage } from './lib/ai-usage.mjs';
 
 function slugify(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -99,6 +101,8 @@ async function main() {
     ? await createBrowserFetch({ headed: process.env.PLAYWRIGHT_HEADED === '1' })
     : null;
 
+  const boardRenderer = createMenuBoardRenderer();
+
   const fetchImpl = createCachedFetch({
     browserFetch: browserSession?.fetch || null,
     refresh: options.refreshCache,
@@ -166,15 +170,24 @@ async function main() {
         if (scraped.found) {
           try {
             let flyers = [...(scraped.menuImages || [])];
-            if (!flyers.length) {
-              const board = scraped.menuBoard || menuBoardFromDealLines(scraped.deals, scraped.windows);
-              if (board) {
-                const rendered = renderMenuBoardJpeg(board, {
-                  ...venue,
-                  website: scraped.sourcePage || venue.website,
-                });
-                if (rendered?.bytes?.length) flyers = [rendered];
-              }
+            const board = scraped.menuBoard || menuBoardFromDealLines(scraped.deals);
+            // Stored so restyling the boards later is a local re-render
+            // (npm run menus:render) instead of another crawl and AI pass.
+            if (board) {
+              venue.hhMenu = {
+                ...board,
+                sourceUrl: scraped.sourcePage || venue.website || null,
+                observedAt: new Date().toISOString().slice(0, 10),
+              };
+            }
+            // A transcribed menu beats the venue's own flyer: every listing
+            // then reads the same way, in 12-hour time, at the same
+            // resolution, and can be restyled without a re-crawl. The scraped
+            // flyer is only shown when we could not transcribe one.
+            const transcribed = Boolean(scraped.menuBoard);
+            if (board && (transcribed || !flyers.length)) {
+              const rendered = await boardRenderer.render(venue.hhMenu, venue);
+              if (rendered?.bytes?.length) flyers = [rendered];
             }
             if (flyers.length) {
               const saved = await persistMenuFlyers(venue, flyers);
@@ -245,6 +258,7 @@ async function main() {
   });
 
   if (browserSession) await browserSession.close();
+  await boardRenderer.close();
   persist();
 
   if (stopReason) {
@@ -272,8 +286,9 @@ async function main() {
   for (const [outcome, count] of Object.entries(stats.byOutcome).sort((a, b) => b[1] - a[1])) {
     console.log(`  ${outcome}: ${count}`);
   }
-  if (options.apply) console.log(`Wrote ${HAPPY_HOURS_PATH}`);
-  else console.log('Dry run — pass --apply to write changes.');
+  console.log(`\n${formatAiUsage({ venues: todo.length })}`);
+  if (options.apply) console.log(`\nWrote ${HAPPY_HOURS_PATH}`);
+  else console.log('\nDry run — pass --apply to write changes.');
 }
 
 main().catch((error) => {

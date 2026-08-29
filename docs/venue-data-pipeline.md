@@ -70,6 +70,10 @@ Stored in `public/data/happy-hours.json`.
 - `dealsUnknown` — we have times but no offer lines. Display still says “Happy hour.”
 - `listingStatus` — `published` reaches browse; `unlisted` stays claimable.
 - `hhSources` / `hhConflicts` / `lastScrape` — provenance and disagreements (for example Google `12:00-02:00` vs website exchange hours).
+- `windows[].startsAtOpen` — the venue published only an end time (“Open–7PM”). `startTime` still holds a plausible clock time so filters and the live badge work, but no UI prints it; the label reads “Open until 7 PM”.
+- `windows[].endTime === '23:59'` — stand-in for “until we close”. Never printed as a clock time; boards and venue pages render “–Close”.
+- `hhMenu` — the structured board (`{ note, sections[{ title, items[{ name, price }] }] }`) behind a generated menu image. Kept so the design can change without a re-crawl.
+- `galleryImages[].generated` — true for boards we typeset. A scraped flyer always wins; generated boards are the fallback and the only images `menus:render` will replace.
 
 Homepage cards show at most three chips and pin the address/Details footer to the bottom of the row. The venue page shows the same chips (up to six) plus the weekly specials section when that data exists.
 
@@ -81,6 +85,57 @@ Homepage cards show at most three chips and pin the address/Details footer to th
 - **Venue page deal grid:** `venueDealLines()` — same chips (up to six), not a second copy of the marketing paragraph.
 - **Back link:** default is “Back to all happy hours” (`/`). If the shopper arrived from this venue’s neighborhood page, it becomes “Back to {neighborhood} happy hours.” If they arrived from another `/neighborhoods/…` URL, it becomes “Back to the neighborhoods page” and returns to that URL.
 - **Live badge:** uses `windows[]` when present, including overnight wrap and flyer-stated all-day happy hour (`allDay: true`). A 14-hour unlabeled span without `allDay` is still rejected as operating hours.
+
+---
+
+## Menus we typeset ourselves
+
+Every listing with a transcribable menu gets a board we typeset, and the board is what the page shows.
+
+- **A transcribed board replaces the venue's own flyer.** A scraped flyer is whatever the venue happened to export: a phone photo, a 24-hour clock, 900px of JPEG artifacts. Once we can read a menu into `hhMenu`, our board is more legible, uniform across 611 listings, and restylable without a re-crawl, so it wins. The scraped flyer is only shown when transcription failed — that is the fallback, not the default.
+- **Only a times-only happy hour should have no board.** If a venue publishes prices at all, a missing board is a pipeline failure to investigate, not an expected state. `npm run menus:audit` classifies every listing so that gap stays visible.
+
+- **The JSON behind the page is the source of truth, not the DOM.** Menu platforms (Popmenu, and anything else that renders client-side) ship every section in one API response and then render only the section the visitor selected. No viewport height, wait, or tab-clicking gets the rest — Tamarindo's drinks list is simply never in the DOM. The browser fetch records JSON responses and mines them shape-first: any object with a name and a price is an item, and its nearest named ancestor is the section. Zero prices mean sold out, not free. This is why a 17-item menu stopped arriving as 2 chips.
+- **A second, menu-only AI pass** runs when the main extract returns no board, on the pages ranked richest in menu text. Chips are a summary; a board should be a transcription.
+- **Every customer-facing string is formatted from our own data.** Hours come from `windows[]`, never from a model-transcribed hours line, because those are usually a 24-hour clock copied off the page. 12-hour clock only, always.
+- **Copy rules live in normalization, not in the renderer**, so `menus:render` applies rules added after the scrape: strip the `HH` / `Happy Hour` prefixes ordering platforms bake into item names, and drop `.00` so `$6` and `$6.00` don't sit in the same column.
+- **Boards are rendered in headless Chrome** at 1080px CSS width and `deviceScaleFactor: 2` (2160px PNG), which is the only way to use the site's real faces (Playfair Display + Outfit) and gradients and to stay sharp. Two columns past 14 items.
+
+```bash
+npm run menus:render                    # dry run
+npm run menus:render -- --apply         # restyle every generated board, no crawl, no AI spend
+npm run menus:render -- --apply --venue=kingfisher,385
+npm run menus:audit                     # coverage: which listings still have no board, and why
+```
+
+---
+
+## Menus as queryable data
+
+`hhMenu` renders a board; it does not answer "cocktails under $8 in North Park" without loading 611 nested documents. `npm run menus:sync` projects the same data into `happy_hour_menus` / `happy_hour_menu_items` (migration `0018`), which is indexed and full-text searchable.
+
+- **The JSON file stays the source of truth.** The tables are a rebuilt projection, never edited by hand.
+- **Deliberately separate from `menu_sections` / `menu_items` (migration `0004`).** Those are the owner's hand-authored menu, editable in the claim dashboard. Sharing tables would let a re-scrape delete an owner's work and an owner's edit corrupt the analysis corpus.
+- **A sync replaces a venue's items wholesale**, because a re-scrape is the authority on what a venue no longer offers.
+- **Prices are parsed once, in `menu-item-classify.mjs`.** Menus price things in prose (`½ off`, `6/9`, `$2 off draft`), which is fine on a board and useless in a `WHERE` clause, so that module decides what a price means and every consumer agrees. `price_text` keeps the original wording.
+- **Categories are a short food/drink split** a reader would agree with, not a cuisine taxonomy. House-invented drink names ("Del Sol") legitimately land in `other`; the venue's own section heading is the fallback signal.
+
+```bash
+npm run menus:sync                      # dry run: item counts and category coverage
+npm run menus:sync -- --apply
+npm run menus:sync -- --apply --venue=398
+```
+
+---
+
+## What a run costs
+
+The refresh prints an AI usage breakdown per pass. Measured on Haiku 4.5: **$0.012–0.023 per venue, so roughly $7–14 for a full 611-listing pass.** A text-only venue is at the low end; one with flyer images that also needs the menu-only second pass is at the high end (a 364-venue backfill came to $8.37).
+
+- **~80% of spend is the main extract call, and most of that is input tokens** — the page text we send, 11–14k tokens per venue. Output is minor; vision is close to free (half a cent for a rasterized PDF, `$0` when a listing has no media).
+- **So cost scales with venues read, not with menu complexity.** Refresh single listings; don't re-run the full catalog unless the pipeline actually changed. Boards can be restyled with `menus:render` for `$0`.
+- **Prompt caching does not help here.** The static prefix is ~1.5k tokens, under Haiku's ~2k cache minimum, and the rest of the payload differs per venue.
+- The 80k-char text cap is not the binding constraint (typical payloads are well under it), so trimming it saves little.
 
 ---
 
@@ -138,3 +193,10 @@ That listing is why `weeklySpecials` exists: one start/end pair cannot describe 
 - **Deal chips were truncated in CSS** (“tasty bites & drinks from $3 -”). Long copy is rewritten by Haiku, not clipped.
 - **“Deals not listed”** on a card with a verified window felt like a dead listing. The chip is “Happy hour.”
 - **Tests overfit a single venue.** New behavior needs a fixture that matches the rule, not only Sushi Lounge.
+- **We tried to fix client-rendered menus by driving the browser harder** — taller viewports, longer settles, clicking every tab. It never worked, because the unselected sections are not in the DOM at any point. Reading the page's own JSON responses did.
+- **A generated board printed `15:00–17:30` and `10–11:59 PM`.** Model-supplied hours strings and the internal midnight sentinel both reached customers. Boards now format hours only from `windows[]`.
+- **We guessed URL paths before reading the ones the site gave us.** Blind guesses burned the crawl budget on 404s and pushed real menu links out. Discovered links and homepage media are ranked first; the guess list is now six genuinely conventional paths, tried only when discovery finds nothing. This moved a pilot batch from 6/25 to 9/25 extracted.
+- **A 39MB cocktail book was rasterized and sent to vision.** Size was the visible problem, relevance was the real one: the PDF never mentioned happy hour. PDFs are now checked for happy-hour text before they cost anything.
+- **We assumed the bill came from menus and PDFs.** It came from page text on the main extract call, multiplied by 611 listings. Nothing was measured until the refresh started printing per-pass token usage — attribute spend before optimizing it.
+- **A model transcribed a broken storefront's error text as a menu item** ("You have no products in your Frontpage collection"). Normalization drops site chrome, and a board made only of chrome is no board.
+- **`Sunday - Thursday` became four days.** The model dropped an interior day that its own evidence quote spelled out. Quoted day ranges now repair an enumerated subset.

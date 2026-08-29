@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isCloudflareChallenge } from './website-crawl.mjs';
+import { menuTextFromJsonResponses } from './json-menu-extract.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const BROWSER_PROFILE_DIR = path.join(__dirname, '..', '..', '..', '.data', 'browser-profile');
@@ -47,7 +48,12 @@ async function launchContext(options = {}) {
   const launchArgs = ['--disable-blink-features=AutomationControlled'];
   const contextDefaults = {
     userAgent: REAL_USER_AGENT,
-    viewport: { width: 1366, height: 900 },
+    // Deliberately much taller than a real laptop: menu platforms render only
+    // the sections near the viewport and park the rest behind a "Load More"
+    // control that often isn't clickable. A tall viewport renders the whole
+    // menu up front — at 900px tall, Popmenu gave us a happy-hour menu's
+    // drinks and silently dropped its entire food section.
+    viewport: { width: 1366, height: 1600 },
     locale: 'en-US',
     timezoneId: 'America/Los_Angeles',
   };
@@ -112,6 +118,117 @@ async function dismissInterstitials(page) {
   }
 }
 
+const LOAD_MORE_TEXT = /load more|show more|view more|see more/i;
+
+/**
+ * Wait until the page's own text stops growing, then treat it as hydrated.
+ *
+ * A fixed delay is the wrong tool: too short and we transcribe half a menu as
+ * if it were the whole thing, too long and it costs every venue in the run.
+ */
+async function waitForTextToSettle(page, { timeoutMs = 6000, intervalMs = 400 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let lastLength = -1;
+  let stableRounds = 0;
+
+  while (Date.now() < deadline) {
+    let length = lastLength;
+    try {
+      length = await page.evaluate(() => (document.body?.innerText || '').length);
+    } catch {
+      return;
+    }
+    if (length === lastLength) {
+      stableRounds += 1;
+      if (stableRounds >= 2) return;
+    } else {
+      stableRounds = 0;
+      lastLength = length;
+    }
+    await page.waitForTimeout(intervalMs);
+  }
+}
+
+/** Scroll through the page so intersection-observer content renders. */
+async function scrollThroughPage(page) {
+  return page.evaluate(async () => {
+    const step = 700;
+    for (let y = 0; y < document.body.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+    window.scrollTo(0, document.body.scrollHeight);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    return document.body.scrollHeight;
+  });
+}
+
+/**
+ * Menu platforms (Popmenu especially) render only what's near the viewport and
+ * park the rest behind a "Load More Content" control — that's how an entire
+ * HH Food section goes missing from a menu we "fetched". Scroll the page and
+ * exhaust those controls before reading the text.
+ *
+ * Scrolling matters more than clicking: the control is often not a button or a
+ * link, so it can't be targeted by role, while scrolling reveals sections on
+ * any lazily-rendered menu regardless of platform.
+ */
+async function expandLazyContent(page, maxRounds = 4) {
+  let lastHeight = 0;
+
+  for (let round = 0; round < maxRounds; round += 1) {
+    let height = lastHeight;
+    try {
+      height = await scrollThroughPage(page);
+    } catch {
+      // page navigated mid-scroll
+    }
+
+    let clicked = false;
+    // Any element, not just button/a: these controls are often plain divs.
+    const more = page.getByText(LOAD_MORE_TEXT).first();
+    try {
+      if (await more.count()) {
+        await more.scrollIntoViewIfNeeded({ timeout: 1000 });
+        await more.click({ timeout: 1000 });
+        clicked = true;
+        await page.waitForTimeout(700);
+      }
+    } catch {
+      // decorative or non-interactive control; the tall viewport covers us
+    }
+
+    // Nothing new rendered and nothing left to click.
+    if (!clicked && height === lastHeight) break;
+    lastHeight = height;
+  }
+
+  return page.evaluate(() => (document.body?.innerText || '').trim());
+}
+
+const TAB_NAMES = /happy\s*hour|golden\s*hour|specials?|monday|tuesday|wednesday|thursday|friday|saturday|sunday|game day/i;
+
+/**
+ * Click each matching menu tab and read the text it reveals, expanding any
+ * lazy content behind it. Returns every tab's text joined, since a menu split
+ * across tabs is one menu.
+ */
+async function clickTabsAndExpand(page, pattern, maxTabs) {
+  const tabs = page.locator('button, [role="tab"], [role="button"], summary, a').filter({ hasText: pattern });
+  const count = Math.min(await tabs.count(), maxTabs);
+  const texts = [];
+  for (let i = 0; i < count; i += 1) {
+    try {
+      await tabs.nth(i).click({ timeout: 800 });
+      await page.waitForTimeout(300);
+      texts.push(await expandLazyContent(page));
+    } catch {
+      // not clickable, or the click navigated away from this locator
+    }
+  }
+  return texts.filter(Boolean).join('\n\n');
+}
+
 async function waitForRealContent(page, options = {}) {
   const { mode = 'content', timeoutMs = 6000, interact = true } = options;
 
@@ -143,44 +260,51 @@ async function waitForRealContent(page, options = {}) {
     // timed out — use whatever rendered
   }
 
+  // The text check above passes on server-rendered markup, but menu platforms
+  // load the actual items over XHR afterwards. Reading a half-built menu is
+  // the dangerous case, because a half-built menu looks like a complete one.
+  await waitForTextToSettle(page);
+
   if (!interact) {
     await page.waitForTimeout(400);
     return [];
   }
 
-  const tabNames = /happy\s*hour|golden\s*hour|specials?|monday|tuesday|wednesday|thursday|friday|saturday|sunday|game day|load more/i;
   const collected = [];
-  try {
-    const clickables = page.locator('button, [role="tab"], [role="button"], summary, a').filter({ hasText: tabNames });
-    const count = Math.min(await clickables.count(), 10);
-    for (let i = 0; i < count; i += 1) {
-      try {
-        await clickables.nth(i).click({ timeout: 800 });
-        await page.waitForTimeout(250);
-        const tabText = await page.evaluate(() => (document.body?.innerText || '').trim());
-        if (tabText) collected.push(tabText);
-      } catch {
-        // not clickable
+
+  /**
+   * Each phase below is independent: clicking a tab can navigate the page and
+   * invalidate every locator created before it, so one phase throwing must
+   * never cost us the text another phase would have collected.
+   */
+  const debug = process.env.SDHH_DEBUG_BROWSER === '1';
+  const phase = async (label, run) => {
+    try {
+      const text = await run();
+      if (debug) {
+        console.log(`    [phase ${label}] len=${text?.length || 0} url=${page.url()}`);
+        for (const marker of ['HH DRINKS', 'HH FOOD']) {
+          if (text && text.toUpperCase().includes(marker)) console.log(`      has ${marker}`);
+        }
       }
+      if (text) collected.push(text);
+    } catch (error) {
+      if (debug) console.log(`    [phase ${label}] failed: ${error.message.split('\n')[0]}`);
     }
-    const hhTabs = page.locator('button, [role="tab"], [role="button"], a').filter({ hasText: /happy\s*hour|golden\s*hour/i });
-    const hhCount = Math.min(await hhTabs.count(), 4);
-    for (let i = 0; i < hhCount; i += 1) {
-      try {
-        await hhTabs.nth(i).click({ timeout: 800 });
-        await page.waitForTimeout(300);
-        const tabText = await page.evaluate(() => (document.body?.innerText || '').trim());
-        if (tabText) collected.push(tabText);
-      } catch {
-        // not clickable
-      }
-    }
-  } catch {
-    // no tab UI
-  }
+  };
+
+  // Expand before clicking anything: a menu URL that already opens on the
+  // happy-hour tab needs only the lazy content revealed.
+  await phase('expand', () => expandLazyContent(page));
+
+  // Happy-hour tabs first, for the same reason.
+  await phase('hh-tabs', () => clickTabsAndExpand(page, /happy\s*hour|golden\s*hour/i, 4));
+  await phase('tabs', () => clickTabsAndExpand(page, TAB_NAMES, 10));
+
+  await phase('expand-final', () => expandLazyContent(page));
 
   await page.waitForTimeout(400);
-  return collected;
+  return collected.filter(Boolean);
 }
 
 /**
@@ -194,6 +318,21 @@ export async function createBrowserFetch(options = {}) {
     return {
       fetch: async (url, requestInit = {}) => {
         const page = await context.newPage();
+        const jsonResponses = [];
+        let jsonBudget = 4_000_000;
+        page.on('response', async (response) => {
+          if (jsonBudget <= 0) return;
+          const type = response.headers()['content-type'] || '';
+          if (!/json/i.test(type)) return;
+          try {
+            const body = await response.text();
+            if (!body || body.length > 1_500_000) return;
+            jsonBudget -= body.length;
+            jsonResponses.push({ url: response.url(), body });
+          } catch {
+            // body already discarded by the browser
+          }
+        });
         try {
           const nav = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
           const status = nav?.status() || 0;
@@ -210,7 +349,12 @@ export async function createBrowserFetch(options = {}) {
           const tabTexts = await waitForRealContent(page, { mode: waitMode });
           const html = await page.content();
           const visibleNow = await page.evaluate(() => (document.body?.innerText || '').trim());
-          const visibleText = [...(tabTexts || []), visibleNow].filter(Boolean).join('\n\n');
+          // Menu APIs answer with every section; the DOM only ever shows the
+          // selected one, so the JSON is the more complete of the two sources.
+          const jsonMenuText = menuTextFromJsonResponses(jsonResponses);
+          const visibleText = [...(tabTexts || []), visibleNow, jsonMenuText]
+            .filter(Boolean)
+            .join('\n\n');
           if (isCloudflareChallenge(html)) {
             throw new Error(
               'Cloudflare challenge active. Run: npm run browser:warm -- --auto'

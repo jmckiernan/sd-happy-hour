@@ -26,6 +26,7 @@ async function imagesFromPage(page) {
       bytes: page.bytes,
       mediaType: sniffed?.mediaType || 'image/jpeg',
       sourceUrl: page.url || null,
+      generated: Boolean(page.generated),
     }];
   }
   if (kind === 'pdf') {
@@ -59,6 +60,9 @@ export async function persistMenuFlyers(venue, mediaPages = []) {
         url: `/images/venues/${filename}`,
         caption: 'Happy hour menu',
         sourceUrl: image.sourceUrl,
+        // Boards we typeset ourselves can be re-rendered from `hhMenu`;
+        // a flyer scraped from the venue cannot.
+        ...(image.generated ? { generated: true } : {}),
       });
     }
   }

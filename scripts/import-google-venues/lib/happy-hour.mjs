@@ -1,5 +1,6 @@
 import { cleanDeals, decodeHtmlEntities, finalizeDeals } from './deals.mjs';
-import { DAY_ABBR, DAY_NAMES } from './constants.mjs';
+import { DAY_NAMES } from './constants.mjs';
+import { daysFromRangeText } from './day-ranges.mjs';
 import { sleep } from './io.mjs';
 import {
   buildVenueLocationHints,
@@ -65,47 +66,7 @@ export function parseClockToken(token) {
   return padTime(hour, minute);
 }
 
-export function daysFromRangeText(text) {
-  const lower = text.toLowerCase();
-  if (/daily|every\s*day|7\s*days|all\s*week/i.test(lower)) {
-    return [...DAY_NAMES.slice(1), DAY_NAMES[0]];
-  }
-  if (
-    /mon(?:day)?\s*(?:[-–—]|to|through)\s*(?:fri|friday)/i.test(lower)
-    || /weekdays?/i.test(lower)
-  ) {
-    return DAY_NAMES.slice(1, 6);
-  }
-  if (/mon(?:day)?\s*[-–—to]+\s*(?:sun|sunday)/i.test(lower)) {
-    return DAY_NAMES.slice(1).concat(DAY_NAMES[0]);
-  }
-
-  const dayRangeMatch = lower.match(
-    /\b(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?)\s*[-–—to]+\s*(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?)\b/i
-  );
-  if (dayRangeMatch) {
-    const startKey = dayRangeMatch[1].slice(0, 3).toLowerCase();
-    const endKey = dayRangeMatch[2].slice(0, 3).toLowerCase();
-    const startIdx = DAY_ABBR[startKey];
-    const endIdx = DAY_ABBR[endKey];
-    if (startIdx !== undefined && endIdx !== undefined) {
-      const days = [];
-      for (let i = startIdx; ; i = (i + 1) % 7) {
-        days.push(DAY_NAMES[i]);
-        if (i === endIdx) break;
-      }
-      return days;
-    }
-  }
-
-  const days = new Set();
-  for (const [abbr, index] of Object.entries(DAY_ABBR)) {
-    const re = new RegExp(`\\b${abbr}\\b`, 'i');
-    if (re.test(lower)) days.add(DAY_NAMES[index]);
-  }
-  if (days.size) return DAY_NAMES.filter((day) => days.has(day));
-  return null;
-}
+export { daysFromRangeText };
 
 export function parseTimeRange(text) {
   const match = text.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*[-–—to]+\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);

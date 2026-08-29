@@ -30,7 +30,13 @@ const pillDays = venue.windows?.length
   ? dayNames.filter((day) => venue.windows.some((window) => window.days.includes(day)))
   : venue.days;
 const dealSummary = `${venueDealLines(venue).slice(0, 2).join(', ')}. `;
-const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${dealSummary}${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
+// A window that runs from opening has no published start time, so every
+// customer-facing rendering of the primary window goes through this.
+const primaryStartsAtOpen = Boolean(venue.windows?.[0]?.startsAtOpen);
+const primaryWhen = primaryStartsAtOpen
+  ? `Open until ${formatTime(venue.endTime)}`
+  : `${formatTime(venue.startTime)}–${formatTime(venue.endTime)}`;
+const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${dealSummary}${primaryWhen}, ${venue.days.join('/')}.`;
 // The venue's own featured photo if an admin has set one, else the vibe stock
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
@@ -49,11 +55,18 @@ function formatWindowLine(window: {
   kind?: string;
   label?: string;
   allDay?: boolean;
+  startsAtOpen?: boolean;
 }) {
   const days = window.days.map((day) => day.slice(0, 3)).join(', ');
   const when = window.allDay
     ? 'All day'
-    : `${formatTime(window.startTime)}–${formatTime(window.endTime)}`;
+    : window.startsAtOpen
+      // The venue only published an end time; startTime exists for filtering.
+      ? `Open until ${formatTime(window.endTime)}`
+      // 23:59 is the pipeline's stand-in for "until we close".
+      : window.endTime === '23:59'
+        ? `${formatTime(window.startTime)}–Close`
+        : `${formatTime(window.startTime)}–${formatTime(window.endTime)}`;
   const label = window.label
     ? ` · ${window.label}`
     : window.kind === 'late_night'
@@ -554,7 +567,7 @@ function formatWindowLine(window: {
     <div class="venue-details">
       <div class="venue-card">
         <h3>Happy Hour Times</h3>
-        <p id="hh-times"><strong>{formatTime(venue.startTime)} – {formatTime(venue.endTime)}</strong></p>
+        <p id="hh-times"><strong>{primaryStartsAtOpen ? primaryWhen : `${formatTime(venue.startTime)} – ${formatTime(venue.endTime)}`}</strong></p>
         {venue.windows && venue.windows.length > 1 && (
           <ul id="hh-windows" class="hh-windows">
             {venue.windows.map((window) => (

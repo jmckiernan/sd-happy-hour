@@ -65,9 +65,43 @@ export interface Venue {
     label?: string;
     location?: string;
     allDay?: boolean;
+    /** Happy hour runs from opening, so startTime is for filtering only and
+     * must never be displayed — show "Open until <end>" instead. */
+    startsAtOpen?: boolean;
   }[];
+  /**
+   * Structured happy-hour menu, when the venue publishes one as HTML rather
+   * than a flyer we can reuse. Source of truth for the menu board images we
+   * typeset ourselves; `npm run menus:render` rebuilds them from this.
+   */
+  hhMenu?: {
+    note?: string;
+    sections: {
+      title: string;
+      items: {
+        name: string;
+        price?: string;
+        /**
+         * Coarse kind of offer, supplied by the transcription pass because it
+         * can read the whole menu. Only used to categorize the item in the
+         * database; never displayed on the board.
+         */
+        category?: string;
+      }[];
+    }[];
+    sourceUrl?: string | null;
+    observedAt?: string;
+    /** Built from the directory chips because no real menu was published. */
+    fromDealChips?: boolean;
+  };
   /** Happy-hour menu flyers scraped from the venue site, shown in the photo gallery. */
-  galleryImages?: { url: string; caption?: string; sourceUrl?: string | null }[];
+  galleryImages?: {
+    url: string;
+    caption?: string;
+    sourceUrl?: string | null;
+    /** Rendered by us from `hhMenu`, not scraped from the venue. */
+    generated?: boolean;
+  }[];
   /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
   lastScrape?: {
     outcome: string;

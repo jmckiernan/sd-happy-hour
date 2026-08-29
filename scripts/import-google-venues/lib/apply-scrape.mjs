@@ -1,5 +1,10 @@
 import { pickPrimaryWindow } from './google-happy-hour.mjs';
-import { isPlausibleHappyHourWindow, windowsEqual, applyOpenUntilFromQuotes } from './schedule-windows.mjs';
+import {
+  isPlausibleHappyHourWindow,
+  windowsEqual,
+  applyOpenUntilFromQuotes,
+  repairDaysFromEvidence,
+} from './schedule-windows.mjs';
 import { SCRAPE_OUTCOMES, buildLastScrape } from './scrape-outcome.mjs';
 import { looksLikeShoppingMall } from './venue-quality.mjs';
 import { isJunkDealLine } from './deals.mjs';
@@ -112,8 +117,11 @@ export function applyScrape(venue, scraped) {
   const fromGoogle = timesFromGoogle(venue);
   const dedicated = dedicatedHappyHourUrl(scraped.sourcePage);
   const hallWindows = scraped.multiTenant ? windowsFromTimesQuotes(scraped.evidence) : [];
-  const windows = applyOpenUntilFromQuotes(
-    hallWindows.length ? hallWindows : usableWindows(scraped),
+  const windows = repairDaysFromEvidence(
+    applyOpenUntilFromQuotes(
+      hallWindows.length ? hallWindows : usableWindows(scraped),
+      scraped.evidence
+    ),
     scraped.evidence
   );
   const canReplaceTimes = windows.length

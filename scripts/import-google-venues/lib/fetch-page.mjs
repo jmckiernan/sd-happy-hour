@@ -4,6 +4,19 @@ import { applySniffedMedia, looksLikeBinaryResponse, mediaKindFromContentType } 
 
 const MAX_TEXT_BYTES = 500_000;
 const MAX_BINARY_BYTES = 4_500_000;
+/**
+ * Menu PDFs are print artwork, routinely 20–40MB for two pages, and a venue
+ * whose only menu is one of those looked identical to a venue with no menu at
+ * all. We never send the PDF to the model — it's rasterized to JPEGs first
+ * (lib/pdf-raster.mjs) — so the cost of a big file is download and decode.
+ */
+const MAX_PDF_BYTES = 60_000_000;
+/** Above this the disk cache would grow by gigabytes across the catalog. */
+const MAX_CACHEABLE_BYTES = 8_000_000;
+
+function maxBytesFor(kind) {
+  return kind === 'pdf' ? MAX_PDF_BYTES : MAX_BINARY_BYTES;
+}
 
 function stripHtml(html) {
   return String(html || '')
@@ -54,7 +67,7 @@ async function plainFetch(url, requestInit = {}) {
     if (binary) {
       const buf = Buffer.from(await response.arrayBuffer());
       const kind = mediaKindFromContentType(contentType, url) || 'pdf';
-      const tooLarge = buf.length > MAX_BINARY_BYTES;
+      const tooLarge = buf.length > maxBytesFor(kind);
       return applySniffedMedia({
         url,
         ok: response.ok && !tooLarge && buf.length > 0,
@@ -112,14 +125,14 @@ async function browserToEntry(url, browserFetch, requestInit) {
     const kind = mediaKindFromContentType(contentType, url) || 'pdf';
     return applySniffedMedia({
       url,
-      ok: Boolean(response.ok) && buf.length > 0 && buf.length <= MAX_BINARY_BYTES,
+      ok: Boolean(response.ok) && buf.length > 0 && buf.length <= maxBytesFor(kind),
       method: 'browser',
       status: response.status || (response.ok ? 200 : 0),
       contentType,
       kind,
       html: '',
       text: '',
-      bytes: buf.length <= MAX_BINARY_BYTES ? buf : null,
+      bytes: buf.length <= maxBytesFor(kind) ? buf : null,
       blocked: false,
       reason: null,
     });
@@ -175,6 +188,7 @@ function needsBrowser(entry) {
 
 function shouldCache(entry) {
   if (entry.method !== 'browser' && (entry.status === 429 || entry.blocked)) return false;
+  if (entry.bytes && entry.bytes.length > MAX_CACHEABLE_BYTES) return false;
   return true;
 }
 
