@@ -3,6 +3,7 @@ import { getUserById, getVenueClaimByUserAndVenue, verifyVenueClaimPhoneCode } f
 import { cleanString } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
+import { publishVerifiedVenue } from '../../../../lib/venuePublishing';
 
 export const prerender = false;
 
@@ -33,6 +34,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const verified = await verifyVenueClaimPhoneCode(claim.id, code);
     if (!verified) return errorJson(['That code is incorrect or has expired. Request a new one and try again.'], 422);
+    // Same standard as the domain match in claim.ts: a code texted to the
+    // venue's own listed number proves ownership, so publish right away.
+    await publishVerifiedVenue(venueId, 'phone', user.id);
     return json(verified);
   } catch (err: any) {
     if (err?.code === '23505') {

@@ -12,7 +12,7 @@ import {
 import { listActiveListSubscriptionVenues } from './savedLists';
 import { getEnv } from './env';
 import { isVenueLive, alertMatchesVenue, formatTime, type Venue } from './venues';
-import { getMergedVenues } from './venueContent';
+import { getPublicMergedVenues } from './venueContent';
 import { listLivePromotionCampaigns, type PromotionCampaign } from './promotionRepo';
 import { getPromotionEventKey } from './notificationEvents';
 import { sendEmail } from './email';
@@ -123,7 +123,8 @@ export async function runAlertDispatch(): Promise<DispatchSummary> {
     listActiveAlertsForDispatch(),
     listActiveListSubscriptionVenues(),
     getLiveOverrides(),
-    getMergedVenues(),
+    // Public-only: never alert someone about a venue they can't find on the site.
+    getPublicMergedVenues(),
     listLivePromotionCampaigns(nowIso),
   ]);
   const liveVenues = venues.filter((venue) => isVenueLive(venue, overrides, now));

@@ -2,7 +2,7 @@
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
 import ListingFormStyles from '../../../components/ListingFormStyles.astro';
-import { getVenues, slugify } from '../../../lib/venues';
+import { getVenues, venueSlug, venuePath } from '../../../lib/venues';
 
 // The management screen a verified restaurant owner gets for their own listing:
 // hours and deals, a photo album, and a menu.
@@ -16,7 +16,7 @@ import { getVenues, slugify } from '../../../lib/venues';
 // shell is public, the data behind it is not.
 export async function getStaticPaths() {
   return getVenues().map((venue) => ({
-    params: { slug: slugify(venue.name) },
+    params: { slug: venueSlug(venue) },
     props: { venue },
   }));
 }
@@ -135,7 +135,7 @@ const { venue } = Astro.props;
     <div id="mg-editor" class="mg-hidden" data-venue-id={venue.id}>
       <h1>Manage listing: {venue.name}</h1>
       <p class="mg-sub">
-        {venue.neighborhood} · <a href={`/venues/${slugify(venue.name)}/`}>view your public page</a> ·
+        {venue.neighborhood} · <a href={venuePath(venue)}>view your public page</a> ·
         <a href="/restaurant/">manage promotions</a>
       </p>
 

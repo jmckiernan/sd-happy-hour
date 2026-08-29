@@ -5,7 +5,7 @@ import { sql, withTransaction, type QueryExecutor } from './db';
 import { getSession } from './session';
 import { getUserById } from './store';
 import { getVenueAccess, type VenueAccessRole } from './venueUsers';
-import { getVenues, slugify } from './venues';
+import { getVenues, venueSlug } from './venues';
 import { parseSanDiegoLocalDateTime } from './sanDiegoTime';
 
 export type MerchantEntitlementSource = 'legacy_paid' | 'admin_grant' | 'access_code' | 'billing';
@@ -123,7 +123,7 @@ export async function listMerchantReportVenues(
       venueId: venue.id,
       ownerUserId: row.owner_user_id,
       venueName: venue.name,
-      venueSlug: slugify(venue.name),
+      venueSlug: venueSlug(venue),
       neighborhood: venue.neighborhood,
       role: row.role,
       paid: siteAdmin || Boolean(entitlement?.active),

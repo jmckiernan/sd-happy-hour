@@ -1,5 +1,5 @@
 import type { Venue } from './venues';
-import { formatTime, slugify } from './venues';
+import { formatTime, venuePath } from './venues';
 
 export const SITE_URL = 'https://happyhoursd.com';
 export const SITE_NAME = 'SD Happy Hours';
@@ -86,7 +86,7 @@ export function itemListSchema(
 }
 
 export function venueSchema(venue: Venue, image: string, description: string): JsonLd {
-  const pageUrl = absoluteUrl(`/venues/${slugify(venue.name)}/`);
+  const pageUrl = absoluteUrl(venuePath(venue));
   const schema: JsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -109,13 +109,18 @@ export function venueSchema(venue: Venue, image: string, description: string): J
     },
     areaServed: venue.neighborhood,
     sameAs: [venue.website],
-    makesOffer: venue.deals.map((deal) => ({
+  };
+
+  // Only claim offers we can actually name — an empty makesOffer array is
+  // noise, and inventing one was the placeholder bug.
+  if (venue.deals.length) {
+    schema.makesOffer = venue.deals.map((deal) => ({
       '@type': 'Offer',
       name: deal,
       description: `${deal} during ${venue.name}'s happy hour, ${formatTime(venue.startTime)}–${formatTime(venue.endTime)} on ${venue.days.join(', ')}.`,
       url: pageUrl,
-    })),
-  };
+    }));
+  }
 
   if (venue.phone) schema.telephone = venue.phone;
   return schema;

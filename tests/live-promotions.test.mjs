@@ -158,15 +158,18 @@ test('happy hour is inactive on a different day', () => {
   assert.equal(isHappyHourActive(fridayHappyHour, new Date('2026-08-20T23:30:00Z')), false);
 });
 
-test('MVP recurring schedules reject equal or overnight windows', () => {
+test('zero-length happy-hour windows are rejected; overnight windows wrap midnight', () => {
   assert.equal(
     getHappyHourOccurrenceForDate({ ...fridayHappyHour, startTime: '18:00', endTime: '18:00' }, '2026-08-21'),
     null
   );
-  assert.equal(
-    getHappyHourOccurrenceForDate({ ...fridayHappyHour, startTime: '22:00', endTime: '02:00' }, '2026-08-21'),
-    null
+  const overnight = getHappyHourOccurrenceForDate(
+    { ...fridayHappyHour, startTime: '22:00', endTime: '02:00' },
+    '2026-08-21'
   );
+  assert.ok(overnight);
+  assert.equal(overnight.startTime, '22:00');
+  assert.equal(overnight.endTime, '02:00');
 });
 
 test('happy-hour occurrence respects the spring DST offset change', () => {

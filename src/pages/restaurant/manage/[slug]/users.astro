@@ -1,10 +1,10 @@
 ---
 export const prerender = true;
 import Layout from '../../../../layouts/Layout.astro';
-import { getVenues, slugify } from '../../../../lib/venues';
+import { getVenues, venueSlug } from '../../../../lib/venues';
 
 export function getStaticPaths() {
-  return getVenues().map((venue) => ({ params: { slug: slugify(venue.name) }, props: { venue } }));
+  return getVenues().map((venue) => ({ params: { slug: venueSlug(venue) }, props: { venue } }));
 }
 const { venue } = Astro.props;
 ---

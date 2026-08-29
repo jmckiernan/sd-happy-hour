@@ -3,6 +3,7 @@ import { getEnv } from '../env';
 import { collectDateTags, linkAndEmphasizeDates } from './dateLinks';
 import { evaluateDraftQuality } from './quality';
 import { normalizeText, slugifyContent } from './normalize';
+import { venuePath } from '../venues';
 import type { EditorialCluster, GeneratedDraft, NormalizedContentItem } from './types';
 
 export interface TextModel {
@@ -76,11 +77,14 @@ PREHEADER: one line
 ---BODY---
 Markdown newsletter body, roughly 250–500 words`;
 
-function directoryVenueUrl(name?: string | null): string | null {
+function directoryVenueUrl(name?: string | null, neighborhood?: string | null): string | null {
   if (!name) return null;
   const target = slugifyContent(name);
-  const match = (happyHours as any[]).find((venue) => slugifyContent(venue.name) === target);
-  return match ? `/venues/${target}/` : null;
+  const matches = (happyHours as any[]).filter((venue) => slugifyContent(venue.name) === target);
+  if (!matches.length) return null;
+  const hood = neighborhood ? slugifyContent(neighborhood) : '';
+  const picked = (hood && matches.find((venue) => slugifyContent(venue.neighborhood || '') === hood)) || matches[0];
+  return venuePath(picked);
 }
 
 function itemForPrompt(item: NormalizedContentItem, index: number) {
@@ -88,7 +92,7 @@ function itemForPrompt(item: NormalizedContentItem, index: number) {
     item: index + 1,
     title: item.title,
     venue: item.venueName || null,
-    internalVenueUrl: directoryVenueUrl(item.venueName),
+    internalVenueUrl: directoryVenueUrl(item.venueName, item.neighborhood || item.area),
     description: item.description,
     eventStart: item.eventStartAt || null,
     eventEnd: item.eventEndAt || null,

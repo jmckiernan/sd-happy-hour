@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { Octokit } from '@octokit/rest';
 import happyHours from '../../../public/data/happy-hours.json';
 import { getAdminUser } from '../../lib/admins';
+import { venueSlug } from '../../lib/venues';
 
 export const prerender = false;
 
@@ -45,7 +46,7 @@ function slugify(input: string): string {
 
 function findVenueData(venueSlugs: string[]) {
   return (happyHours as any[])
-    .filter((v) => venueSlugs.includes(slugify(v.name)))
+    .filter((v) => venueSlugs.includes(slugify(v.name)) || venueSlugs.includes(venueSlug(v)))
     .map((v) => ({
       name: v.name,
       neighborhood: v.neighborhood,

@@ -79,7 +79,7 @@ import Layout from '../../layouts/Layout.astro';
     <div class="admin-bar-inner">
       <div>
         <h1>Restaurant Verifications</h1>
-        <p>Approve or deny venue claims that didn't auto-verify by domain match.</p>
+        <p>Approve or deny venue claims that didn't auto-verify by domain match or phone code. Approving also publishes the venue if it isn't on the site yet.</p>
       </div>
       <div class="admin-actions">
         <span class="admin-user" id="admin-user"></span>
@@ -133,8 +133,17 @@ import Layout from '../../layouts/Layout.astro';
         ...options,
         headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error((data.errors || ['Request failed.']).join('\n'));
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+      if (!res.ok) {
+        const error = new Error((data.errors || ['Request failed.']).join('\n')) as Error & { status?: number };
+        error.status = res.status;
+        throw error;
+      }
       return data;
     }
 
@@ -164,6 +173,13 @@ import Layout from '../../layouts/Layout.astro';
           <div class="meta">
             <div><strong>Verification method:</strong> ${escapeHTML(item.verificationMethod || 'none yet')}</div>
             <div><strong>Venue website:</strong> ${item.venueWebsite ? escapeHTML(item.venueWebsite) : 'unknown'}</div>
+            <div><strong>Public listing:</strong> ${
+              item.venueListingStatus === 'unlisted' && !item.venuePublishedByClaim
+                ? 'Not on the site — approving this claim publishes it'
+                : item.venuePublishedByClaim
+                  ? 'Live (published by claim)'
+                  : 'Live (verified happy hour data)'
+            }</div>
             ${item.status === 'verified' ? `<div><strong>Reports:</strong> ${item.reportingEntitlement?.active ? `Active${item.reportingEntitlement.accessEndsAt ? ` until ${new Date(item.reportingEntitlement.accessEndsAt).toLocaleDateString()}` : ' (ongoing)'}` : 'No paid access'}</div>` : ''}
           </div>
           ${item.claimNote ? `<div class="claim-note">${escapeHTML(item.claimNote)}</div>` : ''}
@@ -176,6 +192,7 @@ import Layout from '../../layouts/Layout.astro';
           ${item.status === 'verified' ? `<div class="actions">
             <button class="report" data-report-action="grant">Grant reporting</button>
             ${item.reportingEntitlement?.active ? '<button class="report-revoke" data-report-action="revoke">Revoke reporting</button>' : ''}
+            ${item.venuePublishedByClaim ? '<button class="bad" data-action="unpublish">Unpublish venue</button>' : ''}
           </div>` : ''}
           <div class="error" aria-live="polite"></div>
         </article>
@@ -186,8 +203,12 @@ import Layout from '../../layouts/Layout.astro';
       setStatus('Loading venue claims...');
       try {
         renderRestaurants(await api('/api/admin/restaurants'));
-      } catch {
-        window.location.href = '/account/';
+      } catch (err: any) {
+        if (err?.status === 401) {
+          window.location.href = '/account/';
+          return;
+        }
+        setStatus(err?.message || 'Could not load venue claims.');
       }
     }
 
@@ -219,6 +240,9 @@ import Layout from '../../layouts/Layout.astro';
       const body: Record<string, any> = { action };
       if (action === 'deny') {
         body.denialReason = prompt('Reason for denial?') || '';
+      }
+      if (action === 'unpublish' && !confirm('Take this venue off the public site? It stays claimable.')) {
+        return;
       }
 
       try {

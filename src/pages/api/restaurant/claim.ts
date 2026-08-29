@@ -4,6 +4,7 @@ import { cleanString, extractDomain } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { getVenues } from '../../../lib/venues';
+import { publishVerifiedVenue } from '../../../lib/venuePublishing';
 
 export const prerender = false;
 
@@ -57,6 +58,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       const claim = existing
         ? await updateVenueClaim(existing.id, { status: 'verified', verificationMethod: 'domain', denialReason: null })
         : await createVenueClaim({ userId: user.id, venueId, status: 'verified', verificationMethod: 'domain' });
+      // An email on the venue's own domain is proof enough to publish: if the
+      // pipeline left this venue unlisted, the owner turning up outranks that.
+      // Manual claims are the ones that wait for admin review.
+      await publishVerifiedVenue(venueId, 'domain', user.id);
       return json({ claim, venuePhoneAvailable: Boolean(venue.phone) }, existing ? 200 : 201);
     }
 

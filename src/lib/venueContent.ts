@@ -1,11 +1,12 @@
 import type { Venue } from './venues';
-import { getVenues } from './venues';
+import { getVenues, isPubliclyListed } from './venues';
 import {
   getVenueOverride,
   getVenueOverrides,
   getVenueMenu,
   listPublishedVenuePhotos,
   listPublishedVenueGalleryPhotos,
+  listPublishedVenueIds,
   type VenueOverride,
   type VenuePhoto,
 } from './store';
@@ -144,10 +145,27 @@ export function mergeVenue(venue: Venue, override: VenueOverride | null | undefi
 
 /** Every venue with its owner's edits applied. Used by anything that reasons
  * about the venue set server-side — notably alert dispatch (lib/notify.ts),
- * which would otherwise text people the hours an owner has since corrected. */
+ * which would otherwise text people the hours an owner has since corrected.
+ *
+ * Includes unlisted venues, so callers facing the public should reach for
+ * getPublicMergedVenues() instead. The owner dashboard wants this one: an
+ * owner has to be able to see and work on a listing that isn't public yet. */
 export async function getMergedVenues(): Promise<Venue[]> {
   const overrides = await getVenueOverrides();
   return getVenues().map((venue) => mergeVenue(venue, overrides[venue.id]));
+}
+
+/** Merged venues, minus anything not cleared for public view. Resolves
+ * visibility against publication records, so a venue just cleared by a claim
+ * is included straight away rather than after the next deploy. */
+export async function getPublicMergedVenues(): Promise<Venue[]> {
+  const [overrides, publishedVenueIds] = await Promise.all([
+    getVenueOverrides(),
+    listPublishedVenueIds(),
+  ]);
+  return getVenues()
+    .filter((venue) => isPubliclyListed(venue, publishedVenueIds))
+    .map((venue) => mergeVenue(venue, overrides[venue.id]));
 }
 
 /** One venue, merged. */

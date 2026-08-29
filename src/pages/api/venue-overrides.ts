@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getVenueOverrides } from '../../lib/store';
+import { getVenueOverrides, listPublishedVenueIds } from '../../lib/store';
 import { OWNER_EDITABLE_FIELDS } from '../../lib/venueContent';
 
 export const prerender = false;
@@ -13,13 +13,21 @@ export const prerender = false;
 // Only venues an owner has actually edited appear here, so this stays small:
 // no row means "nothing to merge".
 //
+// `publishedVenueIds` rides along because it answers a question the static
+// file can't: which unlisted venues have since been cleared for the public
+// site by a verified claim, and so should be visible right now rather than
+// after the next deploy. See lib/listingVisibility.ts.
+//
 // Filtered to OWNER_EDITABLE_FIELDS on the way out rather than trusting the
 // stored patch. The patch is written through validateOwnerPatch() and so should
 // only ever contain those keys, but this response gets spread straight over a
 // venue object in the browser — a stray key from an older patch shape would
 // silently overwrite something it shouldn't.
 export const GET: APIRoute = async () => {
-  const overrides = await getVenueOverrides();
+  const [overrides, publishedVenueIds] = await Promise.all([
+    getVenueOverrides(),
+    listPublishedVenueIds(),
+  ]);
 
   const payload: Record<string, Record<string, unknown>> = {};
   for (const [venueId, override] of Object.entries(overrides)) {
@@ -30,7 +38,7 @@ export const GET: APIRoute = async () => {
     payload[venueId] = patch;
   }
 
-  return new Response(JSON.stringify({ overrides: payload }), {
+  return new Response(JSON.stringify({ overrides: payload, publishedVenueIds: [...publishedVenueIds] }), {
     status: 200,
     headers: {
       'content-type': 'application/json; charset=utf-8',

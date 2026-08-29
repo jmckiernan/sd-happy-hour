@@ -2,7 +2,7 @@
 export const prerender = true;
 import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getPostImage, getPostImageFallback, getVenueBySlug } from '../../lib/venues';
+import { getPostImage, getPostImageFallback, getVenuesForBlogSlug } from '../../lib/venues';
 
 // Newest first, matching /blog/ — so the prev/next arrows on a post walk the
 // index in the order the visitor saw it there.
@@ -23,9 +23,8 @@ const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 const wordCount = String(post.body || '').trim().split(/\s+/).filter(Boolean).length;
 const venueKeywords = post.data.venues
-  .map((slug) => getVenueBySlug(slug))
-  .filter(Boolean)
-  .flatMap((venue) => [venue!.name, `${venue!.neighborhood} happy hour`]);
+  .flatMap((slug) => getVenuesForBlogSlug(slug))
+  .flatMap((venue) => [venue.name, `${venue.neighborhood} happy hour`]);
 const keywords = ['San Diego happy hour', ...venueKeywords, ...post.data.tags, ...post.data.locations, ...post.data.brands, ...post.data.eventTypes];
 const heroImage = getPostImage(post.data.heroImage, post.data.venues, 'hero');
 const heroFallback = getPostImageFallback(post.data.heroImage, post.data.venues, 'hero');

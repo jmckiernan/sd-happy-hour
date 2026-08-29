@@ -1,6 +1,7 @@
 import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES, FEATURES } from './constants.mjs';
 import { finalizeDeals } from './deals.mjs';
 import { assignNeighborhood } from './neighborhood-assign.mjs';
+import { isUsableVenueWebsite } from './website-ownership.mjs';
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -59,7 +60,9 @@ export function normalizeVenue(record, nextId) {
   const name = record.displayName?.text || record.displayName || record.name || '';
   if (!name.trim()) return null;
   const address = record.formattedAddress || record.address;
-  const website = record.websiteUri || record.website || record.googleMapsUri;
+  const website = isUsableVenueWebsite(record.websiteUri || record.website)
+    ? (record.websiteUri || record.website)
+    : '';
   const hh = record.happyHour;
   if (!hh?.startTime || !hh?.endTime || !hh?.days?.length) return null;
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.startTime) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.endTime)) return null;
@@ -67,7 +70,6 @@ export function normalizeVenue(record, nextId) {
   const deals = finalizeDeals(hh.deals || []);
 
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
-  if (!website || !/^https?:\/\//i.test(website)) return null;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
 
   return {

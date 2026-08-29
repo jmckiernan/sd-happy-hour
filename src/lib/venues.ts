@@ -1,12 +1,21 @@
 import happyHours from '../../public/data/happy-hours.json';
+import { isPubliclyListed } from './listingVisibility';
 import { vibeImageFor } from './vibeImages';
 import type { AlertFilters, LiveOverride } from './store';
 import { isHappyHourActive } from './sanDiegoTime';
+import { DEALS_UNKNOWN_LABEL } from './listingCopy';
+import type { WeeklySpecial } from './listingCopy';
+import { slugify, buildVenueSlugMap, slugFromMap, type SlugVenue } from './venueSlug';
+
+export { slugify };
 
 export {
   getActiveHappyHourOccurrence,
   isHappyHourActive,
 } from './sanDiegoTime';
+
+export { DEALS_UNKNOWN_LABEL };
+export type { WeeklySpecial };
 
 export interface Venue {
   id: number;
@@ -23,12 +32,65 @@ export interface Venue {
   startTime: string;
   endTime: string;
   deals: string[];
+  /** Day-by-day specials that don't fit a single happy-hour window (named nights, exchanges, game day). */
+  weeklySpecials?: WeeklySpecial[];
   vibe: string;
   website: string;
   verified: boolean;
   /** Keep known test or incomplete listings available to product QA without
    * allowing them into search indexes or neighborhood discovery pages. */
   seoHidden?: boolean;
+  /**
+   * Whether this venue reaches public browse surfaces. Every establishment we
+   * know about stays in the dataset so owners can find and claim it — even
+   * ones with no happy hour at all — but only 'published' listings appear in
+   * search, the homepage, and neighborhood pages. See
+   * scripts/backfill-google-happy-hour.mjs for how this is assigned.
+   */
+  listingStatus?: 'published' | 'unlisted';
+  /** Published because an owner claimed and verified it, not because the data
+   * pipeline could substantiate it. Keeps a later backfill from re-hiding it. */
+  publishedByClaim?: boolean;
+  /** Do we have a happy-hour window we can actually stand behind? */
+  hasHappyHourData?: boolean;
+  /** We know when happy hour runs, but no source published the offers. */
+  dealsUnknown?: boolean;
+  /** Canonical schedule: one entry per distinct period (afternoon, late-night, weekday special).
+   * startTime/endTime/days stay populated as the primary window for older UI. */
+  windows?: {
+    days: string[];
+    startTime: string;
+    endTime: string;
+    kind?: 'happy_hour' | 'late_night' | 'weekly_special';
+    label?: string;
+    location?: string;
+    allDay?: boolean;
+  }[];
+  /** Happy-hour menu flyers scraped from the venue site, shown in the photo gallery. */
+  galleryImages?: { url: string; caption?: string; sourceUrl?: string | null }[];
+  /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
+  lastScrape?: {
+    outcome: string;
+    found: boolean;
+    reason: string;
+    sourceUrl: string | null;
+    candidateUrls: string[];
+    evidence: { url: string; quote: string; field: string }[];
+    locationApplicability?: string | null;
+    confidence?: string | null;
+    observedAt: string;
+  };
+  /** Where each field came from, so later runs can reason instead of guess. */
+  hhSources?: Record<string, {
+    source: string;
+    url: string | null;
+    observedAt: string | null;
+    evidence?: { url: string; quote: string; field: string }[];
+  }>;
+  /** Sources that disagreed with what we published; a human-review signal. */
+  hhConflicts?: { field: string; source: string; value: string }[];
+  /** Google Place ID, when we've matched this venue to a cached place. */
+  placeId?: string;
   // Optional metadata captured on submissions (src/pages/submit.astro) and
   // shown in the admin review queue. Older/seed venues won't have these.
   sourceUrl?: string;
@@ -47,23 +109,61 @@ export interface Venue {
   image?: string;
 }
 
-export function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+let slugsById: Map<number, string> | null = null;
+
+function slugIndex(): Map<number, string> {
+  if (!slugsById) slugsById = buildVenueSlugMap(getVenues());
+  return slugsById;
+}
+
+/** Public URL slug for a listing. Location is appended when the name is shared. */
+export function venueSlug(venue: SlugVenue): string {
+  return slugFromMap(venue, slugIndex());
+}
+
+export function venuePath(venue: SlugVenue): string {
+  return `/venues/${venueSlug(venue)}/`;
 }
 
 export function getVenues(): Venue[] {
   return happyHours as Venue[];
 }
 
+/**
+ * Unlisted venues still exist for claiming, admin, and direct links — they're
+ * just kept out of browse and discovery surfaces so we never advertise a happy
+ * hour we can't substantiate. A domain/phone self-verify or an admin-approved
+ * manual claim overrides that: see lib/listingVisibility.ts.
+ */
+export { isPubliclyListed };
+
+/**
+ * Venues that should appear in search, the homepage, and neighborhood pages.
+ *
+ * Build-time callers (prerendered pages, the sitemap) can't know about claims
+ * verified since the last deploy, so they pass nothing and get the static
+ * answer; those surfaces catch up on the deploy that publishVerifiedVenue()
+ * triggers. Runtime callers pass the publication set for the live answer.
+ */
+export function getPublicVenues(publishedVenueIds?: ReadonlySet<number> | null): Venue[] {
+  return getVenues().filter((venue) => isPubliclyListed(venue, publishedVenueIds));
+}
+
 export function getVenueById(id: number): Venue | undefined {
   return getVenues().find((venue) => venue.id === id);
 }
 
+export function getVenuesForBlogSlug(slug: string): Venue[] {
+  const venues = getVenues();
+  const exact = venues.filter((venue) => venueSlug(venue) === slug);
+  if (exact.length) return exact;
+  return venues.filter((venue) => slugify(venue.name) === slug);
+}
+
 export function getVenueBySlug(slug: string): Venue | undefined {
-  return getVenues().find((v) => slugify(v.name) === slug);
+  const matches = getVenuesForBlogSlug(slug);
+  if (matches.length === 1) return matches[0];
+  return matches.find((venue) => venueSlug(venue) === slug);
 }
 
 /**
@@ -197,7 +297,7 @@ export function getPostImage(
   // through Image CDN too means the blog index isn't loading hero-resolution
   // originals into thumbnail slots.
   if (heroImage) return throughImageCdn(heroImage, size);
-  const firstVenue = venueSlugs.map(getVenueBySlug).find((v): v is Venue => Boolean(v));
+  const firstVenue = venueSlugs.flatMap(getVenuesForBlogSlug)[0];
   return getVenueImage(firstVenue?.vibe || '', size);
 }
 

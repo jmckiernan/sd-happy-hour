@@ -1,7 +1,7 @@
 ---
 import Layout from './Layout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import { getVenueBySlug, formatTime } from '../lib/venues';
+import { getVenuesForBlogSlug, venuePath, formatTime } from '../lib/venues';
 import { articleSchema, breadcrumbSchema, withSiteName } from '../lib/seo';
 
 export interface PostLink {
@@ -40,9 +40,7 @@ export interface Props {
 
 const { title, description, pubDate, updatedDate, author, heroImage, heroFallback, venues = [], slug, wordCount, keywords = [], aiGenerated = false, metaDescription = description, ogTitle = title, ogDescription = description, tags = [], dates = [], locations = [], brands = [], eventTypes = [], sourceUrls = [], contentEngineId, prev = null, next = null } = Astro.props;
 
-const relatedVenues = venues
-  .map((slug) => getVenueBySlug(slug))
-  .filter((v): v is NonNullable<typeof v> => Boolean(v));
+const relatedVenues = venues.flatMap((slug) => getVenuesForBlogSlug(slug));
 
 const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 const resolvedImage = heroImage || '/images/backdrop.webp';
@@ -282,7 +280,7 @@ const breadcrumbs = [
       <ul>
         {relatedVenues.map((v) => (
           <li>
-            <a data-analytics-link="mentioned_venue" href={`/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/`}>
+            <a data-analytics-link="mentioned_venue" href={venuePath(v)}>
               {v.name} <span class="time">— {formatTime(v.startTime)}–{formatTime(v.endTime)}, {v.neighborhood}</span>
             </a>
           </li>

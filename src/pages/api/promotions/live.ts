@@ -6,7 +6,7 @@ import {
 } from '../../../lib/promotionDtos';
 import { getDatabaseNow, listLivePromotionCampaigns } from '../../../lib/promotionRepo';
 import { getSession } from '../../../lib/session';
-import { getMergedVenues } from '../../../lib/venueContent';
+import { getPublicMergedVenues } from '../../../lib/venueContent';
 
 export const prerender = false;
 
@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ url, cookies }) => {
   const [serverNow, session, venues] = await Promise.all([
     getDatabaseNow(),
     getSession(cookies),
-    getMergedVenues(),
+    getPublicMergedVenues(),
   ]);
   const venueById = new Map(venues.map((venue) => [venue.id, venue]));
   if (venueId !== undefined && !venueById.has(venueId)) {

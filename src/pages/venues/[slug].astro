@@ -4,7 +4,8 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import LiveDealStyles from '../../components/LiveDealStyles.astro';
-import { getVenues, slugify, formatTime, getListingImage, getVenueImage } from '../../lib/venues';
+import { getVenues, venueSlug, venuePath, slugify, formatTime, getListingImage, getVenueImage, isPubliclyListed } from '../../lib/venues';
+import { specialsByDay, occasionSpecials, venueDealLines } from '../../lib/listingCopy';
 import { neighborhoodPath } from '../../lib/neighborhoods';
 import { breadcrumbSchema, venueSchema, withSiteName } from '../../lib/seo';
 
@@ -12,7 +13,7 @@ import { breadcrumbSchema, venueSchema, withSiteName } from '../../lib/seo';
 export async function getStaticPaths() {
   const venues = getVenues();
   return venues.map((venue) => ({
-    params: { slug: slugify(venue.name) },
+    params: { slug: venueSlug(venue) },
     props: { venue },
   }));
 }
@@ -22,7 +23,14 @@ const { venue } = Astro.props;
 const posts = await getCollection('blog', ({ data }) => !data.draft && data.venues.includes(slugify(venue.name)));
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${venue.deals.slice(0, 2).join(', ')}. ${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
+const weeklyGroups = specialsByDay(venue.weeklySpecials || [], dayNames);
+const eventSpecials = occasionSpecials(venue.weeklySpecials || []);
+const hasWeeklySpecials = weeklyGroups.length > 0 || eventSpecials.length > 0;
+const pillDays = venue.windows?.length
+  ? dayNames.filter((day) => venue.windows.some((window) => window.days.includes(day)))
+  : venue.days;
+const dealSummary = `${venueDealLines(venue).slice(0, 2).join(', ')}. `;
+const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${dealSummary}${formatTime(venue.startTime)}–${formatTime(venue.endTime)}, ${venue.days.join('/')}.`;
 // The venue's own featured photo if an admin has set one, else the vibe stock
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
@@ -31,15 +39,35 @@ const breadcrumbs = [
   { name: 'Home', path: '/' },
   { name: 'Neighborhoods', path: '/neighborhoods/' },
   ...(areaPath ? [{ name: venue.neighborhood, path: areaPath }] : []),
-  { name: venue.name, path: `/venues/${slugify(venue.name)}/` },
+  { name: venue.name, path: venuePath(venue) },
 ];
+
+function formatWindowLine(window: {
+  days: string[];
+  startTime: string;
+  endTime: string;
+  kind?: string;
+  label?: string;
+  allDay?: boolean;
+}) {
+  const days = window.days.map((day) => day.slice(0, 3)).join(', ');
+  const when = window.allDay
+    ? 'All day'
+    : `${formatTime(window.startTime)}–${formatTime(window.endTime)}`;
+  const label = window.label
+    ? ` · ${window.label}`
+    : window.kind === 'late_night'
+      ? ' · late night'
+      : '';
+  return `${when} (${days})${label}`;
+}
 ---
 <Layout
   title={withSiteName(`${venue.name} Happy Hour — ${venue.neighborhood}`)}
   description={description}
   image={heroImage}
   imageAlt={`${venue.name} in ${venue.neighborhood}, San Diego`}
-  noindex={venue.seoHidden}
+  noindex={venue.seoHidden || !isPubliclyListed(venue)}
   structuredData={[venueSchema(venue, heroImage, description), breadcrumbSchema(breadcrumbs)]}
 >
   <LiveDealStyles />
@@ -171,6 +199,15 @@ const breadcrumbs = [
       padding: 8px 14px;
       border-radius: var(--radius-sm);
     }
+    /* Unknown deals are information, not an offer — never styled like one.
+       :global for the same repaint reason as .deal above. */
+    :global(.deal.deal-unknown) {
+      background: none;
+      border: 1px dashed var(--night-soft);
+      color: var(--night-soft);
+      font-weight: 500;
+      font-style: italic;
+    }
     .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
     :global(.day-pill) {
       font-size: 0.75rem;
@@ -181,6 +218,42 @@ const breadcrumbs = [
       color: var(--night-soft);
     }
     :global(.day-pill.active) { background: var(--sunset-start); color: white; }
+    .hh-windows {
+      margin: 10px 0 0;
+      padding-left: 1.15em;
+      font-size: 0.92rem;
+      color: var(--night-soft);
+    }
+    .weekly-jump {
+      margin: 12px 0 0;
+      font-size: 0.85rem;
+      color: var(--night-soft);
+    }
+    .weekly-specials {
+      max-width: 800px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+    }
+    .weekly-specials h2 { font-family: var(--font-display); margin-bottom: 8px; }
+    .weekly-specials .section-note { color: var(--night-soft); margin-bottom: 24px; }
+    .special-day {
+      border-top: 1px solid var(--sand-warm);
+      padding: 18px 0;
+    }
+    .special-day h3 {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sunset-start);
+      margin-bottom: 10px;
+    }
+    .special-item { margin-bottom: 14px; }
+    .special-item h4 { font-size: 1.05rem; margin-bottom: 4px; }
+    .special-when { font-size: 0.85rem; color: var(--night-soft); margin-bottom: 6px; }
+    .special-item ul { margin: 0; padding-left: 1.15em; }
+    .special-item li, .special-occasion p { font-size: 0.95rem; line-height: 1.45; }
+    .specials-source { margin-top: 8px; }
+    .specials-source a { color: var(--sunset-start); font-weight: 600; }
 
     .venue-actions {
       max-width: 800px;
@@ -373,12 +446,18 @@ const breadcrumbs = [
   <Breadcrumbs items={breadcrumbs} />
 
   <div class="venue-topbar">
-    <a class="back-link" href={areaPath || '/'}>← Back to {areaPath ? `${venue.neighborhood} happy hours` : 'all happy hours'}</a>
+    <a
+      class="back-link"
+      id="venue-back"
+      href="/"
+      data-area-href={areaPath || ''}
+      data-area-name={venue.neighborhood}
+    >← Back to all happy hours</a>
     <a
       class="btn-admin-edit"
       data-admin-only
       style="display:none;"
-      href={`/admin/venues/${slugify(venue.name)}/`}
+      href={`/admin/venues/${venueSlug(venue)}/`}
     >✎ Edit venue</a>
   </div>
 
@@ -462,7 +541,7 @@ const breadcrumbs = [
       <div class="live-deal-code-row" id="live-deal-code-row" hidden>
         <span class="live-deal-code-label">Deal code</span>
         <code class="live-deal-code" id="live-deal-code" hidden></code>
-        <a class="live-deal-link" id="live-deal-signin" href={`/account/?next=${encodeURIComponent(`/venues/${slugify(venue.name)}/`)}`} hidden>Sign in to see code</a>
+        <a class="live-deal-link" id="live-deal-signin" href={`/account/?next=${encodeURIComponent(venuePath(venue))}`} hidden>Sign in to see code</a>
       </div>
     </div>
   </section>
@@ -471,14 +550,21 @@ const breadcrumbs = [
        applyOwnerEdits() below if the venue's verified owner has since changed
        any of it. The ids exist for that repaint. -->
   <section class="regular-happy-hour" aria-labelledby="regular-happy-hour-heading">
-    <h2 id="regular-happy-hour-heading">Regular Happy Hour</h2>
+    <h2 id="regular-happy-hour-heading">{hasWeeklySpecials ? 'Hours & weekly specials' : 'Regular Happy Hour'}</h2>
     <div class="venue-details">
       <div class="venue-card">
         <h3>Happy Hour Times</h3>
         <p id="hh-times"><strong>{formatTime(venue.startTime)} – {formatTime(venue.endTime)}</strong></p>
+        {venue.windows && venue.windows.length > 1 && (
+          <ul id="hh-windows" class="hh-windows">
+            {venue.windows.map((window) => (
+              <li>{formatWindowLine(window)}</li>
+            ))}
+          </ul>
+        )}
         <div class="day-row" id="hh-days" style="margin-top: 12px;">
           {dayNames.map((day) => (
-            <span class={`day-pill ${venue.days.includes(day) ? 'active' : ''}`}>{day.slice(0, 3)}</span>
+            <span class={`day-pill ${pillDays.includes(day) ? 'active' : ''}`}>{day.slice(0, 3)}</span>
           ))}
         </div>
         <div class="venue-hours" id="venue-hours" style={venue.openTime && venue.closeTime ? '' : 'display:none;'}>
@@ -493,8 +579,11 @@ const breadcrumbs = [
       <div class="venue-card">
         <h3>Deals</h3>
         <div class="deal-grid" id="hh-deals">
-          {venue.deals.map((deal) => <span class="deal">{deal}</span>)}
+          {venueDealLines(venue).map((deal) => <span class="deal">{deal}</span>)}
         </div>
+        {hasWeeklySpecials && (
+          <p class="weekly-jump">Day-by-day schedule below, including Drink Exchange hours.</p>
+        )}
         <div class="tag-row" id="hh-features" style={venue.features && venue.features.length > 0 ? '' : 'display:none;'}>
           {(venue.features || []).map((f) => <span class="feature-tag">{f}</span>)}
         </div>
@@ -502,6 +591,47 @@ const breadcrumbs = [
       </div>
     </div>
   </section>
+
+  {hasWeeklySpecials && (
+    <section class="weekly-specials" aria-labelledby="weekly-specials-heading">
+      <h2 id="weekly-specials-heading">This week at {venue.name}</h2>
+      <p class="section-note">
+        Named nights, Drink Exchange hours, and game-day offers from the venue’s specials page.
+        Exchange prices move with demand — not a fixed happy-hour menu.
+      </p>
+      {weeklyGroups.map((group) => (
+        <div class="special-day">
+          <h3>{group.day}</h3>
+          {group.items.map((item) => (
+            <article class="special-item">
+              <h4>{item.label}</h4>
+              <p class="special-when">
+                {item.allDay ? 'All day' : ''}
+                {item.startTime && !item.allDay
+                  ? `${formatTime(item.startTime)}–${item.untilClose ? 'close' : formatTime(item.endTime || '')}`
+                  : ''}
+                {item.pricing === 'dynamic' ? ' · prices move with demand' : ''}
+              </p>
+              <ul>
+                {item.details.map((line) => <li>{line}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      ))}
+      {eventSpecials.map((item) => (
+        <div class="special-day special-occasion">
+          <h3>{item.label}</h3>
+          {item.details.map((line) => <p>{line}</p>)}
+        </div>
+      ))}
+      {venue.sourceUrl && (
+        <p class="specials-source">
+          <a href={venue.sourceUrl}>See the current flyers on the venue site →</a>
+        </p>
+      )}
+    </section>
+  )}
 
   <section class="venue-menu hidden" id="venue-menu" aria-label="Restaurant menu">
     <button type="button" class="menu-open" id="menu-open" aria-haspopup="dialog">View menu</button>
@@ -537,6 +667,9 @@ const breadcrumbs = [
     </div>
   )}
 
+  <div id="venue-windows" hidden data-json={JSON.stringify(venue.windows || [])}></div>
+  <div id="venue-scrape-gallery" hidden data-json={JSON.stringify(venue.galleryImages || [])}></div>
+
   <script>
     import {
       classifyDealCode,
@@ -546,6 +679,7 @@ const breadcrumbs = [
     import { createLivePromotionFeed } from '../../lib/livePromotionFeed';
     import { formatCountdown, formatSanDiegoDateTime } from '../../lib/promotionClientTime';
     import { vibeImageFor } from '../../lib/vibeImages';
+    import { venueDealLines } from '../../lib/listingCopy';
     import {
       getHappyHourOccurrenceForDate,
       getSanDiegoDayBounds,
@@ -557,6 +691,48 @@ const breadcrumbs = [
     // ---------------------------------------------------------------------
     const heroFrame = document.getElementById('hero-frame')!;
     const venueId = Number(heroFrame.dataset.venueId);
+
+    (function applyBackLink() {
+      const link = document.getElementById('venue-back') as HTMLAnchorElement | null;
+      if (!link) return;
+      const areaHref = link.dataset.areaHref || '';
+      const areaName = link.dataset.areaName || '';
+      let from = '';
+      try {
+        const referrer = new URL(document.referrer);
+        if (referrer.origin === location.origin) from = referrer.pathname;
+      } catch {
+        from = '';
+      }
+
+      if (from === '/' || from === '') {
+        link.href = '/';
+        link.textContent = '← Back to all happy hours';
+        return;
+      }
+
+      const normalized = from.endsWith('/') ? from : `${from}/`;
+      if (areaHref && (normalized === areaHref || from === areaHref.replace(/\/$/, ''))) {
+        link.href = areaHref;
+        link.textContent = `← Back to ${areaName} happy hours`;
+        return;
+      }
+
+      if (normalized === '/neighborhoods/') {
+        link.href = '/neighborhoods/';
+        link.textContent = '← Back to the neighborhoods page';
+        return;
+      }
+
+      if (normalized.startsWith('/neighborhoods/')) {
+        link.href = normalized;
+        link.textContent = '← Back to the neighborhoods page';
+        return;
+      }
+
+      link.href = '/';
+      link.textContent = '← Back to all happy hours';
+    })();
     const heroPrimaryBadge = document.getElementById('hero-primary-badge')!;
     const heroLiveDealDot = document.getElementById('hero-live-deal-dot') as HTMLElement;
     const heroPrimaryLabel = document.getElementById('hero-primary-label')!;
@@ -573,12 +749,23 @@ const breadcrumbs = [
     let promotionSnapshot = promotionFeed.getSnapshot();
     let recurringBoundaryTimer: number | null = null;
 
+    function readJsonScript(id: string) {
+      const node = document.getElementById(id);
+      try {
+        return JSON.parse(node?.getAttribute('data-json') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
     function currentSchedule() {
+      const windows = readJsonScript('venue-windows');
       return {
         id: venueId,
         days: (heroFrame.dataset.days || '').split('|').filter(Boolean),
         startTime: heroFrame.dataset.start || '',
         endTime: heroFrame.dataset.end || '',
+        ...(windows.length ? { windows } : {}),
       };
     }
 
@@ -1041,8 +1228,8 @@ const breadcrumbs = [
         heroFrame.dataset.days = listing.days.join('|');
       }
 
-      if (Array.isArray(listing.deals) && listing.deals.length) {
-        document.getElementById('hh-deals')!.innerHTML = listing.deals
+      if (Array.isArray(listing.deals)) {
+        document.getElementById('hh-deals')!.innerHTML = venueDealLines(listing)
           .map((deal: string) => `<span class="deal">${esc(deal)}</span>`)
           .join('');
       }
@@ -1091,9 +1278,14 @@ const breadcrumbs = [
     function setVenueGallery(photos: any[]) {
       venueGalleryPhotos = photos;
       const featured = heroImg.getAttribute('src') || heroImg.src;
+      const flyers = readJsonScript('venue-scrape-gallery');
       venueGallery = [
         { url: featured, caption: heroImg.alt },
         ...photos.map((photo) => ({ url: photo.url, caption: photo.caption || heroImg.alt })),
+        ...flyers.map((photo: { url: string; caption?: string }) => ({
+          url: photo.url,
+          caption: photo.caption || 'Happy hour menu',
+        })),
       ].filter((photo, index, all) => all.findIndex((candidate) => candidate.url === photo.url) === index);
       heroFrame.classList.toggle('has-gallery', venueGallery.length > 0);
     }

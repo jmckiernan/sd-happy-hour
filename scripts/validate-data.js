@@ -48,7 +48,68 @@ function validateListing(listing, label) {
   if (listing.closeTime && !isTime(listing.closeTime)) errors.push(`${label}: closeTime must be HH:MM when present.`);
   if (!isTime(listing.startTime)) errors.push(`${label}: startTime must be HH:MM.`);
   if (!isTime(listing.endTime)) errors.push(`${label}: endTime must be HH:MM.`);
-  if (!hasStringArray(listing.deals)) errors.push(`${label}: deals must be a non-empty string array.`);
+  // Deals may legitimately be empty: plenty of venues publish a happy hour
+  // without publishing the offers anywhere. Those must say so via dealsUnknown
+  // rather than carry a placeholder deal line.
+  if (listing.dealsUnknown === true) {
+    if (!Array.isArray(listing.deals) || listing.deals.some((deal) => !hasString(deal))) {
+      errors.push(`${label}: deals must be a string array when dealsUnknown is set.`);
+    }
+  } else if (!hasStringArray(listing.deals)) {
+    errors.push(`${label}: deals must be a non-empty string array unless dealsUnknown is true.`);
+  }
+  if ('dealsUnknown' in listing && typeof listing.dealsUnknown !== 'boolean') {
+    errors.push(`${label}: dealsUnknown must be boolean when present.`);
+  }
+  if ('listingStatus' in listing && !['published', 'unlisted'].includes(listing.listingStatus)) {
+    errors.push(`${label}: listingStatus must be "published" or "unlisted" when present.`);
+  }
+  if ('hasHappyHourData' in listing && typeof listing.hasHappyHourData !== 'boolean') {
+    errors.push(`${label}: hasHappyHourData must be boolean when present.`);
+  }
+  if ('publishedByClaim' in listing) {
+    if (typeof listing.publishedByClaim !== 'boolean') {
+      errors.push(`${label}: publishedByClaim must be boolean when present.`);
+    } else if (listing.publishedByClaim && listing.listingStatus === 'unlisted') {
+      errors.push(`${label}: publishedByClaim cannot be set on an unlisted venue.`);
+    }
+  }
+  if ('windows' in listing) {
+    const windowsValid = Array.isArray(listing.windows) && listing.windows.every(
+      (w) => (w?.allDay === true || (isTime(w?.startTime) && isTime(w?.endTime)))
+        && hasStringArray(w?.days) && w.days.every((day) => validDays.has(day)),
+    );
+    if (!windowsValid) errors.push(`${label}: windows must be {days, startTime, endTime} entries.`);
+  }
+  if ('galleryImages' in listing) {
+    const galleryValid = Array.isArray(listing.galleryImages) && listing.galleryImages.every(
+      (row) => hasString(row?.url) && /^(\/[^/]|https?:\/\/)/i.test(row.url)
+    );
+    if (!galleryValid) errors.push(`${label}: galleryImages must be {url} entries when present.`);
+  }
+  if ('weeklySpecials' in listing) {
+    const kinds = new Set(['named_night', 'exchange', 'fixed_price', 'food', 'venue_note', 'event']);
+    const specialsValid = Array.isArray(listing.weeklySpecials) && listing.weeklySpecials.every((row) => {
+      const hasDays = Array.isArray(row?.days) && row.days.every((day) => validDays.has(day));
+      const occasionOk = !row.days?.length ? Boolean(row.occasion) : true;
+      return hasString(row?.id) && hasString(row?.label) && hasString(row?.summary)
+        && kinds.has(row?.kind) && hasDays && occasionOk
+        && Array.isArray(row?.details) && row.details.every(hasString);
+    });
+    if (!specialsValid) {
+      errors.push(`${label}: weeklySpecials must include id, label, kind, summary, details, and days (or an occasion).`);
+    }
+  }
+  if ('lastScrape' in listing) {
+    const scrape = listing.lastScrape;
+    if (!scrape || typeof scrape !== 'object') {
+      errors.push(`${label}: lastScrape must be an object when present.`);
+    } else {
+      if (typeof scrape.found !== 'boolean') errors.push(`${label}: lastScrape.found must be boolean.`);
+      if (!hasString(scrape.outcome)) errors.push(`${label}: lastScrape.outcome is required.`);
+      if (!hasString(scrape.observedAt)) errors.push(`${label}: lastScrape.observedAt is required.`);
+    }
+  }
   if (!hasString(listing.vibe)) errors.push(`${label}: vibe is required.`);
   if (!isUrl(listing.website)) errors.push(`${label}: website must be an http(s) URL.`);
   if (typeof listing.verified !== 'boolean') errors.push(`${label}: verified must be boolean.`);

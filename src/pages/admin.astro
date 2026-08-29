@@ -2,6 +2,11 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import ListingFormStyles from '../components/ListingFormStyles.astro';
+import { getVenues, venueSlug } from '../lib/venues';
+
+const venueSlugByNameAndHood = Object.fromEntries(
+  getVenues().map((venue) => [`${venue.name}||${venue.neighborhood}`, venueSlug(venue)])
+);
 ---
 <Layout title="Submission Review | SD Happy Hours Admin" description="Review, approve, or deny happy hour submissions.">
   <ListingFormStyles />
@@ -165,6 +170,10 @@ import ListingFormStyles from '../components/ListingFormStyles.astro';
     <div id="submissions"></div>
   </main>
 
+  <script define:vars={{ venueSlugByNameAndHood }}>
+    window.__venueSlugByNameAndHood = venueSlugByNameAndHood;
+  </script>
+
   <script>
     import { listingFormHTML, readListingForm, wireListingImageControls, previewSrc } from '../lib/listingForm';
     import { vibeImageFor } from '../lib/vibeImages';
@@ -246,7 +255,8 @@ import ListingFormStyles from '../components/ListingFormStyles.astro';
      * action buttons live in .submission-body, which the toggle reveals. */
     function submissionCard(item: any) {
       const expanded = expandedIds.has(item.id);
-      const slug = slugify(item.listing.name);
+      const slugMap = (window as any).__venueSlugByNameAndHood || {};
+      const slug = slugMap[`${item.listing.name}||${item.listing.neighborhood}`] || slugify(item.listing.name);
       const image = item.listing.image;
 
       return `

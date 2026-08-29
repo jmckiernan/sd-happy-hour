@@ -3,7 +3,7 @@ import { errorJson, json } from '../../../../lib/api';
 import { getSession } from '../../../../lib/session';
 import { getUserById } from '../../../../lib/store';
 import { acceptVenueInvite, getVenueInviteByToken } from '../../../../lib/venueUsers';
-import { getVenueById, slugify } from '../../../../lib/venues';
+import { getVenueById, venueSlug } from '../../../../lib/venues';
 
 export const prerender = false;
 
@@ -17,7 +17,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
     invite: { email: invite.email, role: invite.role, expiresAt: invite.expiresAt, acceptedAt: invite.acceptedAt, revokedAt: invite.revokedAt },
     authenticated: Boolean(user),
     signedInEmail: user?.email || '',
-    venue: venue ? { name: venue.name, slug: slugify(venue.name) } : null,
+    venue: venue ? { name: venue.name, slug: venueSlug(venue) } : null,
   });
 };
 
@@ -30,5 +30,5 @@ export const POST: APIRoute = async ({ params, cookies }) => {
   if (!result) return errorJson(['This invitation is invalid, expired, accepted, or revoked.'], 410);
   if (result.mismatch) return errorJson([`This invitation was sent to ${result.invite.email}. Sign in with that exact email.`], 403);
   const venue = getVenueById(result.invite.venueId);
-  return json({ accepted: true, venueSlug: venue ? slugify(venue.name) : null });
+  return json({ accepted: true, venueSlug: venue ? venueSlug(venue) : null });
 };

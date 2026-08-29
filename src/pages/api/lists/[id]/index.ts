@@ -8,12 +8,9 @@ import {
   recordHappyHourListActivity,
   updateHappyHourList,
 } from '../../../../lib/sharedLists';
+import { venueSlug } from '../../../../lib/venues';
 
 export const prerender = false;
-
-function venueSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
 
 export const GET: APIRoute = async ({ params, url, cookies }) => {
   const session = await getSession(cookies);
@@ -38,7 +35,7 @@ export const GET: APIRoute = async ({ params, url, cookies }) => {
         createdAt: item.createdAt,
         feedback: item.feedback,
         myFeedback: item.myFeedback,
-        venue: { ...venue, slug: venueSlug(venue.name) },
+        venue: { ...venue, slug: venueSlug(venue) },
       };
     })
     .filter(Boolean);

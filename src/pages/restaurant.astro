@@ -157,6 +157,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         <p class="status claim-listing-help">
           Signing in with an email at your restaurant's own website domain verifies you instantly.
           Otherwise verify by phone (if we have a number on file) or submit for manual review.
+          Venues that are not on the public site yet (no verified happy hour) still appear here so you can claim them.
         </p>
         <label for="venue-search" class="hidden">Search restaurants</label>
         <input type="search" id="venue-search" placeholder="Search by restaurant name…" autocomplete="off">
@@ -1472,7 +1473,11 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
               <strong>${escapeHTML(venue.name)}</strong>
               <span>${escapeHTML(venue.neighborhood)} · ${escapeHTML(venue.address)}</span>
             </span>
-            ${venue.alreadyClaimed ? '<span class="tag">Claimed</span>' : '<span class="tag">Claim</span>'}
+            ${venue.alreadyClaimed
+              ? '<span class="tag">Claimed</span>'
+              : venue.listingStatus === 'unlisted'
+                ? '<span class="tag">Not on the public site yet</span>'
+                : '<span class="tag">Claim</span>'}
           </button>
         `).join('') || '<div class="status">No matches.</div>';
       } catch {

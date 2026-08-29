@@ -3,7 +3,7 @@ import type { PromotionEntitlement } from './promotionEntitlements';
 import type { PromotionCampaign } from './promotionRepo';
 import { getEffectivePromotionEnd, getPromotionState, type PromotionState } from './promotionState';
 import { PromotionServiceError } from './promotionService';
-import { getListingImage, slugify, type Venue } from './venues';
+import { getListingImage, venueSlug, type Venue } from './venues';
 
 export interface PromotionActionsDto {
   update: boolean;
@@ -123,7 +123,7 @@ export function toPublicPromotionDto(
     venue: {
       id: venue.id,
       name: venue.name,
-      slug: slugify(venue.name),
+      slug: venueSlug(venue),
       neighborhood: venue.neighborhood,
       image: getListingImage(venue, 'card'),
       imageOriginal: venue.image || '',

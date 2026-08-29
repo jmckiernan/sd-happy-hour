@@ -255,6 +255,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       formatSanDiegoDateTime,
     } from '../lib/promotionClientTime';
     import { getListingImage } from '../lib/venues';
+    import { isPubliclyListed } from '../lib/listingVisibility';
 
     let baseVenues: any[] = [];
     let venues: any[] = [];
@@ -282,16 +283,22 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       return venues.find((venue) => venue.id === venueId);
     }
 
+    /** Owner edits laid over the static record, minus anything not cleared for
+     * public browse. The visibility filter runs here rather than on the raw
+     * file so a self-verified claim or an admin approval publishes immediately
+     * — see the matching note in index.astro. */
     async function mergeOwnerEdits(directory: any[], failureFallback = directory) {
       try {
         const response = await fetch('/api/venue-overrides', { cache: 'no-store' });
         if (!response.ok) return failureFallback;
-        const { overrides } = await response.json();
-        if (!overrides) return directory;
-        return directory.map((venue) => {
-          const patch = overrides[String(venue.id)];
-          return patch ? { ...venue, ...patch } : venue;
-        });
+        const { overrides, publishedVenueIds } = await response.json();
+        const published = new Set<number>(publishedVenueIds || []);
+        return directory
+          .filter((venue) => isPubliclyListed(venue, published))
+          .map((venue) => {
+            const patch = overrides?.[String(venue.id)];
+            return patch ? { ...venue, ...patch } : venue;
+          });
       } catch {
         return failureFallback;
       }
@@ -302,7 +309,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         const response = await fetch('/data/happy-hours.json');
         if (!response.ok) return;
         baseVenues = await response.json();
-        venues = await mergeOwnerEdits(baseVenues);
+        venues = await mergeOwnerEdits(
+          baseVenues,
+          baseVenues.filter((venue) => isPubliclyListed(venue)),
+        );
         venueDirectoryLoaded = true;
         render();
       } catch {

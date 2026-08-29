@@ -535,6 +535,57 @@ export async function listVerifiedClaimedVenueIds(): Promise<Set<number>> {
   return new Set(rows.map((r) => r.venue_id));
 }
 
+// =============================================================================
+// Venue publications — clearance to appear on the public site
+// =============================================================================
+
+export type VenuePublicationSource = 'domain' | 'phone' | 'admin';
+
+// Venues cleared for the public site (migrations/0017). Only covers ones the
+// data pipeline left unlisted; everything else is visible on its own evidence.
+// Read on every public page load through /api/venue-overrides, so it stays a
+// whole-table fetch of a small table (mirrors getLiveOverrides()'s pattern).
+export async function listPublishedVenueIds(): Promise<Set<number>> {
+  try {
+    const rows = await sql<{ venue_id: number }>`SELECT venue_id FROM venue_publications`;
+    return new Set(rows.map((r) => r.venue_id));
+  } catch (error: any) {
+    // Pending claims and the public catalog must still load if this
+    // migration hasn't been applied to the database the app is using.
+    const message = String(error?.message || error?.cause?.message || '');
+    if (error?.code === '42P01' || /venue_publications/i.test(message)) {
+      console.warn('venue_publications is missing — run npm run migrate');
+      return new Set();
+    }
+    throw error;
+  }
+}
+
+/** Idempotent, so re-verifying or re-approving is harmless. A later source
+ * overwrites an earlier one, which keeps the record showing how the venue is
+ * currently justified rather than how it first got there. */
+export async function publishVenue(
+  venueId: number,
+  source: VenuePublicationSource,
+  approvedByUserId: string | null,
+  note = ''
+): Promise<void> {
+  await sql`
+    INSERT INTO venue_publications (venue_id, source, approved_by_user_id, note)
+    VALUES (${venueId}, ${source}, ${approvedByUserId}, ${note})
+    ON CONFLICT (venue_id) DO UPDATE SET
+      source = EXCLUDED.source,
+      approved_by_user_id = EXCLUDED.approved_by_user_id,
+      note = EXCLUDED.note`;
+}
+
+/** Pull a venue back off the public site. Only affects venues that needed
+ * clearance in the first place — one whose listingStatus is 'published' in the
+ * venue file is visible on its own evidence and unaffected. */
+export async function unpublishVenue(venueId: number): Promise<void> {
+  await sql`DELETE FROM venue_publications WHERE venue_id = ${venueId}`;
+}
+
 export interface CreateVenueClaimInput {
   userId: string;
   venueId: number;

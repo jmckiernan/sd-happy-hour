@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { json } from '../../../lib/api';
 import { getVenues } from '../../../lib/venues';
 import { listVerifiedClaimedVenueIds } from '../../../lib/store';
+import { venueSearchScore } from '../../../lib/venueSearch';
 
 export const prerender = false;
 
@@ -15,8 +16,11 @@ export const GET: APIRoute = async ({ url }) => {
   if (!query) return json({ venues: [] });
 
   const matches = getVenues()
-    .filter((v) => v.name.toLowerCase().includes(query))
-    .slice(0, 8);
+    .map((v) => ({ venue: v, score: venueSearchScore(v, query) }))
+    .filter((row) => row.score > 0)
+    .sort((a, b) => b.score - a.score || a.venue.name.localeCompare(b.venue.name))
+    .slice(0, 8)
+    .map((row) => row.venue);
   if (!matches.length) return json({ venues: [] });
 
   const claimedIds = await listVerifiedClaimedVenueIds();
@@ -26,6 +30,8 @@ export const GET: APIRoute = async ({ url }) => {
     neighborhood: v.neighborhood,
     address: v.address,
     alreadyClaimed: claimedIds.has(v.id),
+    listingStatus: v.listingStatus || 'published',
+    hasHappyHourData: Boolean(v.hasHappyHourData),
   }));
   return json({ venues });
 };

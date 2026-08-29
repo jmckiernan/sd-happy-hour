@@ -2,10 +2,10 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import LiveDealStyles from '../components/LiveDealStyles.astro';
-import { getVenues, slugify } from '../lib/venues';
+import { getPublicVenues, venuePath } from '../lib/venues';
 import { itemListSchema } from '../lib/seo';
 
-const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
+const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 ---
 <Layout
   title="San Diego Happy Hours Happening Now | SD Happy Hours"
@@ -13,7 +13,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
   transparentNav={true}
   structuredData={itemListSchema('San Diego happy hour venues', indexableVenues.map((venue) => ({
     name: venue.name,
-    path: `/venues/${slugify(venue.name)}/`,
+    path: venuePath(venue),
   })))}
 >
   <LiveDealStyles />
@@ -297,7 +297,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     .grid.hidden { display: none; }
 
     /* ===== CARD ===== */
-    .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; }
+    .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; }
     .card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 24px 60px rgba(0,0,0,0.08); }
     .card.is-happy-hour { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55), 0 10px 28px rgba(34, 197, 94, 0.12); }
     .card.has-live-deal { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.7), 0 18px 42px rgba(139, 92, 246, 0.2); }
@@ -313,7 +313,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
     .card-image .time-badge { background: white; color: var(--night); font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: var(--radius-sm); white-space: nowrap; }
 
-    .card-body { padding: 20px; }
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .card-vibe { font-size: 0.75rem; font-weight: 600; color: var(--ocean); background: rgba(8, 145, 178, 0.1); padding: 4px 10px; border-radius: 100px; }
     .card-distance { font-size: 0.75rem; font-weight: 600; color: var(--sunset-start); }
@@ -388,8 +388,10 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     .card-live-summary span { color: var(--night-soft); display: block; font-size: 0.76rem; font-weight: 650; margin-top: 4px; }
     .deal-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .deal { display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%); color: var(--night); font-size: 0.75rem; font-weight: 600; padding: 6px 10px; border-radius: var(--radius-sm); }
+    /* Unknown deals are information, not an offer — never styled like one. */
+    .deal.deal-unknown { background: none; border: 1px dashed var(--night-soft); color: var(--night-soft); font-weight: 500; font-style: italic; }
 
-    .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--sand-warm); gap: 12px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--sand-warm); gap: 12px; }
     .card-address { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--night-soft); text-decoration: none; transition: color 0.2s; flex: 1; min-width: 0; }
     .card-address:hover { color: var(--night); }
     .card-address svg { color: var(--sunset-start); flex-shrink: 0; }
@@ -583,7 +585,9 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       getSanDiegoDayBounds,
       getSanDiegoParts,
     } from '../lib/sanDiegoTime';
-    import { getListingImage } from '../lib/venues';
+    import { getListingImage, venuePath, venueSlug } from '../lib/venues';
+    import { cardSpecials, cardTimeLabel } from '../lib/listingCopy';
+    import { isPubliclyListed } from '../lib/listingVisibility';
     import {
       readStoredDirectoryFilters,
       writeStoredDirectoryFilters,
@@ -630,11 +634,6 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayAbbrev = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-    function slugify(name: string) {
-      return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    }
-
     const dayFilterEl = document.getElementById('day-filter') as HTMLSelectElement;
 
     function getServerNow() {
@@ -967,9 +966,9 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
               <h3>${escapeHTML(h.name)}</h3>
               <div class="vibe">${escapeHTML(h.vibe)} · ${h.verified ? 'Verified' : 'Needs verification'}</div>
               ${renderMapStatus(state)}
-              <div class="time">Regular happy hour: ${formatTime(h.startTime)} – ${formatTime(h.endTime)}</div>
-              <div class="deals">${h.deals.slice(0, 2).map(escapeHTML).join(' • ')}</div>
-              <a href="/venues/${slugify(h.name)}/">View details</a>
+              <div class="time">Regular happy hour: ${escapeHTML(cardTimeLabel(h) || `${formatTime(h.startTime)} – ${formatTime(h.endTime)}`)}</div>
+              <div class="deals">${cardSpecials(h).slice(0, 2).map(escapeHTML).join(' • ')}</div>
+              <a href="${venuePath(h)}">View details</a>
             </div>
           `)
           .addTo(map);
@@ -1113,7 +1112,8 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
       });
     }
 
-    /** Lays each verified owner's own edits over the build-time record.
+    /** Lays each verified owner's own edits over the build-time record, and
+     * drops venues that shouldn't be public.
      *
      * happy-hours.json is a static asset baked at deploy time; an owner
      * correcting their hours writes to venue_overrides instead and it takes
@@ -1123,17 +1123,25 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
      * A plain spread is the whole merge: a stored patch only ever holds
      * complete values for owner-editable fields, and the endpoint filters it
      * to those fields on the way out.
+     *
+     * The visibility filter has to run *here*, after the response arrives,
+     * rather than on the raw file: a venue the pipeline left unlisted becomes
+     * public the moment it is cleared — domain or phone self-verify, or an
+     * admin approving a manual claim — and that only shows up in this
+     * endpoint's publishedVenueIds until the next deploy.
      */
     async function mergeOwnerEdits(venues: any[], failureFallback = venues) {
       try {
         const res = await fetch('/api/venue-overrides', { cache: 'no-store' });
         if (!res.ok) return failureFallback;
-        const { overrides } = await res.json();
-        if (!overrides) return venues;
-        return venues.map((venue) => {
-          const patch = overrides[String(venue.id)];
-          return patch ? { ...venue, ...patch } : venue;
-        });
+        const { overrides, publishedVenueIds } = await res.json();
+        const published = new Set<number>(publishedVenueIds || []);
+        return venues
+          .filter((venue) => isPubliclyListed(venue, published))
+          .map((venue) => {
+            const patch = overrides?.[String(venue.id)];
+            return patch ? { ...venue, ...patch } : venue;
+          });
       } catch {
         // Keep the last successfully loaded record if reconciliation fails.
         return failureFallback;
@@ -1143,7 +1151,12 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
     async function loadData() {
       const res = await fetch('/data/happy-hours.json');
       baseHappyHours = await res.json();
-      happyHours = await mergeOwnerEdits(baseHappyHours);
+      happyHours = await mergeOwnerEdits(
+        baseHappyHours,
+        // If the live layer is unreachable, fall back to the static verdict
+        // rather than showing everything.
+        baseHappyHours.filter((venue) => isPubliclyListed(venue)),
+      );
       venueDirectoryLoaded = true;
 
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
@@ -1336,7 +1349,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
           const hasHappyHour = state.happyHourOccurrence !== null;
           const imageSources = getCardImageSources(h);
           const hasDistance = h.distance !== undefined;
-          const slug = slugify(h.name);
+          const slug = venueSlug(h);
           const statusBadge = hasLiveDeal
             ? '<div class="card-status-badge"><span class="live-deal-badge"><span class="live-deal-status-dot"></span>Live Deal</span></div>'
             : hasHappyHour
@@ -1357,6 +1370,10 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
           const featureTags = (h.features || []).slice(0, 3)
             .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
             .join('');
+
+          const weekday = todayIndex >= 0 ? dayNames[todayIndex] : undefined;
+          const specialChips = cardSpecials(h, weekday);
+          const timeLabel = cardTimeLabel(h, weekday) || `${formatTime(h.startTime)} – ${formatTime(h.endTime)}`;
 
           return `
             <article class="card ${stateClass}" data-venue-card="${h.id}">
@@ -1381,7 +1398,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
                   }
                   <div class="time-overlay">
                     <span class="venue-name">${escapeHTML(h.name)}</span>
-                    <span class="time-badge">${formatTime(h.startTime)} – ${formatTime(h.endTime)}</span>
+                    <span class="time-badge">${escapeHTML(timeLabel)}</span>
                   </div>
                 </div>
               </a>
@@ -1415,7 +1432,7 @@ const indexableVenues = getVenues().filter((venue) => !venue.seoHidden);
                 <div class="card-deals">
                   <h3>Deals</h3>
                   <div class="deal-grid">
-                    ${h.deals.slice(0, 3).map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
+                    ${specialChips.map((d: string) => `<span class="deal">${escapeHTML(d)}</span>`).join('')}
                   </div>
                 </div>
 

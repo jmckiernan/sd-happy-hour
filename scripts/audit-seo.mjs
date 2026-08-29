@@ -1,17 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { buildVenueSlugMap, slugify } from '../src/lib/venueSlug.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const blogDir = path.join(root, 'src/content/blog');
 const venues = JSON.parse(fs.readFileSync(path.join(root, 'public/data/happy-hours.json'), 'utf8'));
 const venueSlugs = new Set(venues.map((venue) => slugify(venue.name)));
+for (const slug of buildVenueSlugMap(venues).values()) venueSlugs.add(slug);
 const errors = [];
 const warnings = [];
 const descriptions = new Map();
-
-function slugify(value) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
 
 function decodeFrontmatterValue(block, key) {
   const match = block.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));

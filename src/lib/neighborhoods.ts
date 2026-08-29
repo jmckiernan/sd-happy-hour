@@ -1,4 +1,4 @@
-import { getVenues, slugify, type Venue } from './venues';
+import { getPublicVenues, slugify, type Venue } from './venues';
 
 export interface NeighborhoodProfile {
   name: string;
@@ -272,7 +272,7 @@ function buildProfile(name: string): NeighborhoodProfile {
 const PROFILES: NeighborhoodProfile[] = ALL_NEIGHBORHOODS.map(buildProfile);
 
 export function getNeighborhoodProfiles(): Array<NeighborhoodProfile & { venues: Venue[] }> {
-  const venues = getVenues();
+  const venues = getPublicVenues();
   return PROFILES.map((profile) => ({
     ...profile,
     venues: venues.filter((venue) => venue.neighborhood === profile.name && !venue.seoHidden),

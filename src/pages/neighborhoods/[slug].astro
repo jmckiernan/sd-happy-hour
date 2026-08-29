@@ -4,7 +4,8 @@ import Layout from '../../layouts/Layout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getNeighborhoodProfiles } from '../../lib/neighborhoods';
 import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
-import { formatTime, getListingImage, getVenueImage, slugify } from '../../lib/venues';
+import { formatTime, getListingImage, getVenueImage, venuePath } from '../../lib/venues';
+import { cardSpecials } from '../../lib/listingCopy';
 
 export function getStaticPaths() {
   return getNeighborhoodProfiles().map((profile) => ({
@@ -33,7 +34,7 @@ const nearby = profile.nearby
     breadcrumbSchema(breadcrumbs),
     itemListSchema(`Happy hours in ${profile.name}, San Diego`, profile.venues.map((venue: any) => ({
       name: venue.name,
-      path: `/venues/${slugify(venue.name)}/`,
+      path: venuePath(venue),
     }))),
   ]}
 >
@@ -57,7 +58,7 @@ const nearby = profile.nearby
       <div class="venue-grid">
         {profile.venues.map((venue: any) => (
           <article class="venue-result">
-            <a class="venue-image" href={`/venues/${slugify(venue.name)}/`} tabindex="-1" aria-hidden="true">
+            <a class="venue-image" href={venuePath(venue)} tabindex="-1" aria-hidden="true">
               <img
                 src={getListingImage(venue, 'card')}
                 alt=""
@@ -69,10 +70,12 @@ const nearby = profile.nearby
             </a>
             <div class="venue-copy">
               <p class="schedule">{venue.days.join(', ')} · {formatTime(venue.startTime)}–{formatTime(venue.endTime)}</p>
-              <h3><a href={`/venues/${slugify(venue.name)}/`}>{venue.name}</a></h3>
+              <h3><a href={venuePath(venue)}>{venue.name}</a></h3>
               <p class="address">{venue.address}, San Diego, CA</p>
-              <ul>{venue.deals.slice(0, 4).map((deal: string) => <li>{deal}</li>)}</ul>
-              <a class="details" href={`/venues/${slugify(venue.name)}/`}>View {venue.name} details →</a>
+              <ul>
+                {cardSpecials(venue).map((deal: string) => <li>{deal}</li>)}
+              </ul>
+              <a class="details" href={venuePath(venue)}>View {venue.name} details →</a>
             </div>
           </article>
         ))}

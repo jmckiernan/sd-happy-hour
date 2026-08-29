@@ -2,7 +2,7 @@
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
 import ListingFormStyles from '../../../components/ListingFormStyles.astro';
-import { getVenues, slugify } from '../../../lib/venues';
+import { getVenues, venueSlug, venuePath } from '../../../lib/venues';
 
 // One editor page per published venue, mirroring the public /venues/[slug]/
 // route so the Edit button there is a straight slug swap. The values below
@@ -11,7 +11,7 @@ import { getVenues, slugify } from '../../../lib/venues';
 // record plus the current live override before the form becomes editable.
 export async function getStaticPaths() {
   return getVenues().map((venue) => ({
-    params: { slug: slugify(venue.name) },
+    params: { slug: venueSlug(venue) },
     props: { venue },
   }));
 }
@@ -128,7 +128,7 @@ const { venue } = Astro.props;
         <a href="/admin/photos/">Photo Review</a>
         <a href="/admin/drafts/">Posts</a>
         <a href="/admin/content-engine/">Content Engine</a>
-        <a href={`/venues/${slugify(venue.name)}/`}>View public page</a>
+        <a href={venuePath(venue)}>View public page</a>
       </nav>
 
       <h1>Edit {venue.name}</h1>
@@ -183,7 +183,7 @@ const { venue } = Astro.props;
         <div id="ve-form"></div>
         <div class="ve-actions">
           <button type="button" class="save" id="ve-save">Save changes</button>
-          <a class="neutral" href={`/venues/${slugify(venue.name)}/`}>Cancel</a>
+          <a class="neutral" href={venuePath(venue)}>Cancel</a>
           <span class="ve-status" id="ve-status" aria-live="polite"></span>
         </div>
       </div>
