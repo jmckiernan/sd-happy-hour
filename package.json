@@ -11,6 +11,12 @@
     "astro": "astro",
     "validate:data": "node scripts/validate-data.js",
     "audit:seo": "node scripts/audit-seo.mjs",
+    "audit:venues": "node --env-file-if-exists=.env.local scripts/audit-venues.mjs",
+    "backfill:google-hh": "node scripts/backfill-google-happy-hour.mjs",
+    "test:venue-audit": "node tests/venue-audit.test.mjs",
+    "browser:warm": "node scripts/import-google-venues/warm-browser-profile.mjs",
+    "import:venues:refresh-happy-hour": "node --env-file-if-exists=.env.local scripts/import-google-venues/refresh-happy-hour.mjs",
+    "import:venues:compress-deals": "node --env-file-if-exists=.env.local scripts/import-google-venues/compress-deals.mjs",
     "pull:images": "node scripts/pull-images.js",
     "fetch:vibe-images": "node scripts/fetch-vibe-images.js",
     "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
@@ -58,10 +64,12 @@
     "posthog-js": "^1.418.16"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^1.0.8",
     "@playwright/test": "^1.62.1",
     "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.21.0",
     "netlify-cli": "^27.0.1",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "pdfjs-dist": "^6.2.108"
   }
 }

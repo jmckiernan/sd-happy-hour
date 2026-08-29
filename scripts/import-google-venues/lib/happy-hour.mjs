@@ -1,20 +1,45 @@
 import { cleanDeals, decodeHtmlEntities, finalizeDeals } from './deals.mjs';
 import { DAY_ABBR, DAY_NAMES } from './constants.mjs';
 import { sleep } from './io.mjs';
+import {
+  buildVenueLocationHints,
+  crawlForHappyHourPages,
+  fetchPageHtml,
+  htmlToText,
+  inventoryWebsite,
+  isCloudflareChallenge,
+  sectionMatchesVenue,
+  extractLocationsFromHtml,
+  urlLooksLikeMenuPage,
+} from './website-crawl.mjs';
+import {
+  hasAiExtraction,
+  extractHappyHourWithAiFromInventory,
+} from './ai-extract.mjs';
+import { isAnthropicBillingError } from './anthropic-errors.mjs';
+import { buildLastScrape, outcomeFromInventory, SCRAPE_OUTCOMES, OUTCOME_LABELS } from './scrape-outcome.mjs';
+import { normalizeWindows, applyPrimaryFromWindows } from './schedule-windows.mjs';
+import { selectMenuFlyerPages } from './media.mjs';
+import { looksLikeShoppingMall } from './venue-quality.mjs';
+import { pageMatchesVenueListing, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from './website-ownership.mjs';
 
 const WEBSITE_PATHS = [
-  '',
+  '/specials--happy-hour',
+  '/specials/happy-hour',
   '/happy-hour',
   '/happyhour',
   '/happy-hours',
+  '/specials',
+  '/promotions',
+  '/offers',
+  '/drinks',
+  '/bar',
   '/menu',
   '/menus',
-  '/drinks',
-  '/specials',
-  '/bar',
+  '',
 ];
 
-const USER_AGENT = 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)';
+export { htmlToText, fetchPageHtml, isCloudflareChallenge, extractLocationsFromHtml };
 
 function padTime(hour, minute = 0) {
   const h = Number(hour);
@@ -28,7 +53,7 @@ function isValidTime(value) {
   return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
-function parseClockToken(token) {
+export function parseClockToken(token) {
   const match = token.trim().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
   if (!match) return null;
   let hour = Number(match[1]);
@@ -40,17 +65,39 @@ function parseClockToken(token) {
   return padTime(hour, minute);
 }
 
-function daysFromRangeText(text) {
+export function daysFromRangeText(text) {
   const lower = text.toLowerCase();
   if (/daily|every\s*day|7\s*days|all\s*week/i.test(lower)) {
     return [...DAY_NAMES.slice(1), DAY_NAMES[0]];
   }
-  if (/mon(?:day)?\s*[-–—to]+\s*(?:fri|friday)/i.test(lower) || /weekdays?/i.test(lower)) {
+  if (
+    /mon(?:day)?\s*(?:[-–—]|to|through)\s*(?:fri|friday)/i.test(lower)
+    || /weekdays?/i.test(lower)
+  ) {
     return DAY_NAMES.slice(1, 6);
   }
   if (/mon(?:day)?\s*[-–—to]+\s*(?:sun|sunday)/i.test(lower)) {
     return DAY_NAMES.slice(1).concat(DAY_NAMES[0]);
   }
+
+  const dayRangeMatch = lower.match(
+    /\b(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?)\s*[-–—to]+\s*(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?)\b/i
+  );
+  if (dayRangeMatch) {
+    const startKey = dayRangeMatch[1].slice(0, 3).toLowerCase();
+    const endKey = dayRangeMatch[2].slice(0, 3).toLowerCase();
+    const startIdx = DAY_ABBR[startKey];
+    const endIdx = DAY_ABBR[endKey];
+    if (startIdx !== undefined && endIdx !== undefined) {
+      const days = [];
+      for (let i = startIdx; ; i = (i + 1) % 7) {
+        days.push(DAY_NAMES[i]);
+        if (i === endIdx) break;
+      }
+      return days;
+    }
+  }
+
   const days = new Set();
   for (const [abbr, index] of Object.entries(DAY_ABBR)) {
     const re = new RegExp(`\\b${abbr}\\b`, 'i');
@@ -60,7 +107,7 @@ function daysFromRangeText(text) {
   return null;
 }
 
-function parseTimeRange(text) {
+export function parseTimeRange(text) {
   const match = text.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*[-–—to]+\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
   if (!match) return null;
   const start = parseClockToken(match[1]);
@@ -69,25 +116,18 @@ function parseTimeRange(text) {
   return null;
 }
 
-function htmlToText(html) {
-  return decodeHtmlEntities(
-    html
-      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/(p|li|div|h\d)>/gi, '\n')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim()
-  );
-}
-
 function extractHappyHourHtml(html) {
   const lower = html.toLowerCase();
   const index = lower.indexOf('happy hour');
   if (index === -1) return null;
   return html.slice(Math.max(0, index - 400), Math.min(html.length, index + 6000));
+}
+
+function extractHappyHourSection(text) {
+  const lower = text.toLowerCase();
+  const index = lower.indexOf('happy hour');
+  if (index === -1) return null;
+  return text.slice(Math.max(0, index - 200), Math.min(text.length, index + 2500));
 }
 
 function extractDealsFromHtml(html) {
@@ -100,18 +140,119 @@ function extractDealsFromHtml(html) {
   for (const match of section.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
     deals.push(htmlToText(match[1]));
   }
+  for (const match of section.matchAll(/<h[2-4][^>]*>([\s\S]*?)<\/h[2-4]>\s*<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const heading = htmlToText(match[1]);
+    const body = htmlToText(match[2]);
+    if (/happy hour|special|half|discount|\$/i.test(heading) || /half|discount|\$|\d+%/i.test(body)) {
+      deals.push(body.startsWith(heading) ? body : `${heading}: ${body}`);
+    }
+  }
   return cleanDeals(deals);
 }
 
 function extractDealsFromText(text) {
   const lines = text.split(/\n+/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const deals = [];
-  for (const line of lines.slice(0, 60)) {
-    if (line.length < 4 || line.length > 120) continue;
-    if (!/happy hour/i.test(line) && !/\$\d|half[- ]?price|\d+%\s*off|\d+\s*for\s*\$|special/i.test(line)) continue;
+  for (const line of lines.slice(0, 80)) {
+    if (line.length < 4 || line.length > 160) continue;
+    if (
+      !/happy hour/i.test(line) &&
+      !/\$\d|half[- ]?price|\d+%\s*off|\d+\s*for\s*\$|discounted|special/i.test(line)
+    ) {
+      continue;
+    }
     deals.push(line);
   }
   return cleanDeals(deals);
+}
+
+/** Parse happy hour from a single page's HTML. */
+export function parseHappyHourFromPage(html, url, venueContext = null) {
+  if (isCloudflareChallenge(html)) return null;
+
+  const text = htmlToText(html);
+  const venueHints = venueContext ? buildVenueLocationHints(venueContext) : [];
+  const section = extractHappyHourSection(text);
+
+  if (!section || !/happy hour/i.test(section)) return null;
+
+  const brandWideSpecials = isBrandWideSpecialsPage(url);
+  const locationQualified =
+    venueHints.length ? extractLocationQualifiedSection(text, venueHints) : null;
+
+  if (
+    venueHints.length &&
+    !sectionMatchesVenue(section, venueHints) &&
+    !locationQualified &&
+    !brandWideSpecials
+  ) {
+    return null;
+  }
+
+  const focusText = locationQualified || section;
+
+  const days =
+    daysFromRangeText(focusText) ||
+    daysFromRangeText(section) ||
+    daysFromRangeText(text) ||
+    DAY_NAMES.slice(1, 6);
+
+  const times = parseTimeRangeNearHappyHour(focusText) || parseTimeRangeNearHappyHour(section);
+  if (!times || !isValidTime(times.startTime) || !isValidTime(times.endTime)) return null;
+
+  const deals = finalizeDeals([
+    ...extractDealsFromHtml(html),
+    ...extractDealsFromText(focusText),
+    ...extractDealsFromText(section),
+  ]);
+
+  return {
+    ...times,
+    days,
+    windows: normalizeWindows([{ ...times, days, kind: 'happy_hour' }]),
+    deals,
+    source: 'website',
+    confidence: scoreConfidence(deals, url),
+    sourcePage: url,
+    found: true,
+    outcome: SCRAPE_OUTCOMES.found,
+    raw: focusText.slice(0, 500),
+  };
+}
+
+function extractLocationQualifiedSection(text, venueHints) {
+  const lower = text.toLowerCase();
+  for (const hint of venueHints) {
+    const idx = lower.indexOf(hint);
+    if (idx === -1) continue;
+    const slice = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 2500));
+    if (/happy hour/i.test(slice)) return slice;
+  }
+  return null;
+}
+
+function isBrandWideSpecialsPage(url) {
+  return /specials[-/ ]*happy|happy[-/ ]*hour|\/specials/i.test(String(url).toLowerCase());
+}
+
+function parseTimeRangeNearHappyHour(text) {
+  const lower = text.toLowerCase();
+  let searchFrom = 0;
+  while (searchFrom < lower.length) {
+    const index = lower.indexOf('happy hour', searchFrom);
+    if (index === -1) break;
+    const near = text.slice(index, index + 350);
+    const times = parseTimeRange(near);
+    if (times) return times;
+    searchFrom = index + 1;
+  }
+  return parseTimeRange(text);
+}
+
+function scoreConfidence(deals, url) {
+  if (deals.length === 1 && deals[0] === 'Happy hour') return 'low';
+  if (/happy[-/ ]*hour|specials[-/ ]*happy/i.test(url)) return 'high';
+  return 'medium';
 }
 
 export function parseGoogleHappyHour(regularSecondaryOpeningHours = []) {
@@ -155,26 +296,8 @@ export function parseGoogleHappyHour(regularSecondaryOpeningHours = []) {
   };
 }
 
-async function fetchPageHtml(url) {
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, Accept: 'text/html,application/xhtml+xml' },
-    redirect: 'follow',
-    signal: AbortSignal.timeout(20_000),
-  });
-  if (!response.ok) return null;
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('text/html') && !contentType.includes('text/plain')) return null;
-  return (await response.text()).slice(0, 500_000);
-}
-
-function extractHappyHourSection(text) {
-  const lower = text.toLowerCase();
-  const index = lower.indexOf('happy hour');
-  if (index === -1) return null;
-  return text.slice(Math.max(0, index - 200), Math.min(text.length, index + 2500));
-}
-
-export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
+/** Legacy path-based scrape (fast, used by import pipeline). */
+export async function extractWebsiteHappyHour(websiteUri, delayMs = 400, venueContext = null, fetchImpl = null) {
   if (!websiteUri || !/^https?:\/\//i.test(websiteUri)) return null;
   let origin;
   try {
@@ -183,40 +306,295 @@ export async function extractWebsiteHappyHour(websiteUri, delayMs = 400) {
     return null;
   }
 
-  for (const suffix of WEBSITE_PATHS) {
+  const fetchHtml = fetchImpl
+    ? async (url) => {
+        const response = await fetchImpl(url);
+        if (!response?.ok) return null;
+        return (await response.text()).slice(0, 500_000);
+      }
+    : fetchPageHtml;
+
+  const candidates = [];
+
+  const pathsToTry = fetchImpl ? WEBSITE_PATHS.slice(0, 5) : WEBSITE_PATHS;
+
+  for (const suffix of pathsToTry) {
     const url = suffix ? `${origin}${suffix}` : websiteUri;
     try {
-      const html = await fetchPageHtml(url);
+      const html = await fetchHtml(url);
       await sleep(delayMs);
-      if (!html) continue;
-      const text = htmlToText(html);
-      const section = extractHappyHourSection(text) || text.slice(0, 4000);
-      if (!/happy hour/i.test(section)) continue;
-
-      const days = daysFromRangeText(section) || daysFromRangeText(text) || DAY_NAMES.slice(1, 6);
-      const times = parseTimeRange(section) || parseTimeRange(text);
-      if (!times) continue;
-      if (!isValidTime(times.startTime) || !isValidTime(times.endTime)) continue;
-
-      const deals = finalizeDeals([
-        ...extractDealsFromHtml(html),
-        ...extractDealsFromText(section),
-      ]);
-
-      return {
-        ...times,
-        days,
-        deals,
-        source: 'website',
-        confidence: deals.length === 1 && deals[0] === 'Happy hour' ? 'low' : 'medium',
-        sourcePage: url,
-        raw: section.slice(0, 500),
-      };
+      if (!html || isCloudflareChallenge(html)) continue;
+      const parsed = parseHappyHourFromPage(html, url, venueContext);
+      if (parsed) {
+        candidates.push(parsed);
+        if (parsed.confidence === 'high') break;
+      }
     } catch {
       // try next path
     }
   }
-  return null;
+
+  if (!candidates.length) return null;
+  return pickBestCandidate(candidates);
+}
+
+function buildFetchHtml(fetchImpl) {
+  if (!fetchImpl) return fetchPageHtml;
+  return async (url) => {
+    const response = await fetchImpl(url);
+    if (!response?.ok) return null;
+    return (await response.text()).slice(0, 500_000);
+  };
+}
+
+/** Discover pages once, then extract for a specific location. */
+export async function extractWebsiteHappyHourWithAi(websiteUri, venueContext = null, options = {}) {
+  return extractWebsiteHappyHourDeep(websiteUri, venueContext, { ...options, useAi: true });
+}
+
+function emptyResult(outcome, reason, extras = {}) {
+  const message = reason || OUTCOME_LABELS[outcome] || outcome;
+  return {
+    found: false,
+    outcome,
+    reason: message,
+    windows: [],
+    deals: [],
+    confidence: 'low',
+    lastScrape: buildLastScrape({ outcome, reason: message, ...extras }),
+    ...extras,
+  };
+}
+
+const VENUE_NAME_STOP = new Set([
+  'the', 'and', 'at', 'bar', 'grill', 'grille', 'restaurant', 'cafe', 'san', 'diego',
+  'del', 'mar', 'town', 'center', 'highlands',
+]);
+
+export function venueNameTokens(name) {
+  return String(name || '')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length > 2 && !VENUE_NAME_STOP.has(token));
+}
+
+/** Drop other tenants' promo pages when this listing has its own named URLs. */
+export function selectInventoryForVenue(inventory, venue) {
+  const candidates = inventory?.candidates || [];
+  if (!candidates.length) return inventory;
+  const tokens = venueNameTokens(venue?.name);
+  if (!tokens.length) return inventory;
+  const namedHtml = candidates.filter((page) => (
+    page.kind === 'html' && tokens.some((token) => String(page.url || '').toLowerCase().includes(token))
+  ));
+  if (!namedHtml.length) return inventory;
+
+  const html = candidates.filter((page) => page.kind === 'html').filter((page) => {
+    const url = String(page.url || '').toLowerCase();
+    if (tokens.some((token) => url.includes(token))) return true;
+    try {
+      const path = new URL(page.url).pathname.toLowerCase();
+      if (path === '/' || path === '') return true;
+    } catch {
+      // keep
+    }
+    if (urlLooksLikeMenuPage(page.url)) return true;
+    if (/\/(specials|happy-hour|happyhour|menus?)(?:\/|$|\?)/i.test(url) && !/\/promotion\//i.test(url)) {
+      return true;
+    }
+    if (/happy|special|promo/i.test(url)) return false;
+    return true;
+  });
+  const media = candidates.filter((page) => page.kind !== 'html').filter((page) => {
+    const url = String(page.url || '').toLowerCase();
+    if (/\/promotion\//i.test(url) && !tokens.some((token) => url.includes(token))) return false;
+    return true;
+  });
+  return { ...inventory, candidates: [...html, ...media] };
+}
+
+function inventoryMentionsVenue(inventory, venue) {
+  if (!venue) return true;
+  const urls = [venue.website, ...(inventory?.candidates || []).map((page) => page.url)];
+  if (urls.some((url) => (
+    hostnameCorroboratesVenue(url, venue)
+    || listingUrlCorroboratesVenue(url, venue)
+    || listedHostMatchesVenueName(url, venue)
+  ))) {
+    return true;
+  }
+  const chunks = [];
+  for (const page of inventory?.candidates || []) {
+    if (page.text) chunks.push(page.text);
+    else if (page.html) chunks.push(htmlToText(page.html));
+  }
+  const text = chunks.join('\n');
+  if (text.replace(/\s+/g, '').length < 80) return true;
+  return pageMatchesVenueListing(text, venue);
+}
+
+export function salvageFromEvidence(result) {
+  if (!result || result.found) return result;
+  if (result.outcome === SCRAPE_OUTCOMES.other_location || result.outcome === SCRAPE_OUTCOMES.wrong_website) {
+    return result;
+  }
+  const evidence = result.evidence || [];
+  const windows = normalizeWindows(evidence.flatMap((row) => {
+    if (row.field !== 'times' || !row.quote) return [];
+    const range = parseTimeRange(row.quote);
+    const days = daysFromRangeText(row.quote) || [];
+    if (!range || !days.length) return [];
+    return [{ ...range, days, kind: 'happy_hour' }];
+  }));
+  const deals = cleanDeals(evidence.flatMap((row) => {
+    if (row.field !== 'deals' && row.field !== 'specials') return [];
+    return String(row.quote || '')
+      .split(/\s*(?:\.{2,}|…)\s*/)
+      .flatMap((part) => part.split(/(?=HH\s*[-–—])/i))
+      .map((part) => part.replace(/^[-–—]\s*/, '').trim())
+      .filter(Boolean);
+  }));
+  if (!windows.length && !deals.length) return result;
+  const primary = applyPrimaryFromWindows(windows, result);
+  return {
+    ...result,
+    found: true,
+    outcome: SCRAPE_OUTCOMES.found,
+    windows,
+    deals,
+    startTime: primary.startTime || result.startTime,
+    endTime: primary.endTime || result.endTime,
+    days: primary.days?.length ? primary.days : result.days,
+    confidence: result.confidence === 'low' ? 'medium' : (result.confidence || 'medium'),
+  };
+}
+
+export async function extractFromInventory(inventory, venueContext = null, options = {}) {
+  const useAi = options.useAi !== false && hasAiExtraction();
+  if (venueContext && looksLikeShoppingMall(venueContext)) {
+    return emptyResult(
+      SCRAPE_OUTCOMES.not_published,
+      'Listing is a shopping mall, not a restaurant or bar',
+      { candidateUrls: [venueContext.website].filter(Boolean), sourcePage: venueContext.website || null }
+    );
+  }
+  const scoped = selectInventoryForVenue(inventory, venueContext);
+  const candidateUrls = (scoped?.candidates || []).map((page) => page.url);
+  const inventoryOutcome = outcomeFromInventory(scoped);
+  if (inventoryOutcome) {
+    const candidates = scoped?.candidates || [];
+    const onlyMedia = candidates.length > 0
+      && candidates.every((page) => page.kind === 'pdf' || page.kind === 'image');
+    const outcome = scoped.blocked && onlyMedia ? SCRAPE_OUTCOMES.media_unreadable : inventoryOutcome;
+    return emptyResult(outcome, undefined, { candidateUrls, sourcePage: candidateUrls[0] || null });
+  }
+
+  if (venueContext && !inventoryMentionsVenue(scoped, venueContext)) {
+    return emptyResult(
+      SCRAPE_OUTCOMES.wrong_website,
+      `Listed website does not mention ${venueContext.name} or its San Diego-area address`,
+      { candidateUrls, sourcePage: candidateUrls[0] || venueContext.website || null }
+    );
+  }
+
+  if (useAi) {
+    try {
+      const aiResult = salvageFromEvidence(await extractHappyHourWithAiFromInventory(scoped, venueContext));
+      if (aiResult) {
+        return {
+          ...aiResult,
+          menuImages: selectMenuFlyerPages(scoped.candidates),
+          lastScrape: buildLastScrape({
+            outcome: aiResult.outcome,
+            found: aiResult.found,
+            reason: aiResult.reason,
+            sourceUrl: aiResult.sourcePage,
+            candidateUrls,
+            evidence: aiResult.evidence,
+            locationApplicability: aiResult.locationApplicability,
+            confidence: aiResult.confidence,
+          }),
+        };
+      }
+    } catch (error) {
+      if (isAnthropicBillingError(error) || error?.name === 'AnthropicBillingError') throw error;
+      return emptyResult(SCRAPE_OUTCOMES.extract_failed, error.message, { candidateUrls });
+    }
+  }
+
+  const htmlPages = (scoped.candidates || []).filter((page) => page.kind === 'html' && page.html);
+  const candidates = [];
+  for (const page of htmlPages) {
+    const parsed = parseHappyHourFromPage(page.html, page.url, venueContext);
+    if (parsed) candidates.push({ ...parsed, pageScore: page.score, sourcePage: page.url });
+  }
+
+  if (!candidates.length) {
+    const mediaUnread = (scoped.candidates || []).some((page) => page.kind === 'pdf' || page.kind === 'image');
+    return emptyResult(
+      mediaUnread ? SCRAPE_OUTCOMES.media_unreadable : SCRAPE_OUTCOMES.not_published,
+      mediaUnread
+        ? 'PDF/image menu found but text extraction was not available'
+        : 'Candidate pages fetched; no happy hour or specials parsed',
+      { candidateUrls, sourcePage: candidateUrls[0] || null }
+    );
+  }
+
+  const best = pickBestCandidate(candidates);
+  const windows = best.windows?.length
+    ? best.windows
+    : normalizeWindows([{ startTime: best.startTime, endTime: best.endTime, days: best.days }]);
+  const primary = applyPrimaryFromWindows(windows, best);
+  return {
+    ...best,
+    ...primary,
+    windows,
+    found: true,
+    outcome: SCRAPE_OUTCOMES.found,
+    candidateUrls,
+    menuImages: selectMenuFlyerPages(scoped.candidates),
+    lastScrape: buildLastScrape({
+      outcome: SCRAPE_OUTCOMES.found,
+      found: true,
+      sourceUrl: best.sourcePage,
+      candidateUrls,
+      confidence: best.confidence,
+    }),
+  };
+}
+
+/** Discover HH/specials pages, extract with AI (or regex fallback on same pages). */
+export async function extractWebsiteHappyHourDeep(websiteUri, venueContext = null, options = {}) {
+  if (!websiteUri || !/^https?:\/\//i.test(websiteUri)) {
+    return emptyResult(SCRAPE_OUTCOMES.no_website, 'No official website on the listing');
+  }
+
+  const priorityUrl =
+    venueContext?.sourceUrl && /happy|special|promo|offer|menu/i.test(venueContext.sourceUrl)
+      ? venueContext.sourceUrl
+      : null;
+
+  const inventory = options.inventory || await inventoryWebsite(websiteUri, {
+    ...options,
+    maxPages: options.maxPages ?? 6,
+    maxFetches: options.maxFetches ?? 8,
+    minHappyHourScore: options.minHappyHourScore ?? 8,
+    priorityUrl,
+  });
+
+  return extractFromInventory(inventory, venueContext, options);
+}
+
+function pickBestCandidate(candidates) {
+  const confidenceRank = { high: 3, medium: 2, low: 1 };
+  return candidates.sort((a, b) => {
+    const confDiff = (confidenceRank[b.confidence] || 0) - (confidenceRank[a.confidence] || 0);
+    if (confDiff) return confDiff;
+    const realDealsA = a.deals.filter((d) => d !== 'Happy hour').length;
+    const realDealsB = b.deals.filter((d) => d !== 'Happy hour').length;
+    if (realDealsB !== realDealsA) return realDealsB - realDealsA;
+    return (b.pageScore || 0) - (a.pageScore || 0);
+  })[0];
 }
 
 export async function resolveHappyHour(place) {
@@ -225,4 +603,24 @@ export async function resolveHappyHour(place) {
     return { ...google, deals: finalizeDeals(google.deals || []) };
   }
   return extractWebsiteHappyHour(place.websiteUri);
+}
+
+export { hasAiExtraction } from './ai-extract.mjs';
+export { inventoryWebsite } from './website-crawl.mjs';
+
+export async function discoverWebsiteLocations(websiteUri, options = {}) {
+  const pages = await crawlForHappyHourPages(websiteUri, { ...options, maxPages: 6 });
+  const locations = [];
+  const seen = new Set();
+
+  for (const page of pages) {
+    for (const loc of extractLocationsFromHtml(page.html)) {
+      const key = loc.address.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      locations.push({ ...loc, sourcePage: page.url });
+    }
+  }
+
+  return locations;
 }

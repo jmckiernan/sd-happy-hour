@@ -1,11 +1,19 @@
 # Google Places venue import
 
+The English playbook for this pipeline — sources, outcomes, apply gates, deal chips, and display rules — is **[docs/venue-data-pipeline.md](../../docs/venue-data-pipeline.md)**. Update that file when the behavior changes.
+
+Bulk-import San Diego County restaurants and bars that **have a happy hour**, ranked by Google review volume and filtered to **≥ 4.2 stars** and **≥ 50 reviews**.
+
 Bulk-import San Diego County restaurants and bars that **have a happy hour**, ranked by Google review volume and filtered to **≥ 4.2 stars** and **≥ 50 reviews**.
 
 Happy hour data is resolved in this order:
 
-1. **Google Business Profile** — `regularSecondaryOpeningHours` with type `HAPPY_HOUR`
-2. **Venue website** — scans homepage and common paths (`/happy-hour`, `/menu`, etc.) for times and deal lines
+1. **Google Business Profile** — `regularSecondaryOpeningHours` with type `HAPPY_HOUR` (times, including multiple windows)
+2. **Website inventory (once per domain)** — robots/sitemap, then the top 3 candidate URLs (HTML, PDF, or image menus). Playwright only on a challenge.
+3. **One Haiku call** — all candidate text (plus vision for PDF/image) for that location. Recurring specials count, not just pages that say "happy hour".
+4. **Record an outcome** — `found`, `not_published`, `no_candidates`, `blocked`, `media_unreadable`, `extract_failed`, `other_location`, with source URL, quotes, and location applicability.
+
+A model confidence label is never enough to overwrite times. Apply requires supporting quotes. Chain sites are fetched once, then mapped onto each location.
 
 ## Setup
 
@@ -36,7 +44,16 @@ npm run import:venues:merge                # write to happy-hours.json
 npm run import:venues:cleanup              # dedupe deals, strip HTML junk, replace placeholders with "Happy hour"
 npm run import:venues:photos               # download Google Places photos → public/images/venues/
 npm run import:venues:refresh-deals        # re-scrape websites for venues still on the "Happy hour" fallback
+npm run import:venues:refresh-happy-hour   # re-scrape times, days, and deals for flagged venues (--apply to write)
 npm run import:venues:classify-neighborhoods  # re-assign neighborhoods from lat/lng + address
+
+# Data quality audit (no network by default)
+npm run audit:venues                       # static quality flags for all venues
+npm run audit:venues -- --verify --limit=25  # re-scrape + AI read page vs stored data
+npm run audit:venues -- --verify --browser   # Playwright for Cloudflare-protected sites
+npm run import:venues:refresh-happy-hour -- --browser --limit=25 --apply
+
+# AI extraction uses ANTHROPIC_API_KEY from .env.local (falls back to regex with --no-ai)
 ```
 
 ## Smoke test (cheap)
@@ -50,6 +67,8 @@ npm run import:venues -- --discover-limit=2 --enrich-limit=5 --extract-limit=5 -
 | Env var | Default | Meaning |
 |---------|---------|---------|
 | `GOOGLE_PLACES_API_KEY` | — | Required |
+| `ANTHROPIC_API_KEY` | — | AI happy hour extraction (same key as blog) |
+| `VENUE_AI_MODEL` | `claude-haiku-4-5` | Light model for venue page extraction only |
 | `IMPORT_MIN_RATING` | `4.2` | Minimum Google rating |
 | `IMPORT_MIN_REVIEWS` | `50` | Minimum review count |
 | `IMPORT_MAX` | `1000` | Max venues to stage |

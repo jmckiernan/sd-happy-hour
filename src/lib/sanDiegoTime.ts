@@ -37,11 +37,22 @@ export interface SanDiegoDayBounds {
   end: Date;
 }
 
+export interface HappyHourWindow {
+  days: readonly string[];
+  startTime: string;
+  endTime: string;
+  kind?: 'happy_hour' | 'late_night' | 'weekly_special';
+  label?: string;
+  allDay?: boolean;
+}
+
 export interface HappyHourSchedule {
   id: number;
   days: readonly string[];
   startTime: string;
   endTime: string;
+  /** Canonical schedule when a venue has more than one period. */
+  windows?: HappyHourWindow[];
 }
 
 export interface HappyHourOccurrence {
@@ -264,7 +275,13 @@ function clockMinutes(value: string): number | null {
   return match ? Number(match[1]) * 60 + Number(match[2]) : null;
 }
 
-/** Build one occurrence from the San Diego-local date on which it starts. */
+function scheduleWindows(schedule: HappyHourSchedule): HappyHourWindow[] {
+  if (Array.isArray(schedule.windows) && schedule.windows.length) return [...schedule.windows];
+  return [{ days: schedule.days, startTime: schedule.startTime, endTime: schedule.endTime }];
+}
+
+/** Build one occurrence from the San Diego-local date on which it starts.
+ * Overnight windows (22:00–01:00) close on the following calendar day. */
 export function getHappyHourOccurrenceForDate(
   schedule: HappyHourSchedule,
   dateKey: string
@@ -277,7 +294,7 @@ export function getHappyHourOccurrenceForDate(
     !schedule.days.includes(weekday) ||
     startMinutes == null ||
     endMinutes == null ||
-    endMinutes <= startMinutes
+    endMinutes === startMinutes
   ) {
     return null;
   }
@@ -285,7 +302,8 @@ export function getHappyHourOccurrenceForDate(
   const startsAt = parseSanDiegoLocalDateTime(`${dateKey}T${schedule.startTime}`, {
     disambiguation: 'earlier',
   });
-  const endsAt = parseSanDiegoLocalDateTime(`${dateKey}T${schedule.endTime}`, {
+  const endDateKey = endMinutes < startMinutes ? addCalendarDays(dateKey, 1) : dateKey;
+  const endsAt = parseSanDiegoLocalDateTime(`${endDateKey}T${schedule.endTime}`, {
     disambiguation: 'later',
   });
   if (!startsAt || !endsAt || endsAt.getTime() <= startsAt.getTime()) return null;
@@ -301,6 +319,14 @@ export function getHappyHourOccurrenceForDate(
   };
 }
 
+function occurrenceContains(occurrence: HappyHourOccurrence | null, instant: Date): boolean {
+  return Boolean(
+    occurrence
+    && instant.getTime() >= occurrence.startsAt.getTime()
+    && instant.getTime() < occurrence.endsAt.getTime()
+  );
+}
+
 export function getActiveHappyHourOccurrence(
   schedule: HappyHourSchedule,
   now: InstantInput = new Date()
@@ -308,12 +334,38 @@ export function getActiveHappyHourOccurrence(
   const instant = parseInstant(now);
   if (!instant) throw new RangeError('Expected a valid absolute instant.');
   const today = getSanDiegoDateKey(instant);
-  const occurrence = getHappyHourOccurrenceForDate(schedule, today);
-  return occurrence &&
-    instant.getTime() >= occurrence.startsAt.getTime() &&
-    instant.getTime() < occurrence.endsAt.getTime()
-    ? occurrence
-    : null;
+  const yesterday = addCalendarDays(today, -1);
+
+  for (const window of scheduleWindows(schedule)) {
+    if (window.allDay) {
+      const weekday = weekdayForDateKey(today);
+      if (window.days.includes(weekday)) {
+        const bounds = getSanDiegoDayBounds(today);
+        const occurrence = {
+          venueId: schedule.id,
+          dateKey: today,
+          weekday,
+          startTime: '00:00',
+          endTime: '23:59',
+          startsAt: bounds.start,
+          endsAt: bounds.end,
+        };
+        if (occurrenceContains(occurrence, instant)) return occurrence;
+      }
+      continue;
+    }
+    const slice = {
+      ...schedule,
+      days: window.days,
+      startTime: window.startTime,
+      endTime: window.endTime,
+    };
+    const todayOccurrence = getHappyHourOccurrenceForDate(slice, today);
+    if (occurrenceContains(todayOccurrence, instant)) return todayOccurrence;
+    const overnight = getHappyHourOccurrenceForDate(slice, yesterday);
+    if (occurrenceContains(overnight, instant)) return overnight;
+  }
+  return null;
 }
 
 export function isHappyHourActive(schedule: HappyHourSchedule, now: InstantInput = new Date()): boolean {
