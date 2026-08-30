@@ -88786,5 +88786,190 @@
     ],
     "seoHidden": false,
     "listingStatus": "published"
+  },
+  {
+    "id": 634,
+    "name": "Board & Brew - Scripps Ranch",
+    "neighborhood": "Scripps Ranch",
+    "address": "9880 Hibert St E-3, San Diego, CA 92131, USA",
+    "lat": 32.915562699999995,
+    "lng": -117.11441669999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations/scripps-ranch/",
+    "phone": "(858) 689-2739",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 635,
+    "name": "Board & Brew - Carlsbad Village",
+    "neighborhood": "Carlsbad",
+    "address": "201 Oak Ave, Carlsbad, CA 92008, USA",
+    "lat": 33.1565921,
+    "lng": -117.35036559999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://www.boardandbrew.com/",
+    "phone": "(760) 434-4466",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 636,
+    "name": "Board & Brew - Eastlake",
+    "neighborhood": "Chula Vista",
+    "address": "1610 Millenia Ave Unit 105, Chula Vista, CA 91915, USA",
+    "lat": 32.620492999999996,
+    "lng": -116.96772729999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.boardandbrew.com/locations",
+    "phone": "(619) 494-4059",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 637,
+    "name": "Board & Brew - Oceanside",
+    "neighborhood": "Oceanside",
+    "address": "2213 S El Camino Real, Oceanside, CA 92054, USA",
+    "lat": 33.1858418,
+    "lng": -117.3287603,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.boardandbrew.com/locations",
+    "phone": "(760) 688-9217",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 638,
+    "name": "Board & Brew UTC",
+    "neighborhood": "UTC",
+    "address": "4577 La Jolla Village Dr #1232, San Diego, CA 92122, USA",
+    "lat": 32.8717983,
+    "lng": -117.20874379999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations/utc/",
+    "phone": "(760) 691-6260",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
   }
 ]
