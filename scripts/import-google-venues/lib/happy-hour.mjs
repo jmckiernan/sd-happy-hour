@@ -22,6 +22,12 @@ import { buildLastScrape, outcomeFromInventory, SCRAPE_OUTCOMES, OUTCOME_LABELS 
 import { normalizeWindows, applyPrimaryFromWindows } from './schedule-windows.mjs';
 import { selectMenuFlyerPages } from './media.mjs';
 import { looksLikeShoppingMall } from './venue-quality.mjs';
+import {
+  matchLocatorRecord,
+  locatorTextFromRecord,
+  detectLocatorApis,
+  fetchLocatorRecords,
+} from './locator-widgets.mjs';
 import { pageMatchesVenueListing, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from './website-ownership.mjs';
 
 const WEBSITE_PATHS = [
@@ -430,6 +436,46 @@ export function salvageFromEvidence(result) {
   };
 }
 
+/**
+ * Turn this venue's locator entry — if the brand publishes one for *this*
+ * address — into a candidate page the extract can quote.
+ *
+ * It arrives as a synthetic page because everything downstream (the AI call,
+ * evidence quotes, `no_candidates`) is written against pages, and because the
+ * locator API URL is a perfectly good citation. Scored just above a homepage
+ * fallback and below any real specials page: it is reliable, structured text,
+ * but a page the venue wrote about its own happy hour is still better.
+ */
+function withLocatorCandidate(scoped, inventory, venueContext) {
+  const records = inventory?.locatorRecords;
+  if (!scoped || !venueContext || !Array.isArray(records) || !records.length) return scoped;
+
+  const match = matchLocatorRecord(records, venueContext);
+  if (!match) return scoped;
+
+  const text = locatorTextFromRecord(match);
+  if (!text) return scoped;
+
+  return {
+    ...scoped,
+    candidates: [
+      ...(scoped.candidates || []),
+      {
+        url: match.record.sourceUrl || inventory.origin,
+        kind: 'html',
+        html: '',
+        text,
+        bytes: null,
+        contentType: 'application/json',
+        score: 22,
+        source: `locator:${match.record.platform || 'json'}`,
+        blocked: false,
+        ok: true,
+      },
+    ],
+  };
+}
+
 export async function extractFromInventory(inventory, venueContext = null, options = {}) {
   const useAi = options.useAi !== false && hasAiExtraction();
   if (venueContext && looksLikeShoppingMall(venueContext)) {
@@ -439,7 +485,7 @@ export async function extractFromInventory(inventory, venueContext = null, optio
       { candidateUrls: [venueContext.website].filter(Boolean), sourcePage: venueContext.website || null }
     );
   }
-  const scoped = selectInventoryForVenue(inventory, venueContext);
+  const scoped = withLocatorCandidate(selectInventoryForVenue(inventory, venueContext), inventory, venueContext);
   const candidateUrls = (scoped?.candidates || []).map((page) => page.url);
   const inventoryOutcome = outcomeFromInventory(scoped);
   if (inventoryOutcome) {
@@ -537,6 +583,7 @@ export async function extractWebsiteHappyHourDeep(websiteUri, venueContext = nul
 
   const inventory = options.inventory || await inventoryWebsite(websiteUri, {
     ...options,
+    venueContext,
     maxPages: options.maxPages ?? 6,
     maxFetches: options.maxFetches ?? 8,
     minHappyHourScore: options.minHappyHourScore ?? 8,
@@ -558,12 +605,108 @@ function pickBestCandidate(candidates) {
   })[0];
 }
 
+/**
+ * Locator records for a domain, fetched at most once per import run.
+ * Keyed by origin because a chain's locator is one payload for every location.
+ */
+const locatorCache = new Map();
+
+async function locatorRecordsForSite(websiteUri, venueContext) {
+  let origin;
+  try {
+    origin = new URL(websiteUri).origin;
+  } catch {
+    return [];
+  }
+  if (locatorCache.has(origin)) return locatorCache.get(origin);
+
+  const records = [];
+  try {
+    // The widget script usually lives on the locator page, not the homepage,
+    // so check both. Two plain GETs per domain, no browser and no AI.
+    for (const url of [origin, `${origin}/locations`, `${origin}/store-locator`]) {
+      const html = await fetchPageHtml(url);
+      if (!html) continue;
+      const apis = detectLocatorApis(html, venueContext || {});
+      for (const api of apis) {
+        const found = await fetchLocatorRecords(api);
+        if (found.length) {
+          records.push(...found);
+          break;
+        }
+      }
+      if (records.length) break;
+    }
+  } catch {
+    // A locator is a bonus source; never fail discovery over it.
+  }
+
+  locatorCache.set(origin, records);
+  return records;
+}
+
+/**
+ * A happy hour published only in a brand's store locator.
+ *
+ * Discovery otherwise admits a venue only when Google flags `HAPPY_HOUR`
+ * secondary hours, which is why we had 1 of 16 San Diego Board & Brews: the
+ * other 15 publish their offer in a Storepoint widget and nowhere else, and a
+ * venue was never crawled unless it had already qualified.
+ *
+ * Deliberately the cheap path — a couple of HTTP requests per domain, no model
+ * call. It only qualifies brands running a recognized locator. Routing all
+ * ~4,700 enriched candidates through the AI deep extract would catch every
+ * case, at roughly $40 a run; see the playbook before turning that on.
+ */
+export async function extractLocatorHappyHour(websiteUri, venueContext) {
+  if (!websiteUri || !venueContext) return null;
+
+  const records = await locatorRecordsForSite(websiteUri, venueContext);
+  if (!records.length) return null;
+
+  const match = matchLocatorRecord(records, venueContext);
+  if (!match) return null;
+
+  const text = match.record.offerText || '';
+  if (!/happy\s*hour/i.test(text)) return null;
+
+  const times = parseTimeRangeNearHappyHour(text);
+  if (!times || !isValidTime(times.startTime) || !isValidTime(times.endTime)) return null;
+
+  const days = daysFromRangeText(text) || DAY_NAMES.slice();
+  const sourceUrl = match.record.sourceUrl || websiteUri;
+
+  return {
+    ...times,
+    days,
+    windows: normalizeWindows([{ ...times, days, kind: 'happy_hour' }]),
+    deals: finalizeDeals(extractDealsFromText(text)),
+    source: 'website',
+    confidence: 'medium',
+    sourcePage: sourceUrl,
+    found: true,
+    outcome: SCRAPE_OUTCOMES.found,
+    raw: text.slice(0, 500),
+  };
+}
+
 export async function resolveHappyHour(place) {
   const google = parseGoogleHappyHour(place.regularSecondaryOpeningHours);
   if (google) {
     return { ...google, deals: finalizeDeals(google.deals || []) };
   }
-  return extractWebsiteHappyHour(place.websiteUri);
+
+  const venueContext = {
+    name: place.displayName?.text || place.displayName || place.name || '',
+    address: place.formattedAddress || '',
+    lat: place.location?.latitude ?? null,
+    lng: place.location?.longitude ?? null,
+  };
+
+  const fromSite = await extractWebsiteHappyHour(place.websiteUri, 400, venueContext);
+  if (fromSite) return fromSite;
+
+  return extractLocatorHappyHour(place.websiteUri, venueContext);
 }
 
 export { hasAiExtraction } from './ai-extract.mjs';

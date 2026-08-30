@@ -3,6 +3,11 @@ import { sleep } from './io.mjs';
 import { isCloudflareChallenge } from './cloudflare-challenge.mjs';
 import { discoverFromSitemap } from './sitemap-discover.mjs';
 import {
+  LOCATOR_CANDIDATE_PATHS,
+  detectLocatorApis,
+  fetchLocatorRecords,
+} from './locator-widgets.mjs';
+import {
   classifyUrl,
   discoverSocialLinks,
   discoverSpecialsMedia,
@@ -55,6 +60,14 @@ const MENU_PATH_RE = /(?:^|\/)menus?(?:\/|$)/i;
 const MENU_ANCHOR_RE = /\b(?:food\s+)?menus?\b|\bview (?:the )?menu\b|\bour menu\b/i;
 const SPECIALS_TEXT_RE = /happy\s*hour|daily\s+specials?|drink\s+specials?|taco\s+tues|wine\s+wednes|thirsty\s+thurs|industry\s+night|half[- ]?price|1\/2\s*price|\d+%\s*off|\$\s?\d{1,2}(?:\.\d{2})?\b/i;
 const MENU_ITEM_PATH_RE = /\/(?:items?|products?|p)\/[^/]+/i;
+/**
+ * A multi-location brand's locator. Worth following only because the offer is
+ * sometimes published nowhere else (see locator-widgets.mjs) — the page's own
+ * text almost never mentions happy hour, so it scores near the floor and must
+ * never outrank a specials or menu link.
+ */
+const LOCATOR_PATH_RE = /(?:^|\/)(?:locations?|store-?locator|find-?us|our-?locations?)(?:\/|$|\?)/i;
+const LOCATOR_ANCHOR_RE = /\b(?:locations?|store locator|find us|find a location)\b/i;
 
 /** Single dish/product permalinks are not inventory pages. */
 export function isMenuItemDetailUrl(url) {
@@ -393,7 +406,14 @@ export function discoverHappyHourLinksFromHtml(html, origin, maxLinks = 40) {
     const anchor = htmlToText(match[2]).toLowerCase();
     const combined = `${href} ${anchor}`.toLowerCase();
     const isMenu = MENU_PATH_RE.test(href) || MENU_ANCHOR_RE.test(anchor);
-    if (!HH_LINK_RE.test(combined) && !HH_URL_RE.test(href) && !isMenu) continue;
+    const isLocator = LOCATOR_PATH_RE.test(href) || LOCATOR_ANCHOR_RE.test(anchor);
+    if (!HH_LINK_RE.test(combined) && !HH_URL_RE.test(href) && !isMenu && !isLocator) continue;
+
+    if (isLocator && !isMenu && !HH_LINK_RE.test(combined)) {
+      add(href, 6);
+      if (scored.size >= maxLinks) break;
+      continue;
+    }
 
     let score = 10;
     if (/happy\s*hour|happyhour|golden\s*hour/.test(combined)) score += 40;
@@ -466,6 +486,10 @@ export function buildCandidateUrls(origin, discoveredLinks = [], options = {}) {
   const foundRealLinks = [...scored.values()].some((score) => score >= EVIDENCE_SCORE);
   if (!foundRealLinks && !sitemapOnly) {
     for (const row of CONVENTIONAL_CANDIDATE_PATHS) addPath(row.path, row.score);
+    // Last, and below every specials/menu guess: a locator page is worth a
+    // fetch only because multi-location brands sometimes publish the offer
+    // nowhere else, and it costs a page out of a small budget.
+    for (const row of LOCATOR_CANDIDATE_PATHS) addPath(row.path, row.score);
   }
 
   // Above the guesses: the homepage is the one page we know exists.
@@ -506,7 +530,12 @@ export async function inventoryWebsite(websiteUri, options = {}) {
     minHappyHourScore = 8,
     priorityUrl = null,
     fetchSocial = true,
+    venueContext = null,
   } = options;
+
+  // One locator lookup per domain inventory, like every other source here.
+  let locatorRecords = [];
+  const locatorApisTried = new Set();
 
   if (!websiteUri || !/^https?:\/\//i.test(websiteUri)) {
     return { origin: null, sitemapFound: false, blocked: false, homepage: null, candidates: [], social: [] };
@@ -621,6 +650,23 @@ export async function inventoryWebsite(websiteUri, options = {}) {
         continue;
       }
 
+      // Before scoring: a locator page scores zero on happy-hour text because
+      // the widget renders client-side, so the offer never appears in this
+      // HTML — only the script tag naming the account does. Reading it here
+      // means the page still pays off even though it is about to be dropped
+      // as a text candidate.
+      if (!locatorRecords.length && content.html) {
+        for (const api of detectLocatorApis(content.html, venueContext || {})) {
+          if (locatorApisTried.has(api.url)) continue;
+          locatorApisTried.add(api.url);
+          const records = await fetchLocatorRecords(api);
+          if (records.length) {
+            locatorRecords = records;
+            break;
+          }
+        }
+      }
+
       const text = content.text || htmlToText(content.html || '');
       let score = scoreHappyHourPage(url, content.html, text);
       if (score <= 0 && sitemapScore >= 20) score = sitemapScore;
@@ -707,6 +753,7 @@ export async function inventoryWebsite(websiteUri, options = {}) {
       : null,
     candidates: results.sort((a, b) => b.score - a.score),
     social,
+    locatorRecords,
   };
 }
 
