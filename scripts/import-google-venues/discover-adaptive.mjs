@@ -24,6 +24,7 @@
 import { COUNTY_BOUNDS, SEARCH_TYPES, CANDIDATES_PATH } from './lib/constants.mjs';
 import { nearbySearch, placeIdKey, displayName } from './lib/google-places.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
+import { borderLatAt } from './lib/county.mjs';
 
 const PAGE_SIZE = 20;
 const START_STEP = 0.045;
@@ -93,9 +94,17 @@ async function main() {
   // One queue per type: a square that caps on "restaurant" says nothing about
   // whether it caps on "brewery", and subdividing both wastes calls.
   const queue = [];
+  let belowBorder = 0;
   for (const square of initialSquares(boundsFromArgs())) {
+    // Central Tijuana is denser than anywhere in the county, so subdividing it
+    // would eat the budget on venues we discard at the county check anyway.
+    if (square.maxLat < borderLatAt((square.minLng + square.maxLng) / 2)) {
+      belowBorder += 1;
+      continue;
+    }
     for (const includedType of SEARCH_TYPES) queue.push({ square, includedType, depth: 0 });
   }
+  if (belowBorder) console.log(`Skipping ${belowBorder} squares south of the border.`);
 
   let calls = 0;
   let capped = 0;

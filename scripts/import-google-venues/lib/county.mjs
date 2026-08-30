@@ -18,6 +18,32 @@
 
 const COUNTY_TYPE = 'administrative_area_level_2';
 
+/**
+ * The US–Mexico land border, as a straight line.
+ *
+ * `COUNTY_BOUNDS` starts at 32.50°N, which reaches into Tijuana — 517 of our
+ * candidates are Mexican restaurants in the literal sense, and we had already
+ * bought Place Details for 459 of them. The county check catches these later,
+ * but only after we have paid; discovery needs to not go there at all, which
+ * matters much more now that adaptive search subdivides dense areas and
+ * central Tijuana is very dense.
+ *
+ * The boundary runs from the Pacific at 32.5343°N, 117.1244°W to the Colorado
+ * River at 32.7187°N, 114.7196°W, so its latitude climbs as you head east.
+ */
+const BORDER_WEST = { lat: 32.5343, lng: -117.1244 };
+const BORDER_EAST = { lat: 32.7187, lng: -114.7196 };
+
+export function borderLatAt(lng) {
+  const slope = (BORDER_EAST.lat - BORDER_WEST.lat) / (BORDER_EAST.lng - BORDER_WEST.lng);
+  return BORDER_WEST.lat + slope * (lng - BORDER_WEST.lng);
+}
+
+/** False for anything in Mexico, so discovery can skip it before spending. */
+export function isNorthOfBorder(lat, lng) {
+  return lat >= borderLatAt(lng);
+}
+
 export const SAN_DIEGO_COUNTY = 'San Diego County';
 
 /**
