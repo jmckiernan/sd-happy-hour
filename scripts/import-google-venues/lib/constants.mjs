@@ -22,8 +22,8 @@ export const COUNTY_BOUNDS = {
 
 export const SEARCH_TYPES = ['restaurant', 'bar', 'cafe', 'night_club', 'brewery'];
 
-export const MIN_RATING = Number(process.env.IMPORT_MIN_RATING || 4.2);
-export const MIN_REVIEWS = Number(process.env.IMPORT_MIN_REVIEWS || 50);
+export const MIN_RATING = Number(process.env.IMPORT_MIN_RATING || 4.0);
+export const MIN_REVIEWS = Number(process.env.IMPORT_MIN_REVIEWS || 10);
 export const MAX_IMPORT = Number(process.env.IMPORT_MAX || 1000);
 
 export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

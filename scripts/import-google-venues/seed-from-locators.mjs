@@ -54,6 +54,8 @@ function alreadyKnown(record, knownPoints) {
 
 async function main() {
   const apply = process.argv.includes('--apply');
+  const scopeOnly = process.argv.includes('--scope');
+  let lookupsNeeded = 0;
   const onlyDomain = process.argv.find((arg) => arg.startsWith('--domain='))?.split('=')[1];
 
   const enrichedStore = readJson(ENRICHED_PATH, { places: {}, meta: {} });
@@ -111,6 +113,13 @@ async function main() {
 
     if (!newRecords.length) continue;
     console.log(`${host}: ${records.length} locations, ${newRecords.length} unknown with a happy hour`);
+
+    // --scope counts the Google lookups a real run would make without making
+    // any of them, since Places calls are billed and locator reads are not.
+    if (scopeOnly) {
+      lookupsNeeded += newRecords.length;
+      continue;
+    }
 
     for (const record of newRecords) {
       const query = `${brand} ${record.address || record.name || ''}`.trim();
@@ -182,6 +191,14 @@ async function main() {
       console.log(`  ✓ ${displayName(details)} — ${details.formattedAddress}`);
       console.log(`      ${happyHour.startTime}-${happyHour.endTime}: ${finalizeDeals(happyHour.deals).join('; ')}`);
     }
+  }
+
+  if (scopeOnly) {
+    console.log('\n' + '='.repeat(64));
+    console.log(`${lookupsNeeded} addresses would need a Google lookup.`);
+    console.log(`That is ${lookupsNeeded} Text Search calls plus up to ${lookupsNeeded} Place Details calls.`);
+    console.log(`Skipped without any Google call: ${skipped.known} already known, ${skipped.noOffer} with no happy hour.`);
+    return;
   }
 
   console.log('\n' + '='.repeat(64));
