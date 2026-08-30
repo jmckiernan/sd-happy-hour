@@ -2,6 +2,17 @@ function normalizeName(name) {
   return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+/**
+ * Google returns displayName as `{ text }`, but the enrich cache flattens it to
+ * a plain string. Reading only `.text` made every comparison undefined, so
+ * dedupe matched nothing and staging offered to re-add the whole catalog.
+ */
+function nameOf(record) {
+  const display = record?.displayName;
+  if (typeof display === 'string') return display;
+  return display?.text || record?.name || '';
+}
+
 function distanceMeters(aLat, aLng, bLat, bLng) {
   const toRad = (value) => (value * Math.PI) / 180;
   const earth = 6371000;
@@ -17,7 +28,8 @@ export function isDuplicateCandidate(candidate, existingVenues, googleIds = new 
   const placeId = candidate.googlePlaceId || candidate.id?.replace(/^places\//, '');
   if (placeId && googleIds.has(placeId)) return true;
 
-  const name = normalizeName(candidate.displayName?.text || candidate.name);
+  const name = normalizeName(nameOf(candidate));
+  if (!name) return false;
   const lat = candidate.location?.latitude ?? candidate.lat;
   const lng = candidate.location?.longitude ?? candidate.lng;
 
@@ -34,8 +46,12 @@ export function isDuplicateCandidate(candidate, existingVenues, googleIds = new 
 }
 
 export function buildExistingIndex(existingVenues) {
+  // Catalog venues carry the id at the top level as `placeId`; `_import` is
+  // empty on every one of them, so relying on it alone matched nothing.
   const googleIds = new Set(
-    existingVenues.map((venue) => venue._import?.googlePlaceId).filter(Boolean)
+    existingVenues
+      .flatMap((venue) => [venue._import?.googlePlaceId, venue.placeId])
+      .filter(Boolean)
   );
   return { existingVenues, googleIds };
 }

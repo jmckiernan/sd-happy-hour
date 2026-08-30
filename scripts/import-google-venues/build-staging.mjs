@@ -9,6 +9,7 @@ import { dedupeRecords } from './lib/dedupe.mjs';
 import { normalizeVenue } from './lib/normalize.mjs';
 import { displayName } from './lib/google-places.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
+import { classifyCounty } from './lib/county.mjs';
 
 async function main() {
   const withHappyHour = readJson(WITH_HH_PATH);
@@ -20,8 +21,12 @@ async function main() {
   const existing = readJson(HAPPY_HOURS_PATH, []);
   let nextId = existing.reduce((max, venue) => Math.max(max, venue.id || 0), 0) + 1;
 
+  // Also checked at enrich time, but the cache predates that filter and still
+  // marks Orange and Riverside County places as qualified, so staging would
+  // happily re-add the venues audit:county just unlisted.
   const candidates = Object.values(withHappyHour.places)
     .filter((place) => place.hasHappyHour && place.happyHour)
+    .filter((place) => classifyCounty(place).inCounty)
     .sort((a, b) => (b.userRatingCount || 0) - (a.userRatingCount || 0));
 
   const { kept, skipped } = dedupeRecords(candidates, existing);

@@ -92,6 +92,9 @@ export function normalizeVenue(record, nextId) {
     dealTypes: inferDealTypes(deals, record.types || []),
     features: inferFeatures(record.types || [], inferVibe(record.primaryType, record.types)),
     seoHidden: hh.confidence !== 'high',
+    // Every catalog venue carries this explicitly; leaving it undefined on
+    // imports makes visibility depend on how each consumer reads a missing key.
+    listingStatus: 'published',
     _import: {
       googlePlaceId: record.googlePlaceId || record.id?.replace(/^places\//, ''),
       slug: slugify(name),
