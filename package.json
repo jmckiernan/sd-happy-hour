@@ -12,6 +12,7 @@
     "validate:data": "node scripts/validate-data.js",
     "audit:county": "node scripts/import-google-venues/audit-county.mjs",
     "audit:missed": "node scripts/import-google-venues/audit-missed-happy-hours.mjs",
+    "recover:missed": "node --env-file-if-exists=.env.local scripts/import-google-venues/recover-missed.mjs",
     "audit:seo": "node scripts/audit-seo.mjs",
     "audit:venues": "node --env-file-if-exists=.env.local scripts/audit-venues.mjs",
     "backfill:google-hh": "node scripts/backfill-google-happy-hour.mjs",

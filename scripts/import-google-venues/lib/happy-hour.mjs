@@ -690,6 +690,58 @@ export async function extractLocatorHappyHour(websiteUri, venueContext) {
   };
 }
 
+const SIGNAL_PATHS = ['', '/happy-hour', '/specials', '/menu'];
+const signalCache = new Map();
+
+/**
+ * Does this site claim a happy hour anywhere obvious?
+ *
+ * A deliberately dumb text search, used as a gate in front of the expensive
+ * extractor. Running the model on every enriched candidate costs ~$40 a run;
+ * running it only where a site says the words costs cents, because the money
+ * was never in the model, it was in asking it about thousands of sites with
+ * nothing to find.
+ */
+export async function siteMentionsHappyHour(websiteUri) {
+  let origin;
+  try {
+    origin = new URL(websiteUri).origin;
+  } catch {
+    return null;
+  }
+  if (signalCache.has(origin)) return signalCache.get(origin);
+
+  let hit = null;
+  try {
+    for (const suffix of SIGNAL_PATHS) {
+      const url = suffix ? `${origin}${suffix}` : websiteUri;
+      const html = await fetchPageHtml(url);
+      if (!html || isCloudflareChallenge(html)) continue;
+      const text = htmlToText(html);
+      const match = /happy\s*hour/i.exec(text);
+      if (!match) continue;
+      hit = { url, excerpt: text.slice(Math.max(0, match.index - 90), match.index + 160).replace(/\s+/g, ' ').trim() };
+      break;
+    }
+  } catch {
+    // An unreachable site simply has no signal.
+  }
+
+  signalCache.set(origin, hit);
+  return hit;
+}
+
+/**
+ * A result can come back `found` with nothing usable behind it — a page title
+ * reading "Happy Hour", or a line like "Come by for a Happy Hour". Importing
+ * those puts a venue on the site with blank times, so they are not findings.
+ */
+export function hasUsableSchedule(result) {
+  if (!result?.found) return false;
+  if (!isValidTime(result.startTime) || !isValidTime(result.endTime)) return false;
+  return Array.isArray(result.days) ? result.days.length > 0 : Boolean(result.days);
+}
+
 export async function resolveHappyHour(place) {
   const google = parseGoogleHappyHour(place.regularSecondaryOpeningHours);
   if (google) {
@@ -706,7 +758,20 @@ export async function resolveHappyHour(place) {
   const fromSite = await extractWebsiteHappyHour(place.websiteUri, 400, venueContext);
   if (fromSite) return fromSite;
 
-  return extractLocatorHappyHour(place.websiteUri, venueContext);
+  const fromLocator = await extractLocatorHappyHour(place.websiteUri, venueContext);
+  if (fromLocator) return fromLocator;
+
+  // Last resort: the site says "happy hour" but the cheap readers could not
+  // pull a schedule out of it. Only now is a model call worth making.
+  if (process.env.IMPORT_AI_FALLBACK === '0') return null;
+  const signal = await siteMentionsHappyHour(place.websiteUri);
+  if (!signal) return null;
+
+  const deep = await extractWebsiteHappyHourWithAi(place.websiteUri, {
+    ...venueContext,
+    sourceUrl: signal.url,
+  });
+  return hasUsableSchedule(deep) ? deep : null;
 }
 
 export { hasAiExtraction } from './ai-extract.mjs';

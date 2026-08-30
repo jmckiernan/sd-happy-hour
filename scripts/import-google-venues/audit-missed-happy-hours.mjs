@@ -24,10 +24,9 @@ import { WITH_HH_PATH } from './lib/constants.mjs';
 import { readJson, writeJson, parseArgs } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
 import { isUsableVenueWebsite } from './lib/website-ownership.mjs';
-import { extractLocatorHappyHour, fetchPageHtml, htmlToText } from './lib/happy-hour.mjs';
+import { extractLocatorHappyHour, siteMentionsHappyHour } from './lib/happy-hour.mjs';
 
 const REPORT_PATH = '.data/import/google/missed-happy-hours.json';
-const SIGNAL_PATHS = ['', '/happy-hour', '/specials', '/menu'];
 const CONCURRENCY = 8;
 
 /** Chains whose "happy hour" hits are franchise boilerplate, not a local offer. */
@@ -64,41 +63,19 @@ async function pool(items, worker, size = CONCURRENCY) {
   return results;
 }
 
-/** Does this site mention a happy hour anywhere obvious? One pass per domain. */
-const signalCache = new Map();
-async function siteMentionsHappyHour(websiteUri) {
-  const host = hostOf(websiteUri);
-  if (!host) return null;
-  if (signalCache.has(host)) return signalCache.get(host);
-
-  let hit = null;
-  try {
-    const origin = new URL(websiteUri).origin;
-    for (const suffix of SIGNAL_PATHS) {
-      const url = suffix ? `${origin}${suffix}` : websiteUri;
-      const html = await fetchPageHtml(url);
-      if (!html) continue;
-      const text = htmlToText(html);
-      const match = /happy\s*hour/i.exec(text);
-      if (!match) continue;
-      hit = { url, excerpt: text.slice(Math.max(0, match.index - 90), match.index + 160).replace(/\s+/g, ' ').trim() };
-      break;
-    }
-  } catch {
-    // Unreachable sites are simply not candidates.
-  }
-
-  signalCache.set(host, hit);
-  return hit;
-}
-
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const tier = process.argv.find((arg) => arg.startsWith('--tier='))?.split('=')[1] || 'all';
 
   const data = readJson(WITH_HH_PATH, { places: {} }).places || {};
+  // A recovered venue is no longer a "miss", so it drops out of the pool. Pass
+  // --include-recovered to re-check them anyway, which is what you want when
+  // re-verifying an earlier recovery rather than hunting for new ones.
+  const includeRecovered = process.argv.includes('--include-recovered');
+
   let candidates = Object.values(data).filter((place) => {
-    if (place.hasHappyHour || !place.qualified) return false;
+    const alreadyRecovered = includeRecovered && place.recoveredVia;
+    if (!alreadyRecovered && (place.hasHappyHour || !place.qualified)) return false;
     if (!classifyCounty(place).inCounty) return false;
     if (!place.websiteUri || !isUsableVenueWebsite(place.websiteUri)) return false;
     const host = hostOf(place.websiteUri);
@@ -136,7 +113,7 @@ async function main() {
           reviews: place.userRatingCount,
           startTime: found.startTime,
           endTime: found.endTime,
-          days: found.days.length,
+          days: found.days,
           deals: found.deals,
           source: found.sourcePage,
         });
@@ -172,32 +149,38 @@ async function main() {
     console.log(`  ${signals.length} sites mention a happy hour we failed to parse.\n`);
   }
 
-  confirmed.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
-  signals.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+  // Running one tier keeps the other tier's results rather than blanking them,
+  // so a cheap locator re-check does not throw away an expensive signal sweep.
+  const previous = readJson(REPORT_PATH, { confirmed: [], signals: [] });
+  const finalConfirmed = tier === 'signal' ? previous.confirmed || [] : confirmed;
+  const finalSignals = tier === 'locator' ? previous.signals || [] : signals;
+
+  finalConfirmed.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+  finalSignals.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
 
   writeJson(REPORT_PATH, {
     meta: {
       generatedAt: new Date().toISOString(),
       candidates: candidates.length,
-      confirmed: confirmed.length,
-      signals: signals.length,
+      confirmed: finalConfirmed.length,
+      signals: finalSignals.length,
     },
-    confirmed,
-    signals,
+    confirmed: finalConfirmed,
+    signals: finalSignals,
   });
 
   console.log('='.repeat(64));
-  console.log(`Ready to import now (locator-confirmed): ${confirmed.length}`);
-  for (const row of confirmed.slice(0, 25)) {
+  console.log(`Ready to import now (locator-confirmed): ${finalConfirmed.length}`);
+  for (const row of finalConfirmed.slice(0, 25)) {
     console.log(`  ${row.name} — ${row.address}`);
-    console.log(`      ${row.startTime}-${row.endTime}, ${row.days} days: ${row.deals.join('; ') || '(no deal text)'}`);
+    console.log(`      ${row.startTime}-${row.endTime}, ${row.days.length} days: ${row.deals.join('; ') || '(no deal text)'}`);
   }
-  console.log(`\nWorth an AI pass (site says happy hour, we could not parse it): ${signals.length}`);
-  for (const row of signals.slice(0, 25)) {
+  console.log(`\nWorth an AI pass (site says happy hour, we could not parse it): ${finalSignals.length}`);
+  for (const row of finalSignals.slice(0, 25)) {
     console.log(`  ${row.name} (${row.reviews} reviews) — ${row.foundOn}`);
     console.log(`      "${row.excerpt.slice(0, 120)}"`);
   }
-  console.log(`\nEstimated deep-extract cost for those ${signals.length}: $${(signals.length * 0.0085).toFixed(2)}`);
+  console.log(`\nEstimated deep-extract cost for those ${finalSignals.length}: $${(finalSignals.length * 0.0085).toFixed(2)}`);
   console.log(`Full report: ${REPORT_PATH}`);
 }
 

@@ -60,6 +60,8 @@ import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-
 import { buildBoardHtml } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
 import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
+import { dedupeRecords } from '../scripts/import-google-venues/lib/dedupe.mjs';
+import { hasUsableSchedule } from '../scripts/import-google-venues/lib/happy-hour.mjs';
 import {
   detectLocatorApis,
   collectLocationRecordsFromJson,
@@ -1856,10 +1858,10 @@ function testLocatorOffersAreMatchedPerLocationNotBrandWide() {
     null
   );
 
-  // Same brand a few blocks away is a *different* store, not this one. 855m
-  // apart here, which is well inside the same neighborhood.
+  // Same brand a few blocks away is a *different* store, not this one. ~880m
+  // from the Mission Valley record, well inside the same neighborhood.
   assert.equal(
-    matchLocatorRecord(records, { lat: 32.7665, lng: -117.1568, address: 'unknown' }),
+    matchLocatorRecord(records, { lat: 32.7744, lng: -117.1568, address: 'unknown' }),
     null
   );
 }
@@ -1875,6 +1877,45 @@ function testLocatorLinksRankBelowSpecialsAndMenus() {
   assert.ok(score('/locations') > 0, 'locator link should be followed at all');
   assert.ok(score('/locations') < score('/menu'), 'locator must not outrank a menu');
   assert.ok(score('/locations') < score('/specials'), 'locator must not outrank specials');
+}
+
+function testDedupeSeesVenuesTheCacheStoresAsPlainStrings() {
+  const existing = [
+    { name: 'Board & Brew', lat: 32.910701, lng: -117.108498, placeId: 'ChIJabc' },
+  ];
+
+  // Google sends `{ text }`, the enrich cache flattens it to a string. Reading
+  // only `.text` made every name undefined, so nothing ever matched and
+  // staging offered to re-add all 534 venues already in the catalog.
+  const fromCache = { displayName: 'Board & Brew', location: { latitude: 32.910701, longitude: -117.108498 } };
+  const fromGoogle = { displayName: { text: 'Board & Brew' }, location: { latitude: 32.910701, longitude: -117.108498 } };
+  assert.equal(dedupeRecords([fromCache], existing).kept.length, 0);
+  assert.equal(dedupeRecords([fromGoogle], existing).kept.length, 0);
+
+  // The catalog keeps the id at the top level; `_import` is empty on all of
+  // them, so matching on `_import` alone caught nothing.
+  const byId = { googlePlaceId: 'ChIJabc', displayName: 'Renamed Since Import', location: { latitude: 1, longitude: 1 } };
+  assert.equal(dedupeRecords([byId], existing).kept.length, 0);
+
+  // A genuinely new venue still gets through, and a same-name venue far away
+  // is a different location, not a duplicate.
+  const newVenue = { displayName: 'Somewhere Else', location: { latitude: 32.7, longitude: -117.2 } };
+  assert.equal(dedupeRecords([newVenue], existing).kept.length, 1);
+  const otherBranch = { displayName: 'Board & Brew', location: { latitude: 32.98, longitude: -117.07 } };
+  assert.equal(dedupeRecords([otherBranch], existing).kept.length, 1);
+
+  // A nameless record must not collapse into every nameless venue.
+  assert.equal(dedupeRecords([{ location: { latitude: 32.9, longitude: -117.1 } }], [{ name: '', lat: 32.9, lng: -117.1 }]).kept.length, 1);
+}
+
+function testFoundWithoutAScheduleIsNotAFinding() {
+  // Real results from the recovery run: the model reported found, but one had
+  // only a page title and another only "Come by for a Happy Hour".
+  assert.equal(hasUsableSchedule({ found: true, startTime: undefined, endTime: undefined, days: ['Monday'] }), false);
+  assert.equal(hasUsableSchedule({ found: true, startTime: '15:00', endTime: '18:00', days: [] }), false);
+  assert.equal(hasUsableSchedule({ found: false, startTime: '15:00', endTime: '18:00', days: ['Monday'] }), false);
+  assert.equal(hasUsableSchedule({ found: true, startTime: '25:00', endTime: '18:00', days: ['Monday'] }), false);
+  assert.equal(hasUsableSchedule({ found: true, startTime: '15:00', endTime: '18:00', days: ['Monday'] }), true);
 }
 
 function testCountyComesFromGoogleNotTheBoundsRectangle() {
@@ -1914,6 +1955,8 @@ function testCatalogHasNoPublishedOutOfCountyVenues() {
 }
 
 tests.push(
+  testDedupeSeesVenuesTheCacheStoresAsPlainStrings,
+  testFoundWithoutAScheduleIsNotAFinding,
   testCountyComesFromGoogleNotTheBoundsRectangle,
   testCatalogHasNoPublishedOutOfCountyVenues,
   testLocatorWidgetApiIsFoundFromItsScriptTag,
