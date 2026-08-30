@@ -31,7 +31,12 @@ export const NEIGHBORHOOD_BOXES = [
 
   // Coastal north county
   { name: 'Del Mar', minLat: 32.940, maxLat: 32.980, minLng: -117.280, maxLng: -117.240 },
-  { name: 'Solana Beach', minLat: 32.980, maxLat: 33.020, minLng: -117.290, maxLng: -117.250 },
+  { name: 'Solana Beach', minLat: 32.980, maxLat: 33.000, minLng: -117.290, maxLng: -117.250 },
+  // Cardiff-by-the-Sea (92007) sat inside the old Solana Beach box, so its
+  // venues were labelled Solana Beach or Encinitas even though their addresses
+  // plainly say Cardiff. Boxes are checked before addresses, so the /cardiff/
+  // rule further down could never fire for a venue that had coordinates.
+  { name: 'Cardiff', minLat: 33.000, maxLat: 33.030, minLng: -117.295, maxLng: -117.270 },
   { name: 'Encinitas', minLat: 33.020, maxLat: 33.080, minLng: -117.320, maxLng: -117.260 },
   { name: 'Carlsbad', minLat: 33.080, maxLat: 33.180, minLng: -117.360, maxLng: -117.260 },
   { name: 'Oceanside', minLat: 33.180, maxLat: 33.260, minLng: -117.420, maxLng: -117.280 },

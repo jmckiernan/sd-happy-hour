@@ -52,6 +52,60 @@ function inferFeatures(types = [], vibe = '') {
   return [...found].filter((feature) => FEATURES.includes(feature));
 }
 
+const MAX_WINDOW_MINUTES = 8 * 60;
+const MIN_WINDOW_MINUTES = 30;
+
+/**
+ * Is this a happy hour, or did we just read the restaurant's opening hours?
+ *
+ * Three Cheesecake Factories came through as 11:00–22:00 and a casino as
+ * 13:00–08:00. Nobody discounts for eleven hours; those are business hours
+ * that happened to sit near the words "happy hour". A window that runs past
+ * midnight is real (21:00–00:00), so short backwards spans are allowed.
+ */
+export function isPlausibleWindow(startTime, endTime) {
+  const toMinutes = (value) => {
+    const [h, m] = String(value).split(':').map(Number);
+    return h * 60 + m;
+  };
+  const start = toMinutes(startTime);
+  let end = toMinutes(endTime);
+  if (end <= start) end += 24 * 60;
+  const span = end - start;
+  return span >= MIN_WINDOW_MINUTES && span <= MAX_WINDOW_MINUTES;
+}
+
+const OFFER_SIGNAL = /\$|\d\s*(?:off|for)|%|half[- ](?:off|price)|1\/2\s*(?:off|price)|\bfree\b|\bbogo\b|two for|\bdiscount/i;
+
+/**
+ * Drop "deals" that are really page titles or marketing copy.
+ *
+ * The extractor will happily hand back "FIREHOUSE American Eatery & Lounge" or
+ * "Best Gaslamp Happy Hour | American Junkie San Diego" — the name of the page
+ * it read, not anything you can order. A line earns its place by naming a
+ * price or a discount, or by being short enough to read as an item.
+ */
+export function stripNonOffers(deals, venueName = '') {
+  const nameTokens = String(venueName)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length >= 4);
+
+  return deals.filter((deal) => {
+    const text = String(deal || '').trim();
+    if (!text || text.length < 3) return false;
+    if (/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\s*[-–]?\s*(?:mon|tue|wed|thu|fri|sat|sun)?[a-z]*\s*:?\s*$/i.test(text)) {
+      return false;
+    }
+    if (OFFER_SIGNAL.test(text)) return true;
+    // No price and it echoes the venue's own name: that is a heading.
+    const lower = text.toLowerCase();
+    const echoes = nameTokens.filter((token) => lower.includes(token)).length;
+    if (echoes >= 2 || (echoes >= 1 && text.length > 30)) return false;
+    return text.length <= 60;
+  });
+}
+
 export function normalizeVenue(record, nextId) {
   const lat = record.location?.latitude ?? record.lat;
   const lng = record.location?.longitude ?? record.lng;
@@ -67,7 +121,9 @@ export function normalizeVenue(record, nextId) {
   if (!hh?.startTime || !hh?.endTime || !hh?.days?.length) return null;
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.startTime) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.endTime)) return null;
 
-  const deals = finalizeDeals(hh.deals || []);
+  if (!isPlausibleWindow(hh.startTime, hh.endTime)) return null;
+
+  const deals = finalizeDeals(stripNonOffers(hh.deals || [], name));
 
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
