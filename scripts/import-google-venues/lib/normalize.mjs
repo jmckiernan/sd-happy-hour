@@ -75,7 +75,29 @@ export function isPlausibleWindow(startTime, endTime) {
   return span >= MIN_WINDOW_MINUTES && span <= MAX_WINDOW_MINUTES;
 }
 
-const OFFER_SIGNAL = /\$|\d\s*(?:off|for)|%|half[- ](?:off|price)|1\/2\s*(?:off|price)|\bfree\b|\bbogo\b|two for|\bdiscount/i;
+// `½` has to be here alongside "half" and "1/2". Without it, "½ off appetizers
+// Mon–Fri 3–6pm" reads as priceless, and the "names two days, quotes no price"
+// rule below then throws away a perfectly good deal.
+const OFFER_SIGNAL = /\$|\d\s*(?:off|for)|%|[½¼⅓]|half[- ](?:off|price)|1\/2\s*(?:off|price)|\bfree\b|\bbogo\b|two for|\bdiscount/i;
+
+/**
+ * Site furniture the readers pick up alongside the real offers: nav labels,
+ * cookie and age notices, and the venue's opening-hours table. "Reserve",
+ * "Jobs" and "Must be 21+ to enter." all reached deal chips this way — short
+ * enough to pass the length test and naming no price to fail the offer test.
+ */
+const BOILERPLATE = new RegExp(
+  [
+    '^(reserve|reservations?|jobs|careers|menus?|order( online)?|gift cards?|contact( us)?|about( us)?|hours|directions|location|locations|catering|events?|shop|home|blog|news|faq|privacy|terms|sign ?up|subscribe|newsletter|follow us|book( now| a table)?)\\b',
+    'skip to (main )?content',
+    'must be \\d+\\+?',
+    "^(we'?re |now )?open( daily| now)?\\b",
+    '^join us',
+    '^\\s*(mon|tue|wed|thu|fri|sat|sun)[a-z]*\\s*[-–—]\\s*(mon|tue|wed|thu|fri|sat|sun)[a-z]*\\s*:?\\s*$',
+    'indicates required fields',
+  ].join('|'),
+  'i'
+);
 
 /**
  * Drop "deals" that are really page titles or marketing copy.
@@ -85,19 +107,51 @@ const OFFER_SIGNAL = /\$|\d\s*(?:off|for)|%|half[- ](?:off|price)|1\/2\s*(?:off|
  * it read, not anything you can order. A line earns its place by naming a
  * price or a discount, or by being short enough to read as an item.
  */
+/**
+ * Lines that name no offer at all.
+ *
+ * "Happy hour" is the label on the section the extractor was reading, not
+ * something you can order, and it arrived as the only "deal" for 86 of 112
+ * staged venues. A venue in that state knows its window but not its offers,
+ * which the catalog already expresses with `dealsUnknown`.
+ */
+const NOT_AN_OFFER = [
+  /^happy\s*hours?!?$/i,
+  /^happy\s*hour\s*(?:menu|specials?|deals?)$/i,
+  /^(?:daily|weekday|weekend)\s*specials?$/i,
+  /^(?:daily|weekday|weekend|late\s*night|all\s*day)\s*happy\s*hours?$/i,
+  // "at The Deck" — a location fragment left over from a sentence.
+  /^(?:at|in|on)\s+\w+(?:\s+\w+)?$/i,
+  /^call\s+us\b|^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/i,
+  /^(?:order|parties|reservations?|catering|menu|specials?|deals?|drinks?|food)$/i,
+  // An unfinished storefront, read verbatim off the page.
+  /you have no products/i,
+  /\[empty page content\]/i,
+  // "Mon-Thu &", "Fri &" — a day range the extractor cut mid-sentence.
+  /^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*(?:\s*[-–]\s*(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*)?\s*[&,:]?\s*$/i,
+];
+
 export function stripNonOffers(deals, venueName = '') {
   const nameTokens = String(venueName)
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((token) => token.length >= 4);
 
+  const DAY_WORD = /\b(mon|tues?|wed(nes)?|thur?s?|fri|sat(ur)?|sun)(day)?\b/gi;
+
   return deals.filter((deal) => {
-    const text = String(deal || '').trim();
+    // Sites use curly apostrophes, which would otherwise slip past the
+    // boilerplate patterns ("We're open" vs "We’re open").
+    const text = String(deal || '').replace(/[\u2018\u2019]/g, "'").trim();
     if (!text || text.length < 3) return false;
-    if (/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\s*[-–]?\s*(?:mon|tue|wed|thu|fri|sat|sun)?[a-z]*\s*:?\s*$/i.test(text)) {
-      return false;
-    }
+    if (NOT_AN_OFFER.some((pattern) => pattern.test(text))) return false;
+    if (BOILERPLATE.test(text)) return false;
+    // A line that only ends a label ("Happy Hour:", "Wednesday - Sunday:")
+    // introduces the offers; it is never one itself.
+    if (/:$/.test(text) && !OFFER_SIGNAL.test(text)) return false;
     if (OFFER_SIGNAL.test(text)) return true;
+    // Names several days and quotes no price: an opening-hours row, not a deal.
+    if ((text.match(DAY_WORD) || []).length >= 2) return false;
     // No price and it echoes the venue's own name: that is a heading.
     const lower = text.toLowerCase();
     const echoes = nameTokens.filter((token) => lower.includes(token)).length;
@@ -114,16 +168,25 @@ export function normalizeVenue(record, nextId) {
   const name = record.displayName?.text || record.displayName || record.name || '';
   if (!name.trim()) return null;
   const address = record.formattedAddress || record.address;
-  const website = isUsableVenueWebsite(record.websiteUri || record.website)
+  // Some venues have no site of their own, or only a Facebook/Yelp page we
+  // refuse to treat as one. Their Google listing is then the only place a
+  // reader can go, and every published listing needs somewhere to point.
+  const ownSite = isUsableVenueWebsite(record.websiteUri || record.website)
     ? (record.websiteUri || record.website)
     : '';
+  const website = ownSite || record.googleMapsUri || '';
   const hh = record.happyHour;
   if (!hh?.startTime || !hh?.endTime || !hh?.days?.length) return null;
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.startTime) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hh.endTime)) return null;
 
   if (!isPlausibleWindow(hh.startTime, hh.endTime)) return null;
 
-  const deals = finalizeDeals(stripNonOffers(hh.deals || [], name));
+  // When nothing survives, say so rather than falling back to filler. We know
+  // the window; claiming to know the offers is what puts "Happy hour" on a card
+  // as though it were a deal.
+  const offers = stripNonOffers(hh.deals || [], name);
+  const deals = offers.length ? finalizeDeals(offers) : [];
+  const dealsUnknown = deals.length === 0;
 
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
@@ -139,6 +202,7 @@ export function normalizeVenue(record, nextId) {
     startTime: hh.startTime,
     endTime: hh.endTime,
     deals,
+    dealsUnknown,
     vibe: inferVibe(record.primaryType, record.types),
     website,
     phone: record.nationalPhoneNumber || record.phone || undefined,
@@ -159,6 +223,62 @@ export function normalizeVenue(record, nextId) {
       happyHourSource: hh.source,
       happyHourConfidence: hh.confidence,
       importedAt: new Date().toISOString(),
+    },
+  };
+}
+
+/**
+ * A venue we can't substantiate a happy hour for, carried so its owner can
+ * find and claim it from the restaurant dashboard.
+ *
+ * Deliberately has no days/startTime/endTime: the venue page reads a window as
+ * a real happy hour, so a placeholder would publish a time we made up. Stays
+ * off browse surfaces and out of the sitemap via listingStatus.
+ */
+export function normalizeStubVenue(record, nextId) {
+  const lat = record.location?.latitude ?? record.lat;
+  const lng = record.location?.longitude ?? record.lng;
+  if (!inCounty(lat, lng)) return null;
+
+  const name = (record.displayName?.text || record.displayName || record.name || '').trim();
+  if (!name) return null;
+  const address = record.formattedAddress || record.address;
+  if (!address) return null;
+
+  const website = isUsableVenueWebsite(record.websiteUri || record.website)
+    ? (record.websiteUri || record.website)
+    : '';
+  const sourceUrl = record.googleMapsUri || website;
+  if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
+
+  const vibe = inferVibe(record.primaryType, record.types);
+
+  return {
+    id: nextId,
+    name,
+    neighborhood: guessNeighborhood(lat, lng, address),
+    address,
+    lat,
+    lng,
+    deals: [],
+    vibe,
+    website,
+    phone: record.nationalPhoneNumber || record.phone || undefined,
+    verified: false,
+    lastVerifiedAt: null,
+    sourceUrl,
+    dealTypes: [],
+    features: inferFeatures(record.types || [], vibe),
+    seoHidden: true,
+    listingStatus: 'unlisted',
+    hasHappyHourData: false,
+    _import: {
+      googlePlaceId: record.googlePlaceId || record.id?.replace(/^places\//, ''),
+      slug: slugify(name),
+      rating: record.rating ?? null,
+      reviewCount: record.userRatingCount ?? null,
+      importedAt: new Date().toISOString(),
+      stub: true,
     },
   };
 }

@@ -24,42 +24,70 @@ function distanceMeters(aLat, aLng, bLat, bLng) {
   return 2 * earth * Math.asin(Math.sqrt(h));
 }
 
-export function isDuplicateCandidate(candidate, existingVenues, googleIds = new Set()) {
+/**
+ * The catalog venue this candidate already is, or null.
+ *
+ * Callers need the venue itself, not just a yes/no: once the catalog carries
+ * claimable stubs, "already present" is frequently a stub waiting for exactly
+ * the happy hour this candidate is bringing, and that is an upgrade rather
+ * than a duplicate to discard.
+ */
+export function findMatchingVenue(candidate, existingVenues, byPlaceId = new Map()) {
   const placeId = candidate.googlePlaceId || candidate.id?.replace(/^places\//, '');
-  if (placeId && googleIds.has(placeId)) return true;
+  if (placeId && byPlaceId.has(placeId)) return byPlaceId.get(placeId);
 
   const name = normalizeName(nameOf(candidate));
-  if (!name) return false;
+  if (!name) return null;
   const lat = candidate.location?.latitude ?? candidate.lat;
   const lng = candidate.location?.longitude ?? candidate.lng;
 
   for (const venue of existingVenues) {
-    if (normalizeName(venue.name) === name) {
-      if (Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)) {
-        if (distanceMeters(lat, lng, venue.lat, venue.lng) < 120) return true;
-      } else {
-        return true;
-      }
+    if (normalizeName(venue.name) !== name) continue;
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)) {
+      if (distanceMeters(lat, lng, venue.lat, venue.lng) < 120) return venue;
+    } else {
+      return venue;
     }
   }
-  return false;
+  return null;
+}
+
+export function isDuplicateCandidate(candidate, existingVenues, googleIds = new Set()) {
+  const byPlaceId = new Map();
+  for (const venue of existingVenues) {
+    for (const id of [venue._import?.googlePlaceId, venue.placeId]) {
+      if (id && googleIds.has(id)) byPlaceId.set(id, venue);
+    }
+  }
+  return findMatchingVenue(candidate, existingVenues, byPlaceId) !== null;
 }
 
 export function buildExistingIndex(existingVenues) {
   // Catalog venues carry the id at the top level as `placeId`; `_import` is
   // empty on every one of them, so relying on it alone matched nothing.
-  const googleIds = new Set(
-    existingVenues
-      .flatMap((venue) => [venue._import?.googlePlaceId, venue.placeId])
-      .filter(Boolean)
-  );
-  return { existingVenues, googleIds };
+  const byPlaceId = new Map();
+  for (const venue of existingVenues) {
+    for (const id of [venue._import?.googlePlaceId, venue.placeId]) {
+      if (id) byPlaceId.set(id, venue);
+    }
+  }
+  return { existingVenues, byPlaceId, googleIds: new Set(byPlaceId.keys()) };
 }
 
+/**
+ * Split candidates into new venues, upgrades to existing stubs, and true
+ * duplicates.
+ *
+ * `upgrades` exists because the catalog now carries a claimable page for every
+ * qualifying venue. Without it, finding a happy hour for a venue we already
+ * stubbed would read as "already have it" and be thrown away — which silently
+ * dropped all 112 findings the first time this ran.
+ */
 export function dedupeRecords(records, existingVenues) {
-  const { googleIds } = buildExistingIndex(existingVenues);
+  const { byPlaceId } = buildExistingIndex(existingVenues);
   const seen = new Set();
   const kept = [];
+  const upgrades = [];
   const skipped = [];
 
   for (const record of records) {
@@ -68,12 +96,18 @@ export function dedupeRecords(records, existingVenues) {
       skipped.push({ record, reason: 'duplicate-place-id' });
       continue;
     }
-    if (isDuplicateCandidate(record, existingVenues, googleIds)) {
-      skipped.push({ record, reason: 'matches-existing-venue' });
+    const match = findMatchingVenue(record, existingVenues, byPlaceId);
+    if (match) {
+      if (match.hasHappyHourData === false && !match.startTime) {
+        if (placeId) seen.add(placeId);
+        upgrades.push({ record, venue: match });
+      } else {
+        skipped.push({ record, reason: 'matches-existing-venue', venue: match });
+      }
       continue;
     }
     if (placeId) seen.add(placeId);
     kept.push(record);
   }
-  return { kept, skipped };
+  return { kept, upgrades, skipped };
 }

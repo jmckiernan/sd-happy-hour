@@ -10,6 +10,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "validate:data": "node scripts/validate-data.js",
+    "import:stubs": "node scripts/import-google-venues/import-claimable-stubs.mjs",
+    "purge:chains": "node scripts/import-google-venues/purge-chains.mjs",
+    "clean:deals": "node scripts/import-google-venues/clean-deal-text.mjs",
     "audit:county": "node scripts/import-google-venues/audit-county.mjs",
     "audit:missed": "node scripts/import-google-venues/audit-missed-happy-hours.mjs",
     "recover:missed": "node --env-file-if-exists=.env.local scripts/import-google-venues/recover-missed.mjs",
@@ -53,7 +56,8 @@
     "test:live-promotions:migration:guard": "node tests/live-promotions-migration.test.mjs --guard-only",
     "test:live-promotions:migration": "node tests/live-promotions-migration.test.mjs",
     "test:live-promotions:phase2:db:guard": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs --guard-only",
-    "test:live-promotions:phase2:db": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs"
+    "test:live-promotions:phase2:db": "esbuild tests/live-promotions-phase2-db.test.mjs --bundle --platform=node --format=esm --packages=external --define:import.meta.env.PROD=false --outfile=.data/tests/live-promotions-phase2-db.bundle.mjs && node .data/tests/live-promotions-phase2-db.bundle.mjs",
+    "upgrade:stubs": "node scripts/import-google-venues/upgrade-stubs.mjs"
   },
   "keywords": [],
   "author": "",

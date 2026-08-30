@@ -17,6 +17,7 @@
  */
 
 const COUNTY_TYPE = 'administrative_area_level_2';
+const COUNTRY_TYPE = 'country';
 
 /**
  * The US–Mexico land border, as a straight line.
@@ -67,6 +68,18 @@ export function countyFromAddressComponents(place) {
   return null;
 }
 
+/** `US`, `MX`, … or null when Google omitted it. */
+export function countryFromAddressComponents(place) {
+  const components = place?.addressComponents;
+  if (!Array.isArray(components)) return null;
+  for (const component of components) {
+    if (!(component?.types || []).includes(COUNTRY_TYPE)) continue;
+    const code = component.shortText || component.short_name || '';
+    if (code) return code;
+  }
+  return null;
+}
+
 /** Fallback for records with no county component: read the city off the address. */
 export function looksOutOfCountyByAddress(address) {
   return OUT_OF_COUNTY_CITIES.test(String(address || ''));
@@ -82,6 +95,18 @@ export function looksOutOfCountyByAddress(address) {
  * @returns {{ inCounty: boolean, county: string|null, basis: 'google'|'address'|'unknown' }}
  */
 export function classifyCounty(place, address = '') {
+  // Tijuana and Tecate have no administrative_area_level_2, so the county check
+  // alone read them as "no county data, probably fine" and let them through.
+  const country = countryFromAddressComponents(place);
+  if (country && country !== 'US') {
+    return { inCounty: false, county: null, basis: 'country' };
+  }
+  const lat = place?.location?.latitude ?? place?.lat;
+  const lng = place?.location?.longitude ?? place?.lng;
+  if (Number.isFinite(lat) && Number.isFinite(lng) && !isNorthOfBorder(lat, lng)) {
+    return { inCounty: false, county: null, basis: 'border' };
+  }
+
   const county = countyFromAddressComponents(place);
   if (county) {
     return { inCounty: county === SAN_DIEGO_COUNTY, county, basis: 'google' };

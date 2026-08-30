@@ -41,6 +41,12 @@ const DISCOVERY_MASK = [
   'places.primaryType',
 ].join(',');
 
+// Billing is by the highest tier any requested field belongs to, so one stray
+// field re-prices the whole call. `regularSecondaryOpeningHours` (Google's own
+// happy-hour block) and `websiteUri` are Enterprise and we genuinely need both,
+// so $20/1k is the floor here. servesBeer/servesWine/servesCocktails used to sit
+// in this list and nothing ever read them — they are Atmosphere fields, and they
+// were quietly charging every call $25/1k instead.
 const DETAILS_MASK = [
   'id',
   'displayName',
@@ -56,9 +62,23 @@ const DETAILS_MASK = [
   'types',
   'businessStatus',
   'regularSecondaryOpeningHours',
-  'servesBeer',
-  'servesWine',
-  'servesCocktails',
+].join(',');
+
+/**
+ * Just enough to put a claimable stub page on the site.
+ *
+ * Name, rating, review count and coordinates already come back free inside the
+ * Nearby Search response, so the only thing a stub is missing is its street
+ * address — and address fields are Essentials, at $5/1k with the first 10,000
+ * each month free. Reserve the Enterprise mask above for venues we actually
+ * intend to scrape a happy hour from.
+ */
+const STUB_DETAILS_MASK = [
+  'id',
+  'formattedAddress',
+  'addressComponents',
+  'location',
+  'types',
 ].join(',');
 
 export async function nearbySearch({ lat, lng, radiusMeters, includedType, delayMs = 250 }) {
@@ -111,6 +131,16 @@ export async function placeDetails(placeId, delayMs = 250) {
   const id = placeId.replace(/^places\//, '');
   const data = await placesFetch(`/places/${id}`, {
     fieldMask: DETAILS_MASK,
+  });
+  await sleep(delayMs);
+  return data;
+}
+
+/** Address-only lookup for venues we only need a claimable page for. */
+export async function placeDetailsEssentials(placeId, delayMs = 250) {
+  const id = placeId.replace(/^places\//, '');
+  const data = await placesFetch(`/places/${id}`, {
+    fieldMask: STUB_DETAILS_MASK,
   });
   await sleep(delayMs);
   return data;

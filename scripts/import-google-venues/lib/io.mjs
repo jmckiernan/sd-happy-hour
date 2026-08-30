@@ -20,9 +20,10 @@ export function sleep(ms) {
 }
 
 export function parseArgs(argv) {
-  const options = { dryRun: false, limit: 0, resume: true };
+  const options = { dryRun: false, limit: 0, resume: true, force: false };
   for (const arg of argv) {
     if (arg === '--dry-run') options.dryRun = true;
+    else if (arg === '--force') options.force = true;
     else if (arg === '--no-resume') options.resume = false;
     else if (arg.startsWith('--limit=')) options.limit = Number(arg.slice(8));
   }

@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import { venuePath, type Venue } from '../lib/venues';
+import { neighborhoodPath } from '../lib/neighborhoods';
+
+/**
+ * A venue we know exists but have no happy hour for.
+ *
+ * These are carried so an owner searching the claim dashboard can find their
+ * restaurant, so the page's job is to confirm we have the right place and
+ * point at the claim flow — not to imply a happy hour we can't substantiate.
+ * They stay out of the sitemap via listingStatus, and noindex covers anyone
+ * who reaches the URL another way.
+ */
+interface Props { venue: Venue }
+const { venue } = Astro.props;
+
+const areaPath = neighborhoodPath(venue.neighborhood);
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Neighborhoods', path: '/neighborhoods/' },
+  ...(areaPath ? [{ name: venue.neighborhood, path: areaPath }] : []),
+  { name: venue.name, path: venuePath(venue) },
+];
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name} ${venue.address}`)}`;
+---
+
+<Layout
+  title={`${venue.name} — ${venue.neighborhood}`}
+  description={`${venue.name} in ${venue.neighborhood}. We don't have a happy hour on file for this spot yet.`}
+  noindex={true}
+>
+  <main class="stub">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <h1>{venue.name}</h1>
+    <p class="where">
+      {areaPath ? <a href={areaPath}>{venue.neighborhood}</a> : venue.neighborhood}
+      <span aria-hidden="true">·</span>
+      <span>{venue.address}</span>
+    </p>
+
+    <div class="notice">
+      <h2>No happy hour on file</h2>
+      <p>
+        We know this spot is here, but we haven't found a published happy hour for it.
+        That usually means it doesn't run one, or it only announces specials in person
+        or on social media.
+      </p>
+    </div>
+
+    <div class="actions">
+      <a class="primary" href="/restaurant/">Own this restaurant? Claim it</a>
+      {venue.website && <a class="secondary" href={venue.website} rel="nofollow noopener" target="_blank">Visit website</a>}
+      <a class="secondary" href={mapsUrl} rel="nofollow noopener" target="_blank">Get directions</a>
+    </div>
+
+    <p class="claim-note">
+      Claiming lets you add your happy hour, and the listing goes public as soon as it's verified.
+    </p>
+  </main>
+</Layout>
+
+<style>
+  .stub {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  h1 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  .where {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 2rem;
+    color: #5a5a6a;
+  }
+
+  .where a { color: inherit; }
+
+  .notice {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #e3e3ea;
+    border-radius: 12px;
+    background: #fafafc;
+  }
+
+  .notice h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .notice p {
+    margin: 0;
+    color: #5a5a6a;
+    line-height: 1.6;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0 1rem;
+  }
+
+  .actions a {
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .primary {
+    background: #1A0A2E;
+    color: #fff;
+  }
+
+  .secondary {
+    border: 1px solid #d5d5de;
+    color: #1A0A2E;
+  }
+
+  .claim-note {
+    margin: 0;
+    color: #7a7a88;
+    font-size: 0.9rem;
+  }
+</style>

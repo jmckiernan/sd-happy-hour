@@ -1991,7 +1991,38 @@ function testCatalogHasNoPublishedOutOfCountyVenues() {
   assert.deepEqual(strays.map((venue) => venue.name), []);
 }
 
+/**
+ * Stub listings exist so an owner can find and claim a venue we have no happy
+ * hour for. The whole point is that they are reachable and claimable while
+ * staying off browse surfaces, so both halves are worth pinning down.
+ */
+function testAStubIsClaimableButNeverBrowsable() {
+  const stubs = happyHours.filter((venue) => venue.hasHappyHourData === false && !venue.startTime);
+  assert.ok(stubs.length > 0, 'expected the catalog to carry claimable stubs');
+
+  const browsable = stubs.filter((venue) => venue.listingStatus !== 'unlisted');
+  assert.deepEqual(browsable.map((venue) => venue.name), []);
+
+  // Anything the claim search shows has to be identifiable in a dropdown row.
+  const unidentifiable = stubs.filter((venue) => !venue.name || !venue.address || !venue.neighborhood);
+  assert.deepEqual(unidentifiable.map((venue) => venue.id), []);
+}
+
+/**
+ * A window on a stub would render as a real happy hour on its venue page, so
+ * "we don't know" has to stay absent rather than become a placeholder.
+ */
+function testAStubCarriesNoInventedHappyHour() {
+  const stubs = happyHours.filter((venue) => venue.hasHappyHourData === false && !venue.startTime);
+  const invented = stubs.filter(
+    (venue) => venue.endTime || venue.days?.length || venue.deals?.length || venue.windows?.length
+  );
+  assert.deepEqual(invented.map((venue) => venue.name), []);
+}
+
 tests.push(
+  testAStubIsClaimableButNeverBrowsable,
+  testAStubCarriesNoInventedHappyHour,
   testAChainPageMustBelongToThisBranch,
   testDedupeSeesVenuesTheCacheStoresAsPlainStrings,
   testFoundWithoutAScheduleIsNotAFinding,

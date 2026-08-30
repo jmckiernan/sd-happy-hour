@@ -42,16 +42,29 @@ function validateListing(listing, label) {
   if (!Number.isFinite(listing.lng)) errors.push(`${label}: lng is required.`);
   if (Number.isFinite(listing.lat) && (listing.lat < -90 || listing.lat > 90)) errors.push(`${label}: lat is out of range.`);
   if (Number.isFinite(listing.lng) && (listing.lng < -180 || listing.lng > 180)) errors.push(`${label}: lng is out of range.`);
-  if (!hasStringArray(listing.days) || listing.days.some((day) => !validDays.has(day))) errors.push(`${label}: days must contain valid day names.`);
+  // A stub listing exists only so its owner can find and claim it, so it has
+  // no window to validate. Inventing placeholder times instead would render as
+  // a real happy hour on the venue page.
+  const isStub = listing.hasHappyHourData === false && !listing.startTime && !listing.endTime;
+  if (isStub) {
+    if (listing.days?.length) errors.push(`${label}: a stub listing must not carry days without a window.`);
+    if (listing.deals?.length) errors.push(`${label}: a stub listing must not carry deals.`);
+    if (listing.dealTypes?.length) errors.push(`${label}: a stub listing must not carry dealTypes.`);
+    if (listing.listingStatus !== 'unlisted') errors.push(`${label}: a stub listing must be unlisted.`);
+  } else {
+    if (!hasStringArray(listing.days) || listing.days.some((day) => !validDays.has(day))) errors.push(`${label}: days must contain valid day names.`);
+    if (!isTime(listing.startTime)) errors.push(`${label}: startTime must be HH:MM.`);
+    if (!isTime(listing.endTime)) errors.push(`${label}: endTime must be HH:MM.`);
+  }
   if (Boolean(listing.openTime) !== Boolean(listing.closeTime)) errors.push(`${label}: openTime and closeTime must be supplied together.`);
   if (listing.openTime && !isTime(listing.openTime)) errors.push(`${label}: openTime must be HH:MM when present.`);
   if (listing.closeTime && !isTime(listing.closeTime)) errors.push(`${label}: closeTime must be HH:MM when present.`);
-  if (!isTime(listing.startTime)) errors.push(`${label}: startTime must be HH:MM.`);
-  if (!isTime(listing.endTime)) errors.push(`${label}: endTime must be HH:MM.`);
   // Deals may legitimately be empty: plenty of venues publish a happy hour
   // without publishing the offers anywhere. Those must say so via dealsUnknown
   // rather than carry a placeholder deal line.
-  if (listing.dealsUnknown === true) {
+  if (isStub) {
+    // Nothing to describe, so nothing to categorize either.
+  } else if (listing.dealsUnknown === true) {
     if (!Array.isArray(listing.deals) || listing.deals.some((deal) => !hasString(deal))) {
       errors.push(`${label}: deals must be a string array when dealsUnknown is set.`);
     }
@@ -111,12 +124,16 @@ function validateListing(listing, label) {
     }
   }
   if (!hasString(listing.vibe)) errors.push(`${label}: vibe is required.`);
-  if (!isUrl(listing.website)) errors.push(`${label}: website must be an http(s) URL.`);
+  // A stub may have no website at all — plenty of small restaurants only have a
+  // Google listing, and we still want their owner to be able to claim the page.
+  if (isStub ? listing.website && !isUrl(listing.website) : !isUrl(listing.website)) {
+    errors.push(`${label}: website must be an http(s) URL.`);
+  }
   if (typeof listing.verified !== 'boolean') errors.push(`${label}: verified must be boolean.`);
   if ('seoHidden' in listing && typeof listing.seoHidden !== 'boolean') errors.push(`${label}: seoHidden must be boolean when present.`);
   if (!('lastVerifiedAt' in listing)) errors.push(`${label}: lastVerifiedAt is required, even when null.`);
   if (!isUrl(listing.sourceUrl)) errors.push(`${label}: sourceUrl must be an http(s) URL.`);
-  if (!hasStringArray(listing.dealTypes)) errors.push(`${label}: dealTypes must be a non-empty string array.`);
+  if (!isStub && !hasStringArray(listing.dealTypes)) errors.push(`${label}: dealTypes must be a non-empty string array.`);
   if (!hasStringArray(listing.features)) errors.push(`${label}: features must be a non-empty string array.`);
   // Optional admin-set featured photo. Absent means the site falls back to the
   // vibe stock photo, so only its shape is checked — same rule as

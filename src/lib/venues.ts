@@ -24,13 +24,16 @@ export interface Venue {
   address: string;
   lat: number;
   lng: number;
-  days: string[];
+  /** Absent on stub listings, which we carry only so an owner can find and
+   * claim them. Public browse surfaces get ListedVenue, where the window is
+   * guaranteed, so only the venue page and the claim search see them missing. */
+  days?: string[];
   /** General venue hours. Optional for legacy listings until an owner/admin
    * supplies them; these are distinct from the recurring happy-hour window. */
   openTime?: string;
   closeTime?: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
   deals: string[];
   /** Day-by-day specials that don't fit a single happy-hour window (named nights, exchanges, game day). */
   weeklySpecials?: WeeklySpecial[];
@@ -172,6 +175,26 @@ export function getVenues(): Venue[] {
 export { isPubliclyListed };
 
 /**
+ * A venue with a happy-hour window we can actually show. Everything that
+ * renders a time, sorts by one, or answers "is it on right now" wants this
+ * rather than Venue, so stub listings can't reach those paths untyped.
+ */
+export type ListedVenue = Venue & {
+  days: string[];
+  startTime: string;
+  endTime: string;
+};
+
+/**
+ * A claim can publish a stub listing before its owner has told us when happy
+ * hour runs, so this is checked alongside listing status rather than assumed
+ * from it — such a venue stays off browse until there is a window to show.
+ */
+export function hasSchedule(venue: Venue): venue is ListedVenue {
+  return Boolean(venue.startTime && venue.endTime && venue.days?.length);
+}
+
+/**
  * Venues that should appear in search, the homepage, and neighborhood pages.
  *
  * Build-time callers (prerendered pages, the sitemap) can't know about claims
@@ -179,22 +202,27 @@ export { isPubliclyListed };
  * answer; those surfaces catch up on the deploy that publishVerifiedVenue()
  * triggers. Runtime callers pass the publication set for the live answer.
  */
-export function getPublicVenues(publishedVenueIds?: ReadonlySet<number> | null): Venue[] {
-  return getVenues().filter((venue) => isPubliclyListed(venue, publishedVenueIds));
+export function getPublicVenues(publishedVenueIds?: ReadonlySet<number> | null): ListedVenue[] {
+  return getVenues().filter(
+    (venue): venue is ListedVenue =>
+      hasSchedule(venue) && isPubliclyListed(venue, publishedVenueIds)
+  );
 }
 
 export function getVenueById(id: number): Venue | undefined {
   return getVenues().find((venue) => venue.id === id);
 }
 
-export function getVenuesForBlogSlug(slug: string): Venue[] {
-  const venues = getVenues();
+/** Blog posts render venue cards, which show a happy-hour window, so a stub
+ * listing can never be the answer here even when its name matches the slug. */
+export function getVenuesForBlogSlug(slug: string): ListedVenue[] {
+  const venues = getVenues().filter(hasSchedule);
   const exact = venues.filter((venue) => venueSlug(venue) === slug);
   if (exact.length) return exact;
   return venues.filter((venue) => slugify(venue.name) === slug);
 }
 
-export function getVenueBySlug(slug: string): Venue | undefined {
+export function getVenueBySlug(slug: string): ListedVenue | undefined {
   const matches = getVenuesForBlogSlug(slug);
   if (matches.length === 1) return matches[0];
   return matches.find((venue) => venueSlug(venue) === slug);
@@ -213,7 +241,7 @@ export function getVenueBySlug(slug: string): Venue | undefined {
  * the legacy combined check. Kept as a compatibility name while consumers
  * move to isHappyHourActive()/getActiveHappyHourOccurrence(). */
 export function isHappeningNow(venue: Venue, now: Date = new Date()): boolean {
-  return isHappyHourActive(venue, now);
+  return hasSchedule(venue) && isHappyHourActive(venue, now);
 }
 
 /** Is this venue live right now — either by its normal schedule, or because

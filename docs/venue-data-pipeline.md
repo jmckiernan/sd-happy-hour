@@ -160,6 +160,29 @@ Out-of-county places never qualify. `COUNTY_BOUNDS` is a rectangle and the count
 
 Unlisted venues still have a page so owners can find and claim them. They stay out of the sitemap and browse.
 
+### Claimable stubs
+
+Every enriched place that clears 4.0★ / 10 reviews and sits in San Diego County gets a
+listing, whether or not we ever found a happy hour for it — otherwise an owner searching
+the restaurant dashboard for their own restaurant finds nothing to claim.
+
+A stub is a listing with `hasHappyHourData: false` and **no** `days`, `startTime`,
+`endTime`, `deals`, or `dealTypes`. Their absence is the point: the venue page renders any
+window it finds as a real happy hour, so a placeholder would publish a time we invented.
+`validate-data.js` enforces that a stub carries none of them and is `unlisted`.
+
+`src/pages/venues/[slug].astro` dispatches on `hasSchedule(venue)` — scheduled venues get
+`VenueHappyHourPage`, stubs get the much smaller `VenueStubPage`, which is `noindex` and
+points at the claim flow. `getPublicVenues()` returns `ListedVenue`, so browse surfaces
+can't receive a stub even if a claim publishes one before its owner supplies a window.
+
+Costs nothing to run; every place involved was already enriched.
+
+```bash
+npm run import:stubs -- --dry-run
+npm run import:stubs
+```
+
 ---
 
 ## Commands
