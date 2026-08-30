@@ -6,6 +6,10 @@ The public site is a directory of **substantiated** happy hours. Every venue we 
 
 ---
 
+For the exhaustive list of every check, gate, threshold and constant in the pipeline — in stage
+order, with the reasoning behind each — see `docs/venue-pipeline-reference.md`. This file is the
+operational playbook; that one is the specification.
+
 ## What a listing is allowed to say
 
 - **Times** must come from Google’s happy-hour hours or from a venue page we can quote.
