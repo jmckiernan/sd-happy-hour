@@ -30,42 +30,15 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       text-align: center;
       padding: 110px 24px 100px;
       overflow: hidden;
-      background: linear-gradient(to bottom, #1A0A2E 0%, #2D1B4E 30%, #8B4B6B 55%, #E8956B 75%, #F4C05C 90%, #FFE4A0 100%);
+      background: #1A0A2E url('/images/hero-sunset.jpg') center 72% / cover no-repeat;
     }
 
+    /* Darkens the sky behind the headline so white text stays legible */
     .hero::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 40%;
-      background-image:
-        radial-gradient(2px 2px at 20% 15%, white 100%, transparent),
-        radial-gradient(2px 2px at 40% 8%, white 100%, transparent),
-        radial-gradient(1px 1px at 60% 20%, white 100%, transparent),
-        radial-gradient(2px 2px at 80% 12%, white 100%, transparent),
-        radial-gradient(1px 1px at 10% 25%, white 100%, transparent),
-        radial-gradient(1px 1px at 70% 5%, white 100%, transparent),
-        radial-gradient(2px 2px at 90% 22%, white 100%, transparent);
-      opacity: 0.6;
-      z-index: 1;
-    }
-
-    .sun {
-      position: absolute;
-      bottom: 15%; left: 50%;
-      transform: translateX(-50%);
-      width: 180px; height: 180px;
-      background: radial-gradient(circle, #FFF9E6 0%, #FFD54F 30%, #FF9800 60%, transparent 70%);
-      border-radius: 50%;
-      z-index: 1;
-      filter: blur(2px);
-    }
-
-    .ocean {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 18%;
-      background: linear-gradient(to bottom, #1A5276 0%, #154360 50%, #0E2F44 100%);
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(26, 10, 46, 0.75) 0%, rgba(26, 10, 46, 0.45) 45%, rgba(14, 47, 68, 0.25) 100%);
       z-index: 2;
     }
 
@@ -441,9 +414,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
   <!-- HERO -->
   <section class="hero">
-    <div class="sun"></div>
-    <div class="ocean"></div>
-
     <div class="hero-content">
       <div class="hero-badge">
         <span class="pulse"></span>
