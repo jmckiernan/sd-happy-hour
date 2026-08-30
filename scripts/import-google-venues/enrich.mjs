@@ -8,6 +8,7 @@
 import { MIN_RATING, MIN_REVIEWS, ENRICHED_PATH, CANDIDATES_PATH } from './lib/constants.mjs';
 import { placeDetails, placeIdKey, displayName } from './lib/google-places.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
+import { classifyCounty } from './lib/county.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
@@ -27,6 +28,7 @@ async function main() {
 
   let fetched = 0;
   let passed = 0;
+  let outOfCounty = 0;
   for (const id of todo) {
     if (options.resume && enriched[id]?.detailsFetchedAt) continue;
     fetched += 1;
@@ -35,12 +37,20 @@ async function main() {
       const rating = details.rating ?? 0;
       const reviews = details.userRatingCount ?? 0;
       const status = details.businessStatus || 'OPERATIONAL';
-      const qualified = status === 'OPERATIONAL' && rating >= MIN_RATING && reviews >= MIN_REVIEWS;
+      // The search grid is a rectangle that overlaps Orange and Riverside
+      // counties; Google's own county component is what actually decides.
+      const county = classifyCounty(details);
+      if (!county.inCounty) outOfCounty += 1;
+      const qualified = status === 'OPERATIONAL'
+        && rating >= MIN_RATING
+        && reviews >= MIN_REVIEWS
+        && county.inCounty;
       if (qualified) passed += 1;
       enriched[id] = {
         ...details,
         googlePlaceId: placeIdKey(details),
         displayName: displayName(details),
+        county: county.county,
         qualified,
         detailsFetchedAt: new Date().toISOString(),
       };
@@ -72,6 +82,7 @@ async function main() {
       qualified: qualifiedCount,
       minRating: MIN_RATING,
       minReviews: MIN_REVIEWS,
+      rejectedOutOfCounty: outOfCounty,
     },
     places: enriched,
   });

@@ -3952,7 +3952,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/38-fisherman-s-restaurant-bar.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJeYkOy2r03IARYNj-6i6gVIM",
@@ -3993,7 +3993,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -4122,7 +4122,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 39,
@@ -11460,7 +11461,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/85-yard-house.jpg",
     "windows": [
       {
@@ -11495,7 +11496,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
       "found": false,
@@ -11527,7 +11528,8 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 86,
@@ -11783,7 +11785,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/87-guadalajara-mexican-grill-cantina.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJo1eX6zN-24ARpdTSu876twg",
@@ -11795,7 +11797,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
       "found": false,
@@ -11813,7 +11815,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 88,
@@ -13559,7 +13562,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/100-bluewater-grill-seafood-restaurant-market-temecula.png",
     "hasHappyHourData": true,
     "placeId": "ChIJtTUqxDZ-24ARv6aptBPDggM",
@@ -13571,7 +13574,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
       "found": false,
@@ -13605,7 +13608,8 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 101,
@@ -16789,7 +16793,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/116-bj-s-restaurant-brewhouse.jpg",
     "windows": [
       {
@@ -16858,7 +16862,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -16976,7 +16980,8 @@
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/temecula?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 117,
@@ -17007,7 +17012,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/117-lucille-s-smokehouse-bar-b-que.jpg",
     "windows": [
       {
@@ -17046,7 +17051,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -17077,7 +17082,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 118,
@@ -22095,7 +22101,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/147-south-of-nick-s-san-clemente-mexican-kitchen-bar.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJpUROb2703IARbJGk7ASDYuI",
@@ -22129,7 +22135,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -22160,7 +22166,8 @@
         "caption": "Happy hour menu",
         "sourceUrl": "https://nicksrestaurants.com/southofnicks/san-clemente/"
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 148,
@@ -23409,7 +23416,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/156-havana-kitchen-cuban-cafe.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ37MxwPqB3IARKhO46a7LOaY",
@@ -23421,7 +23428,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "no_candidates",
       "found": false,
@@ -23432,7 +23439,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 157,
@@ -24849,7 +24857,7 @@
     "image": "/images/venues/170-burgers-beer.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "deals": {
         "source": "website_hh_page",
@@ -24884,7 +24892,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 171,
@@ -24921,7 +24930,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/171-la-cocina-de-reyes.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ03CslVd_24ARmMf89j-Uw8M",
@@ -24962,7 +24971,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -25111,7 +25120,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 172,
@@ -27657,7 +27667,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/189-texas-lil-s-mesquite-grill.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJE_fOccd_24ARJK4JBGzaB1A",
@@ -27676,7 +27686,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "extract_failed",
       "found": false,
@@ -27707,7 +27717,8 @@
         "kind": "happy_hour",
         "label": "Happy Hour"
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 190,
@@ -29201,7 +29212,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -29291,7 +29302,8 @@
         "sourceUrl": "http://baily.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 200,
@@ -29457,7 +29469,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -29588,7 +29600,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 202,
@@ -32293,7 +32306,7 @@
     "image": "/images/venues/218-corkfire.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -32491,7 +32504,8 @@
         "sourceUrl": "https://www.corkfirekitchen.com/?utm_source=google&utm_medium=organic&utm_campaign=business-listing",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 219,
@@ -33660,7 +33674,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/229-benihana-temecula.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJtY7J-3Z_24AR0PZqGjVQvsY",
@@ -33701,7 +33715,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -33883,7 +33897,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 230,
@@ -34101,7 +34116,7 @@
     "image": "/images/venues/231-islands-restaurant-temecula.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -34316,7 +34331,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 232,
@@ -35151,7 +35167,7 @@
       "casual",
       "upscale"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/237-the-vineyard-rose-restaurant.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ59NNPh9524ARcGTLYA-evD8",
@@ -35163,7 +35179,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -35200,7 +35216,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 238,
@@ -35505,7 +35522,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/240-chili-s-grill-bar.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ8wl2_sl_24ARmd9fIQmErec",
@@ -35546,7 +35563,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
       "found": false,
@@ -35592,7 +35609,8 @@
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.chilis.com/happy-hour"
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 241,
@@ -36840,7 +36858,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/248-public-house-temecula.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ0dMsy7h_24ARVZKKVbKtklw",
@@ -36886,7 +36904,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -37053,7 +37071,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 249,
@@ -38334,7 +38353,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/256-hapa-j-s.jpg",
     "windows": [
       {
@@ -38409,7 +38428,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -38538,7 +38557,8 @@
         "sourceUrl": "http://www.hapajs.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 257,
@@ -41096,7 +41116,7 @@
     "image": "/images/venues/272-asada-cantina-kitchen.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -41289,7 +41309,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 273,
@@ -42033,7 +42054,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/278-killarney-s-restaurant-irish-pub.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJF8Ymi1d_24AR7qxAQhTLl_M",
@@ -42074,7 +42095,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -42230,7 +42251,8 @@
         "sourceUrl": "http://www.killarneys.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 279,
@@ -45789,7 +45811,7 @@
     "image": "/images/venues/298-beachfire-bar-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -45971,7 +45993,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 299,
@@ -46495,7 +46518,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/301-karl-strauss-brewing-company.jpg",
     "windows": [
       {
@@ -46528,7 +46551,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
       "found": false,
@@ -46547,7 +46570,8 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 302,
@@ -47998,7 +48022,7 @@
     "image": "/images/venues/313-oscar-s-brewing-company.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -48148,7 +48172,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 314,
@@ -49858,7 +49883,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/328-zen-curry-and-grill.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJM3RhCkR_24ARR2lS0Fx1lag",
@@ -49882,7 +49907,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -49939,7 +49964,8 @@
         "sourceUrl": "https://www.zencurryandgrill.com/?utm_source=GBP&utm_medium=organic&utm_campaign=office",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 329,
@@ -52760,7 +52786,7 @@
     "image": "/images/venues/349-gibroni-s-pizza.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -52892,7 +52918,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 350,
@@ -54263,7 +54290,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/362-the-cellar.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJAYYiK2z03IAR_r4wcOXDSjU",
@@ -54304,7 +54331,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -54418,7 +54445,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 363,
@@ -56063,7 +56091,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/375-mount-palomar-winery.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJpZwu0it524ARTGDnO0mj69A",
@@ -56075,7 +56103,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
       "found": false,
@@ -56091,7 +56119,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 376,
@@ -57406,7 +57435,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/384-uncle-bob-s.jpg",
     "windows": [
       {
@@ -57449,7 +57478,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -57557,7 +57586,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 385,
@@ -58549,7 +58579,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/390-new-oc-tavern.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJ5-Yox1n03IARUSlp8vSyoE0",
@@ -58561,7 +58591,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -58581,7 +58611,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 391,
@@ -61545,7 +61576,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/412-ultimate-vineyards-maurice-car-rie-winery.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJqaQYXyd524ARLplLEj44ciU",
@@ -61557,7 +61588,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -61582,7 +61613,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 413,
@@ -64771,7 +64803,7 @@
     "image": "/images/venues/439-active-culture.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -64856,7 +64888,8 @@
         "sourceUrl": "http://activeculturecafe.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 440,
@@ -66400,7 +66433,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/447-board-brew.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJf7tJx5vz3IARCsmiGVT2HP4",
@@ -66412,7 +66445,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "no_candidates",
       "found": false,
@@ -66423,7 +66456,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 448,
@@ -68730,7 +68764,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/464-sakura-sushi.jpg",
     "windows": [
       {
@@ -68789,7 +68823,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -68846,7 +68880,8 @@
         "sourceUrl": "http://www.sakuraomakase.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 465,
@@ -70024,7 +70059,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/472-rockwell-s-bakery.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJMbJ56oPz3IARei5YWSKCMko",
@@ -70036,7 +70071,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
       "found": false,
@@ -70054,7 +70089,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 473,
@@ -70462,7 +70498,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/475-fratello-s-italian-kitchen-bar.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJY-aZR2Tx3IARCbSqdgtBRrw",
@@ -70474,7 +70510,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
       "found": false,
@@ -70493,7 +70529,8 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 476,
@@ -71573,7 +71610,7 @@
     "image": "/images/venues/484-hendo-s-barrel-house.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -71754,7 +71791,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 485,
@@ -72587,7 +72625,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/490-rare-society.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJrS1z7Dr13IARWBOhsLa6X7M",
@@ -72628,7 +72666,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhConflicts": [
       {
         "field": "times",
@@ -72823,7 +72861,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 491,
@@ -77368,7 +77407,7 @@
     "image": "/images/venues/526-bolero-at-europa-village.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -77481,7 +77520,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 527,
@@ -77945,7 +77985,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/530-pronto-cucina-italiana.jpg",
     "windows": [
       {
@@ -77991,7 +78031,7 @@
         "evidence": []
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -78038,7 +78078,8 @@
         "sourceUrl": "http://prontocucinaitaliana.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 531,
@@ -80234,7 +80275,7 @@
     "image": "/images/venues/547-the-cellar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "windows": [
       {
         "days": [
@@ -80361,7 +80402,8 @@
         "sourceUrl": "https://www.pontevineyardinn.com/dining-bar/the-cellar/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 548,
@@ -81137,7 +81179,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/553-inka-mama-s-san-clemente.jpg",
     "windows": [
       {
@@ -81195,7 +81237,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -81302,7 +81344,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 554,
@@ -81338,7 +81381,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/554-ballpark-pizza-sc.jpg",
     "windows": [
       {
@@ -81389,7 +81432,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -81459,7 +81502,8 @@
         "sourceUrl": "http://www.ballparksc.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 555,
@@ -82867,7 +82911,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -82919,7 +82963,8 @@
         "sourceUrl": "http://www.outrigger-tavern.com/",
         "generated": true
       }
-    ]
+    ],
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 568,
@@ -82948,7 +82993,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/568-temecula-sports-lounge-restaurant.jpg",
     "windows": [
       {
@@ -82984,7 +83029,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "no_candidates",
       "found": false,
@@ -82995,7 +83040,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 569,
@@ -83030,7 +83076,7 @@
     "image": "/images/venues/569-relentless-brewing-company.png",
     "hasHappyHourData": true,
     "dealsUnknown": true,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -83091,7 +83137,8 @@
           }
         ]
       }
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 570,
@@ -83122,7 +83169,7 @@
       "casual",
       "group friendly"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/570-krazy-kooters.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJs44nKgD13IAR0-e7V8V019U",
@@ -83134,7 +83181,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
       "found": false,
@@ -83152,7 +83199,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 571,
@@ -83183,7 +83231,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/571-ebullition-brew-works-pub-and-grill.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJbYNKrIaB24ARQd8tlLEuerg",
@@ -83195,7 +83243,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
       "found": false,
@@ -83219,7 +83267,8 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 572,
@@ -83821,7 +83870,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/575-barnoa-wine-company.jpg",
     "windows": [
       {
@@ -83875,7 +83924,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -83984,7 +84033,8 @@
           ]
         }
       ]
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 576,
@@ -84489,7 +84539,7 @@
     "image": "/images/venues/581-buona-forchetta-san-clemente.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -84530,7 +84580,8 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 582,
@@ -86537,7 +86588,7 @@
     "features": [
       "casual"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/599-franco-s-famous-san-clemente.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJjc5Msvr13IARy5Z0L1fKAkc",
@@ -86549,7 +86600,7 @@
         "observedAt": "2026-08-28"
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "no_candidates",
       "found": false,
@@ -86560,7 +86611,8 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
-    }
+    },
+    "unlistedReason": "outside_san_diego_county"
   },
   {
     "id": 600,

@@ -59,6 +59,13 @@ import { venueMatchesQuery, venueSearchScore } from '../src/lib/venueSearch.ts';
 import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-google-venues/lib/pdf-raster.mjs';
 import { buildBoardHtml } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
+import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
+import {
+  detectLocatorApis,
+  collectLocationRecordsFromJson,
+  locationsFromPayload,
+  matchLocatorRecord,
+} from '../scripts/import-google-venues/lib/locator-widgets.mjs';
 import {
   formatClock,
   formatDays,
@@ -1747,6 +1754,173 @@ function testBrokenStorefrontTextNeverReachesABoard() {
   });
   assert.deepEqual(board.sections[0].items.map((item) => item.name), ['Deviled Eggs', 'Wings']);
 }
+
+// A Storepoint payload trimmed to the fields that matter: the offer lives in a
+// free-text `description` with no price key, which is exactly what the priced
+// menu miner walks past.
+const LOCATOR_PAYLOAD = {
+  results: {
+    locations: [
+      {
+        id: 1,
+        name: 'SCRIPPS RANCH',
+        streetaddress: '9880 Hibert Street STE E-3 Scripps Ranch CA 92131',
+        description: 'HAPPY HOUR | $2 off all pints\nEVERYDAY 3-6PM',
+        loc_lat: 32.910701,
+        loc_long: -117.108498,
+      },
+      {
+        id: 2,
+        name: 'MISSION VALLEY',
+        streetaddress: '1640 Camino Del Rio N San Diego CA 92108',
+        description: 'HAPPY HOUR | $2 off all beers\nEVERYDAY 3-6PM',
+        loc_lat: 32.7665,
+        loc_long: -117.1568,
+      },
+      {
+        id: 3,
+        name: 'SAN CLEMENTE',
+        streetaddress: '979 Avenida Pico Unit C San Clemente CA 92673',
+        description: '',
+        loc_lat: 33.456033,
+        loc_long: -117.604553,
+      },
+    ],
+  },
+};
+
+function testLocatorWidgetApiIsFoundFromItsScriptTag() {
+  const html = '<div id="storepoint-container" data-map-name="x"></div>'
+    + '<script src="https://storepoint.co/api/v1/js/166117680d6ae4.js"></script>';
+  const apis = detectLocatorApis(html, {});
+  assert.equal(apis.length, 1);
+  assert.equal(apis[0].platform, 'storepoint');
+  assert.equal(apis[0].url, 'https://api.storepoint.co/v1/166117680d6ae4/locations');
+
+  const stockist = detectLocatorApis('<div data-stockist-widget-tag="u10642">Loading…</div>', {
+    lat: 32.7157,
+    lng: -117.1611,
+  });
+  assert.equal(stockist[0].platform, 'stockist');
+  assert.match(stockist[0].url, /stockist\.co\/api\/v1\/u10642\/locations\/search\?latitude=32\.7157/);
+}
+
+function testLocatorOfferSurvivesWithoutAPriceField() {
+  const rows = locationsFromPayload(LOCATOR_PAYLOAD);
+  assert.equal(rows.length, 3);
+  const records = collectLocationRecordsFromJson(rows);
+  // The location publishing nothing must not become a record.
+  assert.equal(records.length, 2);
+  assert.deepEqual(records.map((r) => r.name).sort(), ['MISSION VALLEY', 'SCRIPPS RANCH']);
+
+  // The same payload through the priced-menu miner yields nothing, which is why
+  // this second miner has to exist.
+  assert.equal(menuTextFromJsonResponses([
+    { url: 'https://api.storepoint.co/v1/x/locations', body: JSON.stringify(LOCATOR_PAYLOAD) },
+  ]), '');
+}
+
+function testLocatorOffersAreMatchedPerLocationNotBrandWide() {
+  const records = collectLocationRecordsFromJson(locationsFromPayload(LOCATOR_PAYLOAD));
+
+  const scripps = matchLocatorRecord(records, {
+    lat: 32.910701,
+    lng: -117.108498,
+    address: '9880 Hibert Street STE E-3, San Diego, CA 92131, USA',
+  });
+  assert.equal(scripps.method, 'coordinates');
+  assert.match(scripps.record.offerText, /\$2 off all pints/);
+
+  // Same brand, different store, genuinely different wording.
+  const missionValley = matchLocatorRecord(records, {
+    lat: 32.7665,
+    lng: -117.1568,
+    address: '1640 Camino Del Rio N, San Diego, CA 92108, USA',
+  });
+  assert.match(missionValley.record.offerText, /\$2 off all beers/);
+
+  // A location that publishes no offer must stay empty rather than inherit a
+  // sibling's deal — this is the venue we actually have stored.
+  assert.equal(
+    matchLocatorRecord(records, {
+      lat: 33.456033,
+      lng: -117.604553,
+      address: '979 Avenida Pico Unit C, San Clemente, CA 92673, USA',
+    }),
+    null
+  );
+
+  // A venue nowhere near the brand never matches.
+  assert.equal(
+    matchLocatorRecord(records, { lat: 40.7128, lng: -74.006, address: '1 Wall St New York NY 10005' }),
+    null
+  );
+
+  // Same brand a few blocks away is a *different* store, not this one. 855m
+  // apart here, which is well inside the same neighborhood.
+  assert.equal(
+    matchLocatorRecord(records, { lat: 32.7665, lng: -117.1568, address: 'unknown' }),
+    null
+  );
+}
+
+function testLocatorLinksRankBelowSpecialsAndMenus() {
+  const html = `
+    <a href="/specials">Specials</a>
+    <a href="/menu">Menu</a>
+    <a href="/locations">Locations</a>
+  `;
+  const links = discoverHappyHourLinksFromHtml(html, 'https://example.com');
+  const score = (path) => links.find((link) => link.path.includes(path))?.score ?? 0;
+  assert.ok(score('/locations') > 0, 'locator link should be followed at all');
+  assert.ok(score('/locations') < score('/menu'), 'locator must not outrank a menu');
+  assert.ok(score('/locations') < score('/specials'), 'locator must not outrank specials');
+}
+
+function testCountyComesFromGoogleNotTheBoundsRectangle() {
+  const orange = {
+    formattedAddress: '979 Avenida Pico Unit C, San Clemente, CA 92673, USA',
+    addressComponents: [{ types: ['administrative_area_level_2'], longText: 'Orange County' }],
+  };
+  const sanDiego = {
+    formattedAddress: '9880 Hibert St, San Diego, CA 92131, USA',
+    addressComponents: [{ types: ['administrative_area_level_2'], longText: 'San Diego County' }],
+  };
+  assert.equal(classifyCounty(orange).inCounty, false);
+  assert.equal(classifyCounty(orange).basis, 'google');
+  assert.equal(classifyCounty(sanDiego).inCounty, true);
+
+  // Temecula (Riverside, 33.494N) sits *north* of Fallbrook (San Diego,
+  // 33.376N), so no latitude cutoff separates them — only the county does.
+  const temecula = {
+    formattedAddress: '28699 Old Town Front St, Temecula, CA 92590, USA',
+    addressComponents: [{ types: ['administrative_area_level_2'], longText: 'Riverside County' }],
+  };
+  assert.equal(classifyCounty(temecula).inCounty, false);
+
+  // Missing county data is not disqualifying on its own.
+  assert.equal(classifyCounty(null, '2707 Congress St, San Diego, CA 92110, USA').inCounty, true);
+  assert.equal(classifyCounty(null, '204 Avenida Del Mar, San Clemente, CA 92672, USA').inCounty, false);
+  assert.equal(classifyCounty(null, '204 Avenida Del Mar, San Clemente, CA 92672, USA').basis, 'address');
+
+  // "Corona" must not swallow Coronado.
+  assert.equal(classifyCounty(null, '170 Orange Ave, Coronado, CA 92118, USA').inCounty, true);
+}
+
+function testCatalogHasNoPublishedOutOfCountyVenues() {
+  const published = happyHours.filter((venue) => venue.listingStatus === 'published');
+  const strays = published.filter((venue) => classifyCounty(null, venue.address).inCounty === false);
+  assert.deepEqual(strays.map((venue) => venue.name), []);
+}
+
+tests.push(
+  testCountyComesFromGoogleNotTheBoundsRectangle,
+  testCatalogHasNoPublishedOutOfCountyVenues,
+  testLocatorWidgetApiIsFoundFromItsScriptTag,
+  testLocatorOfferSurvivesWithoutAPriceField,
+  testLocatorOffersAreMatchedPerLocationNotBrandWide,
+  testLocatorLinksRankBelowSpecialsAndMenus,
+);
 
 tests.push(
   testMenuPricesBecomeComparableNumbers,
