@@ -81,6 +81,32 @@ export async function nearbySearch({ lat, lng, radiusMeters, includedType, delay
   return data.places || [];
 }
 
+const TEXT_SEARCH_MASK = [
+  'places.id',
+  'places.displayName',
+  'places.formattedAddress',
+  'places.location',
+  'places.businessStatus',
+].join(',');
+
+/**
+ * Look a place up by name and address.
+ *
+ * The nearby-search grid only returns what it ranks highly in each circle, so
+ * it misses locations a brand publishes itself — 8 of Board & Brew's 14 San
+ * Diego stores were never discovered. When we already have a street address,
+ * asking for it directly is both cheaper and complete.
+ */
+export async function textSearch(textQuery, { delayMs = 250, maxResults = 3 } = {}) {
+  const data = await placesFetch('/places:searchText', {
+    method: 'POST',
+    fieldMask: TEXT_SEARCH_MASK,
+    body: { textQuery, maxResultCount: maxResults },
+  });
+  await sleep(delayMs);
+  return data.places || [];
+}
+
 export async function placeDetails(placeId, delayMs = 250) {
   const id = placeId.replace(/^places\//, '');
   const data = await placesFetch(`/places/${id}`, {

@@ -611,7 +611,7 @@ function pickBestCandidate(candidates) {
  */
 const locatorCache = new Map();
 
-async function locatorRecordsForSite(websiteUri, venueContext) {
+export async function locatorRecordsForSite(websiteUri, venueContext) {
   let origin;
   try {
     origin = new URL(websiteUri).origin;
@@ -667,14 +667,18 @@ export async function extractLocatorHappyHour(websiteUri, venueContext) {
   const match = matchLocatorRecord(records, venueContext);
   if (!match) return null;
 
-  const text = match.record.offerText || '';
+  return happyHourFromLocatorText(match.record.offerText, match.record.sourceUrl || websiteUri);
+}
+
+/** The parsing half of the above, for callers that already hold the record. */
+export function happyHourFromLocatorText(offerText, sourceUrl) {
+  const text = offerText || '';
   if (!/happy\s*hour/i.test(text)) return null;
 
   const times = parseTimeRangeNearHappyHour(text);
   if (!times || !isValidTime(times.startTime) || !isValidTime(times.endTime)) return null;
 
   const days = daysFromRangeText(text) || DAY_NAMES.slice();
-  const sourceUrl = match.record.sourceUrl || websiteUri;
 
   return {
     ...times,
