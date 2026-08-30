@@ -20529,7 +20529,7 @@
   {
     "id": 138,
     "name": "Las Olas",
-    "neighborhood": "Solana Beach",
+    "neighborhood": "Cardiff",
     "address": "2655 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.011213999999995,
     "lng": -117.2788577,
@@ -40818,7 +40818,7 @@
   {
     "id": 271,
     "name": "Ki's Restaurant",
-    "neighborhood": "Solana Beach",
+    "neighborhood": "Cardiff",
     "address": "2591 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0122889,
     "lng": -117.2791278,
@@ -46263,7 +46263,7 @@
   {
     "id": 300,
     "name": "Cicciotti's Trattoria Italiana",
-    "neighborhood": "Encinitas",
+    "neighborhood": "Cardiff",
     "address": "1933 San Elijo Ave, Cardiff, CA 92007, USA",
     "lat": 33.0233333,
     "lng": -117.28361110000002,
@@ -51776,7 +51776,7 @@
   {
     "id": 343,
     "name": "The Kraken",
-    "neighborhood": "Solana Beach",
+    "neighborhood": "Cardiff",
     "address": "2531 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0134669,
     "lng": -117.2795293,
@@ -52924,7 +52924,7 @@
   {
     "id": 350,
     "name": "Cardiff Beach Bar @ Tower 13",
-    "neighborhood": "Solana Beach",
+    "neighborhood": "Cardiff",
     "address": "2633 S Coast Hwy 101, Cardiff, CA 92007, USA",
     "lat": 33.0116146,
     "lng": -117.2791053,
@@ -63148,7 +63148,7 @@
   {
     "id": 425,
     "name": "Waverly",
-    "neighborhood": "Encinitas",
+    "neighborhood": "Cardiff",
     "address": "2005 San Elijo Ave, Cardiff, CA 92007, USA",
     "lat": 33.0224265,
     "lng": -117.2826369,
@@ -88970,6 +88970,1300 @@
       "casual"
     ],
     "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 639,
+    "name": "Joe's Crab Shack",
+    "neighborhood": "Oceanside",
+    "address": "314 Harbor Dr, Oceanside, CA 92054, USA",
+    "lat": 33.2058208,
+    "lng": -117.38931859999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Seafood spot",
+    "website": "https://www.joescrabshack.com/location/joes-crab-shack-oceanside-ca/",
+    "phone": "(760) 722-1345",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=10016199411468839298&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 640,
+    "name": "Applebee's Grill + Bar",
+    "neighborhood": "Chula Vista",
+    "address": "3030 Plaza Bonita Rd, National City, CA 91950, USA",
+    "lat": 32.656890499999996,
+    "lng": -117.06658999999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://restaurants.applebees.com/en-us/ca/national-city/3030-plaza-bonita-road-79046?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79046&utm_content=website",
+    "phone": "(619) 475-1855",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurants.applebees.com/en-us/ca/national-city/3030-plaza-bonita-road-79046?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79046&utm_content=website",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 641,
+    "name": "Old Town Tequila Factory Restaurant & Cantina",
+    "neighborhood": "Old Town",
+    "address": "2467 Juan St, San Diego, CA 92110, USA",
+    "lat": 32.753366299999996,
+    "lng": -117.19349890000001,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://oldtowntequilafactory.com/",
+    "phone": "(619) 260-8124",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=11302657976751291088&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 642,
+    "name": "Applebee's Grill + Bar",
+    "neighborhood": "El Cajon",
+    "address": "107 Fletcher Pkwy, El Cajon, CA 92020, USA",
+    "lat": 32.8073264,
+    "lng": -116.96301650000001,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://restaurants.applebees.com/en-us/ca/el-cajon/107-fletcher-parkway-79041?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79041&utm_content=website",
+    "phone": "(619) 593-3066",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurants.applebees.com/en-us/ca/el-cajon/107-fletcher-parkway-79041?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79041&utm_content=website",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 643,
+    "name": "Karina's | Mexican Seafood",
+    "neighborhood": "Chula Vista",
+    "address": "89 Bonita Rd, Chula Vista, CA 91910, USA",
+    "lat": 32.6482333,
+    "lng": -117.06478369999999,
+    "days": [
+      "Sunday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Seafood spot",
+    "website": "https://rebrand.ly/karina-mex",
+    "phone": "(619) 651-1000",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=6840669488220601777&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 644,
+    "name": "Red Lobster",
+    "neighborhood": "Chula Vista",
+    "address": "CENTER, 598 H St, Chula Vista, CA 91910, USA",
+    "lat": 32.63079,
+    "lng": -117.08901999999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Introducing $5 Drink Specials & $2 Off Select Appetizers from 3-6pm at participating locations*",
+      "Food ONLY Happy Hour",
+      "Cheers to Happy Hour Menus!",
+      "Food & Drinks Happy Hour*"
+    ],
+    "vibe": "Seafood spot",
+    "website": "https://www.redlobster.com/seafood-restaurants/locations/ca/chula-vista/598-h-street",
+    "phone": "(619) 585-1160",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.redlobster.com/happy-hour",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 645,
+    "name": "Norte Mexican Food & Cocktails",
+    "neighborhood": "Carlsbad",
+    "address": "3003 Carlsbad Blvd, Carlsbad, CA 92008, USA",
+    "lat": 33.157532599999996,
+    "lng": -117.3516008,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://norterestaurant.com/",
+    "phone": "(760) 729-0903",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=10892325523891901854&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 646,
+    "name": "Black Angus Steakhouse",
+    "neighborhood": "El Cajon",
+    "address": "1000 Graves Ave, El Cajon, CA 92021, USA",
+    "lat": 32.8090396,
+    "lng": -116.96094679999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://blackangus.com/menu-order/blackanguselcajon",
+    "phone": "(619) 440-5055",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=8094451903458797080&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 647,
+    "name": "Applebee's Grill + Bar",
+    "neighborhood": "Kearny Mesa",
+    "address": "Vista Balboa Center, 7677 Balboa Ave, San Diego, CA 92111, USA",
+    "lat": 32.8213455,
+    "lng": -117.15883269999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://restaurants.applebees.com/en-us/ca/san-diego/7677-balboa-avenue-79043?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79043&utm_content=website",
+    "phone": "(858) 569-4590",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurants.applebees.com/en-us/ca/san-diego/7677-balboa-avenue-79043?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79043&utm_content=website",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 648,
+    "name": "Applebee's Grill + Bar",
+    "neighborhood": "Oceanside",
+    "address": "2146 Vista Way, Oceanside, CA 92054, USA",
+    "lat": 33.1815371,
+    "lng": -117.3439642,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://restaurants.applebees.com/en-us/ca/oceanside/2146-vista-way-79047?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79047&utm_content=website",
+    "phone": "(760) 757-5848",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurants.applebees.com/en-us/ca/oceanside/2146-vista-way-79047?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79047&utm_content=website",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 649,
+    "name": "Mavericks Beach Club",
+    "neighborhood": "Pacific Beach",
+    "address": "860 Garnet Ave, San Diego, CA 92109, USA",
+    "lat": 32.796993500000006,
+    "lng": -117.2545588,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "14:00",
+    "endTime": "19:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "http://maverickssd.com/",
+    "phone": "(858) 999-0348",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=16558875211881891926&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 650,
+    "name": "Karina's Mexican Seafood",
+    "neighborhood": "Chula Vista",
+    "address": "2015 Birch Rd #710, Chula Vista, CA 91915, USA",
+    "lat": 32.624843,
+    "lng": -116.96636950000001,
+    "days": [
+      "Sunday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Seafood spot",
+    "website": "http://www.karinasseafood.com/",
+    "phone": "(619) 591-4444",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=2706000933676143000&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 651,
+    "name": "Dirty Birds Liberty Station",
+    "neighborhood": "Point Loma",
+    "address": "2970 Truxtun Rd #9, San Diego, CA 92106, USA",
+    "lat": 32.7423904,
+    "lng": -117.2103015,
+    "days": [
+      "Monday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://www.dirtybirdsbarandgrill.com/",
+    "phone": "(619) 756-7576",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=16879871315118052586&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 652,
+    "name": "Black Angus Steakhouse",
+    "neighborhood": "Escondido",
+    "address": "296 E Via Rancho Pkwy, Escondido, CA 92025, USA",
+    "lat": 33.0686946,
+    "lng": -117.0622364,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://blackangus.com/menu-order/blackangusescondido",
+    "phone": "(760) 489-8409",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=5376576591093730115&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 653,
+    "name": "Gaslamp BBQ",
+    "neighborhood": "Gaslamp",
+    "address": "524 Island Ave, San Diego, CA 92101, USA",
+    "lat": 32.710558,
+    "lng": -117.15974639999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "19:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "http://www.gaslampbbq.com/",
+    "phone": "(619) 696-6996",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=5313511137233588495&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 654,
+    "name": "Firehouse American Eatery & Lounge",
+    "neighborhood": "Pacific Beach",
+    "address": "722 Grand Ave, San Diego, CA 92109, USA",
+    "lat": 32.7948024,
+    "lng": -117.2555237,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "http://www.firehousepb.com/",
+    "phone": "(858) 274-3100",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://www.firehousepb.com/specials/happy-hour",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 655,
+    "name": "California Pizza Kitchen at Carmel Mtn",
+    "neighborhood": "Rancho Bernardo",
+    "address": "11602 Carmel Mountain Rd, San Diego, CA 92128, USA",
+    "lat": 32.9797341,
+    "lng": -117.08178649999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://order.cpk.com/menu/california-pizza-kitchen-carmel-mountain/?utm_source=GMB&utm_medium=GMB",
+    "phone": "(858) 675-4424",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=14999075707679720256&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 656,
+    "name": "Las Ahumaderas By El Poblano",
+    "neighborhood": "Chula Vista",
+    "address": "1011 Broadway, Chula Vista, CA 91911, USA",
+    "lat": 32.613422299999996,
+    "lng": -117.08227970000002,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "14:00",
+    "endTime": "19:00",
+    "deals": [
+      "All of our draft beer and margaritas $4.99"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://lasahumaderasusa.com/",
+    "phone": "(619) 500-5074",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://lasahumaderasusa.com/specials",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 657,
+    "name": "HIVE | Bar & Karaoke // 하이브 노래방",
+    "neighborhood": "Kearny Mesa",
+    "address": "4428 Convoy St Jury Classroom / Gallery, San Diego, CA 92111, USA",
+    "lat": 32.820389999999996,
+    "lng": -117.15598489999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "16:00",
+    "endTime": "19:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "https://hivekaraokesd.com/",
+    "phone": "(858) 576-0700",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=17332753364550410459&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 658,
+    "name": "The Local Pacific Beach",
+    "neighborhood": "Pacific Beach",
+    "address": "809 Thomas Ave, San Diego, CA 92109, USA",
+    "lat": 32.793654499999995,
+    "lng": -117.2539479,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "19:00",
+    "deals": [
+      "$6 Wells, Drafts, & Wine | $8 Select Apps",
+      "Specials: Happy Hour",
+      "View All Specials"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://thelocalpb.com/",
+    "phone": "(858) 263-7475",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://thelocalpb.com/",
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 659,
+    "name": "Eureka!",
+    "neighborhood": "College Area",
+    "address": "5140 College Ave Suite 111, San Diego, CA 92115, USA",
+    "lat": 32.772463099999996,
+    "lng": -117.07025349999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://eurekarestaurantgroup.com/blog/locations/san-diego-state/",
+    "phone": "(619) 220-2400",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=3205759359574492429&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 660,
+    "name": "Mina Lounge",
+    "neighborhood": "Gaslamp",
+    "address": "650 Sixth Ave, San Diego, CA 92101, USA",
+    "lat": 32.712033399999996,
+    "lng": -117.15937339999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "12:00",
+    "endTime": "17:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "http://www.minalounge.com/",
+    "phone": "(619) 234-6652",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=12562917561219985173&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 661,
+    "name": "Chandler's Oceanfront Dining",
+    "neighborhood": "Carlsbad",
+    "address": "1 Ponto Rd, Carlsbad, CA 92011, USA",
+    "lat": 33.0976983,
+    "lng": -117.31601889999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.chandlerscarlsbad.com/",
+    "phone": "(760) 683-5500",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=11151873821008635901&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 662,
+    "name": "Royal India - Miramar",
+    "neighborhood": "Mira Mesa",
+    "address": "8990 Miramar Rd #200, San Diego, CA 92126, USA",
+    "lat": 32.8946393,
+    "lng": -117.13269860000001,
+    "days": [
+      "Sunday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://royalindiamiramar.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
+    "phone": "(858) 457-9999",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=5112288116524204905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 663,
+    "name": "Altitude Sky Lounge",
+    "neighborhood": "Gaslamp",
+    "address": "660 K Street Atop, Gaslamp Marriott Quarter, 660 K St, San Diego, CA 92101, USA",
+    "lat": 32.7086154,
+    "lng": -117.15850599999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "17:00",
+    "endTime": "19:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "https://www.altitudeskylounge.com/sandiego/",
+    "phone": "(619) 446-6089",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=17528201686186311726&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 664,
+    "name": "The Rooftop Bar",
+    "neighborhood": "Oceanside",
+    "address": "201 N Myers St, Oceanside, CA 92054, USA",
+    "lat": 33.1945654,
+    "lng": -117.3827862,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "14:00",
+    "endTime": "16:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.rooftopbaroceanside.com/",
+    "phone": "(760) 512-3331",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=11196644517581285231&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 665,
+    "name": "Oggi’s Sports | Brewhouse | Pizza, DEL MAR",
+    "neighborhood": "Carmel Valley",
+    "address": "12840 Carmel Country Rd, San Diego, CA 92130, USA",
+    "lat": 32.954208,
+    "lng": -117.22945899999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Brewery",
+    "website": "https://www.oggis.com/location/delmar/",
+    "phone": "(858) 481-7883",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=10320620252604327508&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 666,
+    "name": "Tajima Ramen College Heights",
+    "neighborhood": "El Cajon",
+    "address": "6061 El Cajon Blvd Ste 2, San Diego, CA 92115, USA",
+    "lat": 32.760514199999996,
+    "lng": -117.0674695,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "11:30",
+    "endTime": "17:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://tajimaramen.com/tajima-college-heights/?utm_source=gbp&utm_medium=organic",
+    "phone": "(619) 269-0838",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=1960751366530124586&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 667,
+    "name": "Oggi’s Sports | Brewhouse | Pizza",
+    "neighborhood": "Rancho Bernardo",
+    "address": "10155 Rancho Carmel Dr, San Diego, CA 92128, USA",
+    "lat": 32.965562999999996,
+    "lng": -117.08979799999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$1 off Well Drinks, Wine and ALL Beers"
+    ],
+    "vibe": "Brewery",
+    "website": "https://oggis.com/carmelmountainranch/about-us/",
+    "phone": "(858) 592-7883",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://oggis.com/menus",
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 668,
+    "name": "20 | Twenty - Westin Carlsbad",
+    "neighborhood": "Carlsbad",
+    "address": "5480 Grand Pacific Dr, Carlsbad, CA 92008, USA",
+    "lat": 33.1305981,
+    "lng": -117.30937069999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.20twentygrill.com/",
+    "phone": "(760) 827-2500",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=2382476540765899950&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 669,
+    "name": "Jimmy O's - Del Mar",
+    "neighborhood": "Del Mar",
+    "address": "225 15th St, Del Mar, CA 92014, USA",
+    "lat": 32.9593378,
+    "lng": -117.26563790000002,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "17:00",
+    "endTime": "19:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "https://jimmyodelmar.com/",
+    "phone": "(858) 350-3735",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=4900059553631707679&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food",
+      "entertainment"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 670,
+    "name": "Shanghai Bun Chinese Tapas Bar",
+    "neighborhood": "Point Loma",
+    "address": "1029 Rosecrans St, San Diego, CA 92106, USA",
+    "lat": 32.720684,
+    "lng": -117.2322681,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://www.shanghaibunsd.com/?utm_source=Google&utm_medium=Organic&utm_campaign=GMB",
+    "phone": "(619) 795-1700",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=9753790100158822412&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 671,
+    "name": "Flecha Cantina",
+    "neighborhood": "Rancho Bernardo",
+    "address": "10514 Craftsman Way, San Diego, CA 92127, USA",
+    "lat": 33.0206853,
+    "lng": -117.1120897,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "21:00",
+    "endTime": "22:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://flechacantina.com/",
+    "phone": "(858) 381-0010",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=4845405168367396353&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 672,
+    "name": "The Barn - Bar and Dancing",
+    "neighborhood": "Ramona",
+    "address": "344 Main St, Ramona, CA 92065, USA",
+    "lat": 33.0471429,
+    "lng": -116.85868659999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "deals": [
+      "Check out our Happy Hour Menu."
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.barndininganddancing.com/",
+    "phone": "(760) 440-0055",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.barndininganddancing.com/specials",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 673,
+    "name": "Novo Brazil Brewing Mission Valley",
+    "neighborhood": "Mission Valley",
+    "address": "1640 Camino Del Rio N Ste 341, San Diego, CA 92108, USA",
+    "lat": 32.768409999999996,
+    "lng": -117.14682699999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "12:00",
+    "endTime": "17:30",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Brewery",
+    "website": "https://www.novobrew.com/",
+    "phone": "(619) 310-5387",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=8430619913484577150&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 674,
+    "name": "Hanu Korean BBQ",
+    "neighborhood": "Chula Vista",
+    "address": "970 Eastlake Pkwy #108, Chula Vista, CA 91914, USA",
+    "lat": 32.648619499999995,
+    "lng": -116.9660691,
+    "days": [
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "21:00",
+    "endTime": "00:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://www.hanukbbqsd.com/",
+    "phone": "(619) 240-7423",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=9643932778995308777&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 675,
+    "name": "District6 Gastrobar and Kitchen",
+    "neighborhood": "Mira Mesa",
+    "address": "8242 Mira Mesa Blvd, San Diego, CA 92126, USA",
+    "lat": 32.9146131,
+    "lng": -117.1464474,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://district6sd.com/",
+    "phone": "(858) 536-8843",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://maps.google.com/?cid=6523398128869872296&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
     "listingStatus": "published"
   }
 ]
