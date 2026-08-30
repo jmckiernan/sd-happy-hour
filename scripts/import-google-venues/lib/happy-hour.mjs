@@ -29,6 +29,7 @@ import {
   fetchLocatorRecords,
 } from './locator-widgets.mjs';
 import { pageMatchesVenueListing, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from './website-ownership.mjs';
+import { conflictsWithVenue, pickLocationPage } from './location-page.mjs';
 
 const WEBSITE_PATHS = [
   '/specials--happy-hour',
@@ -581,13 +582,19 @@ export async function extractWebsiteHappyHourDeep(websiteUri, venueContext = nul
       ? venueContext.sourceUrl
       : null;
 
+  // A URL naming this venue's city, ZIP or street number outranks a generic
+  // one on a chain site, where the generic page describes some other branch.
+  const branchUrl = venueContext
+    ? pickLocationPage([venueContext.sourceUrl, websiteUri].filter(Boolean), venueContext)?.url
+    : null;
+
   const inventory = options.inventory || await inventoryWebsite(websiteUri, {
     ...options,
     venueContext,
     maxPages: options.maxPages ?? 6,
     maxFetches: options.maxFetches ?? 8,
     minHappyHourScore: options.minHappyHourScore ?? 8,
-    priorityUrl,
+    priorityUrl: priorityUrl || branchUrl,
   });
 
   return extractFromInventory(inventory, venueContext, options);
@@ -775,7 +782,12 @@ export async function resolveHappyHour(place) {
     ...venueContext,
     sourceUrl: signal.url,
   });
-  return hasUsableSchedule(deep) ? deep : null;
+  if (!hasUsableSchedule(deep)) return null;
+
+  // On a chain site every branch page says "Happy Hour", so a plausible answer
+  // from the wrong restaurant is the likely failure, not a blank one.
+  if (conflictsWithVenue(deep.sourcePage, venueContext)) return null;
+  return deep;
 }
 
 export { hasAiExtraction } from './ai-extract.mjs';

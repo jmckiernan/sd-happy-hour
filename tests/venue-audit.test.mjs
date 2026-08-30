@@ -60,6 +60,7 @@ import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-
 import { buildBoardHtml } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
 import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
+import { conflictsWithVenue, pickLocationPage, cityFromAddress } from '../scripts/import-google-venues/lib/location-page.mjs';
 import { dedupeRecords } from '../scripts/import-google-venues/lib/dedupe.mjs';
 import { hasUsableSchedule } from '../scripts/import-google-venues/lib/happy-hour.mjs';
 import {
@@ -1879,6 +1880,42 @@ function testLocatorLinksRankBelowSpecialsAndMenus() {
   assert.ok(score('/locations') < score('/specials'), 'locator must not outrank specials');
 }
 
+function testAChainPageMustBelongToThisBranch() {
+  // The real failure: a La Costa cinema was given the Vista theater's hours.
+  // On a chain site every branch page says "Happy Hour", so the likely error
+  // is a plausible answer about the wrong restaurant, not a blank one.
+  const laCosta = { name: 'Cinépolis La Costa', address: '6941 El Camino Real, Carlsbad, CA 92009' };
+  assert.equal(conflictsWithVenue('https://www.cinepolisusa.com/vista/theater-details', laCosta), true);
+
+  // Cardiff is not in the neighborhood vocabulary, so the city has to be read
+  // off the address or a Coronado page looks harmless for a Cardiff venue.
+  const cardiff = { name: 'Chart House', address: '2588 S Coast Hwy 101, Cardiff, CA 92007' };
+  assert.equal(cityFromAddress(cardiff.address), 'cardiff');
+  assert.equal(conflictsWithVenue('https://www.chart-house.com/location/chart-house-coronado-ca/', cardiff), true);
+  assert.equal(conflictsWithVenue('https://www.chart-house.com/location/chart-house-cardiff-ca/', cardiff), false);
+
+  // A page naming nowhere is not evidence of the wrong branch; most pages name
+  // nowhere, and treating that as a conflict would reject the entire web.
+  const indie = { name: 'The Grass Skirt', address: '910 Grand Ave, San Diego, CA 92109', neighborhood: 'Pacific Beach' };
+  assert.equal(conflictsWithVenue('http://thegrassskirt.com/happy-hour', indie), false);
+
+  // Neighborhoods count too, not just cities.
+  const littleItaly = { name: 'Ironside', address: '1654 India St, San Diego, CA 92101', neighborhood: 'Little Italy' };
+  assert.equal(conflictsWithVenue('https://example.com/locations/gaslamp', littleItaly), true);
+
+  // Street number and ZIP pick this branch out of a chain's many pages.
+  const applebees = { name: "Applebee's", address: '610 Palomar St, Chula Vista, CA 91911' };
+  const picked = pickLocationPage(
+    [
+      'https://restaurants.applebees.com/en-us/ca/el-cajon/123-main-st-99',
+      'https://www.applebees.com/happy-hour',
+      'https://restaurants.applebees.com/en-us/ca/chula-vista/610-palomar-st-77062',
+    ],
+    applebees
+  );
+  assert.equal(picked.url, 'https://restaurants.applebees.com/en-us/ca/chula-vista/610-palomar-st-77062');
+}
+
 function testDedupeSeesVenuesTheCacheStoresAsPlainStrings() {
   const existing = [
     { name: 'Board & Brew', lat: 32.910701, lng: -117.108498, placeId: 'ChIJabc' },
@@ -1955,6 +1992,7 @@ function testCatalogHasNoPublishedOutOfCountyVenues() {
 }
 
 tests.push(
+  testAChainPageMustBelongToThisBranch,
   testDedupeSeesVenuesTheCacheStoresAsPlainStrings,
   testFoundWithoutAScheduleIsNotAFinding,
   testCountyComesFromGoogleNotTheBoundsRectangle,
