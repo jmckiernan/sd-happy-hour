@@ -10,8 +10,43 @@ import { placeDetails, placeIdKey, displayName } from './lib/google-places.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
 
+/**
+ * Re-apply the quality bar to details we already hold.
+ *
+ * `qualified` is computed when details are fetched, so lowering the rating or
+ * review minimum leaves thousands of cached places stamped with the old
+ * verdict. Recomputing costs nothing — the Places calls are already paid for.
+ */
+function requalify() {
+  const store = readJson(ENRICHED_PATH, { places: {}, meta: {} });
+  const places = store.places || {};
+  let changed = 0;
+
+  for (const place of Object.values(places)) {
+    const status = place.businessStatus || 'OPERATIONAL';
+    const county = classifyCounty(place);
+    const qualified =
+      status === 'OPERATIONAL' &&
+      (place.rating ?? 0) >= MIN_RATING &&
+      (place.userRatingCount ?? 0) >= MIN_REVIEWS &&
+      county.inCounty;
+    if (qualified !== place.qualified) changed += 1;
+    place.qualified = qualified;
+    place.county = county.county;
+  }
+
+  const total = Object.values(places).filter((place) => place.qualified).length;
+  writeJson(ENRICHED_PATH, { ...store, places });
+  console.log(`Requalified ${Object.keys(places).length} cached places against ${MIN_RATING}★ / ${MIN_REVIEWS} reviews.`);
+  console.log(`  ${changed} verdicts changed; ${total} now qualified.`);
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (process.argv.includes('--requalify')) {
+    requalify();
+    return;
+  }
   const candidates = readJson(CANDIDATES_PATH);
   if (!candidates?.places) {
     console.error('No candidates found. Run npm run import:venues:discover first.');
@@ -20,8 +55,21 @@ async function main() {
 
   const existing = readJson(ENRICHED_PATH, { places: {}, meta: {} });
   const enriched = existing.places || {};
+  // Discovery already returns rating and review count, so a candidate that
+  // cannot clear the bar never needs a details call — and details are the
+  // priciest SKU we touch. Skipping them here is the difference between paying
+  // for every place Google mentions and paying only for plausible ones.
   const ids = Object.keys(candidates.places)
+    .filter((id) => {
+      const place = candidates.places[id];
+      if ((place.businessStatus || 'OPERATIONAL') !== 'OPERATIONAL') return false;
+      if (place.rating == null && place.userRatingCount == null) return true;
+      return (place.rating ?? 0) >= MIN_RATING && (place.userRatingCount ?? 0) >= MIN_REVIEWS;
+    })
     .sort((a, b) => (candidates.places[b].userRatingCount || 0) - (candidates.places[a].userRatingCount || 0));
+
+  const prefiltered = Object.keys(candidates.places).length - ids.length;
+  if (prefiltered) console.log(`Skipping ${prefiltered} candidates below ${MIN_RATING}★ / ${MIN_REVIEWS} reviews before paying for details.`);
   const todo = options.limit ? ids.slice(0, options.limit) : ids;
 
   console.log(`Enriching ${todo.length} candidates (rating ≥ ${MIN_RATING}, reviews ≥ ${MIN_REVIEWS})...`);
