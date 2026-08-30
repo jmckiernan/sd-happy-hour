@@ -17,6 +17,11 @@ const unlistedVenuePaths = new Set(
 
 export default defineConfig({
   site: 'https://happyhoursd.com',
+  // The toolbar's audit re-scans every on-screen image each time the card grid
+  // re-renders, and each scan leaks a file handle server-side. On the homepage
+  // that burns through thousands of descriptors a minute until the dev server
+  // dies with "EMFILE: too many open files".
+  devToolbar: { enabled: false },
   output: 'server',
   adapter: netlify(),
   integrations: [sitemap({
