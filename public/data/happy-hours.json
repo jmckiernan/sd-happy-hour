@@ -87942,5 +87942,849 @@
         "generated": true
       }
     ]
+  },
+  {
+    "id": 612,
+    "name": "Farmer's Table La Mesa",
+    "neighborhood": "La Mesa",
+    "address": "8141 La Mesa Blvd, La Mesa, CA 91942, USA",
+    "lat": 32.7637071,
+    "lng": -117.02159080000001,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "15:30",
+    "endTime": "18:00",
+    "deals": [
+      "Draft beers & house wines",
+      "Specialty cocktails (rotating seasonal)",
+      "Mahi mahi or carnitas tacos",
+      "Wood-fired pizzas (Margherita or Chicken Pesto)",
+      "Farmer's Burger with fries",
+      "Shareable plates (pork belly, calamari, bruschetta, Caesar salad, birria nachos, wings)"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://myfarmerstable.com/",
+    "phone": "(619) 724-6465",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://myfarmerstable.com/news/where-to-find-the-best-happy-hour-in-la-mesa-hint-its-farm-to-table/",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 613,
+    "name": "Shogun Restaurant",
+    "neighborhood": "Kearny Mesa",
+    "address": "5451 Kearny Villa Rd, San Diego, CA 92123, USA",
+    "lat": 32.833114,
+    "lng": -117.13832099999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "11:30",
+    "endTime": "17:30",
+    "deals": [
+      "$4 appetizers, sushi and drinks",
+      "$6 appetizers, sushi and drinks",
+      "$9 appetizers, sushi and drinks"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://restaurantshogun.com/",
+    "phone": "(858) 560-7399",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurantshogun.com/menu",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 614,
+    "name": "Singing Hills Golf Club at Sycuan",
+    "neighborhood": "El Cajon",
+    "address": "3007 Dehesa Rd, El Cajon, CA 92019, USA",
+    "lat": 32.784501,
+    "lng": -116.88360499999999,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:00",
+    "endTime": "19:00",
+    "deals": [
+      "$6 Modelo Especial, Stella Artois",
+      "$7 house red & white wine",
+      "$8 cocktails (Gordos Copa, Golden Hour, Smallville, Old Reserve, Good Gin-Fluence)",
+      "Small bites $5–$15 (Shawarma Wrap, Popcorn Shrimp, Pork Belly Bowl, Asparagus Fries, Birria Tacos, Truffle Fries)",
+      "Sliders & Beer $15",
+      "$1 Wing Wednesdays (6 order minimum)"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://www.singinghillsgolfclub.com/",
+    "phone": "(800) 457-5568",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.singinghillsgolfclub.com/event/red-tail-happy-hour/",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "group friendly"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 615,
+    "name": "333 Pacific",
+    "neighborhood": "Oceanside",
+    "address": "333 N Pacific St, Oceanside, CA 92054, USA",
+    "lat": 33.1950183,
+    "lng": -117.38356199999998,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$12 Nibbles (Lobster Bisque, Brussels Sprouts, Caesar Salad, Shrimp Ceviche, Truffle Frites, Meatballs, Black Mussels)",
+      "$10 Wines by the Glass (Chardonnay, Pinot Grigio, Cabernet Sauvignon)",
+      "$8 Draft Beer (seasonal selection)"
+    ],
+    "vibe": "Nightlife spot",
+    "website": "https://www.333pacific.com/",
+    "phone": "(760) 433-3333",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.333pacific.com/menu?menu=2266790",
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 616,
+    "name": "OB Surf Lodge",
+    "neighborhood": "Ocean Beach",
+    "address": "5083 Santa Monica Ave #1f, San Diego, CA 92107, USA",
+    "lat": 32.7484624,
+    "lng": -117.25217839999999,
+    "days": [
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:30",
+    "endTime": "17:30",
+    "deals": [
+      "$6 all draft beers & house wines",
+      "$7 wells",
+      "$8 Mai Tai",
+      "$9 happy hour food (chips & dips, machaca fries, crispy tacos)"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://obsurflodge.com/",
+    "phone": "(619) 955-5475",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://obsurflodge.com/san-diego-ocean-beach-ob-surf-lodge-happy-hours-specials",
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 617,
+    "name": "Vintana Wine + Dine",
+    "neighborhood": "Escondido",
+    "address": "1205 Auto Park Way, Escondido, CA 92029, USA",
+    "lat": 33.1067716,
+    "lng": -117.0967838,
+    "days": [
+      "Sunday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "14:00",
+    "endTime": "17:00",
+    "deals": [
+      "$10 happy hour bites",
+      "$10 social signature cocktails",
+      "$10 select wines",
+      "$10 non-alcoholic cocktails",
+      "All vodka drinks $10 in lounge 3p–5p daily"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://www.dinevintana.com/",
+    "phone": "(760) 745-7777",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.dinevintana.com/menu",
+    "dealTypes": [
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual",
+      "upscale"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 618,
+    "name": "Grand Ole BBQ Flinn Springs",
+    "neighborhood": "El Cajon",
+    "address": "15505 Olde Hwy 80, El Cajon, CA 92021, USA",
+    "lat": 32.8552339,
+    "lng": -116.837732,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "17:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://grandolebbq.com/",
+    "phone": "(619) 312-0714",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://grandolebbq.com/",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 619,
+    "name": "Fidel's Little Mexico",
+    "neighborhood": "Solana Beach",
+    "address": "607 Valley Ave, Solana Beach, CA 92075, USA",
+    "lat": 32.9891388,
+    "lng": -117.2588578,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "16:30",
+    "endTime": "20:00",
+    "deals": [
+      "House Margaritas $8.50",
+      "Well Drinks $6.25",
+      "Draft Beer (Dos XX, Pacifico) $6.15",
+      "Appetizers discounted (Queso Fundido $9.10, Nachos $9.95, Cheese Crisp $6.05)",
+      "Taco Bar Tacos $4.05",
+      "Wines $6.25 (Chardonnay, Cabernet, Merlot, Pinot Grigio)"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://www.fidelslittlemexico.com/",
+    "phone": "(858) 755-5292",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://www.fidelslittlemexico.com/#happyhour",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 620,
+    "name": "The Grass Skirt",
+    "neighborhood": "Pacific Beach",
+    "address": "910 Grand Ave, San Diego, CA 92109, USA",
+    "lat": 32.795564500000005,
+    "lng": -117.2528053,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "17:00",
+    "endTime": "18:00",
+    "deals": [
+      "50% off Menu Cocktails",
+      "50% off Tiki shots",
+      "50% off Punch bowls",
+      "50% off Beer & Wine"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://thegrassskirt.com/",
+    "phone": "(858) 412-5237",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://thegrassskirt.com/happy-hour/",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 621,
+    "name": "Islands Restaurant Vista",
+    "neighborhood": "Vista",
+    "address": "240 S Melrose Dr, Vista, CA 92081, USA",
+    "lat": 33.192789999999995,
+    "lng": -117.25313,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:30",
+    "deals": [
+      "$3–$10 drinks & bites",
+      "Mai Tai, Deep Blue Sea, Big Island Iced Tea, Moscow Mule",
+      "Well drinks, margaritas (rocks or frozen)",
+      "Coors Light, domestic & house beers, wine"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://www.islandsrestaurants.com/locations/vista",
+    "phone": "(760) 631-1535",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://www.islandsrestaurants.com/menu/happy-hour/",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 622,
+    "name": "Board & Brew - Carlsbad Bressi Ranch",
+    "neighborhood": "Carlsbad",
+    "address": "2681 Gateway Rd #103, Carlsbad, CA 92009, USA",
+    "lat": 33.1274558,
+    "lng": -117.2525156,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations/#nearest-location",
+    "phone": "(760) 929-2739",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 623,
+    "name": "Shogun Restaurant",
+    "neighborhood": "San Marcos",
+    "address": "695 S Rancho Santa Fe Rd, San Marcos, CA 92078, USA",
+    "lat": 33.1321819,
+    "lng": -117.20748879999998,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "11:30",
+    "endTime": "17:30",
+    "deals": [
+      "$4 appetizers, sushi and drinks",
+      "$6 appetizers, sushi and drinks",
+      "$9 appetizers, sushi and drinks"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://www.restaurantshogun.com/",
+    "phone": "(760) 744-6600",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://restaurantshogun.com/menu",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 624,
+    "name": "Board & Brew",
+    "neighborhood": "Rancho Bernardo",
+    "address": "16480 Paseo Del Sur Unit 135, San Diego, CA 92127, USA",
+    "lat": 33.0206929,
+    "lng": -117.1242807,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://www.boardandbrew.com/locations",
+    "phone": "(760) 308-6886",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 625,
+    "name": "O Sushi & Grill",
+    "neighborhood": "Poway",
+    "address": "10545 Scripps Poway Pkwy a, San Diego, CA 92131, USA",
+    "lat": 32.936060399999995,
+    "lng": -117.1013945,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "15:00",
+    "endTime": "17:00",
+    "deals": [
+      "Large Hot Sake $0.99",
+      "Appetizers, sales, sushi rolls, and beer",
+      "Sake Tuesday: Large Hot Sake is only $0.99 (after 5 pm)"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://osushiandgrill.com/",
+    "phone": "(858) 564-0600",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://osushiandgrill.com/san-diego-scripps-ranch-o-sushi-and-grill-happy-hours-specials",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 626,
+    "name": "Board & Brew - Escondido",
+    "neighborhood": "Escondido",
+    "address": "1354 W Valley Pkwy, Escondido, CA 92029, USA",
+    "lat": 33.1118976,
+    "lng": -117.1031846,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations",
+    "phone": "(760) 573-0222",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 627,
+    "name": "Yamariki Sushi",
+    "neighborhood": "Carlsbad",
+    "address": "7610 Via Campanile #148, Carlsbad, CA 92009, USA",
+    "lat": 33.0821476,
+    "lng": -117.23301169999999,
+    "days": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "startTime": "15:30",
+    "endTime": "17:30",
+    "deals": [
+      "50% off menu items (Happy Hour)",
+      "50% off selected items only (Late Night Special)",
+      "30% off (food menu note)"
+    ],
+    "vibe": "Restaurant",
+    "website": "http://yamariki-sushi.com/",
+    "phone": "(760) 452-6020",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://yamariki-sushi.com/carlsbad-yamariki-sushi-happy-hours-specials",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 628,
+    "name": "Board & Brew - Santee",
+    "neighborhood": "Santee",
+    "address": "214 Town Center Pkwy #A-2, Santee, CA 92071, USA",
+    "lat": 32.8428444,
+    "lng": -116.98721970000001,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all beers"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations/santee/",
+    "phone": "(619) 486-6246",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 629,
+    "name": "Board & Brew - Poway",
+    "neighborhood": "Poway",
+    "address": "13501 Poway Rd, Poway, CA 92064, USA",
+    "lat": 32.955503199999995,
+    "lng": -117.0389082,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "deals": [
+      "$2 off all pints"
+    ],
+    "vibe": "Restaurant",
+    "website": "https://boardandbrew.com/locations/poway/",
+    "phone": "(760) 331-3757",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
+    "dealTypes": [
+      "beer",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": true,
+    "listingStatus": "published"
+  },
+  {
+    "id": 630,
+    "name": "The Leucadian Bar",
+    "neighborhood": "Encinitas",
+    "address": "1542 N Coast Hwy 101, Encinitas, CA 92024, USA",
+    "lat": 33.0744933,
+    "lng": -117.3059607,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "deals": [
+      "$5 wells (Mon–Fri happy hour)",
+      "Discounts on select drafts (Mon–Fri happy hour)",
+      "$4 PBR (all day)",
+      "$5 Rolling Rock (all day)",
+      "$5 High Life (all day)",
+      "$5 Hamms Tall Boys (all day)"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://www.theleucadianbar.com/",
+    "phone": "(760) 538-1954",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://www.theleucadianbar.com/specials",
+    "dealTypes": [
+      "beer",
+      "cocktails"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 631,
+    "name": "Captain's Quarters",
+    "neighborhood": "Pacific Beach",
+    "address": "910 Grand Ave Ste 105-107, San Diego, CA 92109, USA",
+    "lat": 32.795607,
+    "lng": -117.25250859999998,
+    "days": [
+      "Tuesday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "startTime": "17:00",
+    "endTime": "18:00",
+    "deals": [
+      "50% off menu cocktails, beer & wine",
+      "Bayab Blast $15",
+      "Chambongs (2) $10"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "https://captainsquarterssd.com/",
+    "phone": "(858) 412-5237",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://captainsquarterssd.com/happy-hour/",
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 632,
+    "name": "Deano's Pub",
+    "neighborhood": "La Mesa",
+    "address": "5286 Baltimore Dr, La Mesa, CA 91942, USA",
+    "lat": 32.7755523,
+    "lng": -117.02816929999997,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "deals": [
+      "Happy hour"
+    ],
+    "vibe": "Cocktail bar",
+    "website": "http://www.deanospub.com/",
+    "phone": "(619) 439-7433",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "http://www.deanospub.com/",
+    "dealTypes": [
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
+  },
+  {
+    "id": 633,
+    "name": "Zanzibar Cafe At the Loft",
+    "neighborhood": "La Jolla",
+    "address": "9500 Gilman Dr, La Jolla, CA 92093, USA",
+    "lat": 32.8796069,
+    "lng": -117.23588549999998,
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "startTime": "15:00",
+    "endTime": "17:00",
+    "deals": [
+      "$6 poke nachos",
+      "$6 bratwurst",
+      "$6 fish & chips",
+      "$6 chicken wings",
+      "$6 flatbreads",
+      "$6 taco sampler"
+    ],
+    "vibe": "Wine bar",
+    "website": "https://zanzibarcafe.com/",
+    "phone": "(858) 678-0922",
+    "verified": false,
+    "lastVerifiedAt": null,
+    "sourceUrl": "https://zanzibarcafe.com/happy-hour",
+    "dealTypes": [
+      "wine",
+      "food"
+    ],
+    "features": [
+      "casual"
+    ],
+    "seoHidden": false,
+    "listingStatus": "published"
   }
 ]
