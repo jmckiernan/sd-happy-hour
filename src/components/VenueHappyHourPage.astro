@@ -50,6 +50,11 @@ const windowOnlyDescription = `${description} The venue publishes the times but 
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
 const areaPath = neighborhoodPath(venue.neighborhood);
+// One construction for every address-to-map link on the page: the Get
+// Directions button and the address under the happy hour times both point at
+// the same query, so an address that resolves badly resolves badly in one
+// place rather than two that drift apart.
+const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`;
 // Flyers and the menu boards we typeset. Shown whole rather than cropped to a
 // frame — a menu with its edges trimmed off is a menu with items missing — and
 // the lightbox opens the full-resolution original for reading.
@@ -219,6 +224,20 @@ function formatWindowLine(window: {
       color: var(--night-soft);
       margin-bottom: 12px;
     }
+    /* Same treatment as the homepage card's address link — soft grey, no
+       underline, darkening on hover — so an address looks and behaves the same
+       everywhere. Left as a block rather than the homepage's single ellipsised
+       line: there is room for a long address to wrap here, and truncating the
+       city off the end of it would be worse than a second line. */
+    .hh-address {
+      display: block;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--night-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .hh-address:hover { color: var(--night); }
     .deal-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     /* :global because these are the chips applyOwnerEdits() rebuilds from the
        owner's live edits. Astro's scoped styles work by stamping a
@@ -744,7 +763,7 @@ function formatWindowLine(window: {
 
   <div class="venue-actions">
     <a class="btn-primary" id="venue-website" href={venue.website} target="_blank" rel="noopener">Visit Website</a>
-    <a class="btn-secondary" id="venue-directions" href={`https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`} target="_blank" rel="noopener">Get Directions</a>
+    <a class="btn-secondary" id="venue-directions" href={mapsUrl} target="_blank" rel="noopener">Get Directions</a>
     <a
       class="btn-secondary"
       id="venue-call"
@@ -816,6 +835,7 @@ function formatWindowLine(window: {
             )}
           </p>
         </div>
+        <a class="hh-address" id="hh-address" href={mapsUrl} target="_blank" rel="noopener">{venue.address}</a>
       </div>
       <div class="venue-card">
         <h3>Deals</h3>
@@ -834,7 +854,6 @@ function formatWindowLine(window: {
         {hasWeeklySpecials && (
           <p class="weekly-jump">Day-by-day schedule below, including Drink Exchange hours.</p>
         )}
-        <p id="hh-address" style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
       </div>
     </div>
   </section>
@@ -1865,7 +1884,15 @@ function formatWindowLine(window: {
         if (unknown && lines.length) unknown.hidden = true;
       }
 
-      if (listing.address) document.getElementById('hh-address')!.textContent = listing.address;
+      // An edited address has to move the map links with it, or the page shows
+      // the new address and sends the customer to the old one.
+      if (listing.address) {
+        const mapsHref = `https://maps.google.com/?q=${encodeURIComponent(listing.address + ', San Diego, CA')}`;
+        const addressLink = document.getElementById('hh-address') as HTMLAnchorElement;
+        addressLink.textContent = listing.address;
+        addressLink.href = mapsHref;
+        (document.getElementById('venue-directions') as HTMLAnchorElement).href = mapsHref;
+      }
       if (listing.vibe) {
         activeHeroVibe = listing.vibe;
         document.getElementById('venue-vibe')!.textContent = listing.vibe;
