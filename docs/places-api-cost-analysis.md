@@ -487,6 +487,95 @@ What pushes it to the high end, roughly in order of likelihood:
 
 ---
 
+## 5. What the capture run actually bought
+
+**This data is bought. Do not re-fetch it to find out what is in it — read this section.**
+
+On 31 August 2026 the Atmosphere mask was bought over the venues the catalog publishes, rather
+than over the whole candidate cache. The scope decision matters and is worth not re-litigating:
+`enrich.mjs` walks `candidates.json` and skips anything already carrying a `detailsFetchedAt`, so
+the only way to widen its mask is `--no-resume`, which re-buys all 3,745 prefiltered candidates
+whether or not the place ever reached the catalog. `backfill-atmosphere.mjs` takes the catalog as
+its input instead: 2,792 rows carry a `placeId`, five of which are duplicate listings of the same
+venue, so **2,787 distinct places at $25/1k = $69.68** at list price, or $44.68 if the month's
+1,000-call Enterprise + Atmosphere allowance was still intact. Zero failures.
+
+An earlier plan put this at $29. That figure is §2.5's *marginal* premium on 5,722 newly
+discovered venues during a full-county discovery run that has not happened, not the cost of
+backfilling places we already hold. The two are not interchangeable.
+
+### 5.1 Fill rates, measured over the 2,787 venues bought
+
+Regenerate with `node scripts/import-google-venues/audit-atmosphere-fill.mjs`.
+
+| Field | Fill | Verdict |
+|---|---|---|
+| `accessibilityOptions` | 98.9% | published |
+| `paymentOptions` | 98.6% | published |
+| `parkingOptions` | 96.1% | published |
+| `delivery` | 90.9% | captured, not published |
+| `takeout` | 87.6% | captured, not published |
+| `dineIn` | 86.0% | captured, not published |
+| `restroom` | 82.8% | published |
+| `servesBeer` | 80.8% | reaches the page as `dealTypes` |
+| `priceLevel` / `priceRange` | 79.4% | published |
+| `liveMusic` | 77.1% | published |
+| `servesWine` | 74.4% | reaches the page as `dealTypes` |
+| `outdoorSeating` | 74.2% | published |
+| `goodForChildren` | 74.1% | captured, not published |
+| `reservable` | 73.8% | published |
+| `servesCocktails` | 72.0% | reaches the page as `dealTypes` |
+| `servesDessert` | 70.0% | captured, not published |
+| `goodForWatchingSports` | 69.6% | published |
+| `servesCoffee` | 69.2% | captured, not published |
+| `servesLunch` | 68.5% | captured, not published |
+| `servesDinner` | 64.2% | captured, not published |
+| `menuForChildren` | 60.5% | captured, not published |
+| `servesBreakfast` | 60.4% | captured, not published |
+| `goodForGroups` | 59.6% | published |
+| `servesVegetarianFood` | 59.5% | published |
+| `servesBrunch` | 51.0% | captured, not published |
+| `editorialSummary` | 46.0% | captured, not published |
+| `curbsidePickup` | 44.9% | captured, not published |
+| `containingPlaces` | 40.4% | captured, not published |
+| `allowsDogs` | 39.2% | published, but see below |
+| `regularSecondaryOpeningHours` | 25.8% | already load-bearing |
+| **`openingDate`** | **0.0%** | **do not model** |
+| **`subDestinations`** | **0.0%** | **do not model** |
+
+### 5.2 The two dead fields
+
+`openingDate` and `subDestinations` were both argued for in §2.2 — "newly opened" as an editorial
+angle, and the hotel-bar and food-hall-stall relationship the catalog cannot currently express.
+Google returned neither for a single one of the 2,787 venues. They cost nothing extra to ask for
+and they are worth nothing to model. Anything proposing to build on either should be pointed here.
+
+### 5.3 Why fill rate decides display, not filtering
+
+Nothing amenity-derived is a browse filter, and that is deliberate. A filter asserts something
+about every venue it excludes, so a filter over a field with 39% coverage silently drops the 61%
+Google stayed quiet about — the user sees a short list and has no way to know it is short because
+of missing data rather than missing venues. A venue-page badge makes no claim about anyone else.
+
+`allowsDogs` is the sharp case. It is published because a dog-friendly patio is a real reason to
+pick a bar, and it is the weakest field on the page at 39%. Absent has to keep meaning unknown:
+collapsing it to `false` would tell the visitors of 1,694 venues that dogs are banned when Google
+merely never said. The published surface is therefore affirmative-only — a fact appears when it is
+`true` and nothing appears when it is `false` or absent — while the stored data keeps all three
+states so a later surface that needs the distinction still has it.
+
+### 5.4 What is captured but not published
+
+Everything in the mask is in `.data/import/google/atmosphere.json`, stored as whole responses.
+The published set is a judgement about a happy-hour site, not about the data: `delivery`,
+`takeout`, `dineIn` and `curbsidePickup` describe how food leaves the building; the `serves*` meal
+variants are a restaurant-guide concern; `servesBeer`/`servesWine`/`servesCocktails` already reach
+the page through `dealTypes` and would say it twice; `goodForChildren` and `menuForChildren` are
+off-audience here; `editorialSummary` is Google-authored prose at 46% with attribution strings
+attached. All of it is bought and sitting there if any of those judgements change.
+
+---
+
 ## Sources
 
 All checked 31 August 2026.

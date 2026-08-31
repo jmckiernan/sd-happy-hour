@@ -8,6 +8,7 @@ import { happyHourDayNames } from '../lib/happyHourDays';
 import { listingImageStyle } from '../lib/imageCrop';
 import { specialsByDay, occasionSpecials, venueDealLines } from '../lib/listingCopy';
 import { neighborhoodPath } from '../lib/neighborhoods';
+import { venueAttributeGroups, formatPriceLevel } from '../lib/venueAttributes';
 import { breadcrumbSchema, venueSchema, withSiteName } from '../lib/seo';
 
 
@@ -16,6 +17,13 @@ interface Props { venue: ListedVenue }
 const { venue } = Astro.props;
 
 const posts = await getCollection('blog', ({ data }) => !data.draft && data.venues.includes(slugify(venue.name)));
+
+// Google's amenity answers, already filtered down to the ones it actually
+// answered. Both come back empty for a venue nobody has told us anything
+// about, and the section is skipped entirely in that case rather than
+// rendering a heading over blank space.
+const attributeGroups = venueAttributeGroups(venue);
+const priceSummary = formatPriceLevel(venue);
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const weeklyGroups = specialsByDay(venue.weeklySpecials || [], dayNames);
@@ -223,6 +231,56 @@ function formatWindowLine(window: {
       color: var(--night-soft);
       font-weight: 500;
       font-style: italic;
+    }
+    /* Attributes are affirmative badges: a venue with three known facts shows
+       three and looks deliberate. Nothing renders a "no" or an empty slot,
+       because absent means Google never answered rather than answered no. */
+    .venue-attributes {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .venue-attributes h2 { font-size: 1.15rem; margin-bottom: 16px; }
+    .attribute-price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+    .attribute-price-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--night-soft);
+    }
+    .attribute-groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .attribute-group h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--night-soft);
+      margin-bottom: 10px;
+    }
+    .attribute-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; }
+    .attribute {
+      background: var(--sand-warm);
+      color: var(--night);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 7px 13px;
+      border-radius: 100px;
+    }
+    .attribute-source {
+      margin-top: 18px;
+      font-size: 0.75rem;
+      color: var(--night-soft);
     }
     .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
     :global(.day-pill) {
@@ -725,6 +783,33 @@ function formatWindowLine(window: {
       </div>
     </div>
   </section>
+
+  {(attributeGroups.length > 0 || priceSummary) && (
+    <section class="venue-attributes" aria-labelledby="venue-attributes-heading">
+      <h2 id="venue-attributes-heading">Good to know</h2>
+      {priceSummary && (
+        <p class="attribute-price">
+          <span class="attribute-price-label">Typical spend</span>
+          <strong>{priceSummary}</strong>
+        </p>
+      )}
+      {/* Only groups with something known reach here, so there is no empty
+          state to render and no placeholder for a fact Google withheld. */}
+      <div class="attribute-groups">
+        {attributeGroups.map((group) => (
+          <div class="attribute-group">
+            <h3>{group.title}</h3>
+            <ul class="attribute-list">
+              {group.attributes.map((attribute) => (
+                <li class="attribute">{attribute.label}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="attribute-source">Amenity details from Google. Absent items just mean nobody has told us.</p>
+    </section>
+  )}
 
   {hasWeeklySpecials && (
     <section class="weekly-specials" aria-labelledby="weekly-specials-heading">

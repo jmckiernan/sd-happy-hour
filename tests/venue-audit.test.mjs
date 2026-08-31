@@ -2342,21 +2342,80 @@ function testNoListingCarriesTheRemovedFeaturesField() {
  * absent — writing `false` for an unanswered venue is the defect that made
  * `features` unusable, inverted.
  */
+const ATMOSPHERE_BOOLEANS = [
+  'outdoorSeating',
+  'allowsDogs',
+  'reservable',
+  'liveMusic',
+  'restroom',
+  'goodForGroups',
+  'goodForWatchingSports',
+  'servesVegetarianFood',
+];
+
 function testAmenitiesAreBooleanOrAbsentButNeverGuessed() {
   const mistyped = happyHours.filter((venue) =>
-    ['outdoorSeating', 'allowsDogs'].some(
+    ATMOSPHERE_BOOLEANS.some(
       (field) => field in venue && typeof venue[field] !== 'boolean'
     )
   );
   assert.deepEqual(mistyped.map((venue) => venue.name), []);
 
-  // Atmosphere has never been bought, so every venue is currently unknown.
-  // This is the check that fails the day a capture run lands, which is when
-  // the surfaces that read these need revisiting.
-  const answered = happyHours.filter(
-    (venue) => 'outdoorSeating' in venue || 'allowsDogs' in venue
+  // Atmosphere has now been bought for the 2,787 place ids the catalog carries,
+  // so this used to assert nobody was answered and now asserts the opposite.
+  // What it cannot become is a completeness check: Google answered `allowsDogs`
+  // for roughly a third of the catalog and `outdoorSeating` for two thirds, and
+  // the venues it stayed silent about must keep the key absent rather than
+  // gain a `false` (docs/places-api-cost-analysis.md §5).
+  const answered = happyHours.filter((venue) =>
+    ATMOSPHERE_BOOLEANS.some((field) => field in venue)
   );
-  assert.equal(answered.length, 0);
+  assert.ok(
+    answered.length > 1000,
+    `expected the capture run's amenities in the catalog, found ${answered.length}`
+  );
+
+  // The silence is the part worth pinning: if a later merge ever starts
+  // defaulting, this is what notices.
+  const silent = happyHours.filter((venue) => !('allowsDogs' in venue));
+  assert.ok(
+    silent.length > 0,
+    'expected venues Google never answered to keep the key absent, not false'
+  );
+}
+
+/**
+ * Google's grouped booleans carry the same three states one level down, and an
+ * empty object is the shape that quietly breaks the rule: it reads as "we asked
+ * and the answer is nothing" where the truth is that no sub-key was answered.
+ */
+function testGroupedAmenitiesAreNeverPublishedEmpty() {
+  const groups = ['parkingOptions', 'paymentOptions', 'accessibilityOptions'];
+  const empty = happyHours.filter((venue) =>
+    groups.some((field) => field in venue && Object.keys(venue[field]).length === 0)
+  );
+  assert.deepEqual(empty.map((venue) => venue.name), []);
+
+  const nonBoolean = happyHours.filter((venue) =>
+    groups.some(
+      (field) =>
+        field in venue &&
+        Object.values(venue[field]).some((value) => typeof value !== 'boolean')
+    )
+  );
+  assert.deepEqual(nonBoolean.map((venue) => venue.name), []);
+}
+
+/**
+ * The two fields the capture run proved Google has nothing to say about. They
+ * were in the mask, they cost the same as everything else, and they came back
+ * empty for all 2,787 venues — so nothing should be modelling them.
+ */
+function testFieldsGoogleNeverAnswersAreNotPublished() {
+  const modelled = happyHours.filter(
+    (venue) => 'openingDate' in venue || 'subDestinations' in venue
+  );
+  assert.deepEqual(modelled.map((venue) => venue.name), []);
 }
 
 /**
@@ -2392,6 +2451,8 @@ function testAmenitiesAreWrittenOnlyWhenGoogleAnswered() {
 tests.push(
   testNoListingCarriesTheRemovedFeaturesField,
   testAmenitiesAreBooleanOrAbsentButNeverGuessed,
+  testGroupedAmenitiesAreNeverPublishedEmpty,
+  testFieldsGoogleNeverAnswersAreNotPublished,
   testAmenitiesAreWrittenOnlyWhenGoogleAnswered,
   testDealTypesComeFromTheVenuesOwnDealText,
   testAVenueWithNoReadableOffersNamesNoDealType,

@@ -170,6 +170,27 @@ export interface Venue {
    * treat `undefined` as unknown and say nothing rather than say no. */
   outdoorSeating?: boolean;
   allowsDogs?: boolean;
+  /** The rest of the Atmosphere set bought in the same run, same three-state
+   * rule: `true` yes, `false` no, absent means Google never answered. Fill
+   * rates are recorded in docs/places-api-cost-analysis.md §5 — `allowsDogs`
+   * is only 39%, so treating absence as `false` would invent a dog ban for
+   * 1,694 venues. Rendering goes through src/lib/venueAttributes.ts, which
+   * shows a fact only when it is `true`. */
+  reservable?: boolean;
+  liveMusic?: boolean;
+  restroom?: boolean;
+  goodForGroups?: boolean;
+  goodForWatchingSports?: boolean;
+  servesVegetarianFood?: boolean;
+  /** Google's grouped booleans. A missing sub-key is unknown, not false, so
+   * these are partial objects rather than complete records. */
+  parkingOptions?: Record<string, boolean>;
+  paymentOptions?: Record<string, boolean>;
+  accessibilityOptions?: Record<string, boolean>;
+  /** `PRICE_LEVEL_MODERATE` and friends. */
+  priceLevel?: string;
+  /** Google's per-person spend range, only stored when both ends are known. */
+  priceRange?: { startPrice: number; endPrice: number; currencyCode: string };
   // The venue's own listed phone number, independently sourced (not
   // self-reported by a claimant) — backs phone-based claim verification
   // (see api/restaurant/claim/send-code.ts). Absent on venues nobody has

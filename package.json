@@ -42,6 +42,7 @@
     "import:venues": "node --env-file-if-exists=.env scripts/import-google-venues/run.mjs",
     "import:venues:discover": "node --env-file-if-exists=.env scripts/import-google-venues/discover.mjs",
     "import:venues:enrich": "node --env-file-if-exists=.env scripts/import-google-venues/enrich.mjs",
+    "import:venues:backfill-atmosphere": "node --env-file-if-exists=.env scripts/import-google-venues/backfill-atmosphere.mjs",
     "import:venues:extract": "node --env-file-if-exists=.env scripts/import-google-venues/extract-happy-hour.mjs",
     "import:venues:stage": "node --env-file-if-exists=.env scripts/import-google-venues/build-staging.mjs",
     "import:venues:merge": "node --env-file-if-exists=.env scripts/import-google-venues/merge.mjs",

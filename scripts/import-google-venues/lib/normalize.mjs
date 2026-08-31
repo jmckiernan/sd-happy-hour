@@ -89,7 +89,7 @@ export function inferDealTypes(deals = [], alcohol = {}) {
 }
 
 /**
- * The two amenities we publish, read straight off Google's Atmosphere fields.
+ * The Atmosphere booleans we publish, read straight off Google's response.
  *
  * Nothing is inferred here, and nothing is defaulted. A key is written only
  * when Google answered, so an absent key means "nobody has told us", which is
@@ -98,15 +98,70 @@ export function inferDealTypes(deals = [], alcohol = {}) {
  * `patio` tag and a venue nobody had asked about looked identical
  * (docs/features-field-experiment.md §7).
  *
- * Atmosphere is only requested behind `IMPORT_CAPTURE_ALL`, so until a capture
- * run buys it these stay absent on every record.
+ * The set is chosen on fill rate and on whether it helps someone decide where
+ * to drink tonight (docs/places-api-cost-analysis.md §5). Deliberately absent:
+ * `servesBeer`/`servesWine`/`servesCocktails`, which already reach the page
+ * through `dealTypes` and would say the same thing twice; `delivery`,
+ * `takeout`, `dineIn` and `curbsidePickup`, which describe how food leaves the
+ * building and not what a happy hour is; the `serves*` meal variants, which are
+ * a restaurant-guide concern; and `goodForChildren`/`menuForChildren`, which
+ * are off-audience here. `openingDate` and `subDestinations` are excluded on
+ * evidence rather than judgement — Google answered neither for any of the 2,787
+ * venues we bought.
  */
+const PUBLISHED_ATMOSPHERE_BOOLEANS = [
+  'outdoorSeating',
+  'allowsDogs',
+  'reservable',
+  'liveMusic',
+  'restroom',
+  'goodForGroups',
+  'goodForWatchingSports',
+  'servesVegetarianFood',
+];
+
+/**
+ * Google's grouped booleans (parking, payment, accessibility).
+ *
+ * The same three-state rule applies one level down: a sub-key Google omitted is
+ * unknown, not false, so the object is copied key by key rather than wholesale
+ * and an object with nothing known is dropped instead of published empty.
+ */
+const PUBLISHED_ATMOSPHERE_GROUPS = ['parkingOptions', 'paymentOptions', 'accessibilityOptions'];
+
+function copyKnownBooleans(group) {
+  if (!group || typeof group !== 'object') return null;
+  const known = {};
+  for (const [key, value] of Object.entries(group)) {
+    if (typeof value === 'boolean') known[key] = value;
+  }
+  return Object.keys(known).length ? known : null;
+}
+
 function atmosphereAmenities(record = {}) {
   const amenities = {};
-  if (typeof record.outdoorSeating === 'boolean') amenities.outdoorSeating = record.outdoorSeating;
-  if (typeof record.allowsDogs === 'boolean') amenities.allowsDogs = record.allowsDogs;
+  for (const field of PUBLISHED_ATMOSPHERE_BOOLEANS) {
+    if (typeof record[field] === 'boolean') amenities[field] = record[field];
+  }
+  for (const field of PUBLISHED_ATMOSPHERE_GROUPS) {
+    const known = copyKnownBooleans(record[field]);
+    if (known) amenities[field] = known;
+  }
+  if (typeof record.priceLevel === 'string' && record.priceLevel) {
+    amenities.priceLevel = record.priceLevel;
+  }
+  // Only useful as a pair; a range with one end is not a range.
+  if (record.priceRange?.startPrice?.units && record.priceRange?.endPrice?.units) {
+    amenities.priceRange = {
+      startPrice: Number(record.priceRange.startPrice.units),
+      endPrice: Number(record.priceRange.endPrice.units),
+      currencyCode: record.priceRange.startPrice.currencyCode || 'USD',
+    };
+  }
   return amenities;
 }
+
+export { atmosphereAmenities, PUBLISHED_ATMOSPHERE_BOOLEANS, PUBLISHED_ATMOSPHERE_GROUPS };
 
 const MAX_WINDOW_MINUTES = 8 * 60;
 const MIN_WINDOW_MINUTES = 30;
