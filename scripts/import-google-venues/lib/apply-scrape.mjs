@@ -8,6 +8,7 @@ import {
 import { SCRAPE_OUTCOMES, buildLastScrape } from './scrape-outcome.mjs';
 import { looksLikeShoppingMall } from './venue-quality.mjs';
 import { isJunkDealLine } from './deals.mjs';
+import { isVerifiedForIndexing } from './seo-visibility.mjs';
 import { parseTimeRange, daysFromRangeText } from './happy-hour.mjs';
 
 function dedicatedHappyHourUrl(url) {
@@ -197,6 +198,11 @@ export function applyScrape(venue, scraped) {
     evidence: scraped.evidence,
     confidence: scraped.confidence,
   });
+
+  if (venue.seoHidden && isVerifiedForIndexing(venue)) {
+    venue.seoHidden = false;
+    changes.push('seoHidden cleared');
+  }
 
   return { changed: changes.length > 0, changes, reason: changes.length ? 'updated' : 'already_current' };
 }

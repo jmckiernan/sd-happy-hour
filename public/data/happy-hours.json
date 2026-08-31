@@ -3006,7 +3006,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/30-fogo-de-ch-o-brazilian-steakhouse.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -4682,7 +4682,7 @@
       "beer",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/40-coasterra.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -5071,7 +5071,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/43-puesto-la-jolla.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -9153,7 +9153,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/66-the-prado-at-balboa-park.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -9381,7 +9381,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/67-c-level-lounge.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -11329,7 +11329,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/77-werewolf.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -12268,7 +12268,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/83-union-kitchen-and-tap-gaslamp.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -13380,7 +13380,7 @@
       "cocktails",
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/89-belly-up-tavern.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -14377,7 +14377,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/97-wonderland-ocean-pub.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -14589,7 +14589,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/98-herb-wood.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -14790,7 +14790,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/99-the-henry.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -16642,7 +16642,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/108-the-galley.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -16940,7 +16940,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/110-el-pueblo-mexican-food-bar-del-mar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -20225,7 +20225,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/124-baja-betty-s.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -26933,7 +26933,7 @@
   {
     "id": 162,
     "name": "Phở Hòa",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "4717 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7558013,
     "lng": -117.0928958,
@@ -27174,7 +27174,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/165-insideout.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -27728,7 +27728,7 @@
   {
     "id": 168,
     "name": "Jimmy Carter's Mexican Café",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "3172 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.738569399999996,
     "lng": -117.1605417,
@@ -28282,7 +28282,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/172-bay-park-fish-company.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -28992,7 +28992,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/178-on-the-border-mexican-grill-cantina.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -29538,7 +29538,7 @@
       "beer",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/181-abbey-s-real-texas-bbq.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -29945,7 +29945,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/183-p-f-chang-s.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -30771,7 +30771,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/187-del-s-hideout.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -31185,7 +31185,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/190-el-pueblo-mexican-food-carlsbad.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -31517,7 +31517,7 @@
     "dealTypes": [
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/192-casa-gabriela.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -31818,7 +31818,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/194-harbor-town-pub.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -32051,7 +32051,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/196-islands-restaurant-mira-mesa.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -32293,7 +32293,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/197-islands-restaurant-mission-valley.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -33066,7 +33066,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/202-el-pueblo-mexican-food-bar-carmel-valley.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -33350,7 +33350,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/203-trust.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -33648,7 +33648,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/205-nolita-hall.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -35125,7 +35125,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/213-the-rabbit-hole.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -39894,7 +39894,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/241-o-sullivan-s-irish-pub-escondido.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -40686,7 +40686,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/245-the-cork-and-craft.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -40964,7 +40964,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/247-islands-restaurant-chula-vista.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -41470,7 +41470,7 @@
   {
     "id": 249,
     "name": "Woodstock's Pizza SDSU",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6145 El Cajon Blvd Ste 3P, San Diego, CA 92115, USA",
     "lat": 32.7608768,
     "lng": -117.06586139999999,
@@ -42013,7 +42013,7 @@
       "food",
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/251-710-beach-club.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -44053,7 +44053,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/263-islands-restaurant-carmel-mountain.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -44509,7 +44509,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/265-aka-san-diego.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -44717,7 +44717,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/266-amalfi-cucina-italiana-san-marcos.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -45415,7 +45415,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/270-la-do-a.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -45883,7 +45883,7 @@
   {
     "id": 272,
     "name": "Asada Cantina + Kitchen",
-    "neighborhood": "Vista",
+    "neighborhood": "San Clemente",
     "address": "225 W Avenida Vista Hermosa Ste G, San Clemente, CA 92672, USA",
     "lat": 33.4389193,
     "lng": -117.62941149999999,
@@ -48543,7 +48543,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/286-havana-1920.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -49026,7 +49026,7 @@
   {
     "id": 288,
     "name": "Khan's Cave Grill & Tavern",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Kearny Mesa",
     "address": "9350 Clairemont Mesa Blvd F, San Diego, CA 92123, USA",
     "lat": 32.8324421,
     "lng": -117.12703289999999,
@@ -50076,7 +50076,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/293-riviera-supper-club-and-turquoise-room.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -50982,7 +50982,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/297-toasted-gastrobrunch.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -51142,7 +51142,7 @@
   {
     "id": 298,
     "name": "BeachFire Bar & Grill",
-    "neighborhood": "Del Mar",
+    "neighborhood": "San Clemente",
     "address": "204 Avenida Del Mar, San Clemente, CA 92672, USA",
     "lat": 33.4259157,
     "lng": -117.61556689999999,
@@ -53995,7 +53995,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/315-monarch-ocean-pub.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -54647,7 +54647,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/321-love-boat-sushi-oceanside.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -54862,7 +54862,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/322-barbarella-restaurant-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -55161,7 +55161,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/324-the-3rd-corner-wine-shop-bistro.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -56267,7 +56267,7 @@
   {
     "id": 331,
     "name": "TapRoom Beer Company",
-    "neighborhood": "El Cajon",
+    "neighborhood": "North Park",
     "address": "2000 El Cajon Blvd, San Diego, CA 92104, USA",
     "lat": 32.755516799999995,
     "lng": -117.14356629999999,
@@ -58163,7 +58163,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/345-mariscos-el-pacifico-fallbrook.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -58423,7 +58423,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/346-northside-tavern.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -58928,7 +58928,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/348-herb-sea.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -59625,7 +59625,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/352-bleu-boh-me.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -60461,7 +60461,7 @@
     "dealTypes": [
       "beer"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/360-the-harp.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -60582,7 +60582,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/361-pillbox-tavern.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -60783,7 +60783,7 @@
   {
     "id": 362,
     "name": "The Cellar",
-    "neighborhood": "Del Mar",
+    "neighborhood": "San Clemente",
     "address": "156 Avenida Del Mar, San Clemente, CA 92672, USA",
     "lat": 33.4265061,
     "lng": -117.6146589,
@@ -63819,7 +63819,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/380-huntress.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -65490,7 +65490,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/389-pal-joey-s-cocktail-lounge.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -66532,7 +66532,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/396-buona-forchetta-san-marcos.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -68558,7 +68558,7 @@
     "dealTypes": [
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/408-mangia-e-bevi.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -68763,7 +68763,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/409-covewood-restaurant.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -69024,7 +69024,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/411-vittorio-s-italian-trattoria.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -69755,7 +69755,7 @@
       "beer",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/416-chef-jun-bay-ho.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -70398,7 +70398,7 @@
   {
     "id": 420,
     "name": "Brussels Bistro",
-    "neighborhood": "Del Mar",
+    "neighborhood": "San Clemente",
     "address": "218 Avenida Del Mar, San Clemente, CA 92672, USA",
     "lat": 33.425566499999995,
     "lng": -117.61609410000001,
@@ -70728,7 +70728,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/423-fast-times.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -70966,7 +70966,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/425-waverly.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -71209,7 +71209,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/426-club-marina.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -71616,7 +71616,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/428-fresco-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -72117,7 +72117,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/433-mediterraneo.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -73024,7 +73024,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/441-shores-bar-kitchen.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -73236,7 +73236,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/442-counterpoint.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -73443,7 +73443,7 @@
   {
     "id": 443,
     "name": "Til-Two Club",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "4746 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7561967,
     "lng": -117.09243579999999,
@@ -74923,7 +74923,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/450-american-heroes-brew.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -75117,7 +75117,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/451-park-social.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -76183,7 +76183,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/459-aromi-italian-cuisine.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -77465,7 +77465,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/467-san-vicente-resort.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -77608,7 +77608,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/468-1st-street-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -77824,7 +77824,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/469-papagayos-grill-and-cantina.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -78003,7 +78003,7 @@
       "food",
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/470-hearth-house.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -78394,7 +78394,7 @@
   {
     "id": 472,
     "name": "Rockwell's Bakery",
-    "neighborhood": "Vista",
+    "neighborhood": "San Clemente",
     "address": "101 W Avenida Vista Hermosa Suite 116, San Clemente, CA 92672, USA",
     "lat": 33.4383802,
     "lng": -117.6264685,
@@ -78513,7 +78513,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/473-rosati-s-pizza-pub-and-sports-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -79561,7 +79561,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/481-the-craft-creamery.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -80370,7 +80370,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/485-crust-pizzeria-carlsbad.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -80962,7 +80962,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/488-happy-does-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -81215,7 +81215,7 @@
   {
     "id": 490,
     "name": "Rare Society",
-    "neighborhood": "Del Mar",
+    "neighborhood": "San Clemente",
     "address": "226 Avenida Del Mar, San Clemente, CA 92672, USA",
     "lat": 33.425309299999995,
     "lng": -117.6165151,
@@ -81513,7 +81513,7 @@
   {
     "id": 491,
     "name": "AMAYA",
-    "neighborhood": "Del Mar",
+    "neighborhood": "Carmel Valley",
     "address": "5300 Grand Del Mar Ct, San Diego, CA 92130, USA",
     "lat": 32.9382185,
     "lng": -117.1976822,
@@ -81934,7 +81934,7 @@
   {
     "id": 493,
     "name": "College Billiards",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "5303 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7573858,
     "lng": -117.0815581,
@@ -82089,7 +82089,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/495-california-english.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -82453,7 +82453,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/497-trattoria-da-sofia.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -82675,7 +82675,7 @@
   {
     "id": 498,
     "name": "JP's Pub",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Tierrasanta",
     "address": "10436 Clairemont Mesa Blvd. (at, Santo Rd, San Diego, CA 92124, USA",
     "lat": 32.830254499999995,
     "lng": -117.10464180000001,
@@ -82811,7 +82811,7 @@
       "beer",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/499-kilowatt-brewing-ocean-beach.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -83247,7 +83247,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/502-backdraft-bar-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -83366,7 +83366,7 @@
   {
     "id": 503,
     "name": "Evan’s Deli & Brew",
-    "neighborhood": "Point Loma",
+    "neighborhood": "Old Town",
     "address": "3944 W Point Loma Blvd Ste D-E, San Diego, CA 92110, USA",
     "lat": 32.7557391,
     "lng": -117.2218135,
@@ -83542,7 +83542,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/505-nick-g-s-restaurant.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -83980,7 +83980,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/508-the-regal-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -84942,7 +84942,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/515-encinitas-ranch-golf-course.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -85077,7 +85077,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/516-misadventure-co.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -85617,7 +85617,7 @@
     "dealTypes": [
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/521-firenze-trattoria.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -85858,7 +85858,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/523-the-oaks-grille.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -85973,7 +85973,7 @@
   {
     "id": 524,
     "name": "Surfside Fish House",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10585 Scripps Poway Pkwy Ste D, San Diego, CA 92131, USA",
     "lat": 32.9357495,
     "lng": -117.0996036,
@@ -86005,7 +86005,7 @@
       "wine",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/524-surfside-fish-house.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -86234,7 +86234,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/525-sets-kitchen-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -86777,7 +86777,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/529-the-henry.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -86993,7 +86993,7 @@
   {
     "id": 530,
     "name": "Pronto Cucina Italiana",
-    "neighborhood": "Del Mar",
+    "neighborhood": "San Clemente",
     "address": "221 B Avenida Del Mar, San Clemente, CA 92672, USA",
     "lat": 33.4250518,
     "lng": -117.6159598,
@@ -87177,7 +87177,7 @@
     "dealTypes": [
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/531-air-conditioned-lounge.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -87653,7 +87653,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/534-gravity-heights-mission-valley.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -89101,7 +89101,7 @@
       "beer",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/544-deli-stop-sports-pub.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -90190,7 +90190,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/552-sushi-roka-bar-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -91472,7 +91472,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/561-red-tail-bar-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -91994,7 +91994,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/565-understory-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -92952,7 +92952,7 @@
       "cocktails",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/573-gaslamplighter-karaoke-cocktail-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -93144,7 +93144,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/574-the-lobby-tiki-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -94372,7 +94372,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/584-chauncey-s-pizza-bar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -94905,7 +94905,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/587-knotty-brewing-co.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -95824,7 +95824,7 @@
   {
     "id": 594,
     "name": "Majorette",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6344 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7643913,
     "lng": -117.0621461,
@@ -96663,7 +96663,7 @@
   {
     "id": 604,
     "name": "The Mesa Bar & Grill",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6164 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.763107399999996,
     "lng": -117.06485850000001,
@@ -96688,7 +96688,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/604-the-mesa-bar-grill.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -96846,7 +96846,7 @@
     "dealTypes": [
       "beer"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/605-kilowatt-brewing-ob-tasting-room.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -98205,7 +98205,7 @@
   {
     "id": 625,
     "name": "O Sushi & Grill",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10545 Scripps Poway Pkwy a, San Diego, CA 92131, USA",
     "lat": 32.936060399999995,
     "lng": -117.1013945,
@@ -99469,7 +99469,7 @@
   {
     "id": 666,
     "name": "Tajima Ramen College Heights",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6061 El Cajon Blvd Ste 2, San Diego, CA 92115, USA",
     "lat": 32.760514199999996,
     "lng": -117.0674695,
@@ -101041,7 +101041,7 @@
   {
     "id": 717,
     "name": "Charminar Indian Restaurant & Catering",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd Ste 111, San Diego, CA 92121, USA",
     "lat": 32.9059739,
     "lng": -117.1735337,
@@ -102474,7 +102474,7 @@
   {
     "id": 766,
     "name": "Extraordinary Desserts",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2870 Fourth Ave, San Diego, CA 92103, USA",
     "lat": 32.7352831,
     "lng": -117.1614439,
@@ -108554,7 +108554,7 @@
   {
     "id": 932,
     "name": "K Sandwiches",
-    "neighborhood": "Vista",
+    "neighborhood": "Kearny Mesa",
     "address": "7604 Linda Vista Rd, San Diego, CA 92111, USA",
     "lat": 32.8011597,
     "lng": -117.15831569999997,
@@ -109154,7 +109154,7 @@
   {
     "id": 950,
     "name": "Living Room Coffeehouse - College Area",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "5900 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.759952,
     "lng": -117.07043569999999,
@@ -109531,7 +109531,7 @@
   {
     "id": 961,
     "name": "Tahini Authentic Middle Eastern Street Food - Kearny Mesa",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Kearny Mesa",
     "address": "9119 Clairemont Mesa Blvd Ste H, San Diego, CA 92123, USA",
     "lat": 32.830967099999995,
     "lng": -117.13287129999999,
@@ -109680,7 +109680,7 @@
   {
     "id": 965,
     "name": "SHABU-WORKS",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Scripps Ranch",
     "address": "9841 Mira Mesa Blvd, San Diego, CA 92131, USA",
     "lat": 32.9161157,
     "lng": -117.1141542,
@@ -110328,7 +110328,7 @@
   {
     "id": 984,
     "name": "Phở Ca Dao Restaurant",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "5223 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7570404,
     "lng": -117.08335000000001,
@@ -113143,7 +113143,7 @@
   {
     "id": 1059,
     "name": "Filippi's Pizza Grotto Scripps Ranch",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Scripps Ranch",
     "address": "9969 Mira Mesa Blvd, San Diego, CA 92131, USA",
     "lat": 32.9163798,
     "lng": -117.11274939999998,
@@ -114573,7 +114573,7 @@
   {
     "id": 1097,
     "name": "Cafe Bassam",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "3088 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.737511500000004,
     "lng": -117.1605595,
@@ -117849,7 +117849,7 @@
   {
     "id": 1189,
     "name": "Phở Vân Restaurant",
-    "neighborhood": "El Cajon",
+    "neighborhood": "City Heights",
     "address": "4233 El Cajon Blvd, San Diego, CA 92105, USA",
     "lat": 32.7549056,
     "lng": -117.10443330000001,
@@ -117900,7 +117900,7 @@
   {
     "id": 1190,
     "name": "Dosa Studio Indian Restaurant & Catering",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd #113, San Diego, CA 92121, USA",
     "lat": 32.906060599999996,
     "lng": -117.1735705,
@@ -120240,7 +120240,7 @@
   {
     "id": 1255,
     "name": "XINJIANG BBQ",
-    "neighborhood": "Vista",
+    "neighborhood": "Kearny Mesa",
     "address": "6931 Linda Vista Rd, San Diego, CA 92111, USA",
     "lat": 32.7841502,
     "lng": -117.1702422,
@@ -122362,7 +122362,7 @@
   {
     "id": 1310,
     "name": "Tacos El Panson",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "4433 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7549711,
     "lng": -117.0990762,
@@ -122635,7 +122635,7 @@
   {
     "id": 1317,
     "name": "Urbane Cafe",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6765 Mira Mesa Blvd, San Diego, CA 92121, USA",
     "lat": 32.907135,
     "lng": -117.1722564,
@@ -125085,7 +125085,7 @@
   {
     "id": 1384,
     "name": "Finjan Coffee Co. - Kearny Mesa",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Kearny Mesa",
     "address": "9119 Clairemont Mesa Blvd g, San Diego, CA 92123, USA",
     "lat": 32.8308974,
     "lng": -117.1324931,
@@ -125421,7 +125421,7 @@
   {
     "id": 1394,
     "name": "Homestyle Hawaiian Pub & Eatery",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10601 Tierrasanta Blvd, San Diego, CA 92124, USA",
     "lat": 32.8223425,
     "lng": -117.1021617,
@@ -128436,7 +128436,7 @@
   {
     "id": 1478,
     "name": "Pure Project Balboa Park",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2865 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7352389,
     "lng": -117.16005450000002,
@@ -129747,7 +129747,7 @@
   {
     "id": 1524,
     "name": "Tierra Santa Mexican Restaurant",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "5950 Santo Rd Ste E & F, San Diego, CA 92124, USA",
     "lat": 32.8395502,
     "lng": -117.0986001,
@@ -131807,7 +131807,7 @@
   {
     "id": 1585,
     "name": "Round Table Pizza",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10415 Tierrasanta Blvd, San Diego, CA 92124, USA",
     "lat": 32.823079199999995,
     "lng": -117.10308099999999,
@@ -132849,7 +132849,7 @@
   {
     "id": 1610,
     "name": "Rise Southern Biscuits & Righteous Chicken - San Diego",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6364 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7649089,
     "lng": -117.0617,
@@ -132947,7 +132947,7 @@
   {
     "id": 1612,
     "name": "Habaneros Mexican Grill",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6785 Mira Mesa Blvd, San Diego, CA 92121, USA",
     "lat": 32.906783,
     "lng": -117.1716347,
@@ -133274,7 +133274,7 @@
   {
     "id": 1620,
     "name": "ADDISON BY WILLIAM BRADLEY",
-    "neighborhood": "Del Mar",
+    "neighborhood": "Carmel Valley",
     "address": "5200 Grand Del Mar Way, San Diego, CA 92130, USA",
     "lat": 32.9415767,
     "lng": -117.1990702,
@@ -133995,7 +133995,7 @@
   {
     "id": 1645,
     "name": "Zab Linda Vista",
-    "neighborhood": "Vista",
+    "neighborhood": "Kearny Mesa",
     "address": "6925 Linda Vista Rd B, San Diego, CA 92111, USA",
     "lat": 32.7844149,
     "lng": -117.17089410000001,
@@ -134545,7 +134545,7 @@
   {
     "id": 1664,
     "name": "A chau",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "4644 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7558923,
     "lng": -117.09479499999999,
@@ -135898,7 +135898,7 @@
   {
     "id": 1702,
     "name": "Cotijas Taco Shop",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10645 Tierrasanta Blvd, San Diego, CA 92124, USA",
     "lat": 32.8216341,
     "lng": -117.10019989999999,
@@ -136892,7 +136892,7 @@
   {
     "id": 1726,
     "name": "Santorini Island Grill",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10545 Scripps Poway Pkwy, San Diego, CA 92131, USA",
     "lat": 32.9358236,
     "lng": -117.10117029999998,
@@ -137701,7 +137701,7 @@
   {
     "id": 1749,
     "name": "Scrimshaw Coffee",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "5542 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7585924,
     "lng": -117.0752213,
@@ -138360,7 +138360,7 @@
   {
     "id": 1771,
     "name": "Mom's Pho & Grill",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10645 Tierrasanta Blvd # F, San Diego, CA 92124, USA",
     "lat": 32.8214469,
     "lng": -117.10027880000001,
@@ -139559,7 +139559,7 @@
   {
     "id": 1804,
     "name": "Tandoori Vibes - Indian Restaurant & catering",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "6165 El Cajon Blvd Ste E, San Diego, CA 92115, USA",
     "lat": 32.7616867,
     "lng": -117.06455969999999,
@@ -140120,7 +140120,7 @@
   {
     "id": 1817,
     "name": "The Pizza Standard",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Tierrasanta",
     "address": "10462 Clairemont Mesa Blvd, San Diego, CA 92124, USA",
     "lat": 32.8306813,
     "lng": -117.10385090000001,
@@ -140962,7 +140962,7 @@
   {
     "id": 1843,
     "name": "Indian Tandoor",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd Ste 110, San Diego, CA 92121, USA",
     "lat": 32.9061446,
     "lng": -117.17371659999999,
@@ -141790,7 +141790,7 @@
   {
     "id": 1868,
     "name": "Mostra Coffee",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2001 Fourth Ave, San Diego, CA 92101, USA",
     "lat": 32.7262768,
     "lng": -117.16102649999999,
@@ -142619,7 +142619,7 @@
   {
     "id": 1895,
     "name": "Pho Kitchen",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6785 Mira Mesa Blvd, San Diego, CA 92121, USA",
     "lat": 32.9066471,
     "lng": -117.1715558,
@@ -146199,7 +146199,7 @@
   {
     "id": 1993,
     "name": "Wahine Kai Shave ice, Kona Coffee and Tea Station/ Hawaiian Tea",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10545 Scripps Poway Pkwy, San Diego, CA 92131, USA",
     "lat": 32.935967999999995,
     "lng": -117.101294,
@@ -147247,7 +147247,7 @@
   {
     "id": 2021,
     "name": "Home Brew Mart",
-    "neighborhood": "Vista",
+    "neighborhood": "Old Town",
     "address": "5401 Linda Vista Rd #406, San Diego, CA 92110, USA",
     "lat": 32.766759,
     "lng": -117.1952271,
@@ -147932,7 +147932,7 @@
   {
     "id": 2042,
     "name": "Sangucheria PSF Tierrasanta",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "5950 Santo Rd Ste K, San Diego, CA 92124, USA",
     "lat": 32.839402299999996,
     "lng": -117.09872589999999,
@@ -148978,7 +148978,7 @@
   {
     "id": 2068,
     "name": "Kotija Jr Taco Shop Mira Mesa",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6695 Mira Mesa Blvd, San Diego, CA 92121, USA",
     "lat": 32.9067058,
     "lng": -117.17443179999998,
@@ -149188,7 +149188,7 @@
   {
     "id": 2074,
     "name": "Pinto Thai Bistro",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10425 Tierrasanta Blvd Unit 105, San Diego, CA 92124, USA",
     "lat": 32.8227694,
     "lng": -117.10335560000001,
@@ -150715,7 +150715,7 @@
   {
     "id": 2115,
     "name": "Heavenly Yogurt",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10791 Tierrasanta Blvd #101, San Diego, CA 92124, USA",
     "lat": 32.8211723,
     "lng": -117.0989804,
@@ -151807,7 +151807,7 @@
   {
     "id": 2144,
     "name": "Submarina #2",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10645 Tierrasanta Blvd Unit C, San Diego, CA 92124, USA",
     "lat": 32.821678399999996,
     "lng": -117.1002684,
@@ -151892,7 +151892,7 @@
   {
     "id": 2147,
     "name": "Industrial Grind Coffee",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "6020 Santo Rd A, San Diego, CA 92124, USA",
     "lat": 32.840202,
     "lng": -117.09857650000001,
@@ -152506,7 +152506,7 @@
   {
     "id": 2167,
     "name": "Boba Religion",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Kearny Mesa",
     "address": "9340 Clairemont Mesa Blvd Ste a, San Diego, CA 92123, USA",
     "lat": 32.8324715,
     "lng": -117.12812380000001,
@@ -152695,7 +152695,7 @@
   {
     "id": 2174,
     "name": "Edamami",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "5950 Santo Rd G, San Diego, CA 92124, USA",
     "lat": 32.839501,
     "lng": -117.098682,
@@ -153116,7 +153116,7 @@
   {
     "id": 2185,
     "name": "Mnemonic Coffee",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2604 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.732609,
     "lng": -117.16062540000001,
@@ -153934,7 +153934,7 @@
   {
     "id": 2205,
     "name": "The Clubhouse Grill at Fairmont Grand Del Mar",
-    "neighborhood": "Del Mar",
+    "neighborhood": "Carmel Valley",
     "address": "5300 Grand Del Mar Way, San Diego, CA 92130, USA",
     "lat": 32.9409479,
     "lng": -117.1993161,
@@ -154696,7 +154696,7 @@
   {
     "id": 2225,
     "name": "Sue’s Korean Kitchen",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd #109, San Diego, CA 92121, USA",
     "lat": 32.9062002,
     "lng": -117.17369649999999,
@@ -154744,7 +154744,7 @@
   {
     "id": 2226,
     "name": "Nanay's Best BBQ",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd #103, San Diego, CA 92121, USA",
     "lat": 32.9064055,
     "lng": -117.17361170000001,
@@ -157821,7 +157821,7 @@
   {
     "id": 2308,
     "name": "Tappi Sushi",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "10645 Tierrasanta Blvd, San Diego, CA 92124, USA",
     "lat": 32.821312999999996,
     "lng": -117.10033649999998,
@@ -157965,7 +157965,7 @@
   {
     "id": 2311,
     "name": "Michi Michi Baking Collective",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2800 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.734659199999996,
     "lng": -117.16053550000001,
@@ -159894,7 +159894,7 @@
   {
     "id": 2358,
     "name": "Taco de Ojo",
-    "neighborhood": "Cardiff",
+    "neighborhood": "San Diego",
     "address": "954 Cardiff St, San Diego, CA 92114, USA",
     "lat": 32.716158199999995,
     "lng": -117.02638709999998,
@@ -160223,7 +160223,7 @@
   {
     "id": 2367,
     "name": "HINAR Dessert Bar & Café 2",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10755 Scripps Poway Pkwy, San Diego, CA 92131, USA",
     "lat": 32.9356648,
     "lng": -117.0974893,
@@ -160821,7 +160821,7 @@
   {
     "id": 2385,
     "name": "Kaki Sushi",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Tierrasanta",
     "address": "10428 Clairemont Mesa Blvd, San Diego, CA 92124, USA",
     "lat": 32.8301588,
     "lng": -117.10468259999999,
@@ -162244,7 +162244,7 @@
   {
     "id": 2421,
     "name": "Pho and wings-pho nam cali 2",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10549 Scripps Poway Pkwy B, San Diego, CA 92131, USA",
     "lat": 32.9356923,
     "lng": -117.10035800000001,
@@ -163073,7 +163073,7 @@
   {
     "id": 2441,
     "name": "Mendocino Farms",
-    "neighborhood": "Poway",
+    "neighborhood": "Scripps Ranch",
     "address": "10715 Scripps Poway Pkwy, San Diego, CA 92131, USA",
     "lat": 32.9365653,
     "lng": -117.09777749999999,
@@ -167394,7 +167394,7 @@
   {
     "id": 2545,
     "name": "Marketplace Grille",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6715 Mira Mesa Blvd Reception, San Diego, CA 92121, USA",
     "lat": 32.9062753,
     "lng": -117.17348720000001,
@@ -169529,7 +169529,7 @@
   {
     "id": 2603,
     "name": "ESSNTL Coffee",
-    "neighborhood": "El Cajon",
+    "neighborhood": "College Area",
     "address": "5971 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.760194399999996,
     "lng": -117.06888280000001,
@@ -169621,7 +169621,7 @@
   {
     "id": 2605,
     "name": "Tasty Donuts",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Tierrasanta",
     "address": "10488 Clairemont Mesa Blvd, San Diego, CA 92124, USA",
     "lat": 32.8308344,
     "lng": -117.1035129,
@@ -169918,7 +169918,7 @@
   {
     "id": 2615,
     "name": "Turmeric Kitchen",
-    "neighborhood": "Clairemont",
+    "neighborhood": "Tierrasanta",
     "address": "10480 Clairemont Mesa Blvd, San Diego, CA 92124, USA",
     "lat": 32.8307608,
     "lng": -117.1035376,
@@ -170751,7 +170751,7 @@
   {
     "id": 2641,
     "name": "San Diego Bakery & Café",
-    "neighborhood": "Vista",
+    "neighborhood": "Kearny Mesa",
     "address": "6959 Linda Vista Rd # G, San Diego, CA 92111, USA",
     "lat": 32.786905,
     "lng": -117.16990059999999,
@@ -171085,7 +171085,7 @@
   {
     "id": 2649,
     "name": "The Poke Co. - Mira Mesa",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Sorrento Valley",
     "address": "6755 Mira Mesa Blvd Ste 118, San Diego, CA 92121, USA",
     "lat": 32.9058333,
     "lng": -117.17333330000001,
@@ -174954,7 +174954,7 @@
   {
     "id": 2770,
     "name": "Pavaraga Hawaiian Coffee & Tea",
-    "neighborhood": "Mira Mesa",
+    "neighborhood": "Scripps Ranch",
     "address": "9841 Mira Mesa Blvd #2, San Diego, CA 92131, USA",
     "lat": 32.9162673,
     "lng": -117.1140122,
@@ -176490,7 +176490,7 @@
   {
     "id": 2818,
     "name": "San Diego Beer House",
-    "neighborhood": "Coronado",
+    "neighborhood": "San Diego",
     "address": "2925 Coronado Ave, San Diego, CA 92154, USA",
     "lat": 32.575607100000006,
     "lng": -117.07043990000001,
@@ -179680,7 +179680,7 @@
   {
     "id": 2910,
     "name": "Vivant Bistro & Craft Bar",
-    "neighborhood": "Scripps Ranch",
+    "neighborhood": "Tierrasanta",
     "address": "6554 Ambrosia Dr, San Diego, CA 92124, USA",
     "lat": 32.7945178,
     "lng": -117.1093531,
@@ -180713,7 +180713,7 @@
   {
     "id": 2942,
     "name": "CUCINA urbana",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "505 Laurel St, San Diego, CA 92101, USA",
     "lat": 32.731242099999996,
     "lng": -117.16009849999999,
@@ -181300,7 +181300,7 @@
   {
     "id": 2962,
     "name": "Parc Bistro-Brasserie",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2760 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7342296,
     "lng": -117.16048049999999,
@@ -182364,7 +182364,7 @@
   {
     "id": 2998,
     "name": "Osteria Cotto e Mangiato",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "702 Ash St, San Diego, CA 92101, USA",
     "lat": 32.720072699999996,
     "lng": -117.15821919999999,
@@ -182394,7 +182394,7 @@
   {
     "id": 2999,
     "name": "SRO Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1807 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.7242794,
     "lng": -117.1600921,
@@ -182797,7 +182797,7 @@
   {
     "id": 3013,
     "name": "WetStone Wine Bar- Bankers Hill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "1927 Fourth Ave, San Diego, CA 92101, USA",
     "lat": 32.7255648,
     "lng": -117.1608994,
@@ -183919,7 +183919,7 @@
   {
     "id": 3047,
     "name": "Cocina 35",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1435 Sixth Ave, San Diego, CA 92101, USA",
     "lat": 32.720296399999995,
     "lng": -117.15913239999999,
@@ -184071,7 +184071,7 @@
   {
     "id": 3050,
     "name": "Mister A's",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2550 Fifth Ave 12th floor, San Diego, CA 92103, USA",
     "lat": 32.7318692,
     "lng": -117.16059949999998,
@@ -184861,7 +184861,7 @@
   {
     "id": 3066,
     "name": "Azuki Sushi Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2321 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.7296548,
     "lng": -117.16005690000001,
@@ -185245,7 +185245,7 @@
   {
     "id": 3076,
     "name": "The Balboa",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "1863 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.724970299999995,
     "lng": -117.1599724,
@@ -186157,7 +186157,7 @@
   {
     "id": 3096,
     "name": "The Market Place",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2601 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.732711099999996,
     "lng": -117.1601639,
@@ -187027,7 +187027,7 @@
   {
     "id": 3116,
     "name": "Papas & Tacos Mexican Food",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2239 First Ave., San Diego, CA 92101, USA",
     "lat": 32.728833,
     "lng": -117.16374300000001,
@@ -187611,7 +187611,7 @@
   {
     "id": 3128,
     "name": "The Corner Drafthouse",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "495 Laurel St, San Diego, CA 92101, USA",
     "lat": 32.7312539,
     "lng": -117.1605029,
@@ -187941,7 +187941,7 @@
   {
     "id": 3135,
     "name": "Maestro Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1352 Fifth Ave A, San Diego, CA 92101, USA",
     "lat": 32.719559499999995,
     "lng": -117.1605049,
@@ -188945,7 +188945,7 @@
   {
     "id": 3157,
     "name": "Flamin' Phó & Sushi Bar",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "550 Cedar St Ste 103, San Diego, CA 92101, USA",
     "lat": 32.7221553,
     "lng": -117.1594799,
@@ -192093,7 +192093,7 @@
   {
     "id": 3225,
     "name": "Hane Sushi",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2760 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.734346099999996,
     "lng": -117.1605334,
@@ -192499,7 +192499,7 @@
   {
     "id": 3234,
     "name": "James Coffee Co.",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2870 Fourth Ave #107, San Diego, CA 92103, USA",
     "lat": 32.7352191,
     "lng": -117.16141169999999,
@@ -192595,7 +192595,7 @@
   {
     "id": 3236,
     "name": "North Park Beer Company - Bankers Hill",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "3095 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.737558199999995,
     "lng": -117.16021680000001,
@@ -193957,7 +193957,7 @@
   {
     "id": 3268,
     "name": "Ocho Mexican Food & Cafe",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "1870 Fourth Ave, San Diego, CA 92101, USA",
     "lat": 32.7249268,
     "lng": -117.1614698,
@@ -194005,7 +194005,7 @@
   {
     "id": 3269,
     "name": "Adore Coffee House",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "550 Cedar St Ste 101, San Diego, CA 92101, USA",
     "lat": 32.7221894,
     "lng": -117.15990869999999,
@@ -194636,7 +194636,7 @@
   {
     "id": 3285,
     "name": "Books & Records",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2202 Fourth Ave, San Diego, CA 92101, USA",
     "lat": 32.7284222,
     "lng": -117.16144690000002,
@@ -195096,7 +195096,7 @@
   {
     "id": 3296,
     "name": "BB's Deli",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1321 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.7192668,
     "lng": -117.1600655,
@@ -195371,7 +195371,7 @@
   {
     "id": 3302,
     "name": "Talitha Coffee Roasters",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2550 Fifth Ave #75, San Diego, CA 92103, USA",
     "lat": 32.7315886,
     "lng": -117.1610298,
@@ -195699,7 +195699,7 @@
   {
     "id": 3310,
     "name": "IMPERIAL STEAKHOUSE",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "505 Kalmia St, San Diego, CA 92101, USA",
     "lat": 32.730198,
     "lng": -117.1599002,
@@ -196753,7 +196753,7 @@
   {
     "id": 3333,
     "name": "Juice Alchemy",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "3156 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.738417999999996,
     "lng": -117.16049009999999,
@@ -196974,7 +196974,7 @@
   {
     "id": 3340,
     "name": "Heavenly Bodega",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2765 Fifth Ave Suite 10, San Diego, CA 92103, USA",
     "lat": 32.734371599999996,
     "lng": -117.1600813,
@@ -197021,7 +197021,7 @@
   {
     "id": 3341,
     "name": "Kind Corner",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "703 Ash St, San Diego, CA 92101, USA",
     "lat": 32.7197652,
     "lng": -117.15823099999999,
@@ -197483,7 +197483,7 @@
   {
     "id": 3351,
     "name": "Mariscos y Miches El Patron",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1320 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.7191618,
     "lng": -117.16053999999998,
@@ -197748,7 +197748,7 @@
   {
     "id": 3357,
     "name": "Kinme Omakase",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2505 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.7315703,
     "lng": -117.16014829999999,
@@ -198073,7 +198073,7 @@
   {
     "id": 3364,
     "name": "Sushi MARU",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1345 Third Ave, San Diego, CA 92101, USA",
     "lat": 32.719495,
     "lng": -117.16173730000001,
@@ -198201,7 +198201,7 @@
   {
     "id": 3367,
     "name": "Al Teatro Panini Grill",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "4102, 1254 Third Ave, San Diego, CA 92101, USA",
     "lat": 32.7185085,
     "lng": -117.1622635,
@@ -198590,7 +198590,7 @@
   {
     "id": 3376,
     "name": "Kenzi Coffee & Tea Garden",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "319 Elm St, San Diego, CA 92101, USA",
     "lat": 32.7239442,
     "lng": -117.1617449,
@@ -198681,7 +198681,7 @@
   {
     "id": 3378,
     "name": "Cherrybomb",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "2237 First Ave., San Diego, CA 92101, USA",
     "lat": 32.728791799999996,
     "lng": -117.16358190000001,
@@ -199089,7 +199089,7 @@
   {
     "id": 3387,
     "name": "Dunya Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1352 Fifth Ave B, San Diego, CA 92101, USA",
     "lat": 32.7196836,
     "lng": -117.16043250000001,
@@ -199220,7 +199220,7 @@
   {
     "id": 3390,
     "name": "Communal Coffee",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2710 Third Ave Ste 101, San Diego, CA 92103, USA",
     "lat": 32.7336714,
     "lng": -117.16245860000001,
@@ -199588,7 +199588,7 @@
   {
     "id": 3398,
     "name": "Charade Speakeasy",
-    "neighborhood": "San Diego",
+    "neighborhood": "Bankers Hill",
     "address": "1867 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.724975799999996,
     "lng": -117.16009590000002,
@@ -199640,7 +199640,7 @@
   {
     "id": 3399,
     "name": "The Iconic Coffee Club",
-    "neighborhood": "Hillcrest",
+    "neighborhood": "Bankers Hill",
     "address": "2722 Fifth Ave, San Diego, CA 92103, USA",
     "lat": 32.733829799999995,
     "lng": -117.1605454,
@@ -200813,7 +200813,7 @@
   {
     "id": 3429,
     "name": "Shake Bar & Lounge",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "701 A St, San Diego, CA 92101, USA",
     "lat": 32.7187677,
     "lng": -117.1579583,
@@ -201411,7 +201411,7 @@
   {
     "id": 3445,
     "name": "KO Underground Restaurant",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1320 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.719162499999996,
     "lng": -117.16048470000001,
@@ -202844,7 +202844,7 @@
   {
     "id": 3481,
     "name": "La Boba SD",
-    "neighborhood": "San Diego",
+    "neighborhood": "Cortez Hill",
     "address": "1320 Fifth Ave, San Diego, CA 92101, USA",
     "lat": 32.7191618,
     "lng": -117.16053999999998,

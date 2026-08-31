@@ -7,6 +7,15 @@ export const NEIGHBORHOOD_BOXES = [
   { name: 'Gaslamp', minLat: 32.706, maxLat: 32.718, minLng: -117.180, maxLng: -117.154 },
   { name: 'East Village', minLat: 32.706, maxLat: 32.718, minLng: -117.162, maxLng: -117.146 },
   { name: 'Balboa Park', minLat: 32.726, maxLat: 32.738, minLng: -117.158, maxLng: -117.142 },
+  // Ash Street up to Elm, east of Fifth: too far north for Gaslamp or East
+  // Village, too far south for Balboa Park, and previously nameless.
+  { name: 'Cortez Hill', minLat: 32.7185, maxLat: 32.7245, minLng: -117.1625, maxLng: -117.152 },
+  // Bankers Hill fills the gap between Little Italy, downtown and the park's west
+  // edge. Without a box its venues fell through to a bare "San Diego", which has
+  // no neighborhood page, so they appeared nowhere. Kept to the uncontested core
+  // — First Avenue to Sixth, Elm Street up to just short of Upas — so downtown
+  // and Hillcrest keep the blocks that are really theirs.
+  { name: 'Bankers Hill', minLat: 32.7225, maxLat: 32.740, minLng: -117.166, maxLng: -117.158 },
   { name: 'Harbor Island', minLat: 32.718, maxLat: 32.728, minLng: -117.200, maxLng: -117.188 },
   { name: 'Middletown', minLat: 32.728, maxLat: 32.738, minLng: -117.178, maxLng: -117.168 },
   { name: 'Hillcrest', minLat: 32.744, maxLat: 32.758, minLng: -117.172, maxLng: -117.154 },
@@ -79,7 +88,7 @@ const SAN_DIEGO_ZIP_NEIGHBORHOOD = {
   92121: 'Sorrento Valley',
   92122: 'UTC',
   92123: 'Kearny Mesa',
-  92124: 'Scripps Ranch',
+  92124: 'Tierrasanta',
   92126: 'Mira Mesa',
   92127: 'Rancho Bernardo',
   92128: 'Rancho Bernardo',
@@ -88,6 +97,9 @@ const SAN_DIEGO_ZIP_NEIGHBORHOOD = {
   92131: 'Scripps Ranch',
 };
 
+// Last-resort patterns for addresses with no parseable city or zip. They match
+// street names as readily as places, so they are only consulted once the city
+// and zip have both failed to identify the venue.
 const ADDRESS_NEIGHBORHOOD_RE = [
   [/gaslamp/i, 'Gaslamp'],
   [/little italy/i, 'Little Italy'],
@@ -152,25 +164,26 @@ function neighborhoodFromAddress(address = '') {
 export function assignNeighborhood(lat, lng, address = '') {
   if (/mexico|tijuana|tecate|b\.c\./i.test(address)) return 'Tijuana';
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return neighborhoodFromAddress(address) || cityFromAddress(address) || 'San Diego';
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    for (const box of NEIGHBORHOOD_BOXES) {
+      if (inBox(lat, lng, box)) return box.name;
+    }
   }
-
-  for (const box of NEIGHBORHOOD_BOXES) {
-    if (inBox(lat, lng, box)) return box.name;
-  }
-
-  const fromAddress = neighborhoodFromAddress(address);
-  if (fromAddress) return fromAddress;
 
   const city = cityFromAddress(address);
+  const zip = zipFromAddress(address);
+
+  // A separate municipality outranks whatever a street name hints at: a venue on
+  // Avenida Del Mar in San Clemente is in San Clemente, not Del Mar.
   if (city && city !== 'San Diego') return city;
 
-  const zip = zipFromAddress(address);
-  if (zip && SAN_DIEGO_ZIP_NEIGHBORHOOD[zip]) {
-    return SAN_DIEGO_ZIP_NEIGHBORHOOD[zip];
-  }
+  // Within the city of San Diego the zip is the only reliable signal left. Street
+  // names borrow other places' names freely — Scripps Poway Parkway is in Scripps
+  // Ranch, El Cajon Boulevard runs through North Park — so an unrecognised zip
+  // stays vaguely "San Diego" instead of guessing from the street.
+  if (city === 'San Diego') return SAN_DIEGO_ZIP_NEIGHBORHOOD[zip] || 'San Diego';
 
-  if (city === 'San Diego') return 'San Diego';
-  return city || 'San Diego';
+  return neighborhoodFromAddress(address)
+    || SAN_DIEGO_ZIP_NEIGHBORHOOD[zip]
+    || 'San Diego';
 }

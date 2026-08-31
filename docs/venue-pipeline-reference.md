@@ -263,7 +263,11 @@ from the wrong restaurant — not a blank one.
 | `medium` | Google weekday text; any other parsed website page; **all** locator results |
 | `low` | A page whose only "deal" is the literal string `Happy hour`; empty results |
 
-Confidence matters downstream: anything below `high` is imported with `seoHidden: true`.
+Confidence matters downstream: anything below `high` is imported with `seoHidden: true`. A later
+scrape that finds the happy hour on the venue's own site at high confidence, with a window and real
+deal lines, clears the flag again — otherwise a published, fully verified venue stays off the
+homepage index and its neighborhood page forever. `npm run import:venues:reindex-verified` applies
+that rule to venues scraped before it existed.
 
 ---
 
@@ -410,15 +414,26 @@ boolean, so an absent key means nobody has asked about that venue.
 Order matters — the first method to produce an answer wins.
 
 - Mexican addresses short-circuit to `Tijuana`.
-- **44 bounding boxes**, checked in array order, most specific first.
-- Address regex list (37 entries), including aliases like `PB` → Pacific Beach, `Convoy` →
-  Kearny Mesa, `Liberty Station` → Point Loma.
-- City parsed from the address, then a ZIP lookup table, then `San Diego`.
+- Bounding boxes, checked in array order, most specific first.
+- The city parsed out of the address, when it is not San Diego.
+- For San Diego addresses, a ZIP lookup table; an unrecognised ZIP stays `San Diego`.
+- Address regex list, including aliases like `PB` → Pacific Beach, `Convoy` → Kearny Mesa,
+  `Liberty Station` → Point Loma. Only reached when neither a city nor a ZIP could be parsed.
 
 Because boxes are checked before addresses, **a box that is too wide silently overrides every
 address rule beneath it**. Cardiff is the worked example: it sat inside the old Solana Beach box,
 so its venues were labelled Solana Beach or Encinitas and the `/cardiff/` address rule could never
 fire for a venue with coordinates. The fix was an explicit Cardiff box placed before Encinitas.
+
+The address regexes match street names as readily as places, which is why they now run last.
+Scripps Poway Parkway is in Scripps Ranch, El Cajon Boulevard runs through North Park and the
+College Area, Linda Vista Road is 25 miles from Vista, and Avenida Del Mar is in San Clemente —
+each of those sent venues to a neighborhood page they had no business being on. Where the street
+is the only signal left, the answer stays a vague `San Diego` rather than a confident wrong city.
+
+Every neighborhood the classifier can emit needs an entry in `ALL_NEIGHBORHOODS`
+(`src/lib/neighborhoods.ts`). A venue filed under a neighborhood with no page appears on no
+neighborhood page at all; `npm run test:neighborhood-assign` fails when that happens.
 
 ---
 
