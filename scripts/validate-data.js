@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { BROWSE_HOLD_REASONS } from '../src/lib/listingVisibility.ts';
 
 // Validates public/data/happy-hours.json — the one piece of accounts/
 // submissions-era data that's still tracked in git (users/submissions now
@@ -163,6 +164,22 @@ function validateListing(listing, label) {
   }
   if (typeof listing.verified !== 'boolean') errors.push(`${label}: verified must be boolean.`);
   if ('seoHidden' in listing && typeof listing.seoHidden !== 'boolean') errors.push(`${label}: seoHidden must be boolean when present.`);
+  // A venue held back from browse has to say why. The whole point of the field
+  // is that the reason is auditable rather than inferred from a flag that also
+  // means something else, so a hold with no recognised reason is worse than no
+  // hold at all — it hides a venue and explains nothing.
+  if (listing.browseHold != null) {
+    const hold = listing.browseHold;
+    if (typeof hold !== 'object' || Array.isArray(hold)) {
+      errors.push(`${label}: browseHold must be an object when present.`);
+    } else {
+      if (!BROWSE_HOLD_REASONS.includes(hold.reason)) {
+        errors.push(`${label}: browseHold.reason must be one of ${BROWSE_HOLD_REASONS.join(', ')}.`);
+      }
+      if (!hasString(hold.since)) errors.push(`${label}: browseHold.since is required.`);
+      if ('note' in hold && !hasString(hold.note)) errors.push(`${label}: browseHold.note must be a string when present.`);
+    }
+  }
   if (!('lastVerifiedAt' in listing)) errors.push(`${label}: lastVerifiedAt is required, even when null.`);
   if (!isUrl(listing.sourceUrl)) errors.push(`${label}: sourceUrl must be an http(s) URL.`);
   // dealTypes is derived from the deal text and nothing else (§5.6 of

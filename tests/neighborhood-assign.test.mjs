@@ -7,6 +7,7 @@ import { HAPPY_HOURS_PATH } from '../scripts/import-google-venues/lib/constants.
 import { NEIGHBORHOOD_BOXES, assignNeighborhood } from '../scripts/import-google-venues/lib/neighborhood-assign.mjs';
 import { applyScrape } from '../scripts/import-google-venues/lib/apply-scrape.mjs';
 import { isVerifiedForIndexing } from '../scripts/import-google-venues/lib/seo-visibility.mjs';
+import { isBrowseHoldReason, isHeldFromBrowse } from '../src/lib/listingVisibility.ts';
 
 const venues = JSON.parse(fs.readFileSync(HAPPY_HOURS_PATH, 'utf8'));
 const boxes = new Map(NEIGHBORHOOD_BOXES.map((box) => [box.name, box]));
@@ -81,10 +82,42 @@ function testNoVenueSitsAbsurdlyFarFromTheNeighborhoodItIsFiledUnder() {
 function testEveryVisibleVenueHasANeighborhoodPageToAppearOn() {
   const pages = neighborhoodsWithPages();
   const orphaned = venues
-    .filter((venue) => venue.listingStatus === 'published' && !venue.seoHidden)
+    .filter((venue) => venue.listingStatus === 'published' && !venue.browseHold)
     .filter((venue) => !pages.has(venue.neighborhood))
     .map((venue) => `${venue.id} ${venue.name}: ${venue.neighborhood}`);
   assert.deepEqual(orphaned, [], 'a listed venue whose neighborhood has no page appears nowhere');
+}
+
+function testOnlyANamedHoldKeepsAVenueOffItsNeighborhoodPage() {
+  // `seoHidden` is search — noindex, the sitemap, the homepage's ItemList —
+  // and `browseHold` is navigation. They were one boolean until the split
+  // recorded in docs/homepage-reachability.md, and conflating them is what
+  // left 83 published venues with real schedules unreachable.
+  assert.equal(isHeldFromBrowse({ seoHidden: true }), false);
+  assert.equal(isHeldFromBrowse({ browseHold: { reason: 'unverified_window', since: '2026-08-31' } }), true);
+  assert.equal(isHeldFromBrowse({}), false);
+
+  // Every hold in the catalog names a reason the codebase knows how to handle
+  // and dates it. A hold nobody can act on hides a venue and explains nothing,
+  // which is the state the split was made to end.
+  const held = venues.filter((venue) => venue.browseHold);
+  assert.ok(held.length > 0);
+  assert.deepEqual(
+    held
+      .filter((venue) => !isBrowseHoldReason(venue.browseHold.reason) || !venue.browseHold.since)
+      .map((venue) => `${venue.id} ${venue.name}`),
+    []
+  );
+
+  // And the reason has to still be true: a venue we have since confirmed but
+  // which is still held back as unverified is the original bug wearing a label.
+  assert.deepEqual(
+    venues
+      .filter((venue) => venue.browseHold?.reason === 'unverified_window')
+      .filter((venue) => isVerifiedForIndexing(venue))
+      .map((venue) => `${venue.id} ${venue.name}`),
+    []
+  );
 }
 
 function testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage() {
@@ -92,6 +125,7 @@ function testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage() {
     id: 1,
     name: 'Verified Spot',
     seoHidden: true,
+    browseHold: { reason: 'unverified_window', since: '2026-08-01' },
     hasHappyHourData: true,
     days: ['Monday'],
     startTime: '15:00',
@@ -112,8 +146,12 @@ function testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage() {
       { field: 'deals', quote: '$6 craft beers, $8 wine', url: 'https://example.com/happy-hour' },
     ],
   });
+  // Both hedges come off: the search flag and the browse hold were answering
+  // the same question, and the scrape has now answered it.
   assert.equal(venue.seoHidden, false);
+  assert.equal(venue.browseHold, undefined);
   assert.ok(result.changes.includes('seoHidden cleared'));
+  assert.ok(result.changes.includes('browse hold released'));
 }
 
 function testAnUnprovenHappyHourStaysHidden() {
@@ -174,6 +212,7 @@ tests.push(
   testEveryCatalogedVenueAgreesWithTheAssignmentRule,
   testNoVenueSitsAbsurdlyFarFromTheNeighborhoodItIsFiledUnder,
   testEveryVisibleVenueHasANeighborhoodPageToAppearOn,
+  testOnlyANamedHoldKeepsAVenueOffItsNeighborhoodPage,
   testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage,
   testAnUnprovenHappyHourStaysHidden,
 );

@@ -84,7 +84,7 @@ All intermediate files live in `.data/import/` (gitignored):
 | `google/with-happy-hour.json` | Only venues with HH data |
 | `staging.json` | Normalized rows ready to merge |
 
-Imported venues are written with `seoHidden: true` unless Google provided high-confidence happy hour hours. Review staging before merging, then run `npm run validate:data`.
+Imported venues are written with `seoHidden: true` and a `browseHold` of `unverified_window` unless Google provided high-confidence happy hour hours; a later scrape that confirms the window lifts both. Review staging before merging, then run `npm run validate:data`.
 
 ## After merge
 

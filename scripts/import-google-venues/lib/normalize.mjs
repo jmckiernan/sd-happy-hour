@@ -2,6 +2,7 @@ import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES } from './constants.mjs';
 import { finalizeDeals } from './deals.mjs';
 import { assignNeighborhood } from './neighborhood-assign.mjs';
 import { isUsableVenueWebsite } from './website-ownership.mjs';
+import { unverifiedWindowHold } from './seo-visibility.mjs';
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -333,6 +334,11 @@ export function normalizeVenue(record, nextId) {
     dealTypes,
     ...atmosphereAmenities(record),
     seoHidden: hh.confidence !== 'high',
+    // A thin answer from Google is a window we cannot yet source, which is a
+    // statement about the venue rather than about search, so it holds the
+    // listing off browse under its own reason. A later scrape that confirms
+    // the window lifts both (lib/apply-scrape.mjs).
+    ...(hh.confidence !== 'high' ? { browseHold: unverifiedWindowHold() } : {}),
     // Every catalog venue carries this explicitly; leaving it undefined on
     // imports makes visibility depend on how each consumer reads a missing key.
     listingStatus: 'published',

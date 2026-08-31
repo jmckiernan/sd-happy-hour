@@ -263,11 +263,14 @@ from the wrong restaurant — not a blank one.
 | `medium` | Google weekday text; any other parsed website page; **all** locator results |
 | `low` | A page whose only "deal" is the literal string `Happy hour`; empty results |
 
-Confidence matters downstream: anything below `high` is imported with `seoHidden: true`. A later
-scrape that finds the happy hour on the venue's own site at high confidence, with a window and real
-deal lines, clears the flag again — otherwise a published, fully verified venue stays off the
-homepage index and its neighborhood page forever. `npm run import:venues:reindex-verified` applies
-that rule to venues scraped before it existed.
+Confidence matters downstream: anything below `high` is imported with `seoHidden: true` and a
+`browseHold` of `unverified_window`. Both are hedging the same question — is this a real place whose
+happy hour we can source — and a later scrape that confirms the window lifts both. Confirming means
+a complete window with provenance, from the venue's own happy-hour page or Google's `HAPPY_HOUR`
+hours, and nothing since saying the pages we read describe another brand or branch. Deal lines are
+not part of it: window-only listings stay published (`docs/window-only-listings.md`), so requiring
+offers hid real venues. `npm run import:venues:reindex-verified` applies the rule to venues scraped
+before it existed.
 
 ---
 
@@ -328,7 +331,8 @@ an empty deal list.
 
 - `listingStatus: 'published'`, always, and explicitly. Leaving it undefined would make visibility
   depend on how each consumer reads a missing key.
-- `seoHidden: confidence !== 'high'`.
+- `seoHidden: confidence !== 'high'`, and the same condition writes
+  `browseHold: { reason: 'unverified_window', since }`.
 - `verified: false`, `lastVerifiedAt: null`.
 - `neighborhood` from coordinates (§6), `vibe` inferred from Google place types, `dealTypes` from
   the venue's own deal text (§5.6), and `outdoorSeating` / `allowsDogs` copied from Google's
@@ -622,14 +626,20 @@ merely exempt stubs — it **forbids** the fields they should not have:
 
 ## 12. Visibility — what shows up where
 
-Three independent flags, frequently confused.
+Four independent flags, frequently confused.
 
 | | Controlled by | Effect |
 |---|---|---|
-| Browse, homepage, neighborhoods | `listingStatus` **and** a schedule | Must be published *and* have a window |
-| Sitemap | `listingStatus` only | Unlisted excluded, at build time |
-| Search-engine indexing | `seoHidden` | `noindex` on the page; also drops it from the homepage index and neighborhood pages |
+| Homepage grid, search and filters | `listingStatus` **and** a schedule | Must be published *and* have a window. Nothing else may gate this surface |
+| Neighborhood pages | `browseHold` | Held back only with a named, dated reason |
+| Sitemap | `listingStatus` and `seoHidden` | Unlisted and noindexed pages excluded, at build time |
+| Search-engine indexing | `seoHidden` | `noindex` on the page, and out of the homepage's ItemList structured data |
 | Claim search | nothing | **Every** venue is searchable and claimable |
+
+`seoHidden` and `browseHold` were a single flag until the split recorded in
+`docs/homepage-reachability.md`. Keeping "do not spend crawl budget here" and "we cannot source this
+venue's window" in one boolean left 83 published venues unreachable, so a browse hold now has to say
+which situation it is; the reasons live in `src/lib/listingVisibility.ts`.
 
 - A venue is publicly listed when `listingStatus !== 'unlisted'`. Rows predating the field count as
   published, so it could roll out without backfilling.

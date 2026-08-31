@@ -99,18 +99,26 @@ function unlistNonVenue(venue, scraped) {
 }
 
 /**
- * Take `seoHidden` back off a listing the scrape has now confirmed.
+ * Lift both hedges off a listing the scrape has now confirmed.
+ *
+ * `seoHidden` keeps the venue out of search indexes and `browseHold` keeps it
+ * off browse surfaces; an import applies both when Google's answer was thin,
+ * and confirming the window is the answer to the question each was hedging.
  *
  * Run on every exit from `applyScrape`, including the ones that decided the
  * scrape carried nothing worth storing. A scrape that finds no offers still
- * settles that the venue exists and that its window came off its own site, and
- * that is the whole question the flag asks — so an import has to be able to
- * reach the answer on its own, without a repair script run afterwards.
+ * settles that the venue exists and that its window came off its own site — so
+ * an import reaches this on its own, without a repair pass run afterwards.
  */
-function reconcileIndexVisibility(venue, changes = []) {
-  if (venue.seoHidden && isVerifiedForIndexing(venue)) {
+function reconcileConfirmedVisibility(venue, changes = []) {
+  if (!isVerifiedForIndexing(venue)) return changes;
+  if (venue.seoHidden) {
     venue.seoHidden = false;
     changes.push('seoHidden cleared');
+  }
+  if (venue.browseHold) {
+    delete venue.browseHold;
+    changes.push('browse hold released');
   }
   return changes;
 }
@@ -131,13 +139,13 @@ export function applyScrape(venue, scraped) {
       sourceUrl: scraped?.sourcePage,
       candidateUrls: scraped?.candidateUrls,
     });
-    const cleared = reconcileIndexVisibility(venue);
+    const cleared = reconcileConfirmedVisibility(venue);
     return { changed: cleared.length > 0, changes: cleared, reason: scraped?.outcome || 'no_data' };
   }
 
   if (scraped.confidence === 'low' && !hasTimesEvidence(scraped) && !(scraped.deals || []).length) {
     venue.lastScrape = scraped.lastScrape;
-    const cleared = reconcileIndexVisibility(venue);
+    const cleared = reconcileConfirmedVisibility(venue);
     return { changed: cleared.length > 0, changes: cleared, reason: 'low_confidence' };
   }
 
@@ -228,7 +236,7 @@ export function applyScrape(venue, scraped) {
     confidence: scraped.confidence,
   });
 
-  reconcileIndexVisibility(venue, changes);
+  reconcileConfirmedVisibility(venue, changes);
 
   return { changed: changes.length > 0, changes, reason: changes.length ? 'updated' : 'already_current' };
 }

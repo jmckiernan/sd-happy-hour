@@ -1,9 +1,10 @@
 import happyHours from '../../public/data/happy-hours.json';
-import { isPubliclyListed } from './listingVisibility';
+import { isPubliclyListed, type BrowseHold } from './listingVisibility';
 import { vibeImageFor } from './vibeImages';
 import type { AlertFilters, LiveOverride } from './store';
 import { isHappyHourActive } from './sanDiegoTime';
 import { DEALS_UNKNOWN_LABEL } from './listingCopy';
+import { OFFERS_UNKNOWN_FILTER } from './directoryFilters';
 import type { WeeklySpecial } from './listingCopy';
 import { slugify, buildVenueSlugMap, slugFromMap, type SlugVenue } from './venueSlug';
 import type { ImageFraming } from './imageCrop';
@@ -57,17 +58,21 @@ export interface Venue {
   website: string;
   verified: boolean;
   /**
-   * Keep a listing out of search engines: `noindex` on its page, out of the
-   * sitemap, and out of the homepage's ItemList structured data.
+   * Keep a listing out of search engines, and nothing else: `noindex` on its
+   * page, out of the sitemap, and out of the homepage's ItemList structured
+   * data.
    *
-   * It is not a navigation flag, and reading it as one is what made 83
-   * published venues unreachable. The homepage grid — the surface with the
-   * search box and the filters, and so the one a visitor actually browses —
-   * selects on `listingStatus` alone and shows these venues. The neighborhood
-   * pages still exclude them, which is the last place the two meanings are
-   * mixed; see tests/homepage-reachability.test.mjs.
+   * It is not a navigation flag. Reading it as one is what made 83 published
+   * venues unreachable, so browse visibility now has its own field that
+   * records why — see `browseHold`.
    */
   seoHidden?: boolean;
+  /**
+   * Why this venue is held back from browse surfaces, or absent when it is
+   * not. The reasons and the surfaces that honour them live in
+   * src/lib/listingVisibility.ts.
+   */
+  browseHold?: BrowseHold | null;
   /**
    * Whether this venue reaches public browse surfaces. Every establishment we
    * know about stays in the dataset so owners can find and claim it — even
@@ -329,7 +334,13 @@ export function isVenueLive(venue: Venue, overrides: Record<number, LiveOverride
 export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean {
   if (filters.days?.length && !filters.days.some((day) => venue.days.includes(day))) return false;
   if (filters.neighborhood && venue.neighborhood !== filters.neighborhood) return false;
-  if (filters.dealType && !(venue.dealTypes || []).includes(filters.dealType)) return false;
+  // An alert saved from the homepage filter bar can carry that bar's one
+  // non-deal-type option, which selects venues whose offers nobody published.
+  if (filters.dealType === OFFERS_UNKNOWN_FILTER) {
+    if ((venue.dealTypes || []).length) return false;
+  } else if (filters.dealType && !(venue.dealTypes || []).includes(filters.dealType)) {
+    return false;
+  }
   if (filters.query) {
     const haystack = [venue.name, venue.neighborhood, venue.address, venue.vibe, ...(venue.deals || []), ...(venue.dealTypes || [])]
       .join(' ')

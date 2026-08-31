@@ -49,9 +49,10 @@ decided the scrape carried nothing worth storing — a scrape that finds no
 offers still settles that the venue exists. A fresh import reaches the same
 answer with no repair script afterwards.
 
-**26 venues became visible.** 55 published venues remain `seoHidden`: 47 whose
-window has no provenance at all, 6 whose pages describe another brand or
-branch, and 2 whose scrape stored no times quote. Each is an unverified claim
+**26 venues became visible.** 55 published venues remain held back, and §4 is
+the field that now records why: 47 whose window has no provenance at all, 6
+whose pages describe another brand or branch, and 2 whose scrape stored no
+times quote. Each is an unverified claim
 rather than a hidden venue, and the honest fix for the 47 is the one
 `docs/window-only-listings.md` §4 proposes — scrape them, or convert them to
 claim stubs.
@@ -69,23 +70,53 @@ Deck) were never hidden at all and had been browsable the whole time. Hiding a
 wrong record from search leaves it on a browsable page; `unlisted` is the state
 the catalog already has for a row we keep only so an owner can find it.
 
-## 4. What `seoHidden` should mean
+## 4. The flag is split
 
-The flag's stated purpose is SEO and its effect had become navigational, and
-those are not the same thing. As it stands:
+`seoHidden` meant SEO and had come to mean navigation as well, and those are
+not the same fact. "Do not spend crawl budget here" and "we cannot source this
+venue's window" want different handling and different copy, and one boolean
+carrying both is what produced this bug. The owner's decision was to split it,
+which is now done.
 
-- The homepage grid — the surface with the search box and every filter, and so
-  the one a visitor actually browses — selects on `listingStatus` alone and has
-  always shown `seoHidden` venues.
-- The homepage's ItemList structured data, the sitemap, the venue page's
-  `noindex` and the **neighborhood pages** exclude them.
+**`seoHidden` is search, and nothing else.** `noindex` on the venue page, out
+of the sitemap, out of the homepage's ItemList structured data.
 
-Three of those four are search-engine surfaces. The neighborhood pages are
-navigation, and that is where the meaning slipped. The flag should mean "keep
-this out of search indexes" and nothing else; the neighborhood pages should
-either show these venues or the catalog should carry a separate, named reason
-for holding a venue back from browse. Leaving one boolean to mean both is what
-produced this bug, and it will produce it again.
+**`browseHold` is navigation, and carries its reason.** A small structured
+value rather than a boolean, because the next reason to hold a venue back will
+not be this one:
+
+```json
+"browseHold": { "reason": "unverified_window", "since": "2026-08-31" }
+```
+
+`reason` is one of `BROWSE_HOLD_REASONS` in `src/lib/listingVisibility.ts`, and
+`npm run validate:data` rejects a hold whose reason the codebase does not know
+how to handle — a hold nobody can act on hides a venue and explains nothing.
+`since` dates the hold so a stale one is visible. There is one reason today:
+
+- **`unverified_window`** — we hold a happy-hour window we cannot source. No
+  provenance for the times, or the pages we read describe another brand or
+  another branch. The fix is to scrape the venue or convert it to a claim stub.
+
+Adding a reason means deciding what the surfaces should say about it, which is
+the point of naming them.
+
+**Where each is read.** `seoHidden`: `astro.config.mjs` (sitemap),
+`src/components/VenueHappyHourPage.astro` (`noindex`), `src/pages/index.astro`
+(ItemList). `browseHold`: `src/lib/neighborhoods.ts`, via `isHeldFromBrowse`.
+The homepage grid reads neither, and must not — it selects on `listingStatus`
+and a schedule, and `tests/homepage-reachability.test.mjs` fails if either
+field starts gating it.
+
+**Both are written together.** An import applies both when Google's answer is
+below high confidence (`lib/normalize.mjs`), and `applyScrape` lifts both the
+moment a scrape confirms the window, on every exit path. Nothing needs a repair
+pass afterwards, and `npm run import:venues:reindex-verified` settles listings
+whose last scrape predates the rule.
+
+The split moved no venue. The 55 published venues that were `seoHidden` before
+it are exactly the 55 carrying `browseHold: unverified_window` after it, and
+the 2,374 records hidden from search are the same 2,374.
 
 ## 5. How much of the catalog can a visitor find?
 

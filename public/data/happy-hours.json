@@ -1970,6 +1970,10 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -5344,6 +5348,10 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -10980,6 +10988,10 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -27098,6 +27110,10 @@
       "locationApplicability": null,
       "confidence": null,
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -35839,6 +35855,10 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -46519,6 +46539,10 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -66359,7 +66383,11 @@
         "sourceUrl": "https://www.oggis.com/menus",
         "generated": true
       }
-    ]
+    ],
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 394,
@@ -79730,6 +79758,10 @@
       "locationApplicability": "this_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
+    },
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
     }
   },
   {
@@ -98521,7 +98553,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 623,
@@ -98589,7 +98625,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 625,
@@ -98653,7 +98693,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 627,
@@ -98721,7 +98765,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 629,
@@ -98754,7 +98802,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 630,
@@ -98921,7 +98973,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 635,
@@ -98954,7 +99010,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 636,
@@ -98987,7 +99047,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 637,
@@ -99020,7 +99084,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 638,
@@ -99053,7 +99121,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 639,
@@ -99114,7 +99186,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 641,
@@ -99175,7 +99251,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 643,
@@ -99326,7 +99406,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 648,
@@ -99359,7 +99443,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 649,
@@ -99588,7 +99676,11 @@
       "cocktails"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 657,
@@ -99651,7 +99743,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 659,
@@ -99939,7 +100035,11 @@
       "wine"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 668,
@@ -100110,7 +100210,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 673,
@@ -162320,7 +162424,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2413,
@@ -170472,7 +170580,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2618,
@@ -174418,7 +174530,11 @@
     "sourceUrl": "https://www.sycuan.com/restaurants/viewpoint-kitchen-and-bar/#menus",
     "dealTypes": [],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2736,
@@ -175863,7 +175979,11 @@
     "sourceUrl": "https://www.sycuan.com/restaurants/viewpoint-neighborhood-kitchen/#menus",
     "dealTypes": [],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2784,
@@ -177008,7 +177128,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2822,
@@ -180829,7 +180953,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2931,
@@ -180884,7 +181012,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2933,
@@ -181033,7 +181165,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2938,
@@ -181550,7 +181686,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2954,
@@ -181792,7 +181932,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2962,
@@ -182140,7 +182284,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2973,
@@ -182260,7 +182408,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2977,
@@ -182351,7 +182503,11 @@
       "wine"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2980,
@@ -182408,7 +182564,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2982,
@@ -182644,7 +182804,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2990,
@@ -182738,7 +182902,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2993,
@@ -182765,7 +182933,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2994,
@@ -182798,7 +182970,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 2995,
@@ -183541,7 +183717,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3017,
@@ -183579,7 +183759,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3018,
@@ -183666,7 +183850,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3021,
@@ -183842,7 +184030,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3026,
@@ -183932,7 +184124,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3029,
@@ -184095,7 +184291,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3034,
@@ -184184,7 +184384,11 @@
       "beer"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3037,
@@ -184218,7 +184422,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3038,
@@ -184244,7 +184452,11 @@
     "dealTypes": [],
     "seoHidden": true,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": true,
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3039,
@@ -184279,7 +184491,11 @@
       "food"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3040,
@@ -184312,7 +184528,11 @@
       "cocktails"
     ],
     "seoHidden": true,
-    "listingStatus": "published"
+    "listingStatus": "published",
+    "browseHold": {
+      "reason": "unverified_window",
+      "since": "2026-08-31"
+    }
   },
   {
     "id": 3041,

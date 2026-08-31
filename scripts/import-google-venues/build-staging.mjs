@@ -72,6 +72,7 @@ async function main() {
       hasHappyHourData: true,
       listingStatus: normalized.listingStatus,
       seoHidden: normalized.seoHidden,
+      browseHold: normalized.browseHold ?? null,
       sourceUrl: normalized.sourceUrl,
       website: venue.website || normalized.website,
       confidence: normalized._import.happyHourConfidence,

@@ -41,17 +41,25 @@ export function hasConfirmedHappyHourWindow(venue) {
 }
 
 /**
- * Whether a venue still deserves the `seoHidden` flag it was imported with.
+ * Whether a venue has outgrown the hedge it was imported with.
  *
- * Imports set `seoHidden: true` whenever Google's happy hour answer was below
- * high confidence. Later work on the venue's own site can settle the question
- * the flag was hedging — is this a real, operating place whose happy hour we
- * can source — and once it has, the reason to hide the listing is gone.
- * `seoHidden` keeps a listing off the homepage index and every neighborhood
- * page, so leaving it set makes a published venue unreachable through the
- * site's own navigation.
+ * Imports set `seoHidden: true` and hold the listing back from browse whenever
+ * Google's happy-hour answer was below high confidence. Both were hedging the
+ * same question — is this a real, operating place whose happy hour we can
+ * source — and once a scrape has settled it, neither has a reason to stand.
  */
 export function isVerifiedForIndexing(venue) {
   if (!venue || venue.listingStatus !== 'published') return false;
   return hasConfirmedHappyHourWindow(venue);
+}
+
+/**
+ * The hold to put on a listing whose window we cannot source.
+ *
+ * The only reason the importer knows how to apply. Anything else holding a
+ * venue back from browse is a decision someone made, and belongs in
+ * `BROWSE_HOLD_REASONS` with its own copy before it is written here.
+ */
+export function unverifiedWindowHold(observedAt = new Date().toISOString().slice(0, 10)) {
+  return { reason: 'unverified_window', since: observedAt };
 }

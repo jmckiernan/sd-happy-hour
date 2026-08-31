@@ -1,4 +1,5 @@
 import { getPublicVenues, slugify, type Venue } from './venues';
+import { isHeldFromBrowse } from './listingVisibility';
 
 export interface NeighborhoodProfile {
   name: string;
@@ -291,7 +292,7 @@ export function getNeighborhoodProfiles(): Array<NeighborhoodProfile & { venues:
   const venues = getPublicVenues();
   return PROFILES.map((profile) => ({
     ...profile,
-    venues: venues.filter((venue) => venue.neighborhood === profile.name && !venue.seoHidden),
+    venues: venues.filter((venue) => venue.neighborhood === profile.name && !isHeldFromBrowse(venue)),
   })).filter((profile) => profile.venues.length > 0);
 }
 
