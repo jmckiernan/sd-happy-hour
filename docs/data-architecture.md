@@ -661,6 +661,12 @@ The cheap move, if there is no appetite to decide now: **have the run allocate S
 reserved band** (say 1–999,999) so a second city can take a different band without collision. That
 costs one constant and preserves the option.
 
+**Done.** `VENUE_ID_BAND` in `scripts/import-google-venues/lib/constants.mjs` reserves 1–99,999 for
+San Diego; `build-staging.mjs` and `import-claimable-stubs.mjs` allocate through
+`lib/venue-ids.mjs`, which starts after the highest id already in the band and throws rather than
+allocating past the end of it. No existing venue was renumbered and San Diego's next id is
+unchanged. A second city sets its own band and nothing else about this decision has been made.
+
 **2. Write a `city` value on every new row.** Even as a hardcoded `"san-diego"`. Retrofitting city
 attribution onto 6,000 rows later means inferring it from coordinates, which is exactly the Cardiff
 failure mode from `docs/venue-pipeline-reference.md` §6 — silent mislabelling, no error. Writing it

@@ -20,6 +20,7 @@ import { normalizeStubVenue, stripImportMeta } from './lib/normalize.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
 import { isCorporateFastFood } from './lib/chain-blocklist.mjs';
+import { createVenueIdAllocator } from './lib/venue-ids.mjs';
 
 const MIN_RATING = 4.0;
 const MIN_REVIEWS = 10;
@@ -45,7 +46,7 @@ async function main() {
   const knownAddresses = new Set(existing.map((venue) => addressKey(venue.name, venue.address)));
 
   const skipped = { belowBar: 0, outOfCounty: 0, fastFood: 0, alreadyListed: 0, unusable: 0 };
-  let nextId = Math.max(0, ...existing.map((venue) => venue.id)) + 1;
+  const venueIds = createVenueIdAllocator(existing);
   const stubs = [];
 
   for (const record of Object.values(enriched)) {
@@ -70,7 +71,7 @@ async function main() {
       continue;
     }
 
-    const stub = normalizeStubVenue(record, nextId);
+    const stub = normalizeStubVenue(record, venueIds.peek());
     if (!stub) {
       skipped.unusable += 1;
       continue;
@@ -81,7 +82,7 @@ async function main() {
     knownIds.add(placeId);
     knownAddresses.add(addressKey(stub.name, stub.address));
     stubs.push(stub);
-    nextId += 1;
+    venueIds.take();
   }
 
   console.log(`Enriched places: ${Object.keys(enriched).length}`);

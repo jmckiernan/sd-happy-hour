@@ -20,6 +20,20 @@ export const COUNTY_BOUNDS = {
   maxLng: -116.60,
 };
 
+// The block of venue ids this city is allowed to mint. Venue id is the join key
+// in a dozen tables — venue_claims, venue_publications, venue_overrides,
+// venue_photos, promotions, live_overrides, saved_spots, venue_follows,
+// happy_hour_menus, venue_managers — and it decides the URL slug. Every city's
+// pipeline allocates from max(id) + 1 over its own catalog, so without reserved
+// bands a second city starts at 1 and mints ids San Diego already owns. The
+// collision is silent until the two catalogs meet, and repairing it then means
+// renumbering venues and rewriting every one of those foreign keys, where a
+// single miss hands an ownership claim or a saved spot to the wrong venue.
+// San Diego keeps the band its existing ids already sit in; a second city takes
+// the next one (VENUE_ID_BAND = { start: 100_000, end: 199_999 }) and the two
+// never meet. See docs/data-architecture.md §6.1 and docs/porting-to-a-new-city.md §3.2.
+export const VENUE_ID_BAND = { start: 1, end: 99_999 };
+
 export const SEARCH_TYPES = ['restaurant', 'bar', 'cafe', 'night_club', 'brewery'];
 
 export const MIN_RATING = Number(process.env.IMPORT_MIN_RATING || 4.0);

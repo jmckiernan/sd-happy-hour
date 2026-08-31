@@ -1,8 +1,12 @@
 # Venue Category Audit
 
 Which *kinds* of place belong in this catalog, which do not, and which ones we have never looked
-for. A proposal, not a change: nothing in the pipeline moves until the owner signs off on the
-lists in §6 and §7.
+for.
+
+**Status: accepted in principle, deliberately parked. Read the decision section below before
+acting on anything here.**
+Nothing in the pipeline has moved and nothing should move without a fresh decision — this is a
+plan on hold, not an open proposal.
 
 Every count below was read out of `public/data/happy-hours.json` and `.data/import/google/` on
 **31 August 2026**, not remembered. Pricing comes from `docs/places-api-cost-analysis.md`. Google's
@@ -17,7 +21,54 @@ doing because we have never once searched for a bowling alley.
 
 ---
 
-    20|## 0. The test being applied
+    20|## Decision: approved, on hold
+
+The owner reviewed this document on **31 August 2026** and accepted the recommendation — Tier 1
+into `SEARCH_TYPES`, Tier 2 through a Text Search seeder, the §6 exclusions at the enrich
+prefilter — and then decided not to do it yet. The discovery run goes ahead on the five search
+types the pipeline has always used, at the ~$350 budget.
+
+**So, concretely: `SEARCH_TYPES` is unchanged, there is no `seed-rare-types.mjs`, and there are no
+category exclusion rules.** Anyone arriving at §6, §7 or §8 is reading a design that was agreed and
+shelved, not work that is underway or overdue.
+
+**Why park it.** The overage is the whole reason. §5.4 lands at ~$561 against a ~$350 budget, and
+Tier 1 is essentially all of the difference — nine types at roughly $25 each, spent up front on
+grid sweeps before anyone knows what the current five types yield at full county coverage. The run
+about to happen is the cheapest available evidence about whether that money buys anything.
+
+**What would trigger picking it up.** Any one of these; the first is the expected one.
+
+- The full run finishes and the bar-adjacent categories still look truncated — the 20-result cap
+  visibly hiding inventory in the Gaslamp, North Park and Pacific Beach, which is the specific
+  claim Tier 1 rests on.
+- The free Text Search check in §10 is run and shows bowling alleys and comedy clubs really are
+  absent from the enriched cache. That check costs $0, settles Tier 2 on its own, and is the one
+  piece of this that can happen at any time without a budget conversation.
+- The budget rises, or a second month of the free SKU allowance makes the incremental Tier 1 order
+  at the end of §5.4 affordable.
+- The catalog needs breadth rather than depth for a business reason — a launch, a partnership, or
+  the directory framing in §10.
+
+**What it costs when picked up.** ~$561 against ~$350 for the run as planned: about **$211 of new
+spend**, of which Tier 1 discovery is $200–280 and the rest is rounding. Tier 2 is ~$0 inside the
+Text Search allowance. The engineering is a day or two — one new `lib/category-rules.mjs`, one line
+in `enrich.mjs`, one in `build-staging.mjs`, nine strings in `constants.mjs`, and a seeder modelled
+on `seed-from-locators.mjs` (§8).
+
+**What gets more expensive by waiting.** Not much, which is why parking it is reasonable. The
+exclusions are the exception: every run without them adds more 7-Elevens and grocery stores, and
+§9 question 6 — the 127 already-catalogued listings the rule would have blocked — grows with the
+dataset. Reviewing 127 by hand is an afternoon; reviewing 400 is not.
+
+**The seven open questions in §9 are still open and still block the work.** Hotels, casinos, mall
+and airport concessions, liquor stores, tasting rooms, the 127 existing listings, and the budget
+itself. None were answered by this decision, and answering them is the first task when it comes off
+hold.
+
+---
+
+## 0. The test being applied
 
 The owner's criteria, quoted:
 
@@ -384,7 +435,7 @@ If $561 is over budget, the order to cut in is: Tier 2 seeder first (free), then
 
 ---
 
-## 6. Proposed exclusion list
+## 6. Proposed exclusion list — approved, on hold
 
 **Rule: exclude on `primaryType` only, never on `types` membership.** This is load-bearing.
 `manufacturer` appears in the `types` of 204 catalog listings at an 18.1% hit rate, because
@@ -417,7 +468,7 @@ Any type-level exclusion must be overridable by a name signal — if the name ma
 
 ---
 
-## 7. Proposed addition list
+## 7. Proposed addition list — approved, on hold
 
 **To `SEARCH_TYPES` (Tier 1, ~$240):**
 
@@ -450,7 +501,7 @@ Four possible gates, cheapest first.
 | Stage | `build-staging.mjs:33` | Catalog pollution only | **Yes, as a second pass.** Money is already spent by here, but it catches places whose Details response reveals a type the candidate record did not, and it is where `pureServiceAreaBusiness` should be checked |
 | Merge | `merge.mjs` | Nothing new | No |
 
-### Recommended implementation
+### Recommended implementation — none of this has been built
 
 1. **New file `lib/category-rules.mjs`**, deliberately mirroring `chain-blocklist.mjs` — same
    shape, same commented reasoning, same "a category needs to fail all three criteria to be here"

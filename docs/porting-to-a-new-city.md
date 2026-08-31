@@ -119,8 +119,12 @@ state's current alcoholic beverage control regulations, and it is written down i
 Nothing in the system has a city dimension:
 
 - One catalog file, `public/data/happy-hours.json`, 3,208 rows today.
-- **One global integer id sequence.** `build-staging.mjs` allocates from
-  `max(existing id) + 1` over that one file. Two cities staged independently collide.
+- **One integer id sequence per catalog, now confined to a reserved band.** `build-staging.mjs` and
+  `import-claimable-stubs.mjs` allocate from `max(existing id) + 1` over that one file, but only
+  within `VENUE_ID_BAND` in `lib/constants.mjs` — San Diego holds 1–99,999, and allocation that
+  would leave the band throws instead of minting an id. A second city sets its own band and the two
+  catalogs can be merged without renumbering. This is a hedge, not multi-city support: nothing else
+  in the system knows a city exists.
 - **One timezone constant.** `SD_TIME_ZONE = 'America/Los_Angeles'` in `src/lib/sanDiegoTime.ts`,
   imported by 17 source modules and 2 test files.
 - **A flat `/venues/{slug}/` namespace.** `src/lib/venueSlug.ts` resolves a name collision by
@@ -508,7 +512,7 @@ Effort is rough and assumes someone who knows this codebase.
 | `scripts/import-google-venues/lib/county.mjs` | County name(s), out-of-county city regex, delete or replace the border line | Half a day |
 | `scripts/import-google-venues/lib/location-page.mjs` | `zipsIn` ZIP prefixes, `NEIGHBORING_PLACES` vocabulary | Half a day |
 | `src/lib/seo.ts` | Site name, served area, `addressLocality`, default description | 2 hours |
-| `scripts/import-google-venues/lib/constants.mjs` | `COUNTY_BOUNDS` rectangle | 1 hour |
+| `scripts/import-google-venues/lib/constants.mjs` | `COUNTY_BOUNDS` rectangle, and `VENUE_ID_BAND` — the new city takes an unused band (San Diego holds 1–99,999) | 1 hour |
 | `scripts/import-google-venues/lib/chain-blocklist.mjs` | Regional brands; check the existing 41 first | 1 hour |
 | `src/lib/website-ownership.mjs` | `sanDiegoHit` clause and the `\b9\d{4}\b` ZIP in `locationSignals` | 1 hour |
 | `scripts/import-google-venues/lib/venue-quality.mjs` | The `usa\|ca\|california` strip in address normalization | 1 hour |

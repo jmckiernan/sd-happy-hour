@@ -11,6 +11,7 @@ import { displayName } from './lib/google-places.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
 import { isCorporateFastFood } from './lib/chain-blocklist.mjs';
+import { createVenueIdAllocator } from './lib/venue-ids.mjs';
 
 async function main() {
   const withHappyHour = readJson(WITH_HH_PATH);
@@ -20,7 +21,7 @@ async function main() {
   }
 
   const existing = readJson(HAPPY_HOURS_PATH, []);
-  let nextId = existing.reduce((max, venue) => Math.max(max, venue.id || 0), 0) + 1;
+  const venueIds = createVenueIdAllocator(existing);
 
   // Also checked at enrich time, but the cache predates that filter and still
   // marks Orange and Riverside County places as qualified, so staging would
@@ -75,13 +76,13 @@ async function main() {
   }
 
   for (const record of capped) {
-    const normalized = normalizeVenue(record, nextId);
+    const normalized = normalizeVenue(record, venueIds.peek());
     if (!normalized) {
       rejected.push({ name: displayName(record), reason: 'normalization-failed' });
       continue;
     }
     staging.push(normalized);
-    nextId += 1;
+    venueIds.take();
   }
 
   writeJson(STAGING_PATH, {
