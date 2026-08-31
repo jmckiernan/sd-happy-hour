@@ -498,7 +498,7 @@ marketed through the brand's own app, leaving no local operator with anything to
 
 ### 9.1 Matching
 
-67 brand patterns, matched two ways:
+70 brand patterns, matched two ways:
 
 - **Word-boundary match** anywhere in the name, using custom boundaries rather than `\b` so
   hyphenated spellings like `in-n-out` cannot collapse to a bare `in`.

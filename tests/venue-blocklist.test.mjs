@@ -6,6 +6,8 @@ import { isBlockedChain } from '../scripts/import-google-venues/lib/chain-blockl
 import {
   EXCLUDED_PRIMARY_TYPES,
   isExcludedCategory,
+  isKeptMarket,
+  isMembersOnlyClub,
 } from '../scripts/import-google-venues/lib/category-rules.mjs';
 
 const tests = [];
@@ -27,6 +29,72 @@ function testCorporateChainsAreBlocked() {
   ]) {
     assert.equal(isBlockedChain(name), true, `${name} should be blocked`);
   }
+}
+
+function testCorporateSitDownWithNoBarIsBlocked() {
+  // The owner's ruling: no bar means no happy hour, and a franchise operation
+  // will not claim a listing.
+  for (const name of ["Denny's", "Denny's Restaurant", 'IHOP', 'International House of Pancakes']) {
+    assert.equal(isBlockedChain(name), true, `${name} should be blocked`);
+  }
+  // Same shape, opposite answer: these have bars.
+  assert.equal(isBlockedChain('Broken Yolk Cafe'), false);
+  assert.equal(isBlockedChain('Snooze, an A.M. Eatery'), false);
+}
+
+function testRegionalQuickServeThatPoursBeerIsKept() {
+  // Ruled on and closed: alcohol on the licence makes a happy hour possible.
+  for (const name of [
+    'Epic Wings',
+    "Rubio's Coastal Grill",
+    'Mendocino Farms',
+    'Round Table Pizza',
+    'The Crack Shack',
+    'Urban Plates',
+    'Burger Lounge',
+  ]) {
+    assert.equal(isBlockedChain(name), false, `${name} must stay in the catalog`);
+  }
+}
+
+function testMembersOnlyClubsAreExcludedDespiteHavingABar() {
+  // The one group where "it has a bar" argues the wrong way: a deal the public
+  // cannot walk in and use is not a deal.
+  for (const name of [
+    'El Cajon Elks Lodge 1812',
+    'American Legion Post 365 and VFW 7041',
+    'VFW Post 3788',
+    'Loyal Order of Moose Lodge 1750',
+    'Knights of Columbus',
+  ]) {
+    assert.equal(isMembersOnlyClub(name), true, `${name} should be members-only`);
+    // The venue-name signal must not rescue these the way it rescues SD TapRoom.
+    assert.equal(isExcludedCategory('bar_and_grill', name), true, `${name} should be excluded`);
+  }
+  // The bare word "lodge" is not the signal — this one is a beach bar.
+  assert.equal(isMembersOnlyClub('OB Surf Lodge'), false);
+  assert.equal(isExcludedCategory('bar', 'OB Surf Lodge'), false);
+  // Private clubs are a separate open question, not folded in silently.
+  assert.equal(isMembersOnlyClub('Native Oaks Golf Club'), false);
+  assert.equal(isMembersOnlyClub('University Club San Diego'), false);
+}
+
+function testLocalMarketsWithARealCounterSurviveTheGroceryRule() {
+  for (const name of [
+    'Cardiff Seaside Market',
+    "Kaelin's Market",
+    'Cuisinery Food Market',
+    'Balboa International Market',
+    'North Park Produce',
+  ]) {
+    assert.equal(isKeptMarket(name), true, `${name} should be kept`);
+    assert.equal(isExcludedCategory('grocery_store', name), false, `${name} must stay`);
+  }
+  // The boundary the owner's rule draws: a supermarket's deli serves the
+  // shopping trip rather than drawing one.
+  assert.equal(isExcludedCategory('grocery_store', "Jimbo's - Escondido"), true);
+  assert.equal(isExcludedCategory('grocery_store', 'Commissary Naval Base San Diego'), true);
+  assert.equal(isExcludedCategory('grocery_store', 'Carnival Supermarket'), true);
 }
 
 function testSitDownChainsWithRealHappyHoursSurvive() {
@@ -138,6 +206,10 @@ function testNoPublishedListingWithAHappyHourWouldBePurged() {
 
 tests.push(
   testCorporateChainsAreBlocked,
+  testCorporateSitDownWithNoBarIsBlocked,
+  testRegionalQuickServeThatPoursBeerIsKept,
+  testMembersOnlyClubsAreExcludedDespiteHavingABar,
+  testLocalMarketsWithARealCounterSurviveTheGroceryRule,
   testSitDownChainsWithRealHappyHoursSurvive,
   testLocalMultiLocationOperatorsSurvive,
   testABrandNameInsideALocalNameDoesNotTakeTheLocalNameOut,

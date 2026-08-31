@@ -3,8 +3,9 @@
 Which *kinds* of place belong in this catalog, which do not, and which ones we have never looked
 for.
 
-**Status: the exclusion half is built and live in the pipeline. The addition half is still parked.
-No listing has been deleted yet.** Read the decision section below before acting on anything here.
+**Status: the exclusion half is built, live in the pipeline, and has been applied to the catalog —
+202 listings removed on 31 August 2026, none of them published. The addition half is still parked.**
+Read the decision section below before acting on anything here.
 
 Every count below was read out of `public/data/happy-hours.json` and `.data/import/google/` on
 **31 August 2026**, not remembered. Pricing comes from `docs/places-api-cost-analysis.md`. Google's
@@ -12,8 +13,8 @@ type tables were checked against the [Place Types (New)](https://developers.goog
 reference on the same date, because only Table A types can be used as `includedTypes` and half the
 interesting categories needed verifying.
 
-Headline: **the exclusions now prefilter 8.7% more of the candidate pool than the old blocklist did,
-worth about $10 of Details on the full run and 174 junk listings out of the catalog; the addition
+Headline: **the exclusions now prefilter 9.2% more of the candidate pool than the old blocklist did,
+worth about $11 of Details on the full run and 202 junk listings out of the catalog; the addition
 list is where the money is, and it costs about $20 per type added.** The exclusions were worth doing
 for catalog quality, not for the budget — the dollar saving is small and inflating it would not help
 anyone. The additions are worth doing because we have never once searched for a bowling alley.
@@ -30,20 +31,23 @@ five search types the pipeline has always used, at the ~$350 budget.
 **What is built, as of this revision:**
 
 - `lib/category-rules.mjs` — the category axis, matching on `primaryType` with a name escape hatch,
-  enforced at the enrich prefilter, at staging, at stub import and in the purge script (§6).
-- `lib/chain-blocklist.mjs` — extended from 41 brand patterns to 67. The new ones are the
-  Starbucks-class corporate coffee, bakery and quick-serve brands, plus the convenience marts (§6.5).
-- `tests/venue-blocklist.test.mjs` — nine tests, wired into `npm test`. The load-bearing ones assert
+  enforced at the enrich prefilter, at staging, at stub import and in the purge script (§6). Also
+  carries the members-only club rule and the five named markets kept out of the grocery sweep
+  (§9.10, §9.12).
+- `lib/chain-blocklist.mjs` — extended from 41 brand patterns to 70. The new ones are the
+  Starbucks-class corporate coffee, bakery and quick-serve brands, the convenience marts, and
+  Denny's and IHOP on the owner's ruling (§6.5, §9.8).
+- `tests/venue-blocklist.test.mjs` — thirteen tests, wired into `npm test`. The load-bearing ones assert
   what must **not** be excluded: sit-down chains, local multi-location operators, `manufacturer`.
 
 **What is not:**
 
 - **`SEARCH_TYPES` is unchanged and there is no `seed-rare-types.mjs`.** §7 is still a design, not
   work underway. That includes the owner's bowling alleys and comedy clubs.
-- **Nothing has been deleted from the catalog.** The purge is written and has been dry-run only;
-  the counts are in §6.6 and the decision is the owner's.
-- **The seven questions in §9 are still open**, and §9 has grown by the borderline brand calls the
-  audit turned up.
+- **Questions 1 to 5 and 7 in §9 are still open** — hotels, casinos, mall and airport concessions,
+  liquor stores, tasting rooms and the budget. Questions 6, 8, 9, 10, 11 and 12 have been answered
+  and are recorded there with the reasoning. One new question opened in the process: private country
+  and city clubs (§9.10).
 
 **Why the additions stay parked.** The overage is the whole reason. §5.4 lands at ~$561 against a
 ~$350 budget, and Tier 1 is essentially all of the difference — nine types at roughly $25 each,
@@ -111,6 +115,11 @@ than "categories with a bad hit rate", and §6 is deliberately short because of 
 
 The catalog was joined to `enriched.json` on `placeId` to attach Google's `primaryType` and `types`
 to each listing.
+
+**Every count in §1 to §4 is the pre-purge catalog of 3,208 listings**, which is the state the
+analysis was done against. The catalog is 3,006 now. The tables are left as measured rather than
+restated, because they are the evidence for the rules and a rule cannot be checked against a dataset
+it has already edited.
 
 | | Count |
 |---|---|
@@ -379,16 +388,16 @@ Re-measured against the rules as they were actually built, over the 5,714 candid
 | Prefilter | Candidates it stops | Share | Projected on 5,722 new Details | Saving @ $20/1k | AI extraction avoided |
 |---|---|---|---|---|---|
 | Old blocklist, 41 brands | 710 | 12.4% | — | already banked | — |
-| **New brands (§6.5)** | **404** | 7.1% | ~405 calls | **$8** | ~$5–9 |
-| **Category rules (§6), net of the above** | **91** | 1.6% | ~90 calls | **$2** | ~$1–2 |
+| **New brands (§6.5)** | **437** | 7.6% | ~440 calls | **$9** | ~$5–10 |
+| **Category rules (§6), net of the above** | **90** | 1.6% | ~90 calls | **$2** | ~$1–2 |
 | §3 "keep but deprioritise" — still not proposed | 355 | 6.2% | ~380 calls | $8 | $5–9 |
 
-The category rules stop far fewer candidates than the parked version predicted — 91 rather than 720
+The category rules stop far fewer candidates than the parked version predicted — 90 rather than 720
 — for two reasons, and both are worth understanding before anyone reads this as a shortfall. Most of
 what the category list would have caught is a 7-Eleven or a Circle K that the brand list now catches
 first, and the twelve types removed in §6.1 were the bulk of the rest.
 
-**Total incremental saving: roughly $10–20 on the run.** I am not going to inflate this. The dollar
+**Total incremental saving: roughly $11–20 on the run.** I am not going to inflate this. The dollar
 saving is small; the reason to do it is that 20 7-Elevens and ten Panera Breads are in the catalog
 right now and every one of them is a page a visitor can land on and a row in the claim search.
 
@@ -512,11 +521,24 @@ it also keeps four cigar-and-scotch lounges typed `store` that a stricter rule w
 The same pattern guards `looksLikeShoppingMall()` in `venue-quality.mjs`. The two are not shared
 yet; that is a small refactor and not worth doing until a third caller appears.
 
+### 6.3 Two rules the type list cannot express
+
+`isExcludedCategory()` carries two exceptions to the "type, then name" shape, both settled in §9 and
+both stated here because they are where a future reader will expect a plain type rule and not find
+one.
+
+- **Members-only clubs are excluded whatever their type and whatever their name** — the one case
+  where the venue-name signal must not apply, because the bar in the name is exactly what makes an
+  Elks lodge look includable. Checked first, before the type. See §9.10.
+- **Five named local markets are kept despite `grocery_store`** — Cardiff Seaside Market, Kaelin's,
+  Cuisinery, Balboa International, North Park Produce. A named list, because no signal in the Google
+  record separates them from a supermarket. See §9.12.
+
 ---
 
 ## 6.5 The brand list as built — `lib/chain-blocklist.mjs`
 
-The blocklist went from 41 patterns to 67. **Where the line is drawn, since this is the judgement
+The blocklist went from 41 patterns to 70. **Where the line is drawn, since this is the judgement
 the owner most needs to check:** not "chain", and not "multi-location" either. A brand is blocked
 when its afternoon pricing is set in a head office *and* it reaches customers through its own app,
 so no local operator has anything to gain from claiming the page.
@@ -525,6 +547,7 @@ Added, with catalog counts:
 
 | Brand | Listings | Why |
 |---|---|---|
+| Denny's, IHOP | 31 | The owner's ruling (§9.8). No bar, so no happy hour; a national franchise operation will not claim. The largest single block in the purge |
 | 7-Eleven | 20 | The owner's clearest case. Caught by category too, but discovery occasionally hands us a candidate with no type at all |
 | Panera Bread | 10 | 21 in the enriched cache, not one happy hour, and the loyalty app is the only channel it markets through |
 | Yum Yum Donuts | 10 | Same class as Krispy Kreme, which was already on the list |
@@ -550,33 +573,31 @@ unrelated local name. `Cava Wine Bar` is a test case, not a hypothetical.
 
 ---
 
-## 6.6 Purge impact — written, dry-run only, not executed
+## 6.6 Purge impact — executed on 31 August 2026
 
 `npm run purge:chains` now covers both axes. The category half joins the catalog to the enriched
 cache to get the primary type, because the catalog does not store it; a listing that was never
 enriched is left alone rather than guessed at.
 
-Dry run against the 3,208-listing catalog:
+Run against the 3,208-listing catalog, which is now **3,006**:
 
 | Bucket | Listings | What is in it |
 |---|---|---|
-| Corporate chains | 115 | 20 7-Elevens, 10 Panera, 10 Yum Yum Donuts, and the rest of §6.5 |
-| Excluded categories | 59 | 21 grocery stores, 5 Barnes & Noble, 5 vape and cigar shops, 4 Asian supermarkets, 3 shopping centres, 3 tour operators, 3 indoor playgrounds, a naval commissary |
-| **Total** | **174** | Would leave **3,034** |
+| Corporate chains | 146 | 23 Denny's, 20 7-Elevens, 10 Panera, 10 Yum Yum Donuts, 8 IHOP, and the rest of §6.5 |
+| Excluded categories | 56 | 16 grocery stores, 5 Barnes & Noble, 5 vape and cigar shops, 4 Asian supermarkets, 3 shopping centres, 3 tour operators, 3 indoor playgrounds, 2 fraternal posts, a naval commissary |
+| **Total removed** | **202** | 3,208 → **3,006** |
 | Of those, `published` | **0** | |
 | Of those, with a happy hour | **0** | |
 
-Every one of the 174 is an `unlisted` claimable stub, which is the whole reason it is worth doing:
-they are not deal pages, they are 174 rows in the claim search nobody will ever claim.
+Every one of the 202 was an `unlisted` claimable stub, which is why it was worth doing: they were
+not deal pages, they were 202 rows in the claim search nobody would ever claim. **Published listings
+stayed at 690 and listings with happy-hour data at 557**, before and after — the purge is 4,038 lines
+of pure deletion and touches nothing live.
 
-**It has not been run.** Deleting from a git-tracked catalog is the owner's call, and there is a
-concurrent enrich in flight against the same file. `npm run purge:chains -- --dry-run` reproduces
-the table; dropping `--dry-run` executes it and re-runs `validate:data` afterwards.
-
-Three grocery-store misfires are worth a look before it executes, because the rule cannot tell them
-apart from Jimbo's: **Cardiff Seaside Market**, **Kaelin's Market** and **Cuisinery Food Market**.
-Cardiff Seaside Market in particular has a bar. Three listings out of 174 is the accuracy this rule
-buys — adding `market` to the escape hatch would save those three and lose the other eighteen.
+The run waited on `public/data/happy-hours.json` being clean in `git status`, because a concurrent
+agent was rewriting menus and times in the same 1 MB file. `npm run purge:chains -- --dry-run`
+reproduces the table without writing; the plain command writes and then re-runs `validate:data`,
+which passed at 3,006.
 
 ---
 
@@ -632,9 +653,7 @@ Four possible gates, cheapest first.
 7. **`seed-rare-types.mjs`** — **not written.** This is the owner's bowling alleys and comedy clubs,
    and it is the ~$0 half of §7.
 
-`purge-chains.mjs` now covers categories as well as brands, but has only been dry-run. **The 174
-already-catalogued listings the rules would have blocked are a deletion from a git-tracked file, and
-that is not this document's call to make** — see §6.6 for the counts.
+`purge-chains.mjs` now covers categories as well as brands, and has been run — see §6.6.
 
 ---
 
@@ -672,46 +691,87 @@ category — many are production facilities with a tasting counter and no websit
 `brewpub` (51%) should help. **Question: is a production brewery with a tasting room a venue we
 want?** I think yes, but the hit rate says the extraction will keep failing on them.
 
-**6. The 174 existing listings.** Twenty 7-Elevens, 21 grocery stores, 10 Panera Breads, five Barnes
-& Nobles and a naval commissary are in the catalog right now. All 174 are unlisted stubs, none has a
-happy hour, and the purge is written and dry-run. Removing them is still a separate decision from
-changing the filter. **Recommendation: run `npm run purge:chains` on a clean tree, once no enrich is
-in flight. Check the three Markets in §6.6 first.**
+**6. The 202 existing listings — settled, and gone.** Twenty-three Denny's, 20 7-Elevens, 16 grocery
+stores, 10 Panera Breads, eight IHOPs and a naval commissary were live as unlisted stubs. The owner
+approved the purge conditional on the catalog being clean in `git status`; it was, and it ran on
+**31 August 2026**. 3,208 → 3,006, no published listing and no happy hour touched. §6.6 has the
+breakdown.
 
 **7. Budget.** §5.4 lands at ~$561 against a $350 budget. Tier 1 is the whole overage. **Question
 for the owner: raise the budget, or add Tier 1 types incrementally by hit rate across two calendar
 months** — which also collects the free SKU allowance twice, worth about $55 (cost analysis §1.4).
 
-### The brand calls I deliberately did not make
+### The borderline calls, and how they were settled
 
-These are the ones where "corporate operation that will never engage with us" genuinely could go
-either way. None is in the code. Each is a one-line addition to `BRANDS` if the owner says so.
+These were raised as open questions and answered on **31 August 2026** — the first three by the
+owner, the last two by me under the owner's stated principles. All five are in the code now.
 
-**8. Denny's (23 listings) and IHOP (8).** The largest single block of corporate listings left in the
-catalog, and the reason they survived: they are sit-down restaurants, which is the category the owner
-explicitly wants. But neither has a bar, neither runs anything resembling a happy hour, and both
-market through corporate value menus rather than a local operator. Zero happy hours across 31
-listings. **My inclination is to block both, and I did not, because the owner's Chili's/Applebee's
-instruction is about sit-down chains and these are sit-down chains.** Same question, smaller:
-Broken Yolk Cafe (11 — San Diego-born, franchised locally, so I lean keep), Olive Garden (6) and
-Texas Roadhouse (3), both of which do have bars and stay on that basis.
+**8. Denny's (23 listings) and IHOP (8) — blocked.** The owner's ruling, and the reasoning is worth
+keeping because it sharpens the sit-down rule: **no bar means no happy hour, and a corporate
+franchise operation will not claim a listing.** So the Chili's/Applebee's instruction was never
+about seating. It was about the bar. Chili's is 12 listings and 12 happy hours; Denny's and IHOP are
+31 listings and zero. Olive Garden (6) and Texas Roadhouse (3) stay on exactly that basis — they
+have bars. Broken Yolk Cafe (11) stays too: no bar, but San Diego-born and franchised to local
+operators, so criterion 3 is live where it is dead for a national franchise.
 
-**9. Regional quick-serve with a beer licence.** Round Table Pizza (2), Epic Wings (6), Rubio's
-Coastal Grill (3), Mendocino Farms (7), Plant Power Fast Food (2), Urban Plates (3), Burger Lounge
-(3), The Crack Shack (3 — and 3 happy hours, so clearly keep). These sell beer, several are
-San Diego-founded, and none has a happy hour we can find. **I left every one of them in.** The rule
-I applied: if it pours beer and was founded here, criterion 3 is live.
+**9. Regional quick-serve with a beer licence — kept, and closed.** Epic Wings (6), Rubio's Coastal
+Grill (3), Mendocino Farms (7), Round Table Pizza (2), plus Plant Power (2), Urban Plates (3),
+Burger Lounge (3) and The Crack Shack (3 listings, 3 happy hours). The owner's ruling: **they serve
+alcohol, so a happy hour is genuinely possible.** Criterion 2 carries them on its own. Not to be
+revisited.
 
-**10. Corporate coffee I blocked, for the record.** Blue Bottle, Philz, Black Rock, Dutch Bros and
-Panera are blocked; Bird Rock, Lofty, Communal, Mostra, James, Parakeet and Dark Horse are not. The
-line is national corporate ownership, not location count. **If the owner disagrees about any of them, Blue
-Bottle and Philz are the two most arguable** — both are the kind of third-wave coffee bar that could
-plausibly run an afternoon special, and both are wholly owned by a multinational.
+**10. Elks lodges and VFW posts — excluded.** The owner's ruling, and the one place in this document
+where "it has a bar" argues the wrong way, so the reasoning is recorded deliberately. El Cajon Elks
+Lodge 1812 carries `bar_and_grill`, `karaoke` and `live_music_venue` in its types; American Legion
+Post 365 and VFW 7041 carries `lounge_bar` and `night_club`. Both are locally run, both pour the
+cheapest drinks in the county, and both would plausibly claim a page — two and a half of three
+criteria. **They are still out, because members-only makes them useless to a public audience: a deal
+a visitor cannot walk in and use is not a deal, and sending someone to a locked door is worse than
+sending them nowhere.**
 
-**11. Fraternal and social clubs.** `association_or_organization` is 6 listings, 0 happy hours, and
-it is not on the exclusion list because the type covers Elks lodges, VFW posts and yacht clubs —
-which run the cheapest bars in the county and are locally run. **Question: are member-only bars
-inventory or noise?** They fail criterion 1 for the public but pass 2 and 3 outright.
+Implemented as `isMembersOnlyClub()` in `category-rules.mjs`, matched by organisation — Elks, BPOE,
+VFW, American Legion, Moose, Fraternal Order of Eagles, Knights of Columbus — and never on the bare
+word "lodge", because OB Surf Lodge is a beach bar with no membership roll. The check runs *before*
+the venue-name escape hatch, since the whole point is that the bar in the name is not a reprieve.
+
+**Still open, and deliberately not folded in: private country and city clubs.** The Santaluz Club,
+University Club San Diego and Coronado Shores Beach Club are members-only by the same logic. The
+reason they are untouched is Native Oaks Golf Club, which is `sports_club`, published, and has a
+happy hour — golf and city clubs frequently run a public-facing restaurant even when the course or
+the gym is private, so the members-only test does not cleanly apply. **Question for the owner if it
+matters: is a private club with a public restaurant in or out?**
+
+**11. Blue Bottle and Philz — reviewed again, still blocked.** My call, applying the same two-part
+test used everywhere else. Both fail it. Pricing at a San Diego Blue Bottle or Philz is set
+centrally, not by a manager who could decide to run a 4-to-6; the loyalty app is the channel both
+brands market through; and neither has a local operator with standing to claim the page. Blue Bottle
+is majority-owned by Nestlé and Philz is a venture-backed national chain. **The owner's principle is
+local coffee shops in, corporate coffee out, and on ownership these two are unambiguously corporate
+— what makes them feel arguable is the product, not the operation.** Bird Rock Coffee Roasters (8
+locations), Lofty (6), Communal (4), Mostra (4), James (4), Parakeet (4) and Dark Horse (3) are all
+kept, which is the same test giving the opposite answer.
+
+**12. The grocery-store misfires — kept, and two more with them.** My call, under the owner's rule
+that a local market with a genuine food-and-drink offering stays while a supermarket goes. Kept:
+**Cardiff Seaside Market** (the Cardiff Crack counter and a wine bar), **Kaelin's Market** (a
+taqueria inside it), **Cuisinery Food Market** (cheese, charcuterie, tastings; its types include
+`liquor_store` and `pastry_shop`), and — applying the same rule consistently rather than only to the
+three I happened to flag — **Balboa International Market** and **North Park Produce**, both of which
+run full Middle Eastern hot-food counters that people drive to.
+
+Excluded, as the boundary: **Jimbo's** (three listings), the naval commissary, Carnival Supermarket
+and the rest. Jimbo's has a deli and a juice bar, but they serve the shopping trip rather than draw
+one, which is the distinction in the owner's wording.
+
+**Mechanism, and why it is a named list rather than a rule.** I looked for a signal in the Google
+record and there is not one. `types` is worthless here: **every 7-Eleven in the cache carries
+`restaurant`, `cafe`, `coffee_shop`, `pizza_restaurant` and `liquor_store`**, and all 281
+food-retail places carry at least one prepared-food type, so any `types`-based keep rule keeps
+everything including the 7-Elevens. The name is no better — "Market" appears in Harvest Market and
+Pala Mesa Market as readily as in Cardiff Seaside Market. So `KEPT_MARKETS` is five named venues,
+judged one at a time, which is the honest way to hold a judgement a rule cannot express. It will
+need extending by hand the next time a market like this turns up, and that is a fair price for not
+deleting five good listings to keep a category rule tidy.
 
 ---
 

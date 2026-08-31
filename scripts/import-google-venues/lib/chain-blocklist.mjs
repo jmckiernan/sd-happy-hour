@@ -74,6 +74,13 @@ const BRANDS = [
   // Same two tests as everything above: 21 Panera Breads and 8 Dutch Bros in
   // the enriched cache, not one happy hour between them, and the loyalty app
   // is the only channel any of them market through.
+  // Blue Bottle and Philz were reviewed a second time and stay blocked. Both
+  // look like the third-wave coffee bar the site wants, and both fail the test
+  // anyway: pricing is set centrally, the app is the channel, and there is no
+  // local operator at a San Diego store with the authority to run a special or
+  // a reason to claim the page. Blue Bottle is Nestlé-owned. The owner's
+  // principle is local coffee shops in, corporate coffee out, and on ownership
+  // these are corporate.
   'blue bottle coffee',
   'philz coffee',
   'black rock coffee(?: bar)?',
@@ -96,6 +103,14 @@ const BRANDS = [
   "dave'?s hot chicken",
   'jollibee',
   'shake smart',
+  // Corporate sit-down without a bar. The owner ruled on these two directly:
+  // no bar means no happy hour, and a franchise operation will not claim a
+  // listing. They are the exception that proves the sit-down rule is about the
+  // bar rather than the seating — 31 listings between them, zero happy hours,
+  // where Chili's is 12 listings and 12 happy hours.
+  "denny'?s(?: restaurant)?",
+  'ihop',
+  'international house of pancakes',
   // Convenience and gas-station marts. The category rules in
   // category-rules.mjs catch these by type, but discovery sometimes hands us a
   // candidate with no primaryType at all, and the name is never ambiguous.

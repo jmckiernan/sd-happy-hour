@@ -18745,7 +18745,8 @@
       {
         "url": "/images/venues/128-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -21308,7 +21309,8 @@
       {
         "url": "/images/venues/143-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -21814,7 +21816,8 @@
       {
         "url": "/images/venues/147-south-of-nick-s-san-clemente-mexican-kitchen-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://nicksrestaurants.com/southofnicks/san-clemente/"
+        "sourceUrl": "https://nicksrestaurants.com/southofnicks/san-clemente/",
+        "generated": true
       }
     ],
     "unlistedReason": "outside_san_diego_county"
@@ -22809,7 +22812,8 @@
       {
         "url": "/images/venues/152-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -25099,7 +25103,8 @@
       {
         "url": "/images/venues/174-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -30445,7 +30450,8 @@
       {
         "url": "/images/venues/209-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -30994,7 +31000,8 @@
       {
         "url": "/images/venues/212-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -31437,7 +31444,8 @@
       {
         "url": "/images/venues/215-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -34822,7 +34830,8 @@
       {
         "url": "/images/venues/238-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -35084,7 +35093,8 @@
       {
         "url": "/images/venues/240-chili-s-grill-bar-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chilis.com/happy-hour"
+        "sourceUrl": "https://www.chilis.com/happy-hour",
+        "generated": true
       }
     ],
     "unlistedReason": "outside_san_diego_county"
@@ -51804,7 +51814,8 @@
       {
         "url": "/images/venues/347-san-diego-brewing-company-hh-menu-2.jpg",
         "caption": "Brewhouse",
-        "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D1200%2Cheight%3D1200%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/2daf0dd3-74f4-4da0-87eb-de955ed67e56"
+        "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D1200%2Cheight%3D1200%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/2daf0dd3-74f4-4da0-87eb-de955ed67e56",
+        "generated": true
       }
     ],
     "hhMenu": {
@@ -58120,7 +58131,8 @@
       {
         "url": "/images/venues/393-oggi-s-vista-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.oggis.com/menus"
+        "sourceUrl": "https://www.oggis.com/menus",
+        "generated": true
       }
     ]
   },
@@ -58352,18 +58364,150 @@
       "confidence": "high",
       "observedAt": "2026-08-29"
     },
-    "galleryImages": [
-      {
-        "url": "/images/venues/395-the-amigo-cantina-hh-menu.jpg",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://amigospotsandiego.com/wp-content/uploads/2025/10/Amigo-HAPPY-HOUR-MENU-Food.jpg"
-      },
-      {
-        "url": "/images/venues/395-the-amigo-cantina-hh-menu-2.jpg",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://amigospotsandiego.com/wp-content/uploads/2025/10/Amigo-HAPPY-HOUR-MENU-Drink.jpg"
-      }
-    ]
+    "hhMenu": {
+      "note": "Happy hour food and drinks at Amigo Cantina.",
+      "sections": [
+        {
+          "title": "Food",
+          "items": [
+            {
+              "name": "Flautas",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Quesadilla (add chicken or beef +$2, carne asada +$3.50)",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Carne asada fries",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Amigo nachos (add chicken or beef +$2, carne asada +$3.50)",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Wings (BBQ or Buffalo)",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Chips, salsa and guacamole",
+              "price": "$10",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Cocktails",
+          "items": [
+            {
+              "name": "House margarita 16oz (add strawberry, mango or piña colada +$1.50)",
+              "price": "$8",
+              "category": "cocktails"
+            },
+            {
+              "name": "Specialty margaritas",
+              "price": "$12",
+              "category": "cocktails"
+            },
+            {
+              "name": "Paloma",
+              "price": "$8",
+              "category": "cocktails"
+            },
+            {
+              "name": "Mango paloma",
+              "price": "$9",
+              "category": "cocktails"
+            },
+            {
+              "name": "Bloody Mary or Maria",
+              "price": "$8.50",
+              "category": "cocktails"
+            },
+            {
+              "name": "Tequila sherbet",
+              "price": "$10",
+              "category": "cocktails"
+            }
+          ]
+        },
+        {
+          "title": "Beer",
+          "items": [
+            {
+              "name": "Draft beer 16oz",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Draft beer 24oz",
+              "price": "$8",
+              "category": "beer"
+            },
+            {
+              "name": "Domestic bottles",
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Premium bottles",
+              "price": "$6",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Wine",
+          "items": [
+            {
+              "name": "Wine",
+              "price": "$7",
+              "category": "wine"
+            }
+          ]
+        },
+        {
+          "title": "Tequila flights",
+          "items": [
+            {
+              "name": "Blanco (Cuervo Tradicional, Casamigos, Hornitos)",
+              "price": "$15",
+              "category": "cocktails"
+            },
+            {
+              "name": "Reposado (Casamigos, Corralejo, Tres Generaciones)",
+              "price": "$17",
+              "category": "cocktails"
+            },
+            {
+              "name": "Añejo (Suavecito, Padrino, Tres Generaciones)",
+              "price": "$20",
+              "category": "cocktails"
+            }
+          ]
+        }
+      ],
+      "sourceUrl": "https://amigospotsandiego.com/",
+      "observedAt": "2026-08-31",
+      "sourceImages": [
+        {
+          "url": "/images/venues/395-the-amigo-cantina-hh-menu.jpg",
+          "caption": "Happy hour menu flyer published by the venue",
+          "sourceUrl": "https://amigospotsandiego.com/wp-content/uploads/2025/10/Amigo-HAPPY-HOUR-MENU-Food.jpg"
+        },
+        {
+          "url": "/images/venues/395-the-amigo-cantina-hh-menu-2.jpg",
+          "caption": "Happy hour menu flyer published by the venue",
+          "sourceUrl": "https://amigospotsandiego.com/wp-content/uploads/2025/10/Amigo-HAPPY-HOUR-MENU-Drink.jpg"
+        }
+      ]
+    }
   },
   {
     "id": 396,
@@ -66546,7 +66690,7 @@
     "galleryImages": [
       {
         "url": "/images/venues/453-the-tower-bar-hh-menu.jpg",
-        "caption": "Happy hour menu",
+        "caption": "Hand-painted happy hour sign outside the bar",
         "sourceUrl": "http://www.thetowerbar.com/wp-content/uploads/happyhourbear.jpg"
       }
     ]
@@ -73229,18 +73373,22 @@
     ],
     "startTime": "16:00",
     "endTime": "17:00",
-    "deals": [],
+    "deals": [
+      "$2 chocolate chip cookies"
+    ],
     "vibe": "Restaurant",
     "website": "https://www.mayascookies.com/pages/contact-us",
     "phone": "(619) 269-3709",
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mayascookies.com/pages/happy-hour",
-    "dealTypes": [],
+    "dealTypes": [
+      "food"
+    ],
     "seoHidden": true,
     "image": "/images/venues/500-maya-s-cookies.jpg",
     "hasHappyHourData": true,
-    "dealsUnknown": true,
+    "dealsUnknown": false,
     "listingStatus": "published",
     "windows": [
       {
@@ -73310,13 +73458,30 @@
       "confidence": "high",
       "observedAt": "2026-08-29"
     },
-    "galleryImages": [
-      {
-        "url": "/images/venues/500-maya-s-cookies-hh-menu.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://cdn.shopify.com/s/files/1/0002/1187/7945/files/mayas_cookies_chocolate_chip_cookie_happy_hour_website_480x480.png?v=1777059688"
-      }
-    ]
+    "hhMenu": {
+      "note": "Chocolate chip cookie happy hour, Tuesdays and Wednesdays 4-5pm. In-store, chocolate chip only.",
+      "sections": [
+        {
+          "title": "Cookies",
+          "items": [
+            {
+              "name": "Chocolate chip cookies",
+              "price": "$2",
+              "category": "food"
+            }
+          ]
+        }
+      ],
+      "sourceUrl": "https://mayascookies.com/",
+      "observedAt": "2026-08-31",
+      "sourceImages": [
+        {
+          "url": "/images/venues/500-maya-s-cookies-hh-menu.png",
+          "caption": "Happy hour menu flyer published by the venue",
+          "sourceUrl": "https://cdn.shopify.com/s/files/1/0002/1187/7945/files/mayas_cookies_chocolate_chip_cookie_happy_hour_website_480x480.png?v=1777059688"
+        }
+      ]
+    }
   },
   {
     "id": 501,
@@ -75024,12 +75189,12 @@
     "galleryImages": [
       {
         "url": "/images/venues/515-encinitas-ranch-golf-course-hh-menu.jpg",
-        "caption": "Happy hour menu",
+        "caption": "Happy hour live music calendar (2025)",
         "sourceUrl": "https://www.encinitasranchgolf.com/images/ER_Happy_Hour_Calendar_Flyer_2025.pdf"
       },
       {
         "url": "/images/venues/515-encinitas-ranch-golf-course-hh-menu-2.jpg",
-        "caption": "Happy hour menu",
+        "caption": "Happy hour live music calendar (April-May)",
         "sourceUrl": "https://www.encinitasranchgolf.com/images/ER_April-May_2026_Happy_Hour_Flyer.jpg"
       }
     ]
@@ -78696,7 +78861,8 @@
       {
         "url": "/images/venues/543-native-oaks-golf-club-hh-menu.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.nativeoaksgolfclub.com/specials/happy-hour"
+        "sourceUrl": "https://www.nativeoaksgolfclub.com/specials/happy-hour",
+        "generated": true
       }
     ]
   },
@@ -78986,7 +79152,8 @@
       {
         "url": "/images/venues/545-same-same-hh-menu.jpg",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://samesamecarlsbad.com/menu"
+        "sourceUrl": "http://samesamecarlsbad.com/menu",
+        "generated": true
       }
     ]
   },
@@ -83897,12 +84064,12 @@
     "galleryImages": [
       {
         "url": "/images/venues/585-barn-door-public-house-hh-menu.png",
-        "caption": "Happy hour menu",
+        "caption": "Thursday $5 pints promotion",
         "sourceUrl": "https://www.barndoorpublic.com/images/thursday-happy-hour.png"
       },
       {
         "url": "/images/venues/585-barn-door-public-house-hh-menu-2.png",
-        "caption": "Happy hour menu",
+        "caption": "Friday happy hour promotion",
         "sourceUrl": "https://www.barndoorpublic.com/images/friday-happy-hour.png"
       }
     ]
@@ -84962,13 +85129,30 @@
       "confidence": "high",
       "observedAt": "2026-08-29"
     },
-    "galleryImages": [
-      {
-        "url": "/images/venues/595-tour-de-tapas-hh-menu.jpg",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://tourdetapas.com/wp-content/uploads/2025/01/TourDeTapas-HappyHour-11x17-PRINT.jpg"
-      }
-    ]
+    "hhMenu": {
+      "note": "Sun/Tue/Wed/Thu 4-5pm and 8:30pm-close; Fri/Sat 4-5pm and 9-10pm.",
+      "sections": [
+        {
+          "title": "Drinks",
+          "items": [
+            {
+              "name": "Bottles and glasses of wine, beer and sangria",
+              "price": "15% off",
+              "category": "wine"
+            }
+          ]
+        }
+      ],
+      "sourceUrl": "https://tourdetapas.com/",
+      "observedAt": "2026-08-31",
+      "sourceImages": [
+        {
+          "url": "/images/venues/595-tour-de-tapas-hh-menu.jpg",
+          "caption": "Happy hour menu flyer published by the venue",
+          "sourceUrl": "https://tourdetapas.com/wp-content/uploads/2025/01/TourDeTapas-HappyHour-11x17-PRINT.jpg"
+        }
+      ]
+    }
   },
   {
     "id": 596,

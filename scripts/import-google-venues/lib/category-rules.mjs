@@ -92,6 +92,62 @@ export function hasVenueNameSignal(name) {
 }
 
 /**
+ * Fraternal and veterans posts, which are members-only.
+ *
+ * These are the one group where "it has a bar" argues the wrong way. An Elks
+ * lodge or a VFW post has a bar, pours the cheapest drinks in the county, is
+ * locally run, and would plausibly claim a page — so it passes two of the
+ * owner's three criteria and half of the third. It is still excluded, because a
+ * deal a member of the public cannot walk in and use is not a deal, and a
+ * visitor sent to one has been sent to a locked door. The owner ruled on this
+ * on 31 August 2026.
+ *
+ * Matched by organisation, never by the bare word "lodge" — OB Surf Lodge is a
+ * beach bar with no membership roll, and El Cajon Elks Lodge 1812 is what this
+ * is for. Private country and city clubs are deliberately not here; see the
+ * audit doc, because Native Oaks Golf Club is published with a happy hour.
+ */
+const MEMBERS_ONLY_CLUB =
+  /\b(elks(?: lodge)?|b\.?p\.?o\.?e\.?|vfw|veterans of foreign wars|american legion|moose lodge|loyal order of moose|fraternal order of (?:eagles|police)|eagles aerie|knights of columbus)\b/i;
+
+export function isMembersOnlyClub(name) {
+  return MEMBERS_ONLY_CLUB.test(String(name || ''));
+}
+
+/**
+ * Local markets whose food and drink is a destination, not a shopper service.
+ *
+ * The owner's rule, on 31 August 2026: a local market with a genuine
+ * food-and-drink offering stays; a supermarket goes. There is no signal in the
+ * Google record that draws that line — `types` is useless here, because every
+ * 7-Eleven in the cache carries `restaurant`, `cafe` and `coffee_shop`, and all
+ * 281 food-retail places carry at least one prepared-food type. So this is a
+ * named list, judged one venue at a time, which is the honest way to hold a
+ * judgement that a rule cannot express.
+ *
+ * Each of these has a counter people go there for: Cardiff Seaside Market for
+ * the Cardiff Crack and its wine bar, Kaelin's for the taqueria inside it,
+ * Cuisinery for cheese, charcuterie and tastings, Balboa International and
+ * North Park Produce for full Middle Eastern hot-food counters.
+ *
+ * The boundary is Jimbo's, which is excluded: it has a deli and a juice bar,
+ * but they serve the shopping trip rather than draw one.
+ */
+const KEPT_MARKETS = [
+  /^cardiff seaside market/i,
+  /^seaside market/i,
+  /^kaelin'?s market/i,
+  /^cuisinery food market/i,
+  /^balboa international market/i,
+  /^north park produce/i,
+];
+
+export function isKeptMarket(name) {
+  const text = String(name || '').trim();
+  return KEPT_MARKETS.some((pattern) => pattern.test(text));
+}
+
+/**
  * Should this place be dropped on its category alone?
  *
  * Takes the primary type and the name separately because the callers hold them
@@ -99,6 +155,11 @@ export function hasVenueNameSignal(name) {
  * record, and a catalog listing joined back to one.
  */
 export function isExcludedCategory(primaryType, name) {
+  // Whatever Google typed it, and whatever the name says. A members-only bar is
+  // excluded *because* it has a bar, so the venue-name signal below must not
+  // reach it.
+  if (isMembersOnlyClub(name)) return true;
   if (!primaryType || !EXCLUDED_PRIMARY_TYPES.has(primaryType)) return false;
+  if (isKeptMarket(name)) return false;
   return !hasVenueNameSignal(name);
 }

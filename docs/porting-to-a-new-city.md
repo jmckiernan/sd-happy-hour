@@ -246,7 +246,7 @@ makes them *harder* to find, not easier.
 
 ### 4.5 Regional chain additions — `lib/chain-blocklist.mjs`
 
-67 brand patterns today, national in coverage. The category axis lives beside it in
+70 brand patterns today, national in coverage. The category axis lives beside it in
 `lib/category-rules.mjs` and is city-independent — a convenience store is a convenience store
 everywhere — so a new city inherits it unchanged. Regional brands to consider adding, with the caveat
 that each must pass both tests (never runs a happy hour, never claims a listing):
@@ -388,7 +388,7 @@ are both "check before you spend".
    `lib/neighborhood-assign.mjs`, the strip in `lib/venue-quality.mjs`, and `locationSignals` in
    `src/lib/website-ownership.mjs`. This is a small diff and skipping it degrades chain handling
    invisibly (§5).
-6. **Add regional chains** to `lib/chain-blocklist.mjs`, checking the existing 67 first.
+6. **Add regional chains** to `lib/chain-blocklist.mjs`, checking the existing 70 first.
 7. **Build the neighborhood classifier** — boxes, address rules with local aliases, ZIP table.
    Budget a week. Order boxes most-specific-first and check every pair for containment before
    trusting them.
@@ -516,7 +516,7 @@ Effort is rough and assumes someone who knows this codebase.
 | `scripts/import-google-venues/lib/location-page.mjs` | `zipsIn` ZIP prefixes, `NEIGHBORING_PLACES` vocabulary | Half a day |
 | `src/lib/seo.ts` | Site name, served area, `addressLocality`, default description | 2 hours |
 | `scripts/import-google-venues/lib/constants.mjs` | `COUNTY_BOUNDS` rectangle, and `VENUE_ID_BAND` — the new city takes an unused band (San Diego holds 1–99,999) | 1 hour |
-| `scripts/import-google-venues/lib/chain-blocklist.mjs` | Regional brands; check the existing 67 first | 1 hour |
+| `scripts/import-google-venues/lib/chain-blocklist.mjs` | Regional brands; check the existing 70 first | 1 hour |
 | `src/lib/website-ownership.mjs` | `sanDiegoHit` clause and the `\b9\d{4}\b` ZIP in `locationSignals` | 1 hour |
 | `scripts/import-google-venues/lib/venue-quality.mjs` | The `usa\|ca\|california` strip in address normalization | 1 hour |
 | `src/lib/sanDiegoTime.ts` | Rename plus one constant for a separate deployment; a per-venue field and 17 call sites for a shared one | 1 hour, or a week |
