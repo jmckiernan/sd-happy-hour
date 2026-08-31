@@ -104,8 +104,14 @@ export function hasVenueNameSignal(name) {
  *
  * Matched by organisation, never by the bare word "lodge" — OB Surf Lodge is a
  * beach bar with no membership roll, and El Cajon Elks Lodge 1812 is what this
- * is for. Private country and city clubs are deliberately not here; see the
- * audit doc, because Native Oaks Golf Club is published with a happy hour.
+ * is for.
+ *
+ * **Private country, city, yacht and golf clubs are not members-only for this
+ * purpose and must never be added here.** The owner ruled on them separately:
+ * if it has a happy hour it is inventory. The distinction is what the bar is
+ * for — a fraternal post's bar exists only to serve its members, while a club's
+ * restaurant operates as a restaurant, takes outside bookings and advertises
+ * its specials. Native Oaks Golf Club is published with a happy hour.
  */
 const MEMBERS_ONLY_CLUB =
   /\b(elks(?: lodge)?|b\.?p\.?o\.?e\.?|vfw|veterans of foreign wars|american legion|moose lodge|loyal order of moose|fraternal order of (?:eagles|police)|eagles aerie|knights of columbus)\b/i;

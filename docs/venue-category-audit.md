@@ -3,9 +3,22 @@
 Which *kinds* of place belong in this catalog, which do not, and which ones we have never looked
 for.
 
-**Status: the exclusion half is built, live in the pipeline, and has been applied to the catalog —
-202 listings removed on 31 August 2026, none of them published. The addition half is still parked.**
-Read the decision section below before acting on anything here.
+**Status, 31 August 2026 — exclusions: implemented, executed, closed. Additions: designed, not
+built, parked on budget.**
+
+Concretely, so this line cannot mislead the next reader the way its predecessor did. The exclusion
+work is finished: the rules are in `lib/category-rules.mjs` and `lib/chain-blocklist.mjs`, enforced
+at four gates, covered by fourteen tests, and **already applied to the catalog — 202 listings
+removed, 3,208 to 3,006, none published and none carrying a happy hour.** Every open question about
+exclusions has an answer recorded in §9. Nothing in §6, §6.5, §6.6 or §9 is a proposal awaiting a
+decision.
+
+The addition work is not started: `SEARCH_TYPES` is still the original five types and there is no
+`seed-rare-types.mjs`, so the owner's bowling alleys and comedy clubs are not in the catalog and
+cannot be. §7 is a design, and the only thing standing in its way is the ~$211 of new spend in §5.4.
+
+The one ongoing obligation this work creates is the five-name market keep list in §9.13. Read that
+before touching the grocery rules.
 
 Every count below was read out of `public/data/happy-hours.json` and `.data/import/google/` on
 **31 August 2026**, not remembered. Pricing comes from `docs/places-api-cost-analysis.md`. Google's
@@ -21,7 +34,7 @@ anyone. The additions are worth doing because we have never once searched for a 
 
 ---
 
-## Decision: exclusions built, additions still on hold
+## Decision: exclusions done, additions still on hold
 
 The owner reviewed this document on **31 August 2026** and accepted the recommendation — Tier 1
 into `SEARCH_TYPES`, Tier 2 through a Text Search seeder, the §6 exclusions at the enrich
@@ -37,17 +50,18 @@ five search types the pipeline has always used, at the ~$350 budget.
 - `lib/chain-blocklist.mjs` — extended from 41 brand patterns to 70. The new ones are the
   Starbucks-class corporate coffee, bakery and quick-serve brands, the convenience marts, and
   Denny's and IHOP on the owner's ruling (§6.5, §9.8).
-- `tests/venue-blocklist.test.mjs` — thirteen tests, wired into `npm test`. The load-bearing ones assert
-  what must **not** be excluded: sit-down chains, local multi-location operators, `manufacturer`.
+- `tests/venue-blocklist.test.mjs` — fourteen tests, wired into `npm test`. The load-bearing ones
+  assert what must **not** be excluded: sit-down chains, local multi-location operators, private
+  clubs, the five markets, `manufacturer`.
 
 **What is not:**
 
 - **`SEARCH_TYPES` is unchanged and there is no `seed-rare-types.mjs`.** §7 is still a design, not
   work underway. That includes the owner's bowling alleys and comedy clubs.
-- **Questions 1 to 5 and 7 in §9 are still open** — hotels, casinos, mall and airport concessions,
-  liquor stores, tasting rooms and the budget. Questions 6, 8, 9, 10, 11 and 12 have been answered
-  and are recorded there with the reasoning. One new question opened in the process: private country
-  and city clubs (§9.10).
+- **Questions 1 to 5 and 7 in §9 are still open**, and every one of them is an *addition* question —
+  hotels, casinos, mall and airport concessions, liquor stores, tasting rooms and the budget. No
+  exclusion question remains open: 6, 8, 9, 10, 11 and 12 are answered and recorded with their
+  reasoning, including private clubs, which opened and closed inside §9.10.
 
 **Why the additions stay parked.** The overage is the whole reason. §5.4 lands at ~$561 against a
 ~$350 budget, and Tier 1 is essentially all of the difference — nine types at roughly $25 each,
@@ -734,12 +748,18 @@ VFW, American Legion, Moose, Fraternal Order of Eagles, Knights of Columbus — 
 word "lodge", because OB Surf Lodge is a beach bar with no membership roll. The check runs *before*
 the venue-name escape hatch, since the whole point is that the bar in the name is not a reprieve.
 
-**Still open, and deliberately not folded in: private country and city clubs.** The Santaluz Club,
-University Club San Diego and Coronado Shores Beach Club are members-only by the same logic. The
-reason they are untouched is Native Oaks Golf Club, which is `sports_club`, published, and has a
-happy hour — golf and city clubs frequently run a public-facing restaurant even when the course or
-the gym is private, so the members-only test does not cleanly apply. **Question for the owner if it
-matters: is a private club with a public restaurant in or out?**
+**Private country and city clubs — kept, all of them.** The owner ruled on this immediately after
+the Elks ruling, and the two sit next to each other looking contradictory, so the distinction is
+worth stating plainly: **a fraternal post's bar exists only to serve its members, while a club's
+restaurant operates as a restaurant.** The Santaluz Club, University Club San Diego, Coronado Shores
+Beach Club, the yacht clubs and the golf clubs take outside bookings, advertise their specials and
+serve people who are not members. The owner's phrasing: if it has a happy hour, it is inventory.
+
+Native Oaks Golf Club is the case that makes it concrete — `sports_club`, published, and carrying a
+happy hour we extracted from its own specials page. There is **no club exclusion rule**, and none
+should be added. 43 club-named listings are in the catalog and the rules remove none of them, which
+`testPrivateClubsAreNotTreatedAsMembersOnly` locks in so that a later widening of the fraternal
+pattern cannot quietly take a country club with it.
 
 **11. Blue Bottle and Philz — reviewed again, still blocked.** My call, applying the same two-part
 test used everywhere else. Both fail it. Pricing at a San Diego Blue Bottle or Philz is set
@@ -769,9 +789,32 @@ record and there is not one. `types` is worthless here: **every 7-Eleven in the 
 food-retail places carry at least one prepared-food type, so any `types`-based keep rule keeps
 everything including the 7-Elevens. The name is no better — "Market" appears in Harvest Market and
 Pala Mesa Market as readily as in Cardiff Seaside Market. So `KEPT_MARKETS` is five named venues,
-judged one at a time, which is the honest way to hold a judgement a rule cannot express. It will
-need extending by hand the next time a market like this turns up, and that is a fair price for not
-deleting five good listings to keep a category rule tidy.
+judged one at a time, which is the honest way to hold a judgement a rule cannot express.
+
+### 9.13 The maintenance this leaves behind
+
+One rule in this work does not maintain itself, and it is `KEPT_MARKETS`. Stating the burden plainly
+so nobody discovers it by finding a good venue missing.
+
+**What will happen.** A discovery run turns up a market like Cardiff Seaside Market — locally owned,
+`grocery_store` as its primary type, a counter or a wine bar that people go there for. The category
+rule will drop it silently at the enrich prefilter, before any Details call, and it will never reach
+the catalog for anyone to notice. There is no error and no log line naming it.
+
+**What a maintainer should do when the sixth market shows up.** Add a pattern to `KEPT_MARKETS` in
+`lib/category-rules.mjs`, add the name to `testLocalMarketsWithARealCounterSurviveTheGroceryRule`,
+and note it here. That is the whole job — a two-line change, and the test is what stops the list
+rotting into a set of unexplained exceptions.
+
+**How to find them rather than wait for them.** The catchable version of this is a periodic review
+rather than a rule: list the `grocery_store`, `supermarket` and `asian_grocery_store` candidates the
+prefilter has dropped, and read the names. About twenty a run, once. Do not attempt to automate the
+judgement — the finding above is that the data cannot support it, and a rule that guesses will either
+readmit the 7-Elevens or keep deleting the good markets.
+
+**Do not "fix" this by loosening the category rule.** Adding `market` to the venue-name escape hatch
+is the obvious shortcut and it is wrong: it would readmit Harvest Market, Pala Mesa Market, Manolo
+Farmers Market and fifteen others. Five hand-judged names is the cheaper error.
 
 ---
 

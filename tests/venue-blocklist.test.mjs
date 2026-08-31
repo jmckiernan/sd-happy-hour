@@ -74,9 +74,24 @@ function testMembersOnlyClubsAreExcludedDespiteHavingABar() {
   // The bare word "lodge" is not the signal — this one is a beach bar.
   assert.equal(isMembersOnlyClub('OB Surf Lodge'), false);
   assert.equal(isExcludedCategory('bar', 'OB Surf Lodge'), false);
-  // Private clubs are a separate open question, not folded in silently.
-  assert.equal(isMembersOnlyClub('Native Oaks Golf Club'), false);
-  assert.equal(isMembersOnlyClub('University Club San Diego'), false);
+}
+
+function testPrivateClubsAreNotTreatedAsMembersOnly() {
+  // Ruled on and closed: if it has a happy hour it is inventory. A club's
+  // restaurant operates as a restaurant, where a fraternal post's bar exists
+  // only for its members.
+  for (const name of [
+    'Native Oaks Golf Club',
+    'The Santaluz Club',
+    'University Club San Diego',
+    'Coronado Shores Beach Club',
+    'San Diego Yacht Club',
+    'Fairbanks Ranch Country Club',
+  ]) {
+    assert.equal(isMembersOnlyClub(name), false, `${name} is not a fraternal post`);
+    assert.equal(isExcludedCategory('sports_club', name), false, `${name} must stay`);
+    assert.equal(isExcludedCategory('association_or_organization', name), false, `${name} must stay`);
+  }
 }
 
 function testLocalMarketsWithARealCounterSurviveTheGroceryRule() {
@@ -209,6 +224,7 @@ tests.push(
   testCorporateSitDownWithNoBarIsBlocked,
   testRegionalQuickServeThatPoursBeerIsKept,
   testMembersOnlyClubsAreExcludedDespiteHavingABar,
+  testPrivateClubsAreNotTreatedAsMembersOnly,
   testLocalMarketsWithARealCounterSurviveTheGroceryRule,
   testSitDownChainsWithRealHappyHoursSurvive,
   testLocalMultiLocationOperatorsSurvive,
