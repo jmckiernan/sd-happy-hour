@@ -269,55 +269,64 @@ function formatWindowLine(window: {
     }
     .deals-unknown-claim a:hover { text-decoration: underline; }
     .deals-unknown[hidden] { display: none; }
-    /* Attributes are affirmative badges: a venue with three known facts shows
-       three and looks deliberate. Nothing renders a "no" or an empty slot,
-       because absent means Google never answered rather than answered no. */
+    /* Same 800px column and heading as .regular-happy-hour, and the card
+       treatment comes from .venue-card rather than a second copy of it, so this
+       lines up with the Times and Deals cards instead of breaking the page
+       width. Attributes are affirmative badges: a venue with three known facts
+       shows three and looks deliberate. Nothing renders a "no" or an empty
+       slot, because absent means Google never answered rather than answered no. */
     .venue-attributes {
-      background: white;
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+      max-width: 800px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
     }
-    .venue-attributes h2 { font-size: 1.15rem; margin-bottom: 16px; }
-    .attribute-price {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 20px;
-      font-size: 0.95rem;
+    .venue-attributes > h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 4vw, 1.8rem);
+      margin-bottom: 14px;
     }
-    .attribute-price-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--night-soft);
-    }
-    .attribute-groups {
+    /* A label beside its chips rather than four columns of them: at 800px minus
+       padding there is not room for four, and the rows read as a list of
+       answers to questions instead of a grid the eye has to scan twice. */
+    .attribute-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
+      grid-template-columns: 130px 1fr;
+      gap: 8px 16px;
+      align-items: baseline;
+      padding: 12px 0;
+      border-top: 1px solid var(--sand-warm);
     }
-    .attribute-group h3 {
+    .attribute-row:first-child { border-top: 0; padding-top: 0; }
+    .attribute-row:last-child { padding-bottom: 0; }
+    .attribute-row h3 {
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--night-soft);
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
+    .attribute-price { font-size: 0.95rem; font-weight: 600; }
     .attribute-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; }
+    /* Deliberately not the .deal gradient. That colour is this page's signal
+       for "this is an offer", and a "Restroom" chip in it would read as
+       something you can order. Same pill geometry and the same warm palette as
+       .day-pill, one step down in emphasis. */
     .attribute {
       background: var(--sand-warm);
       color: var(--night);
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
       padding: 7px 13px;
       border-radius: 100px;
     }
     .attribute-source {
-      margin-top: 18px;
-      font-size: 0.75rem;
+      margin-top: 12px;
+      font-size: 0.8rem;
       color: var(--night-soft);
+    }
+    @media (max-width: 640px) {
+      /* The label column costs more than it earns on a phone. */
+      .attribute-row { grid-template-columns: 1fr; gap: 8px; }
     }
     .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
     :global(.day-pill) {
@@ -830,32 +839,6 @@ function formatWindowLine(window: {
     </div>
   </section>
 
-  {(attributeGroups.length > 0 || priceSummary) && (
-    <section class="venue-attributes" aria-labelledby="venue-attributes-heading">
-      <h2 id="venue-attributes-heading">Good to know</h2>
-      {priceSummary && (
-        <p class="attribute-price">
-          <span class="attribute-price-label">Typical spend</span>
-          <strong>{priceSummary}</strong>
-        </p>
-      )}
-      {/* Only groups with something known reach here, so there is no empty
-          state to render and no placeholder for a fact Google withheld. */}
-      <div class="attribute-groups">
-        {attributeGroups.map((group) => (
-          <div class="attribute-group">
-            <h3>{group.title}</h3>
-            <ul class="attribute-list">
-              {group.attributes.map((attribute) => (
-                <li class="attribute">{attribute.label}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <p class="attribute-source">Amenity details from Google. Absent items just mean nobody has told us.</p>
-    </section>
-  )}
 
   {hasWeeklySpecials && (
     <section class="weekly-specials" aria-labelledby="weekly-specials-heading">
@@ -921,6 +904,37 @@ function formatWindowLine(window: {
         Prices and items change — confirm with the venue.
         {menuSourceUrl && <> <a href={menuSourceUrl}>See the venue's own menu →</a></>}
       </p>
+    </section>
+  )}
+
+  {/* Below the menu on purpose. Someone arrives wanting the window, the deals
+      and what is on the happy-hour menu; whether there is valet is a question
+      they ask after they have decided the place is worth considering. Sitting
+      between the deals and the menu split the one thing they came for. */}
+  {(attributeGroups.length > 0 || priceSummary) && (
+    <section class="venue-attributes" aria-labelledby="venue-attributes-heading">
+      <h2 id="venue-attributes-heading">Good to know</h2>
+      <div class="venue-card">
+        {priceSummary && (
+          <div class="attribute-row">
+            <h3>Typical spend</h3>
+            <p class="attribute-price">{priceSummary}</p>
+          </div>
+        )}
+        {/* Only groups with something known reach here, so there is no empty
+            state to render and no placeholder for a fact Google withheld. */}
+        {attributeGroups.map((group) => (
+          <div class="attribute-row">
+            <h3>{group.title}</h3>
+            <ul class="attribute-list">
+              {group.attributes.map((attribute) => (
+                <li class="attribute">{attribute.label}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="attribute-source">Amenity details from Google. Absent items just mean nobody has told us.</p>
     </section>
   )}
 
