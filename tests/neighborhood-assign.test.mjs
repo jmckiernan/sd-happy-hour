@@ -49,10 +49,21 @@ function testAStreetNameNeverOutranksASanDiegoZip() {
   assert.equal(assignNeighborhood(32.8005, -117.1902, '6931 Linda Vista Rd, San Diego, CA 92111, USA'), 'Kearny Mesa');
 }
 
-function testAnUnrecognisedSanDiegoZipStaysVagueRatherThanGuessing() {
-  // Cardiff Street is in southeastern San Diego. "San Diego" is unhelpful but
-  // true; "Cardiff" would put the venue on a coastal page 24 miles away.
-  assert.equal(assignNeighborhood(32.7016, -117.0453, '954 Cardiff St, San Diego, CA 92114, USA'), 'San Diego');
+function testARecognisedSanDiegoZipGetsARealNeighborhood() {
+  // 92114 is Encanto. Cardiff Street is in southeastern San Diego; the street
+  // name must not win over the ZIP and send the venue to coastal Cardiff.
+  assert.equal(assignNeighborhood(32.7016, -117.0453, '954 Cardiff St, San Diego, CA 92114, USA'), 'Encanto');
+  assert.equal(assignNeighborhood(32.5757, -117.0848, '2265 Flower Ave D, San Diego, CA 92154, USA'), 'Otay Mesa');
+  assert.equal(assignNeighborhood(32.5452, -117.0391, '4419 Camino De La Plaza, San Diego, CA 92173, USA'), 'San Ysidro');
+}
+
+function testBackcountryPlacesMapToTheNearestPage() {
+  // Julian has no published venues and no page of its own; Ramona is the nearest
+  // east-county page a visitor can actually open. Creating a Julian page for
+  // five unlisted cideries would invent a neighborhood for claim stubs.
+  assert.equal(assignNeighborhood(33.0708, -116.6017, '4470 Julian Rd, Julian, CA 92036, USA'), 'Ramona');
+  assert.equal(assignNeighborhood(33.303, -116.981, '15265 CA-76, Pauma Valley, CA 92061, USA'), 'Valley Center');
+  assert.equal(assignNeighborhood(33.386, -117.072, '1777 Pala Mission Rd, Pala, CA 92059, USA'), 'Valley Center');
 }
 
 function testAnAddressWithNoCityOrZipStillFallsBackToItsPlaceName() {
@@ -86,6 +97,27 @@ function testEveryVisibleVenueHasANeighborhoodPageToAppearOn() {
     .filter((venue) => !pages.has(venue.neighborhood))
     .map((venue) => `${venue.id} ${venue.name}: ${venue.neighborhood}`);
   assert.deepEqual(orphaned, [], 'a listed venue whose neighborhood has no page appears nowhere');
+}
+
+function testEveryPublishedVenueHasANeighborhoodInThePageVocabulary() {
+  // Stronger than the browse-visible check: even a held listing must name a
+  // real page, so clearing the hold does not leave it stranded. Bare "San Diego"
+  // is not a page.
+  const pages = neighborhoodsWithPages();
+  const orphaned = venues
+    .filter((venue) => venue.listingStatus === 'published')
+    .filter((venue) => !venue.neighborhood || venue.neighborhood === 'San Diego' || !pages.has(venue.neighborhood))
+    .map((venue) => `${venue.id} ${venue.name}: ${venue.neighborhood || '(empty)'}`);
+  assert.deepEqual(orphaned, []);
+}
+
+function testNoCatalogVenueIsLeftOnBareSanDiego() {
+  // Claim stubs need a neighborhood too — the claim search groups by it, and a
+  // bare "San Diego" is the same defect as an empty field with a polite label.
+  const stranded = venues
+    .filter((venue) => !venue.neighborhood || venue.neighborhood === 'San Diego')
+    .map((venue) => `${venue.id} ${venue.name}`);
+  assert.deepEqual(stranded, []);
 }
 
 function testOnlyANamedHoldKeepsAVenueOffItsNeighborhoodPage() {
@@ -207,11 +239,14 @@ tests.push(
   testCoordinatesInsideANeighborhoodBoxDecideTheAnswer,
   testAStreetNameNeverOutranksTheCityItSitsIn,
   testAStreetNameNeverOutranksASanDiegoZip,
-  testAnUnrecognisedSanDiegoZipStaysVagueRatherThanGuessing,
+  testARecognisedSanDiegoZipGetsARealNeighborhood,
+  testBackcountryPlacesMapToTheNearestPage,
   testAnAddressWithNoCityOrZipStillFallsBackToItsPlaceName,
   testEveryCatalogedVenueAgreesWithTheAssignmentRule,
   testNoVenueSitsAbsurdlyFarFromTheNeighborhoodItIsFiledUnder,
   testEveryVisibleVenueHasANeighborhoodPageToAppearOn,
+  testEveryPublishedVenueHasANeighborhoodInThePageVocabulary,
+  testNoCatalogVenueIsLeftOnBareSanDiego,
   testOnlyANamedHoldKeepsAVenueOffItsNeighborhoodPage,
   testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage,
   testAnUnprovenHappyHourStaysHidden,

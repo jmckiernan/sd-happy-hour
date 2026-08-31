@@ -7,6 +7,12 @@ unlisting of the four buildings are all applied to the catalog and the code.** T
 claim in §5 against the live dataset, so a stale number here fails a test rather than sitting quietly.
 The pattern behind this class of bug is `docs/lessons-and-invariants.md` §2.7.
 
+**Neighborhood status, 31 August 2026:** every catalog row (3,006) carries a neighborhood that
+exists in `ALL_NEIGHBORHOODS`. Bare `San Diego` is gone. Otay Mesa, San Ysidro, Encanto and
+Paradise Hills were added for city ZIPs that previously fell through; backcountry names without a
+page (Julian, Pala, Pauma Valley, …) remap to the nearest real page. Pipeline detail:
+`docs/venue-pipeline-reference.md` §6.
+
 83 published venues with real happy-hour schedules were unreachable through the
 site's own navigation. Their pages rendered, their data validated, and nothing
 linked to them. This records why, what the rule is now, and what is still
@@ -15,9 +21,11 @@ hidden.
 ## 1. Why the 83 were flagged
 
 `seoHidden` is set at import whenever Google's happy-hour answer was below high
-confidence, and until recently nothing ever took it off. A first pass cleared
-100 of them by requiring a high-confidence scrape carrying **both a window and
-deal lines**. These 83 failed that bar. Grouped by what they actually have:
+confidence, and until 31 August nothing took it off. A clear-on-scrape path
+landed earlier that same day under a **deals-required** rule and cleared 100
+venues; the rest failed that bar or never hit the reconcile on early exits.
+The rule now clears on confirmed window provenance alone — see §2. Grouped by
+what the remaining held venues actually have:
 
 | Cause | Count |
 |---|---|

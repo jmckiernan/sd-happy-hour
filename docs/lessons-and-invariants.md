@@ -112,10 +112,14 @@ Enforced by `testAmenitiesAreBooleanOrAbsentButNeverGuessed`,
 ### 2.3 A boolean records a decision and discards the reason for it
 
 `seoHidden` was set at import whenever Google's happy-hour answer was below high confidence, and
-until 31 August nothing ever took it off. A first pass cleared **100 published venues** carrying
-flags that a later scrape had already disproved. The reason nobody noticed for weeks is that the
-field recorded a verdict without recording what would overturn it: no reason, no date, and no rule
-saying who was allowed to clear it.
+until 31 August nothing ever took it off. Earlier that same day a clear-on-scrape path landed
+(`8279315`) that required a high-confidence `found` scrape **with deal lines**, and a bulk reindex
+cleared **100 published venues**. The remaining cohort stayed hidden because the rule asked about
+offers, not existence — and early exit paths from `applyScrape` never reconciled at all. Later the
+same day (`8f0faea`) the deals requirement was dropped, reconcile was wired to every exit, and 26
+more became visible. The flag was then split (`d4b9b17`): `seoHidden` is search only; browse uses
+`browseHold` with a named reason and a `since` date. 55 published venues still carry
+`browseHold: unverified_window`.
 
 Two separate fixes came out of that, and the second is the transferable one.
 
@@ -130,7 +134,6 @@ Two separate fixes came out of that, and the second is the transferable one.
   search and nothing else; browse visibility is `browseHold`, a structured value carrying a `reason`
   from a known vocabulary and a `since` date. `npm run validate:data` rejects a reason the codebase
   does not know how to handle, because a hold nobody can act on hides a venue and explains nothing.
-  55 published venues carry one today, all `unverified_window`.
 
 **The rule.** If a flag can be wrong later, it carries why it was set and what would clear it, and
 the clearing runs where the setting runs. A dated, named hold makes a stale one visible; a bare
@@ -442,10 +445,10 @@ failing.
   catalog — `reservable`, `liveMusic`, `restroom`, `goodForGroups`, `goodForWatchingSports`,
   `servesVegetarianFood`, `parkingOptions`, `paymentOptions`, `accessibilityOptions`, `priceLevel`,
   `priceRange` — pass through unchecked.
-- **The menu `price` field is typed as if it were absolute** while roughly 480 items hold a relative
-  price (`"$2 off"`, `"50% off"`, `"½ off"`). That guarantees a permanent "invalid" rate that is not
-  real, and it is why nobody can make the validator strict here. A `priceKind`, or separate amount
-  and discount fields, would fix it.
+- **The menu `price` / `offer` model is in place** (`docs/menu-price-model.md`). Absolute vs
+  discount kinds are classified from the printed text; the board typesets discounts differently;
+  schema.org only emits absolute prices. What remains unenforced is provenance-on-every-menu and
+  the 115 unparseable price strings left for a human.
 - **Provenance is required by convention, not by the validator.** New scrapes write `sourceUrl` and
   `observedAt`; nothing rejects an `hhMenu` that lacks both. 269 rows would fail such a rule today,
   so it has to be introduced as "no *new* menu without provenance" rather than a flat invariant.

@@ -3,6 +3,13 @@
 Every check, gate, and threshold that decides whether a venue reaches the site, and what it is
 allowed to say when it gets there. One page, in pipeline order.
 
+**Status, 31 August 2026 — live specification.** Counts below match the catalog at 3,006 rows /
+686 published unless a subsection says otherwise. `seoHidden` / `browseHold`, neighborhood
+assignment order, menu `offer` kinds, browser `needs_browser`, Atmosphere amenities, and venue-id
+banding are implemented. Proprietary character vibes (`docs/proprietary-venue-attributes.md`) and
+Google photo attribution recovery (`docs/google-photo-exposure.md`) are **proposed, not built**.
+Detailed investigations stay in their own docs; this page is the gate list.
+
 This is the *what and why*. For the narrative playbook — how to run a job, what a scrape outcome
 means, how to read the cost report — see `docs/venue-data-pipeline.md`. For the patterns behind the
 incidents cited throughout this page, and the invariants that now guard them,
@@ -267,12 +274,33 @@ from the wrong restaurant — not a blank one.
 
 Confidence matters downstream: anything below `high` is imported with `seoHidden: true` and a
 `browseHold` of `unverified_window`. Both are hedging the same question — is this a real place whose
-happy hour we can source — and a later scrape that confirms the window lifts both. Confirming means
-a complete window with provenance, from the venue's own happy-hour page or Google's `HAPPY_HOUR`
-hours, and nothing since saying the pages we read describe another brand or branch. Deal lines are
-not part of it: window-only listings stay published (`docs/window-only-listings.md`), so requiring
-offers hid real venues. `npm run import:venues:reindex-verified` applies the rule to venues scraped
-before it existed.
+happy hour we can source — and a later scrape that confirms the window lifts both.
+
+**Confirming the window** (`isVerifiedForIndexing` in `lib/seo-visibility.mjs`) means:
+
+1. A complete window (days, start, end).
+2. Provenance for it — a quote off the venue's own happy-hour page, or Google's `HAPPY_HOUR`
+   secondary hours (times-only by construction).
+3. Nothing since saying the pages we read describe another brand or branch, and the listing is a
+   venue rather than a multi-tenant building.
+
+Deal lines are **not** part of it. Window-only listings stay published
+(`docs/window-only-listings.md`); requiring offers hid real venues. `applyScrape` runs the lift on
+**every exit path**, including scrapes that found no offers worth storing. The first clear path
+(earlier the same day, commit `8279315`) required `found` + high confidence + non-empty deals and
+only ran on the success branch — that is why ~83 published venues stayed hidden after the first
+bulk clear of 100. The deals bar was removed and the reconcile was wired to every exit in
+`8f0faea`. `npm run import:venues:reindex-verified` still exists for listings scraped before the
+rule. Full story: `docs/homepage-reachability.md`.
+
+### 4.8 Browser fetch fallback
+
+`createCachedFetch` in `lib/fetch-page.mjs` tries a plain fetch first and falls back to a headed
+Playwright profile only when `needsBrowser()` is true (SPA menu host, Cloudflare block, timeout,
+401/403/429/503, or under 500 characters of text). Callers that omit `browserFetch` used to get
+`ok: true` on a blank shell — silent success. They now get `ok: false`, `reason: 'needs_browser'`,
+and the URL on `cachedFetch.unreadable`. An unreadable page is a failure, not an absence of happy
+hour. Wiring audit: `docs/browser-fetch-coverage.md`.
 
 ---
 
@@ -328,6 +356,11 @@ an empty deal list.
   card says so rather than inventing filler.
 - Necessary because `finalizeDeals` falls back to `['Happy hour']` when its own cleaning empties
   the list, which is exactly the string we are trying to keep off cards.
+- **Owners can save times without deals.** `validateListing()` in `src/lib/validation.ts` requires
+  days and a window; it does not require deal lines. Deal types cannot outlive empty deals (a
+  ticked "beer" with no offers would make the venue filterable for something nobody published).
+- Published window-only listings stay on the homepage and invite the owner to fill offers in —
+  `docs/window-only-listings.md`.
 
 ### 5.5 Fields set on import
 
@@ -432,14 +465,23 @@ boolean, so an absent key means nobody has asked about that venue.
 
 ## 6. Neighborhood assignment
 
-Order matters — the first method to produce an answer wins.
+Order matters — the first method to produce an answer wins
+(`scripts/import-google-venues/lib/neighborhood-assign.mjs`):
 
-- Mexican addresses short-circuit to `Tijuana`.
-- Bounding boxes, checked in array order, most specific first.
-- The city parsed out of the address, when it is not San Diego.
-- For San Diego addresses, a ZIP lookup table; an unrecognised ZIP stays `San Diego`.
-- Address regex list, including aliases like `PB` → Pacific Beach, `Convoy` → Kearny Mesa,
-  `Liberty Station` → Point Loma. Only reached when neither a city nor a ZIP could be parsed.
+1. Mexican addresses short-circuit to `Tijuana`.
+2. Bounding boxes, checked in array order, most specific first.
+3. The city parsed out of the address, when it is not San Diego — including bare
+   `"Valley Center, CA 92082"` forms. Backcountry place names without a page
+   (`Julian`, `Pauma Valley`, `Pala`, `Warner Springs`, `Descanso`,
+   `Palomar Mountain`, Camp Pendleton) remap through `CITY_TO_PAGE` to the
+   nearest real page (Ramona, Valley Center, Alpine, Oceanside). No page is
+   invented for those until published venues need one.
+4. For San Diego city addresses, a ZIP lookup table (`92114` → Encanto,
+   `92154` → Otay Mesa, `92173` → San Ysidro, `92139` → Paradise Hills, …).
+5. Address regex list (aliases like `PB` → Pacific Beach). **Last**, because
+   street names borrow other places' names.
+6. County ZIP fallback (`91917` → Jamul, `92036` → Ramona, …), then a bare
+   `San Diego` only if nothing else matched.
 
 Because boxes are checked before addresses, **a box that is too wide silently overrides every
 address rule beneath it**. Cardiff is the worked example: it sat inside the old Solana Beach box,
@@ -449,12 +491,19 @@ fire for a venue with coordinates. The fix was an explicit Cardiff box placed be
 The address regexes match street names as readily as places, which is why they now run last.
 Scripps Poway Parkway is in Scripps Ranch, El Cajon Boulevard runs through North Park and the
 College Area, Linda Vista Road is 25 miles from Vista, and Avenida Del Mar is in San Clemente —
-each of those sent venues to a neighborhood page they had no business being on. Where the street
-is the only signal left, the answer stays a vague `San Diego` rather than a confident wrong city.
+each of those sent venues to a neighborhood page they had no business being on.
 
 Every neighborhood the classifier can emit needs an entry in `ALL_NEIGHBORHOODS`
 (`src/lib/neighborhoods.ts`). A venue filed under a neighborhood with no page appears on no
-neighborhood page at all; `npm run test:neighborhood-assign` fails when that happens.
+neighborhood page at all. `npm run test:neighborhood-assign` fails when any published venue (held
+or not) lacks a vocabulary page, when any catalog row still says bare `San Diego`, or when a
+cataloged neighborhood disagrees with `assignNeighborhood`. Re-apply with
+`npm run import:venues:classify-neighborhoods`.
+
+**Status, 31 August 2026:** 3,006 / 3,006 rows carry a real neighborhood page name. Otay Mesa,
+San Ysidro, Encanto and Paradise Hills were added to the vocabulary for city ZIPs that previously
+fell through; 75 stubs were reclassified. Zero published venues were in the bare-`San Diego`
+bucket.
 
 ---
 
@@ -585,6 +634,17 @@ Without this, an owner searching the claim dashboard for their own restaurant fi
   category, already in the catalog, or unusable (no address, no coordinates, no valid source URL).
 - Already-in-catalog is checked by place ID **and** by name + street line, since two enriched
   records can share a storefront.
+- Stubs are `listingStatus: 'unlisted'` and `seoHidden: true`. They appear in claim search; they
+  do not appear on the homepage or in the sitemap. A verified claim can publish them at runtime
+  (`isPubliclyListed` in `src/lib/listingVisibility.ts`).
+
+### 10.1 Venue ID banding
+
+`VENUE_ID_BAND` in `lib/constants.mjs` reserves **1–99,999** for San Diego. Venue id is the join
+key across claims, publications, overrides, photos, promotions and saved spots, and it decides the
+URL slug. A second city's pipeline allocates `max(id)+1` over its own catalog; without reserved
+bands it would mint ids San Diego already owns. The next city takes `{ start: 100_000, end: 199_999 }`.
+See `docs/data-architecture.md` §6.1 and `docs/porting-to-a-new-city.md` §3.2.
 
 ---
 
@@ -622,13 +682,26 @@ merely exempt stubs — it **forbids** the fields they should not have:
 - Must be `listingStatus: 'unlisted'`.
 - `website` is optional, but must be a URL if present.
 
-### 11.4 Other invariants
+### 11.4 Menu model (`hhMenu`)
+
+Implemented. Detail: `docs/menu-price-model.md`.
+
+- Printed `price` text is never paraphrased. A sibling `offer` records what it means:
+  `absolute`, `amount_off`, `percent_off`, `range`, `multi`, `bundle`.
+- **Never convert between kinds.** A discount yields no absolute figure.
+- Multi-page boards: the renderer paginates; caps are 12 sections / 60 items (was 4 / 24).
+- Re-rendering a board preserves provenance (`sourceUrl`, `observedAt`) on the menu record.
+- `seo.ts` emits schema `offers.price` only for `kind: 'absolute'`.
+
+### 11.5 Other invariants
 
 - `outdoorSeating` and `allowsDogs` are optional and must be boolean when present. Only the type is
   checked, deliberately: the validator has no way to require an answer nobody has bought, and an
-  absent key is the honest report of that (§5.8).
+  absent key is the honest report of that (§5.8). The venue page shows **affirmative-only** —
+  a fact when it is true, silence when absent or false.
 - `listingStatus` ∈ `published` | `unlisted`.
 - `publishedByClaim` cannot be set on an unlisted venue.
+- `browseHold.reason` must be one of `BROWSE_HOLD_REASONS` when present (`unverified_window` today).
 - Every `windows` entry needs valid days plus either `allDay` or a valid time pair.
 - `weeklySpecials` need an id, label, summary, a known kind, and either days or an occasion.
 - Every `galleryImages` entry needs a stored path or `http(s)` `url`. These are menus, so they are
@@ -662,6 +735,11 @@ Four independent flags, frequently confused.
 venue's window" in one boolean left 83 published venues unreachable, so a browse hold now has to say
 which situation it is; the reasons live in `src/lib/listingVisibility.ts`.
 
+**Counts, 31 August 2026:** 2,374 rows `seoHidden` (55 published + 2,319 unlisted stubs);
+55 published `browseHold: unverified_window`. The 55 are the same cohort that stayed hidden after
+the first deals-required clear; Surfside Fish House is **not** among them — it is published,
+`seoHidden: false`, no hold, neighborhood Scripps Ranch.
+
 - A venue is publicly listed when `listingStatus !== 'unlisted'`. Rows predating the field count as
   published, so it could roll out without backfilling.
 - A claim can publish a venue at runtime, immediately, without waiting for a deploy.
@@ -681,6 +759,7 @@ which situation it is; the reasons live in `src/lib/listingVisibility.ts`.
 | `MIN_RATING` | `4.0` (`IMPORT_MIN_RATING`) | Enrich prefilter and qualification |
 | `MIN_REVIEWS` | `10` (`IMPORT_MIN_REVIEWS`) | Enrich prefilter and qualification |
 | `MAX_IMPORT` | `1000` (`IMPORT_MAX`) | New venues per staging run; upgrades exempt |
+| `VENUE_ID_BAND` | `1`–`99_999` | San Diego id allocation; next city takes 100k+ |
 | `COUNTY_BOUNDS` | 32.50–33.55 N, -117.65–-116.60 W | Search grid extent, and the normalize box check |
 | Grid step / radius | `0.045°` / `2800 m` | Fixed-grid cell size |
 | `PAGE_SIZE` | `20` | Truncation signal for adaptive subdivision |
@@ -691,6 +770,7 @@ which situation it is; the reasons live in `src/lib/listingVisibility.ts`.
 | Window bounds | `30 min`–`8 h` | Plausible happy hour |
 | Deal line length | `60` chars (filter), `42` (chip rewrite) | Deal text |
 | `MAX_DEAL_CHIPS` | `6` | Deals stored per venue |
+| Menu caps | `12` sections / `60` items | `normalizeMenuBoard` |
 | Crawl budget | 6 pages / 8 fetches | Deep inventory |
 | `EVIDENCE_SCORE` | `20` | Below this, fall back to guessed paths |
 | API delay | `250 ms` | Between all Places calls |
@@ -713,3 +793,9 @@ Honest list. None are currently breaking anything, but all are traps.
   mislabelled Cardiff.
 - **Discovery coverage is roughly 30–45%.** Two exhaustively probed cells found 6.0× and 3.8× more
   venues than the original fixed grid saw. This is the single largest gap in the dataset.
+- **55 published `browseHold: unverified_window`.** Mostly never scraped; fix is scrape or convert
+  to claim stubs (`docs/window-only-listings.md` §4, `docs/homepage-reachability.md`).
+- **Google photo bytes stored without attribution metadata.** Assessment only —
+  `docs/google-photo-exposure.md`. Not implemented.
+- **32 overnight/ambiguous windows** (`19:00–18:00` and similar) left alone on purpose —
+  `docs/deal-and-menu-audit.md`, `docs/lessons-and-invariants.md` §4.

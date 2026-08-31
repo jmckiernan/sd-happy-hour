@@ -4,19 +4,22 @@ export const NEIGHBORHOOD_BOXES = [
   // San Diego urban — most specific first
   { name: 'Little Italy', minLat: 32.715, maxLat: 32.728, minLng: -117.176, maxLng: -117.164 },
   { name: 'Embarcadero', minLat: 32.708, maxLat: 32.716, minLng: -117.182, maxLng: -117.168 },
-  { name: 'Gaslamp', minLat: 32.706, maxLat: 32.718, minLng: -117.180, maxLng: -117.154 },
-  { name: 'East Village', minLat: 32.706, maxLat: 32.718, minLng: -117.162, maxLng: -117.146 },
-  { name: 'Balboa Park', minLat: 32.726, maxLat: 32.738, minLng: -117.158, maxLng: -117.142 },
+  { name: 'Gaslamp', minLat: 32.706, maxLat: 32.7185, minLng: -117.180, maxLng: -117.154 },
+  { name: 'East Village', minLat: 32.706, maxLat: 32.7185, minLng: -117.162, maxLng: -117.146 },
+  { name: 'Balboa Park', minLat: 32.724, maxLat: 32.738, minLng: -117.158, maxLng: -117.142 },
   // Ash Street up to Elm, east of Fifth: too far north for Gaslamp or East
-  // Village, too far south for Balboa Park, and previously nameless.
-  { name: 'Cortez Hill', minLat: 32.7185, maxLat: 32.7245, minLng: -117.1625, maxLng: -117.152 },
+  // Village, too far south for Balboa Park, and previously nameless. minLat sits
+  // on Gaslamp's maxLat so B Street towers land in Gaslamp and Cortez keeps Ash.
+  { name: 'Cortez Hill', minLat: 32.7185, maxLat: 32.7245, minLng: -117.163, maxLng: -117.152 },
   // Bankers Hill fills the gap between Little Italy, downtown and the park's west
   // edge. Without a box its venues fell through to a bare "San Diego", which has
   // no neighborhood page, so they appeared nowhere. Kept to the uncontested core
   // — First Avenue to Sixth, Elm Street up to just short of Upas — so downtown
   // and Hillcrest keep the blocks that are really theirs.
   { name: 'Bankers Hill', minLat: 32.7225, maxLat: 32.740, minLng: -117.166, maxLng: -117.158 },
-  { name: 'Harbor Island', minLat: 32.718, maxLat: 32.728, minLng: -117.200, maxLng: -117.188 },
+  // Harbor Island plus the airport terminals on North Harbor Drive. Without the
+  // western stretch, Stone Brewing and the United Club fell to a bare "San Diego".
+  { name: 'Harbor Island', minLat: 32.718, maxLat: 32.735, minLng: -117.210, maxLng: -117.188 },
   { name: 'Middletown', minLat: 32.728, maxLat: 32.738, minLng: -117.178, maxLng: -117.168 },
   { name: 'Hillcrest', minLat: 32.744, maxLat: 32.758, minLng: -117.172, maxLng: -117.154 },
   { name: 'North Park', minLat: 32.728, maxLat: 32.752, minLng: -117.138, maxLng: -117.118 },
@@ -53,6 +56,13 @@ export const NEIGHBORHOOD_BOXES = [
   // South bay
   { name: 'Coronado', minLat: 32.670, maxLat: 32.710, minLng: -117.180, maxLng: -117.130 },
   { name: 'Imperial Beach', minLat: 32.570, maxLat: 32.600, minLng: -117.150, maxLng: -117.110 },
+  // San Ysidro before Otay Mesa: the border crossing sits inside the wider Otay
+  // rectangle, and boxes are first-match. Dairy Mart Road runs just west of
+  // -117.060, so the western edge has to clear it.
+  { name: 'San Ysidro', minLat: 32.540, maxLat: 32.570, minLng: -117.075, maxLng: -117.015 },
+  // Otay Mesa / Nestor / Palm City (92154). Without this box the ZIP fell through
+  // to a bare "San Diego" and 28 claim stubs had no neighborhood page to land on.
+  { name: 'Otay Mesa', minLat: 32.540, maxLat: 32.595, minLng: -117.100, maxLng: -116.920 },
   { name: 'Chula Vista', minLat: 32.600, maxLat: 32.680, minLng: -117.120, maxLng: -116.960 },
   { name: 'National City', minLat: 32.640, maxLat: 32.680, minLng: -117.120, maxLng: -117.080 },
 
@@ -80,6 +90,7 @@ const SAN_DIEGO_ZIP_NEIGHBORHOOD = {
   92110: 'Old Town',
   92111: 'Kearny Mesa',
   92113: 'Logan Heights',
+  92114: 'Encanto',
   92115: 'College Area',
   92116: 'Normal Heights',
   92117: 'Clairemont',
@@ -95,6 +106,41 @@ const SAN_DIEGO_ZIP_NEIGHBORHOOD = {
   92129: 'Rancho Peñasquitos',
   92130: 'Carmel Valley',
   92131: 'Scripps Ranch',
+  92134: 'Balboa Park',
+  92139: 'Paradise Hills',
+  92154: 'Otay Mesa',
+  92173: 'San Ysidro',
+};
+
+// County ZIPs outside the City of San Diego that still need a page. Consulted
+// only after city parsing and the San Diego ZIP table have both failed.
+const COUNTY_ZIP_NEIGHBORHOOD = {
+  91917: 'Jamul',
+  92082: 'Valley Center',
+  92059: 'Valley Center',
+  92061: 'Valley Center',
+  92036: 'Ramona',
+  92086: 'Ramona',
+  91916: 'Alpine',
+  92060: 'Ramona',
+  92055: 'Oceanside',
+};
+
+// Cities and place names that Google returns as the municipality but that have
+// no neighborhood page of their own — backcountry hamlets, reservation towns,
+// and bases. Mapped to the nearest page that a visitor browsing the county
+// would actually reach. Do not invent a page for these unless published venues
+// start needing one; the reasons live in docs/homepage-reachability.md §6.
+const CITY_TO_PAGE = {
+  Julian: 'Ramona',
+  'Pauma Valley': 'Valley Center',
+  Pala: 'Valley Center',
+  'Warner Springs': 'Ramona',
+  Descanso: 'Alpine',
+  'Palomar Mountain': 'Ramona',
+  'Camp Pendleton North': 'Oceanside',
+  'Camp Pendleton South': 'Oceanside',
+  'Camp Pendleton': 'Oceanside',
 };
 
 // Last-resort patterns for addresses with no parseable city or zip. They match
@@ -138,15 +184,22 @@ const ADDRESS_NEIGHBORHOOD_RE = [
   [/santee/i, 'Santee'],
   [/fallbrook/i, 'Fallbrook'],
   [/san clemente/i, 'San Clemente'],
+  [/otay mesa/i, 'Otay Mesa'],
+  [/san ysidro/i, 'San Ysidro'],
+  [/encanto/i, 'Encanto'],
+  [/paradise hills/i, 'Paradise Hills'],
+  [/valley center/i, 'Valley Center'],
+  [/julian/i, 'Julian'],
 ];
 
 function cityFromAddress(address = '') {
-  const match = address.match(/,\s*([^,]+),\s*CA\s+\d{5}/);
+  // "123 Main St, Carlsbad, CA 92008" or bare "Valley Center, CA 92082".
+  const match = address.match(/(?:^|,\s*)([^,]+),\s*CA\s+\d{5}/i);
   return match ? match[1].trim() : null;
 }
 
 function zipFromAddress(address = '') {
-  const match = address.match(/CA\s+(\d{5})/);
+  const match = address.match(/\bCA\s+(\d{5})\b/i) || address.match(/\b(9\d{4})\b/);
   return match ? match[1] : null;
 }
 
@@ -159,6 +212,12 @@ function neighborhoodFromAddress(address = '') {
     if (pattern.test(address)) return name;
   }
   return null;
+}
+
+function pageForCity(city) {
+  if (!city) return null;
+  if (CITY_TO_PAGE[city]) return CITY_TO_PAGE[city];
+  return city;
 }
 
 export function assignNeighborhood(lat, lng, address = '') {
@@ -174,8 +233,9 @@ export function assignNeighborhood(lat, lng, address = '') {
   const zip = zipFromAddress(address);
 
   // A separate municipality outranks whatever a street name hints at: a venue on
-  // Avenida Del Mar in San Clemente is in San Clemente, not Del Mar.
-  if (city && city !== 'San Diego') return city;
+  // Avenida Del Mar in San Clemente is in San Clemente, not Del Mar. Backcountry
+  // place names without a page of their own remap to the nearest real page.
+  if (city && city !== 'San Diego') return pageForCity(city);
 
   // Within the city of San Diego the zip is the only reliable signal left. Street
   // names borrow other places' names freely — Scripps Poway Parkway is in Scripps
@@ -183,7 +243,10 @@ export function assignNeighborhood(lat, lng, address = '') {
   // stays vaguely "San Diego" instead of guessing from the street.
   if (city === 'San Diego') return SAN_DIEGO_ZIP_NEIGHBORHOOD[zip] || 'San Diego';
 
-  return neighborhoodFromAddress(address)
-    || SAN_DIEGO_ZIP_NEIGHBORHOOD[zip]
+  const fromAddress = neighborhoodFromAddress(address);
+  if (fromAddress) return pageForCity(fromAddress) || fromAddress;
+
+  return SAN_DIEGO_ZIP_NEIGHBORHOOD[zip]
+    || COUNTY_ZIP_NEIGHBORHOOD[zip]
     || 'San Diego';
 }
