@@ -23,6 +23,7 @@ interface AdminUserRow {
   email: string;
   account_status: AccountStatus;
   created_at: Date | string;
+  sort_created_at: Date | string;
   last_activity_at: Date | string | null;
   owner_venue_count: number | string;
   manager_venue_count: number | string;
@@ -41,13 +42,24 @@ interface AdminUserRow {
   text_failed: number | string;
 }
 
+export class AdminUserQueryError extends Error {
+  constructor(message: string, public status = 400) {
+    super(message);
+  }
+}
+
 function iso(value: Date | string | null): string | null {
   if (!value) return null;
   return (value instanceof Date ? value : new Date(value)).toISOString();
 }
 
-function encodeCursor(row: Pick<AdminUserRow, 'created_at' | 'id'>): string {
-  return Buffer.from(JSON.stringify({ createdAt: iso(row.created_at), id: row.id })).toString('base64url');
+// The cursor can only carry the millisecond precision a JS Date survives, so
+// the page query orders and compares on created_at truncated to milliseconds
+// (sort_created_at). Comparing a truncated cursor against microsecond-precision
+// created_at values silently drops or re-serves every account that shares a
+// millisecond with the last row of a page.
+function encodeCursor(row: Pick<AdminUserRow, 'sort_created_at' | 'id'>): string {
+  return Buffer.from(JSON.stringify({ createdAt: iso(row.sort_created_at), id: row.id })).toString('base64url');
 }
 
 function decodeCursor(raw: string | null): { createdAt: string | null; id: string | null } {
@@ -58,7 +70,9 @@ function decodeCursor(raw: string | null): { createdAt: string | null; id: strin
     if (!Number.isFinite(date.getTime()) || !/^[0-9a-f-]{36}$/i.test(parsed.id)) throw new Error('bad cursor');
     return { createdAt: date.toISOString(), id: parsed.id };
   } catch {
-    return { createdAt: null, id: null };
+    // Restarting at page one on a bad cursor looks exactly like pagination
+    // that never advances, so say so instead.
+    throw new AdminUserQueryError('Invalid pagination cursor.');
   }
 }
 
@@ -89,7 +103,7 @@ export async function listAdminUsers(input: {
 
   const rows = await sql<AdminUserRow>`
     WITH page_users AS (
-      SELECT u.*
+      SELECT u.*, date_trunc('milliseconds', u.created_at) AS sort_created_at
       FROM users u
       WHERE (${search} = '' OR lower(u.name) LIKE ${searchPrefix} OR lower(u.email) LIKE ${searchPrefix})
         AND (${status} = '' OR u.account_status = ${status})
@@ -106,9 +120,10 @@ export async function listAdminUsers(input: {
         )
         AND (
           ${cursor.createdAt}::timestamptz IS NULL
-          OR (u.created_at, u.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
+          OR (date_trunc('milliseconds', u.created_at), u.id)
+             < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)
         )
-      ORDER BY u.created_at DESC, u.id DESC
+      ORDER BY date_trunc('milliseconds', u.created_at) DESC, u.id DESC
       LIMIT ${limit + 1}
     ),
     owner_counts AS (
@@ -171,7 +186,8 @@ export async function listAdminUsers(input: {
       GROUP BY user_id
     )
     SELECT
-      pu.id, pu.name, pu.email, pu.account_status, pu.created_at, pu.last_activity_at,
+      pu.id, pu.name, pu.email, pu.account_status, pu.created_at, pu.sort_created_at,
+      pu.last_activity_at,
       COALESCE(oc.count, 0) AS owner_venue_count,
       COALESCE(mc.count, 0) AS manager_venue_count,
       COALESCE(ol.total, 0) AS owned_list_count,
@@ -195,7 +211,7 @@ export async function listAdminUsers(input: {
     LEFT JOIN notification_settings ns ON ns.user_id = pu.id
     LEFT JOIN engagement e ON e.user_id = pu.id
     LEFT JOIN deliveries d ON d.user_id = pu.id
-    ORDER BY pu.created_at DESC, pu.id DESC`;
+    ORDER BY pu.sort_created_at DESC, pu.id DESC`;
 
   const countRows = await sql<{ count: number | string }>`
     SELECT count(*) AS count FROM users u

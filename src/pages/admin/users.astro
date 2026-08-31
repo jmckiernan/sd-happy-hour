@@ -167,6 +167,7 @@ import Layout from '../../layouts/Layout.astro';
     const rowsEl = document.getElementById('user-rows')!;
     const statusEl = document.getElementById('table-status')!;
     const filters = document.getElementById('filters') as HTMLFormElement;
+    const loadMoreButton = document.getElementById('load-more') as HTMLButtonElement;
     const modal = document.getElementById('user-modal') as HTMLElement;
     const modalBody = document.getElementById('modal-body')!;
     const modalTitle = document.getElementById('modal-title')!;
@@ -176,6 +177,7 @@ import Layout from '../../layouts/Layout.astro';
     let selectedUserId: string | null = null;
     let selectedDetail: any = null;
     let searchTimer = 0;
+    let loading = false;
 
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' } as Record<string,string>)[char]);
@@ -231,6 +233,10 @@ import Layout from '../../layouts/Layout.astro';
       return params;
     }
     async function loadUsers(append = false) {
+      // A second in-flight request would append the same page twice.
+      if (loading || (append && !nextCursor)) return;
+      loading = true;
+      loadMoreButton.disabled = true;
       statusEl.textContent = append ? 'Loading more users…' : 'Loading users…';
       try {
         const data = await api(`/api/admin/users?${query(append ? nextCursor : null)}`);
@@ -242,6 +248,9 @@ import Layout from '../../layouts/Layout.astro';
       } catch (error:any) {
         if (/access|required|sign/i.test(error.message)) { window.location.href='/account/'; return; }
         statusEl.textContent = error.message;
+      } finally {
+        loading = false;
+        loadMoreButton.disabled = false;
       }
     }
     async function loadAreas(days:number) {
@@ -330,7 +339,7 @@ import Layout from '../../layouts/Layout.astro';
     document.addEventListener('keydown',(event)=>{ if(event.key==='Escape'&&!modal.hidden) closeModal(); });
     filters.addEventListener('input',(event)=>{ window.clearTimeout(searchTimer); searchTimer=window.setTimeout(()=>loadUsers(false),(event.target as HTMLElement).getAttribute('type')==='search'?300:0); });
     filters.addEventListener('change',()=>loadUsers(false));
-    document.getElementById('load-more')!.addEventListener('click',()=>loadUsers(true));
+    loadMoreButton.addEventListener('click',()=>loadUsers(true));
     document.getElementById('refresh')!.addEventListener('click',()=>loadUsers(false));
     document.getElementById('logout')!.addEventListener('click',async()=>{ await fetch('/api/account/logout',{method:'POST'}); window.location.href='/'; });
     (async()=>{ const session=await fetch('/api/admin/me').then((response)=>response.json()).catch(()=>({authenticated:false})); if(!session.authenticated){window.location.href='/account/';return;} document.getElementById('admin-user')!.textContent=`Logged in as ${session.email}`; await loadUsers(false); })();

@@ -4,6 +4,7 @@ import { build } from 'esbuild';
 
 const ROOT = process.cwd();
 const routePath = path.join(ROOT, 'src', 'pages', 'api', 'admin', 'users', '[id].ts');
+const adminUsersPath = path.join(ROOT, 'src', 'lib', 'adminUsers.ts');
 const outputPath = path.join(ROOT, '.data', 'tests', 'admin-user-intelligence.bundle.mjs');
 
 await mkdir(path.dirname(outputPath), { recursive: true });
@@ -19,6 +20,24 @@ await build({
     name: 'admin-user-api-fixture',
     setup(buildContext) {
       const routeImport = (args) => path.normalize(args.importer) === path.normalize(routePath);
+      const adminUsersImport = (args) => path.normalize(args.importer) === path.normalize(adminUsersPath);
+
+      // listAdminUsers is exercised directly against a recording stub so the
+      // keyset cursor can be asserted without a live database.
+      buildContext.onResolve({ filter: /^\.\/db$/ }, () => ({ path: 'db-fixture', namespace: 'admin-user-test' }));
+      buildContext.onLoad({ filter: /^db-fixture$/, namespace: 'admin-user-test' }, () => ({
+        loader: 'js',
+        contents: `
+          export async function sql(strings, ...values) {
+            const fixture = globalThis.__adminUsersDbFixture || { queries: [], rows: [] };
+            const text = strings.join('?');
+            fixture.queries.push({ text, values });
+            if (/count\\(\\*\\) AS count FROM users/.test(text)) return [{ count: fixture.total ?? fixture.rows.length }];
+            return fixture.rows;
+          }
+          export async function withTransaction(fn) { return fn(sql); }
+        `,
+      }));
       buildContext.onResolve({ filter: /^\.\.\/\.\.\/\.\.\/\.\.\/lib\/admins$/ }, (args) =>
         routeImport(args) ? { path: 'admins-fixture', namespace: 'admin-user-test' } : null);
       buildContext.onResolve({ filter: /^\.\.\/\.\.\/\.\.\/\.\.\/lib\/adminUsers$/ }, (args) =>

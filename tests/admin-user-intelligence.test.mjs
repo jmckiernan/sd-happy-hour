@@ -17,6 +17,7 @@ import {
   GET as getAdminUser,
   PATCH as patchAdminUser,
 } from '../src/pages/api/admin/users/[id].ts';
+import { AdminUserQueryError, listAdminUsers } from '../src/lib/adminUsers.ts';
 
 const ROOT = process.cwd();
 
@@ -141,6 +142,50 @@ test('admin user detail and mutation APIs require a super admin and enrich venue
   delete globalThis.__adminUserApiFixture;
 });
 
+function pageRow(index, microseconds) {
+  return {
+    id: `0000000${index}-0000-4000-8000-000000000000`.slice(-36),
+    name: `User ${index}`,
+    email: `user${index}@example.test`,
+    account_status: 'active',
+    // created_at keeps microseconds; sort_created_at is what the cursor can carry.
+    created_at: `2026-08-30T12:00:00.${microseconds}Z`,
+    sort_created_at: new Date(`2026-08-30T12:00:00.${microseconds.slice(0, 3)}Z`),
+  };
+}
+
+test('user pagination advances on a cursor the database ordering can reproduce', async () => {
+  const rows = [pageRow(1, '123456'), pageRow(2, '123789'), pageRow(3, '123999')];
+  globalThis.__adminUsersDbFixture = { queries: [], rows, total: 9 };
+
+  const firstPage = await listAdminUsers({ limit: 2 });
+  assert.deepEqual(firstPage.users.map((user) => user.email), ['user1@example.test', 'user2@example.test']);
+  assert.equal(firstPage.total, 9);
+  assert.ok(firstPage.nextCursor);
+
+  const pageQuery = globalThis.__adminUsersDbFixture.queries[0];
+  // Ordering and the keyset comparison must use the same millisecond-truncated
+  // key the cursor round-trips, or rows sharing a millisecond are lost.
+  assert.match(pageQuery.text, /ORDER BY date_trunc\('milliseconds', u\.created_at\) DESC, u\.id DESC/);
+  assert.match(pageQuery.text, /\(date_trunc\('milliseconds', u\.created_at\), u\.id\)\s*<\s*\(\?::timestamptz, \?::uuid\)/);
+  assert.equal(pageQuery.values.includes(3), true);
+
+  globalThis.__adminUsersDbFixture.queries = [];
+  globalThis.__adminUsersDbFixture.rows = [pageRow(4, '123999')];
+  const secondPage = await listAdminUsers({ limit: 2, cursor: firstPage.nextCursor });
+  const boundCursor = globalThis.__adminUsersDbFixture.queries[0].values;
+  assert.equal(boundCursor.includes('2026-08-30T12:00:00.123Z'), true);
+  assert.equal(boundCursor.includes(rows[1].id), true);
+  assert.equal(secondPage.nextCursor, null);
+
+  await assert.rejects(() => listAdminUsers({ limit: 2, cursor: 'not-a-cursor' }), (error) => {
+    assert.ok(error instanceof AdminUserQueryError);
+    assert.equal(error.status, 400);
+    return true;
+  });
+  delete globalThis.__adminUsersDbFixture;
+});
+
 test('migration, UI, and auth gates contain the scalable reporting foundation', async () => {
   const [migration, page, store, login, analytics] = await Promise.all([
     readFile(path.join(ROOT, 'migrations', '0014_admin_user_intelligence.sql'), 'utf8'),
@@ -157,6 +202,8 @@ test('migration, UI, and auth gates contain the scalable reporting foundation', 
   assert.doesNotMatch(migration, /latitude\s+(numeric|real|double|decimal)/i);
   assert.doesNotMatch(migration, /longitude\s+(numeric|real|double|decimal)/i);
   assert.match(page, /cursor/);
+  assert.match(page, /if \(loading \|\| \(append && !nextCursor\)\) return;/);
+  assert.match(page, /loadMoreButton\.disabled = true;/);
   assert.match(page, /Delete &amp; anonymize/);
   assert.match(page, /Merchant reporting will require at least 20 active users/);
   assert.match(store, /users\.account_status = 'active'/);
