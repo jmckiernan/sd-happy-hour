@@ -6,7 +6,7 @@
 //   npm run import:venues:discover -- --limit=5   # smoke test (5 grid cells)
 
 import { COUNTY_BOUNDS, DATA_DIR, SEARCH_TYPES, CANDIDATES_PATH } from './lib/constants.mjs';
-import { nearbySearch, placeIdKey, displayName } from './lib/google-places.mjs';
+import { nearbySearch, placeIdKey, candidateRecord } from './lib/google-places.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 
 function gridCenters(step = 0.045, radiusMeters = 2800) {
@@ -44,16 +44,7 @@ async function main() {
         for (const place of results) {
           const id = placeIdKey(place);
           if (!id) continue;
-          places[id] = {
-            id,
-            displayName: displayName(place),
-            location: place.location,
-            rating: place.rating ?? null,
-            userRatingCount: place.userRatingCount ?? 0,
-            businessStatus: place.businessStatus || 'OPERATIONAL',
-            primaryType: place.primaryType || includedType,
-            discoveredAt: places[id]?.discoveredAt || new Date().toISOString(),
-          };
+          places[id] = candidateRecord(place, includedType, places[id]);
         }
       } catch (error) {
         console.warn(`Search failed at ${center.lat},${center.lng} (${includedType}):`, error.message);

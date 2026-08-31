@@ -22,7 +22,7 @@
 // --max-calls is a hard budget. Places calls are billed and this recurses.
 
 import { COUNTY_BOUNDS, SEARCH_TYPES, CANDIDATES_PATH } from './lib/constants.mjs';
-import { nearbySearch, placeIdKey, displayName } from './lib/google-places.mjs';
+import { nearbySearch, placeIdKey, candidateRecord } from './lib/google-places.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
 import { borderLatAt } from './lib/county.mjs';
 
@@ -131,16 +131,7 @@ async function main() {
     for (const place of results) {
       const id = placeIdKey(place);
       if (!id) continue;
-      places[id] = {
-        id,
-        displayName: displayName(place),
-        location: place.location,
-        rating: place.rating ?? null,
-        userRatingCount: place.userRatingCount ?? 0,
-        businessStatus: place.businessStatus || 'OPERATIONAL',
-        primaryType: place.primaryType || job.includedType,
-        discoveredAt: places[id]?.discoveredAt || new Date().toISOString(),
-      };
+      places[id] = candidateRecord(place, job.includedType, places[id]);
     }
 
     // A full page means Google had more to give. Anything short is complete.

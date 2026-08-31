@@ -84,12 +84,18 @@ everything past the twentieth venue. This is the fix.
 ### 1.4 Discovery field mask
 
 Requested: `id`, `displayName`, `location`, `rating`, `userRatingCount`, `businessStatus`,
-`primaryType`.
+`primaryType`, `primaryTypeDisplayName`, `types`, `formattedAddress`, `shortFormattedAddress`,
+`googleMapsUri`, `plusCode`, `photos`.
 
-- `rating` and `userRatingCount` put this at the **Pro** tier. They are worth it: having them for
-  free in the search response is what lets enrich prefilter before buying Details.
+- `rating` and `userRatingCount` put this at the **Enterprise** tier, ~$35/1k. Nearby Search has no
+  Essentials tier, so Pro at ~$32/1k is the floor regardless — those two fields cost $3/1k, and
+  having them free in the search response is what lets enrich prefilter before buying Details.
+- Everything else in the mask is Pro or Essentials and therefore free at that tier.
+  `formattedAddress` is the one a stub needs, so capturing it here removes an Essentials Details
+  call per stub.
 - Billing is by the highest tier any single requested field belongs to. One stray field re-prices
-  the entire call.
+  the entire call. Adding any Atmosphere field here would make it ~$40/1k.
+- Full tier-by-tier breakdown and costings: `docs/places-api-cost-analysis.md`.
 
 ---
 
@@ -112,17 +118,28 @@ least-reviewed venues.
 
 ### 2.2 Details field mask
 
-Requested: `id`, `displayName`, `formattedAddress`, `addressComponents`, `location`, `rating`,
-`userRatingCount`, `websiteUri`, `googleMapsUri`, `nationalPhoneNumber`, `primaryType`, `types`,
-`businessStatus`, `regularSecondaryOpeningHours`.
+Around thirty fields, listed in tier order in `lib/google-places.mjs`. The load-bearing ones are
+`websiteUri`, `regularSecondaryOpeningHours`, `rating`, `userRatingCount` and `addressComponents`.
 
 - `websiteUri` and `regularSecondaryOpeningHours` are **Enterprise**, so ~$20/1k is the floor for
   this mask. Both are load-bearing: one is Google's own happy-hour block, the other is the site we
   scrape.
-- `servesBeer` / `servesWine` / `servesCocktails` were removed. Nothing read them, and being
-  Atmosphere fields they silently re-priced every call to ~$25/1k.
+- Because the price is set by those two, **every Essentials and Pro field is free inside the same
+  call**. The mask therefore asks for everything at or below Enterprise with a plausible use —
+  addresses in four forms, `viewport`, `plusCode`, `photos` metadata, `priceLevel` / `priceRange`,
+  `regularOpeningHours`, `accessibilityOptions`, `timeZone`, `subDestinations` and the rest.
+- Excluded despite being free: `currentOpeningHours` and `currentSecondaryOpeningHours` (stale the
+  moment they are cached; the `regular` forms are durable) and `transitStation`.
+- **Atmosphere is opt-in.** `IMPORT_CAPTURE_ALL=1` switches to a second mask adding the amenity and
+  service booleans — `servesBeer` / `servesWine` / `servesCocktails`, `outdoorSeating`,
+  `allowsDogs`, `liveMusic` — plus `editorialSummary`. That re-prices the call to ~$25/1k, so it is
+  for a deliberate full-capture run, not routine refreshes. `reviews` and the generated summaries
+  are excluded even there.
 - A separate **Essentials** mask (`placeDetailsEssentials`) fetches address only, at ~$5/1k with
-  the first 10,000 per month free. Use it for claimable stubs, which need no website or hours.
+  the first 10,000 per month free. Use it for claimable stubs, which need no website or hours —
+  though discovery now captures `formattedAddress`, so most stubs need no Details call at all.
+- Costings, and why the removal of `servesBeer` was right then and wrong now:
+  `docs/places-api-cost-analysis.md`.
 
 ### 2.3 Qualification, after details
 
