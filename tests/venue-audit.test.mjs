@@ -83,7 +83,22 @@ import {
 } from '../scripts/import-google-venues/lib/menu-board-format.mjs';
 import { repairDaysFromEvidence } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
 import PDFDocument from 'pdfkit';
-import { cardSpecials, cardTimeLabel, shortDealLabel, venueDealLines } from '../src/lib/listingCopy.ts';
+import {
+  cardSpecials,
+  cardTimeLabel,
+  shortDealLabel,
+  venueDealLines,
+  CARD_DEAL_FALLBACK,
+  WINDOW_ONLY_BODY,
+  WINDOW_ONLY_HEADING,
+} from '../src/lib/listingCopy.ts';
+import {
+  UNREADABLE_CAUSES,
+  emptyCause,
+  isWindowOnly,
+  windowSource,
+} from '../scripts/import-google-venues/lib/window-only.mjs';
+import { acceptableOffers } from '../scripts/import-google-venues/recover-empty-listings.mjs';
 import { buildVenueSlugMap, slugFromMap } from '../src/lib/venueSlug.ts';
 import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
 import { applyScrape } from '../scripts/import-google-venues/lib/apply-scrape.mjs';
@@ -1464,7 +1479,9 @@ function testCardSpecialsAreShortAndFallbackToHappyHour() {
   assert.deepEqual(cardSpecials(khans), ['$5 draft of the day', '$6 house wines', '$7 martinis']);
   assert.deepEqual(venueDealLines(khans), ['$5 draft of the day', '$6 house wines', '$7 martinis', '$8 specialty cocktails']);
   assert.deepEqual(cardSpecials({ deals: [] }), ['Happy hour']);
-  assert.deepEqual(venueDealLines({ deals: [] }), ['Happy hour']);
+  // The venue page has a real empty state for this now, so the deal grid gets
+  // nothing rather than the card's label. See the window-only tests below.
+  assert.deepEqual(venueDealLines({ deals: [] }), []);
   const islands = 'Enjoy tasty bites & drinks from $3 - $10. Good vibes, great bites, and the coldest drinks in town—cheers!';
   assert.equal(shortDealLabel(islands), islands);
 }
@@ -2474,6 +2491,86 @@ tests.push(
   testEveryStoredMenuSectionHasItemsUnderIt,
   testNoDealChipIsAnExtractorPlaceholder,
   testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu,
+);
+
+// ---- Listings that are a window and nothing else
+
+function testAWindowOnlyVenuePageOffersNoChipsToShow() {
+  // The card still labels the listing "Happy hour"; the venue page's deal grid
+  // gets nothing, because a chip in a grid headed "Deals" reads as an offer.
+  assert.deepEqual(venueDealLines({ deals: [] }), []);
+  assert.deepEqual(venueDealLines({}), []);
+  assert.deepEqual(cardSpecials({ deals: [] }), [CARD_DEAL_FALLBACK]);
+}
+
+function testTheHonestEmptyStateNamesNoOfferAndNoPrice() {
+  const copy = `${WINDOW_ONLY_HEADING} ${WINDOW_ONLY_BODY}`;
+  assert.ok(WINDOW_ONLY_HEADING.length > 0 && WINDOW_ONLY_BODY.length > 0);
+  // Whatever the wording becomes, it must never itself name a price or an
+  // offer — it is the state we render precisely because we have neither.
+  assert.equal(/\$|\d+\s*%|half[- ]off|\bfree\b/i.test(copy), false);
+}
+
+function testARecoveredOfferHasToQuoteAPrice() {
+  const venue = { name: 'Deano\u2019s Pub' };
+  assert.deepEqual(acceptableOffers(['$5 drafts and $6 wells'], venue), ['$5 drafts and $6 wells']);
+  assert.deepEqual(acceptableOffers(['Half off appetizers'], venue), ['Half off appetizers']);
+  // Everything a page offers that is not an offer.
+  assert.deepEqual(acceptableOffers(['Happy hour'], venue), []);
+  assert.deepEqual(acceptableOffers(['Mon - Fri'], venue), []);
+  assert.deepEqual(acceptableOffers(['5286 Baltimore Drive, La Mesa, California'], venue), []);
+  assert.deepEqual(acceptableOffers(['Free wifi'], venue), []);
+  assert.deepEqual(acceptableOffers(['Free parking in the lot'], venue), []);
+  assert.deepEqual(acceptableOffers(['Craft cocktails and a full bar'], venue), []);
+}
+
+function testTheReasonAListingIsEmptyIsReadOffItsOwnProvenance() {
+  const bare = { id: 1, listingStatus: 'published', deals: [] };
+  assert.equal(isWindowOnly(bare), true);
+  assert.equal(emptyCause(bare), 'never_scraped');
+  assert.equal(windowSource(bare), 'none');
+
+  const googleWindow = {
+    ...bare,
+    hhSources: { times: { source: 'google_places' } },
+    lastScrape: { outcome: 'not_published' },
+  };
+  assert.equal(emptyCause(googleWindow), 'not_published');
+  assert.equal(windowSource(googleWindow), 'google_places');
+
+  // A scrape that found and quoted a window but brought no offers with it is
+  // its own bucket: the site was read, so a re-read is not the fix.
+  assert.equal(emptyCause({ ...bare, lastScrape: { outcome: 'found' } }), 'found_no_offers');
+
+  // A food hall's happy hour page belongs to its tenants, so nothing read off
+  // it may be attributed to the building.
+  const foodHall = { ...bare, name: 'Windmill Food Hall', lastScrape: { outcome: 'found' } };
+  assert.equal(emptyCause(foodHall), 'not_a_venue');
+  assert.equal(UNREADABLE_CAUSES.has(emptyCause(foodHall)), true);
+
+  // A listing with a menu is not empty, whatever its deals array says.
+  assert.equal(isWindowOnly({ ...bare, hhMenu: { sections: [{ title: 'Beer', items: [{ name: 'Pint' }] }] } }), false);
+  assert.equal(isWindowOnly({ ...bare, galleryImages: [{ url: '/a.png' }] }), false);
+  assert.equal(isWindowOnly({ ...bare, listingStatus: 'unlisted' }), false);
+}
+
+function testEveryWindowOnlyListingSaysItsOffersAreUnknown() {
+  // The page's empty state and the `dealsUnknown` flag are two statements of
+  // the same fact, and a listing that shows the state while claiming its deals
+  // are known would put the flag and the page into disagreement.
+  const disagreeing = happyHours
+    .filter(isWindowOnly)
+    .filter((venue) => venue.dealsUnknown !== true)
+    .map((venue) => `${venue.name} (${venue.id})`);
+  assert.deepEqual(disagreeing, []);
+}
+
+tests.push(
+  testAWindowOnlyVenuePageOffersNoChipsToShow,
+  testTheHonestEmptyStateNamesNoOfferAndNoPrice,
+  testARecoveredOfferHasToQuoteAPrice,
+  testTheReasonAListingIsEmptyIsReadOffItsOwnProvenance,
+  testEveryWindowOnlyListingSaysItsOffersAreUnknown,
 );
 
 tests.push(

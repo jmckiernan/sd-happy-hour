@@ -6,7 +6,13 @@ import LiveDealStyles from './LiveDealStyles.astro';
 import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
 import { happyHourDayNames } from '../lib/happyHourDays';
 import { listingImageStyle } from '../lib/imageCrop';
-import { specialsByDay, occasionSpecials, venueDealLines } from '../lib/listingCopy';
+import {
+  specialsByDay,
+  occasionSpecials,
+  venueDealLines,
+  WINDOW_ONLY_BODY,
+  WINDOW_ONLY_HEADING,
+} from '../lib/listingCopy';
 import { neighborhoodPath } from '../lib/neighborhoods';
 import { venueAttributeGroups, formatPriceLevel } from '../lib/venueAttributes';
 import { breadcrumbSchema, venueSchema, withSiteName } from '../lib/seo';
@@ -30,7 +36,8 @@ const weeklyGroups = specialsByDay(venue.weeklySpecials || [], dayNames);
 const eventSpecials = occasionSpecials(venue.weeklySpecials || []);
 const hasWeeklySpecials = weeklyGroups.length > 0 || eventSpecials.length > 0;
 const pillDays = happyHourDayNames(venue);
-const dealSummary = `${venueDealLines(venue).slice(0, 2).join(', ')}. `;
+const dealLines = venueDealLines(venue);
+const dealSummary = dealLines.length ? `${dealLines.slice(0, 2).join(', ')}. ` : '';
 // A window that runs from opening has no published start time, so every
 // customer-facing rendering of the primary window goes through this.
 const primaryStartsAtOpen = Boolean(venue.windows?.[0]?.startsAtOpen);
@@ -38,6 +45,7 @@ const primaryWhen = primaryStartsAtOpen
   ? `Open until ${formatTime(venue.endTime)}`
   : `${formatTime(venue.startTime)}–${formatTime(venue.endTime)}`;
 const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${dealSummary}${primaryWhen}, ${venue.days.join('/')}.`;
+const windowOnlyDescription = `${description} The venue publishes the times but not what is on offer.`;
 // The venue's own featured photo if an admin has set one, else the vibe stock
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
@@ -52,6 +60,10 @@ const galleryImages = venue.galleryImages || [];
 // stays in hhMenu.sourceImages as provenance.
 const hhMenuSections = (venue.hhMenu?.sections || []).filter((section) => section.items?.length);
 const menuSourceUrl = venue.hhMenu?.sourceUrl || null;
+// A window and nothing under it: no deal chips, no stored menu, no flyer. The
+// page says so plainly and points at the claim flow, rather than rendering a
+// deal grid whose only chip is the words "happy hour".
+const windowOnly = dealLines.length === 0 && hhMenuSections.length === 0 && galleryImages.length === 0;
 const breadcrumbs = [
   { name: 'Home', path: '/' },
   { name: 'Neighborhoods', path: '/neighborhoods/' },
@@ -88,7 +100,7 @@ function formatWindowLine(window: {
 ---
 <Layout
   title={withSiteName(`${venue.name} Happy Hour — ${venue.neighborhood}`)}
-  description={description}
+  description={windowOnly ? windowOnlyDescription : description}
   image={heroImage}
   imageAlt={`${venue.name} in ${venue.neighborhood}, San Diego`}
   noindex={venue.seoHidden || !isPubliclyListed(venue)}
@@ -232,6 +244,31 @@ function formatWindowLine(window: {
       font-weight: 500;
       font-style: italic;
     }
+    /* The honest empty state, for a listing whose venue publishes a window and
+       no offers. Deliberately not chip-shaped and not styled like a deal: it is
+       an admission, and the only action on it is the claim link. */
+    .deals-unknown {
+      border: 1px dashed #d5d5de;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      background: #fbfbfd;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--night-soft);
+    }
+    .deals-unknown p { margin: 0 0 8px; }
+    .deals-unknown p:last-child { margin-bottom: 0; }
+    .deals-unknown-heading {
+      font-weight: 600;
+      color: var(--night);
+    }
+    .deals-unknown-claim a {
+      color: var(--violet);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .deals-unknown-claim a:hover { text-decoration: underline; }
+    .deals-unknown[hidden] { display: none; }
     /* Attributes are affirmative badges: a venue with three known facts shows
        three and looks deliberate. Nothing renders a "no" or an empty slot,
        because absent means Google never answered rather than answered no. */
@@ -774,8 +811,17 @@ function formatWindowLine(window: {
       <div class="venue-card">
         <h3>Deals</h3>
         <div class="deal-grid" id="hh-deals">
-          {venueDealLines(venue).map((deal) => <span class="deal">{deal}</span>)}
+          {dealLines.map((deal) => <span class="deal">{deal}</span>)}
         </div>
+        {windowOnly && (
+          <div class="deals-unknown" id="hh-deals-unknown">
+            <p class="deals-unknown-heading">{WINDOW_ONLY_HEADING}</p>
+            <p>{WINDOW_ONLY_BODY}</p>
+            <p class="deals-unknown-claim">
+              <a href="/restaurant/">Work here? Add your happy hour menu</a>
+            </p>
+          </div>
+        )}
         {hasWeeklySpecials && (
           <p class="weekly-jump">Day-by-day schedule below, including Drink Exchange hours.</p>
         )}
@@ -1795,9 +1841,14 @@ function formatWindowLine(window: {
       }
 
       if (Array.isArray(listing.deals)) {
-        document.getElementById('hh-deals')!.innerHTML = venueDealLines(listing)
+        const lines = venueDealLines(listing);
+        document.getElementById('hh-deals')!.innerHTML = lines
           .map((deal: string) => `<span class="deal">${esc(deal)}</span>`)
           .join('');
+        // The owner filling in their offers is exactly the outcome the empty
+        // state asks for, so it has to disappear the moment they do.
+        const unknown = document.getElementById('hh-deals-unknown');
+        if (unknown && lines.length) unknown.hidden = true;
       }
 
       if (listing.address) document.getElementById('hh-address')!.textContent = listing.address;

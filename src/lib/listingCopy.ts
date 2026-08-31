@@ -10,6 +10,12 @@
  */
 export const DEALS_UNKNOWN_LABEL = 'Deals not listed — check with venue';
 
+/** Heading and prose for the same state, on the venue page's deal card. */
+export const WINDOW_ONLY_HEADING = 'We know when, not what';
+export const WINDOW_ONLY_BODY =
+  'This venue publishes its happy hour times but not what is on offer, so we have nothing to '
+  + 'list. We would rather say that than guess at a price.';
+
 /** Homepage / map chip when times are verified but no offer lines exist. */
 export const CARD_DEAL_FALLBACK = 'Happy hour';
 
@@ -144,10 +150,17 @@ export function cardSpecials(venue: SpecialsVenue, weekday?: string): string[] {
   return fromDeals.length ? fromDeals : [CARD_DEAL_FALLBACK];
 }
 
-/** Venue page uses the same chips as the card, just more of them (up to 6). */
+/**
+ * Venue page uses the same chips as the card, just more of them (up to 6).
+ *
+ * Returns nothing when the listing has no offer text, rather than the card's
+ * "Happy hour" fallback. On a card that string is a label for the whole
+ * listing; in a deal grid headed "Deals" it reads as an offer, and it was the
+ * only thing 290 published pages had under their window. The venue page renders
+ * {@link WINDOW_ONLY_HEADING} instead and says plainly that we do not know.
+ */
 export function venueDealLines(venue: SpecialsVenue): string[] {
-  const fromDeals = expandDealLines(venue.deals || [], 6);
-  return fromDeals.length ? fromDeals : [CARD_DEAL_FALLBACK];
+  return expandDealLines(venue.deals || [], 6);
 }
 
 /** Time badge on a card: today's special window when we have one. */
