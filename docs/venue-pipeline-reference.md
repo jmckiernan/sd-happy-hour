@@ -4,7 +4,9 @@ Every check, gate, and threshold that decides whether a venue reaches the site, 
 allowed to say when it gets there. One page, in pipeline order.
 
 This is the *what and why*. For the narrative playbook — how to run a job, what a scrape outcome
-means, how to read the cost report — see `docs/venue-data-pipeline.md`.
+means, how to read the cost report — see `docs/venue-data-pipeline.md`. For the patterns behind the
+incidents cited throughout this page, and the invariants that now guard them,
+see `docs/lessons-and-invariants.md`.
 
 Counts and constants here were read out of the code, not remembered. When you change a threshold,
 change it here too.
@@ -398,9 +400,22 @@ boolean, so an absent key means nobody has asked about that venue.
   the three states apart and say nothing on the third — a `false` printed for silence is exactly
   the defect that killed `features`, which could not tell "no patio" from "never asked".
 - **Atmosphere is only requested behind `IMPORT_CAPTURE_ALL`** (§4 of
-  `docs/reducing-google-dependency.md`), which re-prices Place Details from $20/1k to $25/1k. It has
-  never been run, so **every catalog row is currently unknown** and no surface displays these yet.
-  Showing an empty filter facet would be worse than showing nothing.
+  `docs/reducing-google-dependency.md`), which re-prices Place Details from $20/1k to $25/1k. Enrich
+  cannot fill these — it skips anything already fetched, so the only way through it re-buys every
+  candidate — so `npm run import:venues:backfill-atmosphere` runs the wide mask over the distinct
+  place ids the catalog already carries, which is the set that can actually display an amenity. **It
+  has been run, over 2,787 place ids.** `outdoorSeating` is present on 1,983 catalog rows and
+  `allowsDogs` on 1,041, and the venue page shows the amenities Google answered. There is still no
+  filter facet on either, because a facet built on a field this uneven would silently omit the venues
+  nobody has asked about.
+- **The run captured more than these two.** Because Google bills per call rather than per field, the
+  backfill stored each response whole and merged the fields that bear on picking somewhere to drink:
+  `reservable`, `liveMusic`, `restroom`, `goodForGroups`, `goodForWatchingSports`,
+  `servesVegetarianFood`, `parkingOptions`, `paymentOptions`, `accessibilityOptions`, `priceLevel`
+  and `priceRange`. All follow the same three-state rule, including inside the grouped objects, where
+  a missing sub-key is unknown rather than no. The validator type-checks only `outdoorSeating` and
+  `allowsDogs` (§11.4); the other eleven pass unchecked, which is recorded as a gap in
+  `docs/lessons-and-invariants.md` §4.
 - **They replace the old `features` array**, removed in full — field, `inferFeatures()` regexes,
   vocabulary constant, validator rule, submit and admin form controls, the homepage facet and the
   venue-page chips. `docs/features-field-experiment.md` is the evidence: extraction from venue

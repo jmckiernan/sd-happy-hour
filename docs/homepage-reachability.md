@@ -1,5 +1,12 @@
 # What a visitor can actually find
 
+**Status, 31 August 2026 — done and enforced. The indexing rule, the flag split and the
+unlisting of the four buildings are all applied to the catalog and the code.** The 55 remaining
+`browseHold: unverified_window` listings in §2 are the open item, and the fix for them is the one
+`docs/window-only-listings.md` §4 proposes. `npm run test:homepage-reachability` re-checks every
+claim in §5 against the live dataset, so a stale number here fails a test rather than sitting quietly.
+The pattern behind this class of bug is `docs/lessons-and-invariants.md` §2.7.
+
 83 published venues with real happy-hour schedules were unreachable through the
 site's own navigation. Their pages rendered, their data validated, and nothing
 linked to them. This records why, what the rule is now, and what is still

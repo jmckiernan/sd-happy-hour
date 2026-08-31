@@ -1,8 +1,16 @@
 # Deal, time and menu quality audit
 
+**Status, 31 August 2026 — the mechanical fixes are applied and the invariants in §9 are
+enforced. The items marked "Owner" in §6 and §7 are still open decisions.** Two things dated
+after this audit and supersede parts of it: the 290 window-only listings in §8 are now the subject
+of `docs/window-only-listings.md`, which is the current account of that cohort, and the menu
+provenance gap in §7 was traced to normalization discarding it on re-render rather than to nobody
+recording it. Re-run `npm run audit:deals-menus` to check any number here.
+
 Audited against `public/data/happy-hours.json` on 2026-08-31: 3,006 listings, 690
 published, 800 carrying a happy-hour window. Counts below are after the fixes in
-this pass; where a number changed, both are given.
+this pass; where a number changed, both are given. The patterns behind these
+defects, and which of them a test now guards, are in `docs/lessons-and-invariants.md`.
 
 Two scripts reproduce everything here:
 

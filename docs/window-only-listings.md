@@ -1,5 +1,12 @@
 # The 290 listings that are a window and nothing else
 
+**Status, 31 August 2026 — the audit, the recovery and the empty state are done and guarded by
+tests. §4 is a recommendation the owner has not ruled on. Only its third item is done — the four
+buildings are `unlisted` — so the unprovenanced listings in items 1 and 2 are still published.**
+Re-run `npm run audit:empty-listings` for the current count; it stood at 274 published window-only
+listings when this line was written, down from 290. This is the current account of this cohort and
+supersedes `docs/deal-and-menu-audit.md` §8.
+
 `docs/deal-and-menu-audit.md` §8 found the largest user-visible problem in the
 catalog: **290 published listings — 42% of everything published — show a happy
 hour window with no deal text, no menu and no image.** A visitor learns that

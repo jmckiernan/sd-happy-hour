@@ -1,5 +1,13 @@
 # Can `features` Be Read Off Venue Websites?
 
+**Status, 31 August 2026 — closed. The recommendation in §7 was accepted and implemented the same
+day: `features` is gone from the catalog, the `Venue` type, `inferFeatures()`, the validator, both
+forms, the homepage facet and the venue page, and `testNoListingCarriesTheRemovedFeaturesField`
+stops it returning.** `outdoorSeating` and `allowsDogs` replaced it and have since been bought and
+populated (`docs/venue-pipeline-reference.md` §5.8). This page is kept as the evidence for that
+decision and as a worked example of the method — sample, freeze the pages, extract twice, hand-check
+every verdict. It is not a live proposal, and nothing in it should be read as pending.
+
 A one-off test, run on 31 August 2026, of the question the owner asked after reading
 `docs/reducing-google-dependency.md` §3: *"Can we do a test run on deriving it from some sites,
 maybe 30 or so, and see what we get, because we may just want to remove it if it doesn't pull

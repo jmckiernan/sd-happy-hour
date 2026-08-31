@@ -4,6 +4,16 @@ Audit date: August 24, 2026
 Primary market: San Diego, California  
 Production domain: `https://happyhoursd.com`
 
+**Status: a point-in-time audit, accurate as of its audit date, and partly overtaken.** The
+"Implemented in this audit" list below describes what shipped on 24 August and has not been
+re-verified since. Three things postdate it and are the current authority where they overlap:
+`docs/homepage-reachability.md` for how `seoHidden` and `browseHold` gate indexing and navigation —
+the single flag this audit assumed has since been split in two — `docs/window-only-listings.md` §4
+for the thin-content question across the window-only listings and for the sitemap's handling of
+noindexed pages, and `docs/lessons-and-invariants.md` §2.7 for why a correct, validating venue record
+can still be unreachable. The account-level actions, content plan and measurement framework below are
+unaffected and still the plan.
+
 ## Executive finding
 
 The most urgent issue is outside the Astro application: unauthenticated requests to the production domain currently receive a Netlify `401` Team Login page. That response also replaces `robots.txt`, the sitemap, venue pages, and blog posts. Search engines and third-party audit tools cannot crawl or index the site until production visibility is public.

@@ -9,6 +9,10 @@ second city actually teaches us — append there rather than rewriting the claim
 
 For what each gate does and why, see `docs/venue-pipeline-reference.md`. This page does not repeat
 those rules; it only says which of them are about restaurants and which are about San Diego.
+For the *patterns* behind the guards — why each one exists, and which of them a test now enforces —
+see `docs/lessons-and-invariants.md`. That page is the more useful of the two for a port, because
+§2.1 to §2.7 of it are defects a fresh pipeline reproduces exactly: none of them is about San Diego,
+and every one of them was found by a person browsing the site rather than by a check.
 For Google Places pricing, field tiers, the caching terms and the derivation of the cost estimates,
 see `docs/places-api-cost-analysis.md` — quoted here only where it changes a porting decision.
 Constants and counts here were read out of the code.
@@ -79,6 +83,32 @@ again:
 - **The corporate chain blocklist.** A Starbucks was published with a 09:00 "happy hour". The
   two-part test — will never run a happy hour, will never claim a listing — is portable; only the
   brand list needs regional additions (§4.5).
+
+### 2.2.1 The data-honesty guards, which are the ones nothing else will catch
+
+A second class of guard, added on 31 August 2026 and written up in full in
+`docs/lessons-and-invariants.md`. These are worth calling out separately because they do not look
+like guards: they are the absence of a default. Every one of them replaced a confident, well-formed,
+schema-valid value that had never been read off anything.
+
+- **No field carries a filler value to satisfy a validator.** `features` was `casual` on 99.5% of
+  rows and `dealTypes` claimed a food discount on 767 of 800 scheduled venues, in both cases because
+  a required-non-empty rule met a derivation that could return nothing. The validator now permits
+  empty where the source is genuinely silent, and `dealsUnknown` is the field that says so out loud.
+- **Absent, false and true are three states.** Google answers an amenity for some venues and not
+  others, so a boolean that cannot say "nobody asked" invents an observation for every venue it has
+  none for. This applies to anything bought per-venue, in any city.
+- **A fallback heuristic runs last, and its output stays distinguishable.** Street names beating
+  cities and ZIPs in the neighborhood classifier is the worked case, and §4.2 and §5 below are the
+  city-specific half of it. The general rule is that the vague answer beats the confident wrong one.
+- **No display cap is written back to storage**, and provenance survives every re-render. 269 of 313
+  menus in San Diego had no record of their source, not because nobody recorded it but because
+  normalization dropped it each time a board was drawn — which makes staleness undetectable, and
+  staleness is the whole risk in a directory of afternoon prices.
+- **Reachability is asserted, not assumed.** 83 published venues with correct, validating records
+  were unreachable through the site's own navigation, and nothing failed. Port the assertion, not
+  just the code: `tests/homepage-reachability.test.mjs` runs the published set through the real
+  selection logic of every surface.
 
 ### 2.3 The structural machinery
 
@@ -407,7 +437,9 @@ are both "check before you spend".
     default neighborhood, or one neighborhood swallowing a coast, is the Cardiff bug. This is the
     last cheap moment to catch it.
 13. **Merge**, let `validate-data.js` run, and spot-check twenty venue pages by hand against their
-    own websites.
+    own websites. Then run the reachability assertion before believing the import worked — validation
+    checks each record alone and cannot see that nothing links to it. Every published venue should
+    appear on the homepage, be findable by its own name, and survive every filter facet.
 14. **Write the editorial neighborhood copy** (`src/lib/neighborhoods.ts`) for every neighborhood the
     data actually produced — a neighborhood with venues and no profile has no page and no filter
     entry.
@@ -445,6 +477,18 @@ Seeded from San Diego; nothing here has yet been tested in a second city.
   *after* the filter rejecting it had been written.
 - **A dedupe that never matches looks exactly like a clean import.** Worth an explicit assertion in
   any new city's first staging run.
+- **The defects that survive validation are the ones about provenance, not shape.** San Diego's time
+  formats and menu structures were measured clean — zero invalid clock strings, zero malformed day
+  arrays — while the same catalog asserted a venue attribute nobody had read, a deal category derived
+  from Google's type taxonomy, and a menu caption derived from a URL. A schema check cannot tell an
+  assertion from an observation, so the check has to be written separately and deliberately.
+  `docs/lessons-and-invariants.md` §3 is the list of what that looks like in practice, and §4 is what
+  is still unguarded here.
+- **Every honest empty state has to be designed, not defaulted.** "We know when happy hour runs and
+  the venue does not publish what is on offer" is a real answer for 40% of published listings, and it
+  needs copy, a layout that does not read as an offer, and a route to the claim flow. A city that
+  skips this ships a chip reading "Happy hour" under a heading reading "Deals" on hundreds of pages,
+  which is what San Diego did until it was noticed.
 
 ### 8.2 Needed adjustment
 
