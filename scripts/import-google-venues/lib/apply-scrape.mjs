@@ -6,7 +6,7 @@ import {
   repairDaysFromEvidence,
 } from './schedule-windows.mjs';
 import { SCRAPE_OUTCOMES, buildLastScrape } from './scrape-outcome.mjs';
-import { looksLikeShoppingMall } from './venue-quality.mjs';
+import { isMultiTenantListing } from './window-only.mjs';
 import { isJunkDealLine } from './deals.mjs';
 import { isVerifiedForIndexing } from './seo-visibility.mjs';
 import { parseTimeRange, daysFromRangeText } from './happy-hour.mjs';
@@ -65,11 +65,21 @@ export function windowsFromTimesQuotes(evidence = []) {
   return [];
 }
 
-function unlistShoppingMall(venue, scraped) {
+/**
+ * A building is not a venue.
+ *
+ * A shopping centre, a public market and a food hall each publish one
+ * happy-hour page covering a dozen businesses, so every time and every price
+ * on it belongs to a tenant we do not have a listing for. Hiding such a row
+ * from search leaves a wrong record on a browsable page; the honest state is
+ * `unlisted`, which is what the catalog already uses for a row we keep only so
+ * an owner can find it.
+ */
+function unlistNonVenue(venue, scraped) {
   const changes = [];
   if (venue.listingStatus !== 'unlisted') {
     venue.listingStatus = 'unlisted';
-    changes.push('unlisted shopping mall');
+    changes.push('unlisted non-venue');
   }
   if (venue.seoHidden !== true) {
     venue.seoHidden = true;
@@ -77,15 +87,32 @@ function unlistShoppingMall(venue, scraped) {
   }
   venue.lastScrape = scraped?.lastScrape || buildLastScrape({
     outcome: scraped?.outcome || SCRAPE_OUTCOMES.not_published,
-    reason: scraped?.reason || 'Listing is a shopping mall, not a restaurant or bar',
+    reason: scraped?.reason || 'Listing is a building of tenants, not a restaurant or bar',
     sourceUrl: scraped?.sourcePage || venue.website,
     candidateUrls: scraped?.candidateUrls,
   });
   return {
     changed: changes.length > 0,
     changes,
-    reason: changes.length ? 'shopping_mall' : 'already_unlisted',
+    reason: changes.length ? 'not_a_venue' : 'already_unlisted',
   };
+}
+
+/**
+ * Take `seoHidden` back off a listing the scrape has now confirmed.
+ *
+ * Run on every exit from `applyScrape`, including the ones that decided the
+ * scrape carried nothing worth storing. A scrape that finds no offers still
+ * settles that the venue exists and that its window came off its own site, and
+ * that is the whole question the flag asks — so an import has to be able to
+ * reach the answer on its own, without a repair script run afterwards.
+ */
+function reconcileIndexVisibility(venue, changes = []) {
+  if (venue.seoHidden && isVerifiedForIndexing(venue)) {
+    venue.seoHidden = false;
+    changes.push('seoHidden cleared');
+  }
+  return changes;
 }
 
 /**
@@ -94,8 +121,8 @@ function unlistShoppingMall(venue, scraped) {
  * AI confidence alone never overwrites times.
  */
 export function applyScrape(venue, scraped) {
-  if (looksLikeShoppingMall(venue, scraped)) {
-    return unlistShoppingMall(venue, scraped);
+  if (isMultiTenantListing(venue, scraped)) {
+    return unlistNonVenue(venue, scraped);
   }
   if (!scraped?.found) {
     venue.lastScrape = scraped?.lastScrape || buildLastScrape({
@@ -104,12 +131,14 @@ export function applyScrape(venue, scraped) {
       sourceUrl: scraped?.sourcePage,
       candidateUrls: scraped?.candidateUrls,
     });
-    return { changed: false, reason: scraped?.outcome || 'no_data' };
+    const cleared = reconcileIndexVisibility(venue);
+    return { changed: cleared.length > 0, changes: cleared, reason: scraped?.outcome || 'no_data' };
   }
 
   if (scraped.confidence === 'low' && !hasTimesEvidence(scraped) && !(scraped.deals || []).length) {
     venue.lastScrape = scraped.lastScrape;
-    return { changed: false, reason: 'low_confidence' };
+    const cleared = reconcileIndexVisibility(venue);
+    return { changed: cleared.length > 0, changes: cleared, reason: 'low_confidence' };
   }
 
   const changes = [];
@@ -199,10 +228,7 @@ export function applyScrape(venue, scraped) {
     confidence: scraped.confidence,
   });
 
-  if (venue.seoHidden && isVerifiedForIndexing(venue)) {
-    venue.seoHidden = false;
-    changes.push('seoHidden cleared');
-  }
+  reconcileIndexVisibility(venue, changes);
 
   return { changed: changes.length > 0, changes, reason: changes.length ? 'updated' : 'already_current' };
 }

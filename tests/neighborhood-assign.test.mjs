@@ -117,19 +117,52 @@ function testAVerifiedHappyHourStopsBeingHiddenFromTheNeighborhoodPage() {
 }
 
 function testAnUnprovenHappyHourStaysHidden() {
-  const thin = {
+  // What has to be proven is that the place is real and its window is ours:
+  // a quote we read off the venue's own happy-hour page. Whether the venue
+  // also publishes offers is a question about content, not existence, and
+  // window-only listings stay published — see docs/window-only-listings.md.
+  const sourced = {
     listingStatus: 'published',
-    hasHappyHourData: true,
+    name: 'Sourced Spot',
     days: ['Monday'],
     startTime: '15:00',
     endTime: '18:00',
     deals: [],
     lastScrape: { outcome: 'found', confidence: 'high' },
+    hhSources: {
+      times: {
+        source: 'website_hh_page',
+        evidence: [{ quote: 'Happy hour 3-6pm Monday', url: 'https://example.com/happy-hour' }],
+      },
+    },
   };
-  assert.equal(isVerifiedForIndexing(thin), false);
-  assert.equal(isVerifiedForIndexing({ ...thin, deals: ['$6 beers'], lastScrape: { outcome: 'found', confidence: 'medium' } }), false);
-  assert.equal(isVerifiedForIndexing({ ...thin, deals: ['$6 beers'], listingStatus: 'unlisted' }), false);
-  assert.equal(isVerifiedForIndexing({ ...thin, deals: ['$6 beers'] }), true);
+  assert.equal(isVerifiedForIndexing(sourced), true);
+  assert.equal(isVerifiedForIndexing({ ...sourced, lastScrape: { outcome: 'not_published' } }), true);
+  assert.equal(isVerifiedForIndexing({ ...sourced, listingStatus: 'unlisted' }), false);
+
+  // A window with no provenance at all is an unverified claim, not a venue we
+  // have confirmed, and deals do not substitute for the missing source.
+  const { hhSources, ...unsourced } = sourced;
+  assert.equal(isVerifiedForIndexing(unsourced), false);
+  assert.equal(isVerifiedForIndexing({ ...unsourced, deals: ['$6 beers'] }), false);
+
+  // Google's HAPPY_HOUR opening hours carry times and never a quote, so they
+  // prove the window on their own.
+  assert.equal(
+    isVerifiedForIndexing({ ...unsourced, hhSources: { times: { source: 'google_places' } } }),
+    true
+  );
+
+  // The pages we read described another brand or another branch, so the
+  // window quoted off them is not evidence about this venue.
+  assert.equal(isVerifiedForIndexing({ ...sourced, lastScrape: { outcome: 'wrong_website' } }), false);
+  assert.equal(isVerifiedForIndexing({ ...sourced, lastScrape: { outcome: 'other_location' } }), false);
+
+  // A food hall's window belongs to its tenants.
+  assert.equal(isVerifiedForIndexing({ ...sourced, name: 'Windmill Food Hall' }), false);
+
+  // An incomplete window is nothing to show.
+  assert.equal(isVerifiedForIndexing({ ...sourced, days: [] }), false);
 }
 
 tests.push(

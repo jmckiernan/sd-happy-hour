@@ -2075,7 +2075,7 @@
     "image": "/images/venues/23-mission-valley.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -2814,7 +2814,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.casaguadalajara.com/menus/happy-hour-menu",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/28-casa-guadalajara.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -3159,7 +3159,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://libertypublicmarketsd.com/events/wml-happy-hour/",
     "dealTypes": [],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/31-liberty-public-market.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJqTNLdAOr3oARx08fgT_mxGg",
@@ -3183,7 +3183,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "found",
       "found": true,
@@ -4138,7 +4138,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://locations.thecheesecakefactory.com/ca/san-diego-28.html?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/37-the-cheesecake-factory.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -6395,7 +6395,7 @@
     "dealTypes": [
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/52-american-comedy-co-san-diego.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -6930,7 +6930,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.karlstrauss.com/location/sorrento-mesa/menu/",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/55-karl-strauss-brewing-company.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -15188,7 +15188,7 @@
       "food",
       "oysters"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/101-waterbar.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -16601,7 +16601,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mariecallenders.com/specials--happy-hour",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/107-marie-callender-s.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -17738,7 +17738,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://264fresco.com/banquet-menu.php",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/112-264-fresco.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -27186,7 +27186,7 @@
     "dealTypes": [
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/164-pit-stop-diner.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -28906,7 +28906,7 @@
     "image": "/images/venues/176-windmill-food-hall.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -32910,7 +32910,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://chebahut.com/locations/sandiegoca/?utm_source=google&utm_medium=GBP&utm_campaign=San+Diego-SDSU",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/200-cheba-hut-toasted-subs.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -34013,7 +34013,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/206-giardino.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -45448,7 +45448,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/269-the-crossings-at-carlsbad.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -62725,7 +62725,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.numberonefifth.com/menu",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/372-number-one-fifth-avenue.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -63529,7 +63529,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://hamburgerhut.com/menu",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/377-hamburger-hut.png",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -64335,7 +64335,7 @@
     "dealTypes": [
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/381-aromas-of-india.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -69809,7 +69809,7 @@
       "beer",
       "cocktails"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/414-curbside-eatery-drinkery.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -72148,7 +72148,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.prohibitionbrewingcompany.com/menu",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/429-prohibition-brewing-company.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -77595,7 +77595,7 @@
       "beer",
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/465-hopnonymous-brewing-company.png",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -79334,7 +79334,7 @@
     "dealTypes": [
       "beer"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/476-ryan-bros-coffee-of-san-marcos.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -81975,7 +81975,7 @@
       "cocktails",
       "wine"
     ],
-    "seoHidden": false,
+    "seoHidden": true,
     "image": "/images/venues/492-sky-deck-at-del-mar-highlands-town-center.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJJ7D7i84J3IARHjL0tSiD_jY",
@@ -81999,7 +81999,7 @@
         ]
       }
     },
-    "listingStatus": "published",
+    "listingStatus": "unlisted",
     "hhConflicts": [
       {
         "field": "times",
@@ -82710,7 +82710,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.sushibar-bluefin.com/happyhour",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/496-sushi-bar-blue-fin.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -89628,7 +89628,7 @@
       "wine",
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/545-same-same.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -91412,7 +91412,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.tonypepperonipizzeria.net/specials",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/557-tony-pepperoni-pizzeria.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -92214,7 +92214,7 @@
     "dealTypes": [
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/564-carruth-cellars-urban-winery-tasting-room.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -92562,7 +92562,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.urbansweetcafe.com/menu",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/566-urban-sweet-cafe.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -94133,7 +94133,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.meadiocritymead.com/",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/577-meadiocrity-mead.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,
@@ -97404,7 +97404,7 @@
       "beer",
       "entertainment"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/606-hopnonymous-brewing-normal-heights.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -97558,7 +97558,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.nightparadebrewing.com/",
     "dealTypes": [],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/607-night-parade-brewing-company.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": true,

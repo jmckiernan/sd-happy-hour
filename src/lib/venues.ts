@@ -56,8 +56,17 @@ export interface Venue {
   vibe: string;
   website: string;
   verified: boolean;
-  /** Keep known test or incomplete listings available to product QA without
-   * allowing them into search indexes or neighborhood discovery pages. */
+  /**
+   * Keep a listing out of search engines: `noindex` on its page, out of the
+   * sitemap, and out of the homepage's ItemList structured data.
+   *
+   * It is not a navigation flag, and reading it as one is what made 83
+   * published venues unreachable. The homepage grid — the surface with the
+   * search box and the filters, and so the one a visitor actually browses —
+   * selects on `listingStatus` alone and shows these venues. The neighborhood
+   * pages still exclude them, which is the last place the two meanings are
+   * mixed; see tests/homepage-reachability.test.mjs.
+   */
   seoHidden?: boolean;
   /**
    * Whether this venue reaches public browse surfaces. Every establishment we

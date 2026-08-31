@@ -27,9 +27,10 @@ export const PRICED_QUOTE = /\$\s?\d|\d+\s*%\s*off|[½¼⅓]|half[- ](?:off|pric
  * shapes San Diego actually has, and reads the scrape's own reason, which is
  * usually where the multi-tenant fact was first written down.
  */
-export function isMultiTenantListing(venue = {}) {
-  if (looksLikeShoppingMall(venue, venue.lastScrape)) return true;
-  const hay = `${venue.name || ''} ${venue.lastScrape?.reason || ''}`;
+export function isMultiTenantListing(venue = {}, scraped = null) {
+  const observation = scraped || venue.lastScrape;
+  if (looksLikeShoppingMall(venue, observation)) return true;
+  const hay = `${venue.name || ''} ${observation?.reason || ''} ${observation?.notes || ''}`;
   if (!/\b(?:food hall|public market|marketplace|multi-?tenant|shopping cent(?:er|re))\b/i.test(hay)) return false;
   return !/\b(?:bar|grill|grille|restaurant|tavern|cantina|pub|brewery|kitchen)\b/i.test(String(venue.name || ''));
 }
