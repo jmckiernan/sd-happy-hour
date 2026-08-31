@@ -167,6 +167,65 @@
     padding: 6px; text-transform: uppercase; letter-spacing: 0.04em;
   }
 
+  /* Gallery framing. Each row shows the same image in every ratio it will be
+     rendered at, so the admin is dragging against the real output rather than
+     a stand-in box. */
+  .lf-gallery { display: grid; gap: 18px; }
+  .lf-crop {
+    border-top: 1px solid var(--sand-warm);
+    display: grid;
+    gap: 10px;
+    padding-top: 14px;
+  }
+  .lf-crop-frames { display: flex; flex-wrap: wrap; gap: 12px; }
+  .lf-crop-frame { flex: 1 1 220px; margin: 0; min-width: 0; }
+  .lf-crop-window {
+    background: var(--sand-warm);
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    overflow: hidden;
+    position: relative;
+    /* The frame is the drag surface, so the browser must not claim the
+       gesture for scrolling or a pinch on a touch device. */
+    touch-action: none;
+  }
+  .lf-crop-window.dragging { cursor: grabbing; }
+  .lf-crop-window:focus-visible { outline: 3px solid var(--sunset-start); outline-offset: 2px; }
+  .lf-crop-window img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    width: 100%;
+  }
+  .lf-crop-frame figcaption {
+    color: var(--night-soft);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+  .lf-crop-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
+  .lf-crop-controls label {
+    align-items: center;
+    color: var(--night-soft);
+    display: flex;
+    flex: 1 1 200px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    gap: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .lf-crop-controls input[type="range"] { flex: 1 1 120px; min-width: 0; }
+  .lf-crop-controls output {
+    color: var(--night);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
   @media (max-width: 720px) {
     .lf-form { grid-template-columns: 1fr; }
     .lf-image-body { grid-template-columns: 1fr; }

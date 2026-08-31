@@ -13,6 +13,21 @@
 // accidentally drag the database layer into a browser bundle.
 
 import { vibeImageFor } from './vibeImages';
+import {
+  DEFAULT_GALLERY_CROP,
+  MAX_GALLERY_CROP_SCALE,
+  galleryCropStyle,
+  normalizeGalleryCrop,
+  type GalleryCrop,
+} from './galleryCrop';
+
+export interface GalleryImageValue {
+  url: string;
+  caption?: string;
+  sourceUrl?: string | null;
+  generated?: boolean;
+  crop?: GalleryCrop;
+}
 
 export interface ListingFormValues {
   name?: string;
@@ -37,6 +52,9 @@ export interface ListingFormValues {
   /** Featured photo URL — normally `/api/images/<key>`. Empty means the
    * public pages fall back to the vibe stock photo. */
   image?: string;
+  /** Scraped or typeset happy-hour flyers. Not editable here beyond their
+   * framing — the pipeline owns which images exist. */
+  galleryImages?: GalleryImageValue[];
 }
 
 // Sunday last, matching the public submit form (src/pages/submit.astro).
@@ -168,6 +186,74 @@ function featuredPhotoPicker(photos: OwnerPhotoOption[], current: string, stockF
   `;
 }
 
+/**
+ * Framing control for the venue's gallery flyers.
+ *
+ * The images themselves come from the import pipeline, so there is nothing to
+ * add or remove here — the only thing an admin adjusts is which part of a tall
+ * menu flyer a fixed frame shows. Both output ratios are drawn at once so that
+ * choice is made against what visitors actually see rather than a single
+ * representative box, and the preview uses galleryCropStyle(), the same
+ * function the public page renders with.
+ *
+ * Nothing is written to the image. The crop rides along on the gallery row and
+ * is read back by readListingForm(), so it saves through the venue editor's
+ * existing Save button with no separate endpoint.
+ */
+const CROP_FRAMES: { ratio: string; label: string }[] = [
+  { ratio: '4 / 3', label: 'Gallery tile' },
+  { ratio: '16 / 9', label: 'Wide' },
+];
+
+function galleryCropEditor(images: GalleryImageValue[]) {
+  if (!images.length) return '';
+
+  const row = (image: GalleryImageValue, index: number) => {
+    const crop = normalizeGalleryCrop(image.crop) || DEFAULT_GALLERY_CROP;
+    const scale = crop.scale ?? 1;
+    const style = galleryCropStyle(image.crop);
+    const caption = image.caption || 'Happy hour menu';
+    return `
+      <div class="lf-crop" data-lf-crop data-lf-crop-row="${escapeHTML(JSON.stringify(image))}"
+           data-lf-crop-x="${crop.x}" data-lf-crop-y="${crop.y}" data-lf-crop-scale="${scale}">
+        <div class="lf-crop-frames">
+          ${CROP_FRAMES.map((frame) => `
+            <figure class="lf-crop-frame">
+              <div class="lf-crop-window" data-lf-crop-window style="aspect-ratio: ${frame.ratio};"
+                   role="application" tabindex="0"
+                   aria-label="Drag to reposition ${escapeHTML(caption)} in the ${escapeHTML(frame.label.toLowerCase())} frame">
+                <img src="${escapeHTML(previewSrc(image.url, 640))}" alt="" draggable="false" loading="lazy" style="${style}">
+              </div>
+              <figcaption>${escapeHTML(frame.label)} · ${escapeHTML(frame.ratio.replace(/\s/g, ''))}</figcaption>
+            </figure>
+          `).join('')}
+        </div>
+        <div class="lf-crop-controls">
+          <label>
+            Zoom
+            <input type="range" data-lf-crop-zoom min="1" max="${MAX_GALLERY_CROP_SCALE}" step="0.05" value="${scale}"
+                   aria-label="Zoom ${escapeHTML(caption)}">
+          </label>
+          <output data-lf-crop-readout>${scale.toFixed(2)}×</output>
+          <button type="button" class="lf-image-btn" data-lf-crop-reset>Reset framing</button>
+        </div>
+        <p class="lf-image-hint">${escapeHTML(caption)}${index === 0 ? ' — drag the image to choose what stays visible.' : ''}</p>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="lf-field full lf-gallery" data-lf-gallery>
+      <label>Gallery image framing</label>
+      <p class="lf-image-hint">
+        Repositioning is stored alongside the image, never applied to the file, so the
+        full-resolution original still opens when a visitor zooms in.
+      </p>
+      ${images.map(row).join('')}
+    </div>
+  `;
+}
+
 export function listingFormHTML(listing: ListingFormValues, options: ListingFormOptions = {}) {
   const days = listing.days || [];
   const dealTypes = listing.dealTypes || [];
@@ -272,6 +358,8 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
         </div>
       </div>`}
 
+      ${owner ? '' : galleryCropEditor(listing.galleryImages || [])}
+
       ${options.includeVerification ? `
         <div class="lf-field">
           <label>Verification</label>
@@ -349,8 +437,37 @@ export function readListingForm(root: HTMLElement): Record<string, any> {
   // existing values would be overwritten with false/null.
   if (verifiedBox) listing.verified = verifiedBox.checked;
   if (lastVerified) listing.lastVerifiedAt = lastVerified.value || null;
+  const gallery = readGalleryImages(root);
+  if (gallery) listing.galleryImages = gallery;
 
   return listing;
+}
+
+/** Gallery rows with the admin's current framing, or null when this form has
+ * no gallery block — a venue with no flyers, or the submission queue, where
+ * omitting the key leaves the stored gallery alone. Each row is rebuilt from
+ * the one it was rendered from, so a save that only moved a crop doesn't also
+ * rewrite the row's other keys. */
+function readGalleryImages(root: HTMLElement): Record<string, any>[] | null {
+  if (!root.querySelector('[data-lf-gallery]')) return null;
+  return [...root.querySelectorAll<HTMLElement>('[data-lf-crop]')].map((el) => {
+    let row: Record<string, any> = {};
+    try {
+      row = JSON.parse(el.dataset.lfCropRow || '{}');
+    } catch {
+      row = {};
+    }
+    const crop = normalizeGalleryCrop({
+      x: Number(el.dataset.lfCropX),
+      y: Number(el.dataset.lfCropY),
+      scale: Number(el.dataset.lfCropScale),
+    });
+    // Deleting rather than storing the default keeps "put it back the way it
+    // was" a true removal, not a row that merely encodes centered framing.
+    delete row.crop;
+    if (crop) row.crop = crop;
+    return row;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -554,6 +671,116 @@ export function wireListingImageControls(container: HTMLElement) {
     const ui = imageBlockFor(input);
     if (!ui) return;
     showPreview(ui, input.value.trim());
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Gallery framing controls
+//
+// Direct manipulation: the admin drags the image inside the frame the way they
+// would in an image editor, and both output ratios move together because they
+// are two views of one focal point. State lives on the row's dataset — the
+// same place readListingForm() reads it from — so there is no parallel model
+// to keep in sync, and a repaint after Save starts from the saved values.
+// Delegated on a container for the same reason the image controls are.
+// ---------------------------------------------------------------------------
+
+function cropRowFor(el: HTMLElement): HTMLElement | null {
+  return el.closest('[data-lf-crop]');
+}
+
+function paintCrop(row: HTMLElement) {
+  const x = Number(row.dataset.lfCropX);
+  const y = Number(row.dataset.lfCropY);
+  const scale = Number(row.dataset.lfCropScale);
+  const style = galleryCropStyle({ x, y, scale });
+  row.querySelectorAll<HTMLImageElement>('[data-lf-crop-window] img').forEach((img) => {
+    // An untouched image is left with no inline framing at all, so the preview
+    // shows exactly what a visitor sees for a row with no crop.
+    img.setAttribute('style', style);
+  });
+  const readout = row.querySelector('[data-lf-crop-readout]');
+  if (readout) readout.textContent = `${(Number.isFinite(scale) ? scale : 1).toFixed(2)}×`;
+}
+
+function setCrop(row: HTMLElement, x: number, y: number, scale: number) {
+  row.dataset.lfCropX = String(Math.min(100, Math.max(0, x)));
+  row.dataset.lfCropY = String(Math.min(100, Math.max(0, y)));
+  row.dataset.lfCropScale = String(Math.min(MAX_GALLERY_CROP_SCALE, Math.max(1, scale)));
+  paintCrop(row);
+}
+
+export function wireGalleryCropControls(container: HTMLElement) {
+  let dragging: { row: HTMLElement; window: HTMLElement; pointerId: number; lastX: number; lastY: number } | null = null;
+
+  container.addEventListener('pointerdown', (event) => {
+    const target = event.target as HTMLElement;
+    const frameWindow = target.closest('[data-lf-crop-window]') as HTMLElement | null;
+    const row = frameWindow && cropRowFor(frameWindow);
+    if (!frameWindow || !row || !container.contains(row)) return;
+    event.preventDefault();
+    frameWindow.setPointerCapture(event.pointerId);
+    frameWindow.classList.add('dragging');
+    dragging = { row, window: frameWindow, pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
+  });
+
+  container.addEventListener('pointermove', (event) => {
+    if (!dragging || event.pointerId !== dragging.pointerId) return;
+    const box = dragging.window.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    // Dragging right reveals what is further left, so the focal point moves
+    // the opposite way — the grab-and-move feel of an image editor.
+    const scale = Number(dragging.row.dataset.lfCropScale) || 1;
+    const x = Number(dragging.row.dataset.lfCropX) - ((event.clientX - dragging.lastX) / box.width) * 100 / scale;
+    const y = Number(dragging.row.dataset.lfCropY) - ((event.clientY - dragging.lastY) / box.height) * 100 / scale;
+    dragging.lastX = event.clientX;
+    dragging.lastY = event.clientY;
+    setCrop(dragging.row, x, y, scale);
+  });
+
+  function endDrag(event: PointerEvent) {
+    if (!dragging || event.pointerId !== dragging.pointerId) return;
+    dragging.window.classList.remove('dragging');
+    if (dragging.window.hasPointerCapture(event.pointerId)) {
+      dragging.window.releasePointerCapture(event.pointerId);
+    }
+    dragging = null;
+  }
+  container.addEventListener('pointerup', endDrag);
+  container.addEventListener('pointercancel', endDrag);
+
+  // Dragging is the point of the control, but it can't be the only way to use
+  // it: a focused frame nudges with the arrow keys.
+  const NUDGE = { ArrowLeft: [-2, 0], ArrowRight: [2, 0], ArrowUp: [0, -2], ArrowDown: [0, 2] } as Record<string, number[]>;
+  container.addEventListener('keydown', (event) => {
+    const step = NUDGE[event.key];
+    const frameWindow = (event.target as HTMLElement).closest?.('[data-lf-crop-window]') as HTMLElement | null;
+    const row = step && frameWindow && cropRowFor(frameWindow);
+    if (!row) return;
+    event.preventDefault();
+    setCrop(
+      row,
+      Number(row.dataset.lfCropX) + step[0],
+      Number(row.dataset.lfCropY) + step[1],
+      Number(row.dataset.lfCropScale) || 1
+    );
+  });
+
+  container.addEventListener('input', (event) => {
+    const slider = event.target as HTMLInputElement;
+    if (!slider.matches?.('[data-lf-crop-zoom]')) return;
+    const row = cropRowFor(slider);
+    if (!row) return;
+    setCrop(row, Number(row.dataset.lfCropX), Number(row.dataset.lfCropY), Number(slider.value));
+  });
+
+  container.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest('[data-lf-crop-reset]') as HTMLElement | null;
+    const row = button && cropRowFor(button);
+    if (!row) return;
+    setCrop(row, DEFAULT_GALLERY_CROP.x, DEFAULT_GALLERY_CROP.y, DEFAULT_GALLERY_CROP.scale);
+    const slider = row.querySelector('[data-lf-crop-zoom]') as HTMLInputElement | null;
+    if (slider) slider.value = String(DEFAULT_GALLERY_CROP.scale);
   });
 }
 

@@ -3,7 +3,8 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import LiveDealStyles from './LiveDealStyles.astro';
-import { venueSlug, venuePath, slugify, formatTime, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
+import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
+import { galleryCropStyle } from '../lib/galleryCrop';
 import { specialsByDay, occasionSpecials, venueDealLines } from '../lib/listingCopy';
 import { neighborhoodPath } from '../lib/neighborhoods';
 import { breadcrumbSchema, venueSchema, withSiteName } from '../lib/seo';
@@ -34,6 +35,10 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${deal
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
 const areaPath = neighborhoodPath(venue.neighborhood);
+// Flyers and the menu boards we typeset. Each tile is framed by the admin's
+// stored crop; the file behind it is untouched, so the lightbox can still open
+// the full-resolution original.
+const galleryImages = venue.galleryImages || [];
 const breadcrumbs = [
   { name: 'Home', path: '/' },
   { name: 'Neighborhoods', path: '/neighborhoods/' },
@@ -392,8 +397,41 @@ function formatWindowLine(window: {
     }
     .lightbox[hidden] { display: none; }
     .lightbox-figure { max-width: min(1000px, 100%); max-height: 100%; margin: 0; text-align: center; }
+    /* The viewport is what the image is panned inside, so it — not the image —
+       owns the gesture surface. touch-action is what stops the browser from
+       taking a pinch or a drag for page zoom and scrolling. */
+    .lightbox-viewport {
+      overflow: hidden; border-radius: var(--radius-sm); touch-action: none;
+      max-height: 80vh; display: flex; align-items: center; justify-content: center;
+      cursor: zoom-in;
+    }
+    .lightbox-viewport.zoomed { cursor: grab; }
+    .lightbox-viewport.panning { cursor: grabbing; }
     .lightbox-figure img {
-      max-width: 100%; max-height: 80vh; border-radius: var(--radius-sm); display: block; margin: 0 auto;
+      max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;
+      transform-origin: 0 0; will-change: transform; user-select: none;
+      transition: transform 160ms ease-out;
+    }
+    .lightbox-figure img.dragging { transition: none; }
+    .lightbox-zoom {
+      position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.92); border-radius: 100px; padding: 6px 10px;
+    }
+    .lightbox-zoom button {
+      border: 0; background: none; color: var(--night); cursor: pointer;
+      font: inherit; font-size: 1.3rem; font-weight: 700; line-height: 1;
+      min-width: 36px; min-height: 36px; border-radius: 50%;
+    }
+    .lightbox-zoom button.reset { font-size: 0.82rem; border-radius: 100px; padding: 0 12px; }
+    .lightbox-zoom button:hover { background: var(--sand-warm); }
+    .lightbox-zoom button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .lightbox-zoom span {
+      color: var(--night-soft); font-size: 0.75rem; font-variant-numeric: tabular-nums;
+      min-width: 44px; text-align: center;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lightbox-figure img { transition: none; }
     }
     .lightbox-figure figcaption { color: white; font-size: 0.88rem; margin-top: 12px; }
     .lightbox-close {
@@ -411,9 +449,37 @@ function formatWindowLine(window: {
     .lightbox-nav[hidden] { display: none; }
     .lightbox-count { color: rgba(255,255,255,0.75); font-size: 0.78rem; margin-top: 6px; }
     @media (max-width: 640px) {
-      .lightbox { padding: 60px 12px; }
-      .lightbox-nav { top: auto; bottom: 18px; transform: none; }
+      .lightbox { padding: 60px 12px 76px; }
+      .lightbox-nav { top: auto; bottom: 76px; transform: none; }
     }
+
+    /* Gallery of scraped/typeset happy-hour menus. Each tile is framed by the
+       admin's stored crop (lib/galleryCrop.ts) — the file is never cropped, so
+       the tile and the full-resolution lightbox share one source. */
+    .venue-gallery {
+      max-width: 800px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .venue-gallery h2 { font-family: var(--font-display); margin-bottom: 8px; }
+    .venue-gallery .section-note { color: var(--night-soft); margin-bottom: 16px; }
+    .gallery-strip {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    .gallery-tile {
+      background: var(--sand-warm);
+      border: 0;
+      border-radius: var(--radius);
+      cursor: zoom-in;
+      overflow: hidden;
+      padding: 0;
+      aspect-ratio: 4 / 3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .gallery-tile:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+    .gallery-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
     .related-posts {
       max-width: 800px;
@@ -639,6 +705,34 @@ function formatWindowLine(window: {
     </section>
   )}
 
+  {galleryImages.length > 0 && (
+    <section class="venue-gallery" aria-labelledby="venue-gallery-heading">
+      <h2 id="venue-gallery-heading">Happy hour menus</h2>
+      <p class="section-note">
+        Open one to read it full screen — pinch, scroll or use the zoom buttons to magnify the small print.
+      </p>
+      <div class="gallery-strip">
+        {galleryImages.map((image, index) => (
+          <button
+            type="button"
+            class="gallery-tile"
+            data-gallery-index={index}
+            data-gallery-url={image.url}
+            aria-label={`Open ${image.caption || 'the happy hour menu'} full screen`}
+          >
+            <img
+              src={getGalleryThumb(image.url)}
+              alt={image.caption || `${venue.name} happy hour menu`}
+              loading="lazy"
+              decoding="async"
+              style={galleryCropStyle(image.crop)}
+            />
+          </button>
+        ))}
+      </div>
+    </section>
+  )}
+
   <section class="venue-menu hidden" id="venue-menu" aria-label="Restaurant menu">
     <button type="button" class="menu-open" id="menu-open" aria-haspopup="dialog">View menu</button>
   </section>
@@ -652,16 +746,26 @@ function formatWindowLine(window: {
     </div>
   </div>
 
-  <!-- The featured image opens the venue gallery; menu photos reuse it. -->
-  <div class="lightbox" id="lightbox" hidden>
+  <!-- The featured image opens the venue gallery; menu photos reuse it.
+       Zoomable, because a lot of these are happy-hour menus whose text is
+       unreadable at the size the overlay fits them to. -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
     <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close photo">&times;</button>
     <button type="button" class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous photo">&#8249;</button>
     <figure class="lightbox-figure">
-      <img id="lightbox-img" alt="">
+      <div class="lightbox-viewport" id="lightbox-viewport">
+        <img id="lightbox-img" alt="" draggable="false">
+      </div>
       <figcaption id="lightbox-caption"></figcaption>
       <div class="lightbox-count" id="lightbox-count"></div>
     </figure>
     <button type="button" class="lightbox-nav next" id="lightbox-next" aria-label="Next photo">&#8250;</button>
+    <div class="lightbox-zoom" role="group" aria-label="Zoom">
+      <button type="button" id="lightbox-zoom-out" aria-label="Zoom out">−</button>
+      <span id="lightbox-zoom-level" aria-live="polite">100%</span>
+      <button type="button" id="lightbox-zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="lightbox-zoom-reset" class="reset">Fit</button>
+    </div>
   </div>
 
   {posts.length > 0 && (
@@ -1054,12 +1158,21 @@ function formatWindowLine(window: {
     const lightboxCount = document.getElementById('lightbox-count')!;
     const lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement;
     const lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement;
+    const lightboxViewport = document.getElementById('lightbox-viewport') as HTMLElement;
+    const lightboxClose = document.getElementById('lightbox-close') as HTMLButtonElement;
+    const zoomInBtn = document.getElementById('lightbox-zoom-in') as HTMLButtonElement;
+    const zoomOutBtn = document.getElementById('lightbox-zoom-out') as HTMLButtonElement;
+    const zoomResetBtn = document.getElementById('lightbox-zoom-reset') as HTMLButtonElement;
+    const zoomLevelEl = document.getElementById('lightbox-zoom-level')!;
     const heroImg = heroFrame.querySelector('img') as HTMLImageElement;
-    let lightboxPhotos: Array<{ url: string; caption: string }> = [];
+    /** `url` is what the overlay fits to the screen; `full` is the original
+     * behind it, loaded only once someone actually zooms. */
+    type LightboxPhoto = { url: string; caption: string; full?: string };
+    let lightboxPhotos: LightboxPhoto[] = [];
     let lightboxIndex = 0;
-    let venueGallery: Array<{ url: string; caption: string }> = [];
+    let venueGallery: LightboxPhoto[] = [];
     let venueGalleryPhotos: any[] = [];
-    let menuPhotoGallery: Array<{ url: string; caption: string }> = [];
+    let menuPhotoGallery: LightboxPhoto[] = [];
     let activeHeroVibe = heroFrame.dataset.stockVibe || '';
 
     function esc(value: unknown) {
@@ -1119,9 +1232,113 @@ function formatWindowLine(window: {
       });
     }
 
+    // ---------------------------------------------------------------------
+    // Lightbox zoom
+    //
+    // Hand-rolled rather than pulled from a library: the overlay already
+    // exists, and what it needs — pinch, drag, wheel, buttons — is a few dozen
+    // lines against pointer events, where every zoom/pan library that handles
+    // this properly is tens of kilobytes on a page whose whole point is
+    // loading fast on a phone.
+    //
+    // Panning is expressed as a translate in the image's own layout
+    // coordinates with a 0 0 origin, so the same clamp works for a fitted
+    // image and a magnified one. A fitted image is always exactly where CSS
+    // put it, which is what keeps this invisible until someone zooms.
+    // ---------------------------------------------------------------------
+    const MAX_LIGHTBOX_ZOOM = 6;
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let lastFocused: HTMLElement | null = null;
+    const activePointers = new Map<number, { x: number; y: number }>();
+    let pinchDistance = 0;
+    let lastTapAt = 0;
+
+    /** The unresized source behind a CDN rendition. Menu flyers are only
+     * legible at full size, so zooming has to escape the sized derivative the
+     * page displays — otherwise it magnifies a downscale and stays blurry. */
+    function originalSrc(url: string): string {
+      if (!url.startsWith('/.netlify/images')) return url;
+      try {
+        const inner = new URL(url, location.origin).searchParams.get('url');
+        return inner || url;
+      } catch {
+        return url;
+      }
+    }
+
+    function clampPan() {
+      const viewport = lightboxViewport.getBoundingClientRect();
+      const width = lightboxImg.clientWidth;
+      const height = lightboxImg.clientHeight;
+      if (!width || !height) return;
+      // CSS centers the fitted image in the viewport; the transform is applied
+      // on top of that, so the offsets below convert between the two.
+      const offsetX = (viewport.width - width) / 2;
+      const offsetY = (viewport.height - height) / 2;
+      panX = width * zoom <= viewport.width
+        ? (width * (1 - zoom)) / 2
+        : Math.min(-offsetX, Math.max(viewport.width - width * zoom - offsetX, panX));
+      panY = height * zoom <= viewport.height
+        ? (height * (1 - zoom)) / 2
+        : Math.min(-offsetY, Math.max(viewport.height - height * zoom - offsetY, panY));
+    }
+
+    function paintZoom() {
+      clampPan();
+      lightboxImg.style.transform = zoom === 1 ? '' : `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      lightboxViewport.classList.toggle('zoomed', zoom > 1);
+      zoomLevelEl.textContent = `${Math.round(zoom * 100)}%`;
+      zoomOutBtn.disabled = zoom <= 1;
+      zoomInBtn.disabled = zoom >= MAX_LIGHTBOX_ZOOM;
+      zoomResetBtn.disabled = zoom === 1;
+    }
+
+    /** Swaps in the full-resolution original the first time a photo is
+     * magnified. Deferred this far on purpose: opening the overlay should cost
+     * the sized rendition the page already has, and nothing more. */
+    function loadFullResolution() {
+      const photo = lightboxPhotos[lightboxIndex];
+      if (!photo?.full || photo.full === lightboxImg.getAttribute('src')) return;
+      const target = photo.full;
+      const probe = new Image();
+      probe.onload = () => {
+        // The viewer may have moved on while this was in flight.
+        if (lightboxPhotos[lightboxIndex]?.full === target && !lightbox.hidden) lightboxImg.src = target;
+      };
+      probe.src = target;
+    }
+
+    function setZoom(next: number, focusX?: number, focusY?: number) {
+      const clamped = Math.min(MAX_LIGHTBOX_ZOOM, Math.max(1, next));
+      if (clamped === zoom) return;
+      const viewport = lightboxViewport.getBoundingClientRect();
+      const offsetX = (viewport.width - lightboxImg.clientWidth) / 2;
+      const offsetY = (viewport.height - lightboxImg.clientHeight) / 2;
+      // Keep whatever is under the cursor/fingers under them after the change.
+      const anchorX = focusX ?? viewport.width / 2;
+      const anchorY = focusY ?? viewport.height / 2;
+      const imageX = (anchorX - offsetX - panX) / zoom;
+      const imageY = (anchorY - offsetY - panY) / zoom;
+      zoom = clamped;
+      panX = anchorX - offsetX - imageX * zoom;
+      panY = anchorY - offsetY - imageY * zoom;
+      paintZoom();
+      if (zoom > 1) loadFullResolution();
+    }
+
+    function resetZoom() {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      paintZoom();
+    }
+
     function paintLightbox() {
       const photo = lightboxPhotos[lightboxIndex];
       if (!photo) return;
+      resetZoom();
       lightboxImg.src = photo.url;
       lightboxImg.alt = photo.caption;
       lightboxCaption.textContent = photo.caption;
@@ -1132,13 +1349,15 @@ function formatWindowLine(window: {
       lightboxNext.hidden = lightboxPhotos.length < 2;
     }
 
-    function openLightbox(photos: Array<{ url: string; caption: string }>, index = 0) {
+    function openLightbox(photos: LightboxPhoto[], index = 0) {
       if (!photos.length) return;
+      lastFocused = document.activeElement as HTMLElement | null;
       lightboxPhotos = photos;
       lightboxIndex = index;
       paintLightbox();
       lightbox.hidden = false;
       document.body.style.overflow = 'hidden';
+      lightboxClose.focus();
     }
 
     function moveLightbox(offset: number) {
@@ -1148,8 +1367,12 @@ function formatWindowLine(window: {
 
     function closeLightbox() {
       lightbox.hidden = true;
+      resetZoom();
       lightboxImg.src = '';
       document.body.style.overflow = menuModal.hidden ? '' : 'hidden';
+      // Back to whatever opened the overlay — the hero, or the gallery tile.
+      lastFocused?.focus();
+      lastFocused = null;
     }
 
     function openMenu() {
@@ -1170,25 +1393,142 @@ function formatWindowLine(window: {
       if (event.target === menuModal) closeMenu();
     });
 
-    document.getElementById('lightbox-close')!.addEventListener('click', closeLightbox);
+    lightboxClose.addEventListener('click', closeLightbox);
     lightboxPrev.addEventListener('click', () => moveLightbox(-1));
     lightboxNext.addEventListener('click', () => moveLightbox(1));
+    zoomInBtn.addEventListener('click', () => setZoom(zoom * 1.5));
+    zoomOutBtn.addEventListener('click', () => setZoom(zoom / 1.5));
+    zoomResetBtn.addEventListener('click', resetZoom);
+
     let touchStartX = 0;
     lightbox.addEventListener('touchstart', (event) => {
       touchStartX = event.changedTouches[0]?.clientX || 0;
     }, { passive: true });
     lightbox.addEventListener('touchend', (event) => {
+      // A swipe while magnified is a pan, not a request for the next photo.
+      if (zoom > 1) return;
       const distance = (event.changedTouches[0]?.clientX || 0) - touchStartX;
       if (lightboxPhotos.length > 1 && Math.abs(distance) > 45) moveLightbox(distance > 0 ? -1 : 1);
     }, { passive: true });
     lightbox.addEventListener('click', (event) => {
       if (event.target === lightbox) closeLightbox();
     });
+
+    function viewportPoint(clientX: number, clientY: number) {
+      const box = lightboxViewport.getBoundingClientRect();
+      return { x: clientX - box.left, y: clientY - box.top };
+    }
+
+    // Scroll to zoom on desktop, at the cursor. Non-passive because a wheel
+    // over the image must zoom the photo instead of scrolling the page behind
+    // the overlay.
+    lightboxViewport.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const point = viewportPoint(event.clientX, event.clientY);
+      setZoom(zoom * (event.deltaY < 0 ? 1.16 : 1 / 1.16), point.x, point.y);
+    }, { passive: false });
+
+    /** Double-click and double-tap both toggle between fitted and a legible
+     * magnification, centered on what was pointed at. */
+    function toggleZoomAt(clientX: number, clientY: number) {
+      const point = viewportPoint(clientX, clientY);
+      if (zoom > 1) resetZoom();
+      else setZoom(2.5, point.x, point.y);
+    }
+    lightboxViewport.addEventListener('dblclick', (event) => toggleZoomAt(event.clientX, event.clientY));
+
+    lightboxViewport.addEventListener('pointerdown', (event) => {
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (activePointers.size === 2) {
+        const [a, b] = [...activePointers.values()];
+        pinchDistance = Math.hypot(a.x - b.x, a.y - b.y);
+      }
+      if (zoom > 1 && activePointers.size === 1) {
+        lightboxViewport.setPointerCapture(event.pointerId);
+        lightboxViewport.classList.add('panning');
+        lightboxImg.classList.add('dragging');
+      }
+    });
+
+    lightboxViewport.addEventListener('pointermove', (event) => {
+      const previous = activePointers.get(event.pointerId);
+      if (!previous) return;
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (activePointers.size >= 2) {
+        const [a, b] = [...activePointers.values()];
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinchDistance > 0 && distance > 0) {
+          const midpoint = viewportPoint((a.x + b.x) / 2, (a.y + b.y) / 2);
+          lightboxImg.classList.add('dragging');
+          setZoom(zoom * (distance / pinchDistance), midpoint.x, midpoint.y);
+        }
+        pinchDistance = distance;
+        return;
+      }
+
+      if (zoom > 1) {
+        panX += event.clientX - previous.x;
+        panY += event.clientY - previous.y;
+        paintZoom();
+      }
+    });
+
+    function endLightboxPointer(event: PointerEvent) {
+      if (!activePointers.delete(event.pointerId)) return;
+      if (activePointers.size < 2) pinchDistance = 0;
+      if (lightboxViewport.hasPointerCapture(event.pointerId)) {
+        lightboxViewport.releasePointerCapture(event.pointerId);
+      }
+      lightboxViewport.classList.remove('panning');
+      lightboxImg.classList.remove('dragging');
+
+      if (event.pointerType !== 'touch' || activePointers.size) return;
+      const now = Date.now();
+      if (now - lastTapAt < 300) {
+        toggleZoomAt(event.clientX, event.clientY);
+        lastTapAt = 0;
+      } else {
+        lastTapAt = now;
+      }
+    }
+    lightboxViewport.addEventListener('pointerup', endLightboxPointer);
+    lightboxViewport.addEventListener('pointercancel', endLightboxPointer);
+
+    /** Keeps Tab inside the overlay while it is open, so a keyboard visitor
+     * can't wander into the page behind it. */
+    function trapFocus(event: KeyboardEvent) {
+      const focusable = [...lightbox.querySelectorAll<HTMLElement>('button')]
+        .filter((el) => !el.hidden && !el.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (event.shiftKey && (active === first || !lightbox.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
       else if (event.key === 'Escape' && !menuModal.hidden) closeMenu();
-      if (event.key === 'ArrowLeft' && !lightbox.hidden && lightboxPhotos.length > 1) moveLightbox(-1);
-      if (event.key === 'ArrowRight' && !lightbox.hidden && lightboxPhotos.length > 1) moveLightbox(1);
+      if (lightbox.hidden) return;
+      if (event.key === 'Tab') trapFocus(event);
+      if (event.key === 'ArrowLeft' && lightboxPhotos.length > 1) moveLightbox(-1);
+      if (event.key === 'ArrowRight' && lightboxPhotos.length > 1) moveLightbox(1);
+      // The zoom buttons are reachable by Tab, but these are what anyone
+      // actually reaches for.
+      if (event.key === '+' || event.key === '=') setZoom(zoom * 1.5);
+      if (event.key === '-') setZoom(zoom / 1.5);
+      if (event.key === '0') resetZoom();
+    });
+
+    window.addEventListener('resize', () => {
+      if (!lightbox.hidden && zoom > 1) paintZoom();
     });
 
     heroFrame.addEventListener('click', () => openLightbox(venueGallery));
@@ -1286,11 +1626,14 @@ function formatWindowLine(window: {
       const featured = heroImg.getAttribute('src') || heroImg.src;
       const flyers = readJsonScript('venue-scrape-gallery');
       venueGallery = [
-        { url: featured, caption: heroImg.alt },
-        ...photos.map((photo) => ({ url: photo.url, caption: photo.caption || heroImg.alt })),
+        { url: featured, caption: heroImg.alt, full: originalSrc(featured) },
+        ...photos.map((photo) => ({ url: photo.url, caption: photo.caption || heroImg.alt, full: photo.url })),
+        // Flyers are displayed at hero width and zoom into the committed
+        // original, which is the only copy with readable menu text.
         ...flyers.map((photo: { url: string; caption?: string }) => ({
-          url: photo.url,
+          url: sized(photo.url, 1600),
           caption: photo.caption || 'Happy hour menu',
+          full: photo.url,
         })),
       ].filter((photo, index, all) => all.findIndex((candidate) => candidate.url === photo.url) === index);
       heroFrame.classList.toggle('has-gallery', venueGallery.length > 0);
@@ -1323,6 +1666,7 @@ function formatWindowLine(window: {
           .map((item: any) => ({
             url: item.photo.url,
             caption: item.photo.caption || item.name,
+            full: item.photo.url,
           }))
       );
 
@@ -1356,6 +1700,17 @@ function formatWindowLine(window: {
         .join('');
       menuSection.classList.remove('hidden');
     }
+
+    // A gallery tile opens the same navigable gallery the hero does, at that
+    // menu — the flyer's own position, resolved by URL because the venue
+    // gallery is rebuilt whenever owner content lands.
+    document.querySelectorAll<HTMLElement>('[data-gallery-url]').forEach((tile) => {
+      tile.addEventListener('click', () => {
+        const url = tile.dataset.galleryUrl || '';
+        const index = venueGallery.findIndex((photo) => (photo.full || photo.url) === url);
+        openLightbox(venueGallery, index < 0 ? 0 : index);
+      });
+    });
 
     // Menu photos share one navigable gallery; the hero uses the venue gallery.
     document.addEventListener('click', (event) => {

@@ -6,6 +6,7 @@ import { isHappyHourActive } from './sanDiegoTime';
 import { DEALS_UNKNOWN_LABEL } from './listingCopy';
 import type { WeeklySpecial } from './listingCopy';
 import { slugify, buildVenueSlugMap, slugFromMap, type SlugVenue } from './venueSlug';
+import type { GalleryCrop } from './galleryCrop';
 
 export { slugify };
 
@@ -104,6 +105,11 @@ export interface Venue {
     sourceUrl?: string | null;
     /** Rendered by us from `hhMenu`, not scraped from the venue. */
     generated?: boolean;
+    /** Which part of the image a fixed frame shows, set by an admin in the
+     * venue editor. Absent means centered and unmagnified — the framing every
+     * gallery image had before this existed. The file itself is never
+     * re-cropped; see lib/galleryCrop.ts. */
+    crop?: GalleryCrop;
   }[];
   /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
   lastScrape?: {
@@ -281,6 +287,7 @@ export function formatTime(time: string): string {
 export { vibeImages, vibeImageFor } from './vibeImages';
 
 const IMAGE_SIZES = {
+  tile: { w: 640, q: 80 },
   card: { w: 800, q: 80 },
   hero: { w: 1600, q: 85 },
 } as const;
@@ -305,7 +312,7 @@ const IMAGE_SIZES = {
  *   a static file Netlify Image CDN can fetch — so those stay direct too.
  * - Already-transformed URLs, so wrapping twice is a no-op.
  */
-function throughImageCdn(src: string, size: 'card' | 'hero'): string {
+function throughImageCdn(src: string, size: keyof typeof IMAGE_SIZES): string {
   if (!import.meta.env.PROD) return src;
   if (!src.startsWith('/') || src.startsWith('/.netlify/images')) return src;
   if (src.startsWith('/api/images/')) return src;
@@ -320,6 +327,16 @@ function throughImageCdn(src: string, size: 'card' | 'hero'): string {
  */
 export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
   return throughImageCdn(vibeImageFor(vibe), size);
+}
+
+/**
+ * A gallery flyer sized for its thumbnail frame on the venue page. The
+ * lightbox deliberately does not use this: a happy-hour menu is only readable
+ * at full resolution, so zooming loads the original (see the venue page's
+ * originalSrc()).
+ */
+export function getGalleryThumb(url: string): string {
+  return throughImageCdn(url, 'tile');
 }
 
 /**

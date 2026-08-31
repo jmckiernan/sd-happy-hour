@@ -136,7 +136,7 @@ const { venue } = Astro.props;
 
       <p class="ve-note">
         Featured images, hours, deals, vibe and contact details go live as soon as Save succeeds.
-        Name, neighborhood, map coordinates, verification fields and social previews are also saved to
+        Name, neighborhood, map coordinates, gallery framing, verification fields and social previews are also saved to
         <code>public/data/happy-hours.json</code> and appear with the next deploy.
       </p>
 
@@ -195,6 +195,7 @@ const { venue } = Astro.props;
       LISTING_IMAGE_BUSY_EVENT,
       listingFormHTML,
       readListingForm,
+      wireGalleryCropControls,
       wireListingImageControls,
     } from '../../../lib/listingForm';
 
@@ -339,6 +340,9 @@ const { venue } = Astro.props;
     // Upload / paste-a-URL / AI touch-up for the featured image, shared with
     // the submission queue. Delegated, so it survives a form repaint.
     wireListingImageControls(formEl);
+    // Gallery framing rides on the same form and the same Save button; only
+    // its drag/zoom interactions need wiring.
+    wireGalleryCropControls(formEl);
     formEl.addEventListener(LISTING_IMAGE_BUSY_EVENT, (event) => {
       imageRequestBusy = Boolean((event as CustomEvent<{ busy?: boolean }>).detail?.busy);
       syncSaveDisabled();

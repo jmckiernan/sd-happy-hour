@@ -32,6 +32,26 @@ function hasStringArray(value) {
   return Array.isArray(value) && value.length > 0 && value.every(hasString);
 }
 
+function isPercent(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+// A gallery image's optional framing metadata: where in the image a fixed
+// frame should be centered, and how far in. Absent on every row that predates
+// the venue editor's crop control, which is why it is only checked when the
+// key is there. Same rule as isGalleryCrop() in src/lib/galleryCrop.ts, which
+// this script can't import — it is plain node, and that module is TypeScript.
+function isGalleryCrop(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  if (!isPercent(value.x) || !isPercent(value.y)) return false;
+  if ('scale' in value && value.scale !== undefined) {
+    const scaleOk = typeof value.scale === 'number' && Number.isFinite(value.scale)
+      && value.scale >= 1 && value.scale <= 4;
+    if (!scaleOk) return false;
+  }
+  return true;
+}
+
 function validateListing(listing, label) {
   const errors = [];
   if (!Number.isInteger(listing.id)) errors.push(`${label}: id must be an integer.`);
@@ -97,8 +117,11 @@ function validateListing(listing, label) {
   if ('galleryImages' in listing) {
     const galleryValid = Array.isArray(listing.galleryImages) && listing.galleryImages.every(
       (row) => hasString(row?.url) && /^(\/[^/]|https?:\/\/)/i.test(row.url)
+        && (!('crop' in row) || isGalleryCrop(row.crop))
     );
-    if (!galleryValid) errors.push(`${label}: galleryImages must be {url} entries when present.`);
+    if (!galleryValid) {
+      errors.push(`${label}: galleryImages must be {url} entries, with a {x, y, scale} crop when present.`);
+    }
   }
   if ('weeklySpecials' in listing) {
     const kinds = new Set(['named_night', 'exchange', 'fixed_price', 'food', 'venue_note', 'event']);

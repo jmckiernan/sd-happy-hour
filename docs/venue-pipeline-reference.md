@@ -488,6 +488,10 @@ merely exempt stubs — it **forbids** the fields they should not have:
 - `publishedByClaim` cannot be set on an unlisted venue.
 - Every `windows` entry needs valid days plus either `allDay` or a valid time pair.
 - `weeklySpecials` need an id, label, summary, a known kind, and either days or an occasion.
+- Every `galleryImages` entry needs a stored path or `http(s)` `url`. Its `crop` is optional — the
+  admin venue editor's framing choice, `{x, y}` percentages with an optional `scale` between 1 and
+  4. Absent means centered and unmagnified, and the image file is never modified either way, so the
+  venue page's zoom still opens the full-resolution original.
 
 ---
 

@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { sql, withTransaction, type QueryExecutor } from './db';
 import type { AlertKind } from './validation';
+import type { GalleryCrop } from './galleryCrop';
 
 // ---------------------------------------------------------------------------
 // Granular Postgres accessors (README-NEON-MIGRATION.md §6 step 6), replacing
@@ -701,6 +702,10 @@ export interface Listing {
   // (lib/imageStore.ts). Absent/empty means the public pages fall back to the
   // vibe stock photo, which is what every venue did before this existed.
   image?: string;
+  // Scraped/typeset happy-hour flyers, with the admin's framing choice on
+  // each. Only present when the caller is editing an existing venue that has
+  // them — see Venue.galleryImages in lib/venues.ts for the full shape.
+  galleryImages?: { url: string; caption?: string; sourceUrl?: string | null; generated?: boolean; crop?: GalleryCrop }[];
 }
 
 export interface Submission {
