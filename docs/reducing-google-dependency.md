@@ -3,6 +3,13 @@
 Four questions the owner asked about Places API pricing, and a plan for needing Google as little as
 possible without losing coverage or accuracy.
 
+**Status, 31 August 2026 — §1 to §5 are current and are the authority on Google's tiers, the
+Atmosphere field list and the two fields Atmosphere was bought for. §6, §7 and §8 are superseded by
+`docs/data-sourcing-plan.md`**, which carries the field-by-field sourcing map, the wider source
+inventory, the recommended configuration and the refresh policy, measured against a catalog that has
+since fallen from 3,208 rows to 3,006. Read the later document for what to do; read this one for why
+Atmosphere costs what it costs.
+
 This builds on `docs/places-api-cost-analysis.md`, which works out the tiers, the field masks and
 the budget for a full county run. That document is the baseline; this one does not repeat its
 arithmetic. Where a number here comes from it, it is cited rather than restated.
@@ -325,6 +332,10 @@ the field is for — see §6, step 2.
 ---
 
 # The minimize-Google plan
+
+> **Superseded by `docs/data-sourcing-plan.md`.** Everything from here to the end of the page — the
+> sequenced plan, the alternative-source assessment and the refresh strategy — is carried forward
+> there against re-measured counts. Kept for the reasoning, not as the live plan.
 
 The framing to hold onto: Google is not a database we are renting badly, it is a **directory we
 need for one thing and are using for six.** The one thing is knowing that a business exists at a

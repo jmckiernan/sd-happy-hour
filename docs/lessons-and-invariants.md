@@ -469,7 +469,8 @@ says what a document is for, not whether it is current.
 | `docs/venue-category-audit.md` | Which kinds of place belong in the catalog; the brand and category axes |
 | `docs/features-field-experiment.md` | Closed evidence for deleting `features`. Kept for the method, not as a live proposal |
 | `docs/places-api-cost-analysis.md` | Field tiers, caching terms, and the derivation of the budget |
-| `docs/reducing-google-dependency.md` | How little of Google the site needs, and the alternatives to it |
+| `docs/reducing-google-dependency.md` | The Google pricing questions and the Atmosphere decision. Its plan, alternatives and refresh sections are superseded |
+| `docs/data-sourcing-plan.md` | Where every field comes from, what each source costs, and how often each is re-checked |
 | `docs/data-architecture.md` | Where the venue catalog should live |
 | `docs/infrastructure-scalability.md` | What breaks first across the whole stack, in order |
 
