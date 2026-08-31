@@ -964,6 +964,7 @@ function formatWindowLine(window: {
     import { formatCountdown, formatSanDiegoDateTime } from '../lib/promotionClientTime';
     import { vibeImageFor } from '../lib/vibeImages';
     import { imageFramingStyle } from '../lib/imageCrop';
+    import { lightboxKeyAction } from '../lib/lightboxKeys';
     import { venueDealLines } from '../lib/listingCopy';
     import { happyHourDayNames, WEEKDAY_NAMES } from '../lib/happyHourDays';
     import {
@@ -1452,6 +1453,7 @@ function formatWindowLine(window: {
     const activePointers = new Map<number, { x: number; y: number }>();
     let pinchDistance = 0;
     let lastTapAt = 0;
+    let lastTapZoomAt = 0;
 
     /** The unresized source behind a CDN rendition. Menu flyers are only
      * legible at full size, so zooming has to escape the sized derivative the
@@ -1633,7 +1635,13 @@ function formatWindowLine(window: {
       if (zoom > 1) resetZoom();
       else setZoom(2.5, point.x, point.y);
     }
-    lightboxViewport.addEventListener('dblclick', (event) => toggleZoomAt(event.clientX, event.clientY));
+    lightboxViewport.addEventListener('dblclick', (event) => {
+      // A double tap is handled below, and the browser also synthesises a
+      // dblclick from it. Running both toggles the zoom straight back off, so
+      // a phone double-tap would appear to do nothing at all.
+      if (Date.now() - lastTapZoomAt < 500) return;
+      toggleZoomAt(event.clientX, event.clientY);
+    });
 
     lightboxViewport.addEventListener('pointerdown', (event) => {
       activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -1685,6 +1693,7 @@ function formatWindowLine(window: {
       const now = Date.now();
       if (now - lastTapAt < 300) {
         toggleZoomAt(event.clientX, event.clientY);
+        lastTapZoomAt = now;
         lastTapAt = 0;
       } else {
         lastTapAt = now;
@@ -1712,17 +1721,24 @@ function formatWindowLine(window: {
     }
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
-      else if (event.key === 'Escape' && !menuModal.hidden) closeMenu();
-      if (lightbox.hidden) return;
-      if (event.key === 'Tab') trapFocus(event);
-      if (event.key === 'ArrowLeft' && lightboxPhotos.length > 1) moveLightbox(-1);
-      if (event.key === 'ArrowRight' && lightboxPhotos.length > 1) moveLightbox(1);
+      // One mapping, one branch each: a key the viewer has no meaning for has
+      // to fall out here doing nothing at all.
+      const action = lightboxKeyAction(event);
+      if (lightbox.hidden) {
+        if (action === 'close' && !menuModal.hidden) closeMenu();
+        return;
+      }
       // The zoom buttons are reachable by Tab, but these are what anyone
       // actually reaches for.
-      if (event.key === '+' || event.key === '=') setZoom(zoom * 1.5);
-      if (event.key === '-') setZoom(zoom / 1.5);
-      if (event.key === '0') resetZoom();
+      switch (action) {
+        case 'close': closeLightbox(); break;
+        case 'focus-trap': trapFocus(event); break;
+        case 'previous': if (lightboxPhotos.length > 1) moveLightbox(-1); break;
+        case 'next': if (lightboxPhotos.length > 1) moveLightbox(1); break;
+        case 'zoom-in': setZoom(zoom * 1.5); break;
+        case 'zoom-out': setZoom(zoom / 1.5); break;
+        case 'zoom-reset': resetZoom(); break;
+      }
     });
 
     window.addEventListener('resize', () => {
