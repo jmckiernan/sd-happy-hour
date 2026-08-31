@@ -186,9 +186,11 @@ const NOT_AN_OFFER = [
   // The extractor's own note about what it could not find, which is a
   // description of our failure and never an offer. A venue publishing its menu
   // as an image leaves the section headings in the page text and no items, and
-  // "Beverages [no items listed]" reached a live deal chip that way.
-  /\[[^\]]*\]/,
-  /\b(?:no|none)\s+items?\b|\bnot\s+listed\b|\bnone\s+listed\b/i,
+  // "Beverages [no items listed]" reached a live deal chip that way. Kept
+  // narrow so a dietary marker like "[GF]" is not mistaken for an annotation.
+  /\[[^\]]{13,}\]/,
+  /\[[^\]]*(?:no items|not listed|empty|unknown)[^\]]*\]/i,
+  /\b(?:no|none)\s+items?\s+listed\b|\bnot\s+listed\b|\bnone\s+listed\b/i,
   // "Mon-Thu &", "Fri &" — a day range the extractor cut mid-sentence.
   /^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*(?:\s*[-–]\s*(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*)?\s*[&,:]?\s*$/i,
 ];

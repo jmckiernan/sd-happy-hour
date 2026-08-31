@@ -343,16 +343,13 @@
           "title": "Food",
           "items": [
             {
-              "name": "Wings",
-              "price": "Rotating specials"
+              "name": "Wings"
             },
             {
-              "name": "Tots",
-              "price": "Rotating specials"
+              "name": "Tots"
             },
             {
-              "name": "Sliders",
-              "price": "Rotating specials"
+              "name": "Sliders"
             }
           ]
         }
@@ -1579,27 +1576,6 @@
       ],
       "locationApplicability": "this_location",
       "confidence": "low",
-      "observedAt": "2026-08-29"
-    },
-    "hhMenu": {
-      "note": "",
-      "sections": [
-        {
-          "title": "Specials",
-          "items": [
-            {
-              "name": "Menu | KINDRED Armory [empty page content]",
-              "price": ""
-            },
-            {
-              "name": "You have no products in your Frontpage collection.",
-              "price": ""
-            }
-          ]
-        }
-      ],
-      "fromDealChips": true,
-      "sourceUrl": "https://barkindred.com/pages/menu",
       "observedAt": "2026-08-29"
     },
     "galleryImages": [
@@ -5613,7 +5589,7 @@
             },
             {
               "name": "BJ's Seasonal Guest Draft Beers",
-              "price": "$1 OFF"
+              "price": "$1 off"
             }
           ]
         },
@@ -5650,7 +5626,6 @@
     "startTime": "19:15",
     "endTime": "20:50",
     "deals": [
-      "$5 happy hour",
       "Tuesday: Gaslamp Open Mic, $5 happy hour"
     ],
     "vibe": "Nightlife spot",
@@ -5935,7 +5910,7 @@
           "items": [
             {
               "name": "Tall Drafts",
-              "price": "$1 Off"
+              "price": "$1 off"
             },
             {
               "name": "South Beach Mule",
@@ -5967,7 +5942,7 @@
             },
             {
               "name": "House Wine",
-              "price": "$1 Off"
+              "price": "$1 off"
             }
           ]
         },
@@ -6008,7 +5983,7 @@
             },
             {
               "name": "Jalapeno Poppers",
-              "price": "½ Off"
+              "price": "½ off"
             },
             {
               "name": "All Appetizers",
@@ -6760,79 +6735,79 @@
           "items": [
             {
               "name": "Four Cheese Spinach Dip",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Hand-Battered Chicken Tenders",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Wisconsin Fried Cheese Curds",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Classic Sliders",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Blackened Ahi Sashimi",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Chicken Lettuce Wraps",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Boneless Wings",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Gardein® Wings",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Spicy Za'atar Hummus",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Miguel's Queso Dip",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Poke Nachos",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Chicken Nachos",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Crispy Brussels Sprouts",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Three Cheese",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Loaded Pepperoni",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Margherita",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "The Carnivore",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Truffled Mushroom",
-              "price": "Half off"
+              "price": "½ off"
             },
             {
               "name": "Buffalo Chicken",
-              "price": "Half off"
+              "price": "½ off"
             }
           ]
         },
@@ -8422,7 +8397,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy hour bites and libations",
       "sections": [
         {
           "title": "Bites",
@@ -8654,7 +8628,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Food & Drinks",
       "sections": [
         {
           "title": "Food",
@@ -8714,23 +8687,23 @@
           "items": [
             {
               "name": "Any Glass or Bottle of Wine",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "Sangria",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "Draft Beers",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "All Cocktails",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "All Tiki Hut Drinks",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "Coors Lite Draft",
@@ -8924,7 +8897,7 @@
             },
             {
               "name": "BJ's Seasonal Guest Draft Beers",
-              "price": "$1 OFF"
+              "price": "$1 off"
             }
           ]
         },
@@ -9900,7 +9873,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Drinks and Appetizers",
       "sections": [
         {
           "title": "Drinks",
@@ -12114,16 +12086,14 @@
               "price": "$5"
             },
             {
-              "name": "Discounted craft drafts & domestic beer",
-              "price": "discounted"
+              "name": "Discounted craft drafts & domestic beer"
             },
             {
               "name": "Well drinks & house cocktails",
               "price": "priced fair"
             },
             {
-              "name": "House red and white wine by the glass",
-              "price": "discounted"
+              "name": "House red and white wine by the glass"
             }
           ]
         },
@@ -12131,16 +12101,13 @@
           "title": "Food",
           "items": [
             {
-              "name": "Wings",
-              "price": "rotating special"
+              "name": "Wings"
             },
             {
-              "name": "Tots",
-              "price": "rotating special"
+              "name": "Tots"
             },
             {
-              "name": "Sliders",
-              "price": "rotating special"
+              "name": "Sliders"
             },
             {
               "name": "Bar food specials",
@@ -14036,7 +14003,7 @@
             },
             {
               "name": "Wines By The Glass",
-              "price": "$3 Off"
+              "price": "$3 off"
             },
             {
               "name": "Draft Beer and Well Cocktails",
@@ -14139,7 +14106,6 @@
     "startTime": "16:00",
     "endTime": "19:00",
     "deals": [
-      "10 wings for $10",
       "½ price arcade games",
       "$4.99 entrée with Power Card ($10+)",
       "$5 drinks & 10 wings for $10 Sun/Mon/Thu",
@@ -17470,7 +17436,7 @@
             },
             {
               "name": "Select Bottles of Wine",
-              "price": "Half off"
+              "price": "½ off"
             }
           ]
         },
@@ -17479,7 +17445,7 @@
           "items": [
             {
               "name": "Select Bottles of Wine",
-              "price": "Half off"
+              "price": "½ off"
             }
           ]
         }
@@ -17845,7 +17811,7 @@
           "items": [
             {
               "name": "All Draft Beers",
-              "price": "$2 Off"
+              "price": "$2 off"
             },
             {
               "name": "All Draft Beer 9oz Pours",
@@ -19622,10 +19588,6 @@
             {
               "name": "16 oz. Craft Drafts",
               "price": "$7"
-            },
-            {
-              "name": "Upgrade to 22 oz.",
-              "price": "+$2"
             }
           ]
         }
@@ -20581,7 +20543,7 @@
             },
             {
               "name": "BJ's Seasonal Guest Draft Beers",
-              "price": "$1 OFF"
+              "price": "$1 off"
             }
           ]
         },
@@ -20598,7 +20560,7 @@
             },
             {
               "name": "Personal Deep Dish Pizza",
-              "price": "$1 OFF"
+              "price": "$1 off"
             }
           ]
         }
@@ -21131,24 +21093,19 @@
           "title": "Drinks – Buy One, Get One Token for Next",
           "items": [
             {
-              "name": "Bottled & Canned Beers",
-              "price": "token"
+              "name": "Bottled & Canned Beers"
             },
             {
-              "name": "House Wines & Bubbles",
-              "price": "token"
+              "name": "House Wines & Bubbles"
             },
             {
-              "name": "Seltzers & Ciders",
-              "price": "token"
+              "name": "Seltzers & Ciders"
             },
             {
-              "name": "Well Spirits",
-              "price": "token"
+              "name": "Well Spirits"
             },
             {
-              "name": "Draft Beers",
-              "price": "token"
+              "name": "Draft Beers"
             }
           ]
         },
@@ -22030,10 +21987,6 @@
             {
               "name": "16 oz. Craft Drafts",
               "price": "$7"
-            },
-            {
-              "name": "Upgrade to 22 oz.",
-              "price": "+$2"
             }
           ]
         }
@@ -27742,46 +27695,36 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Food and Drinks",
       "sections": [
         {
           "title": "Food",
           "items": [
             {
-              "name": "Caesar Salad",
-              "price": "$"
+              "name": "Caesar Salad"
             },
             {
-              "name": "Chicken Barbacoa Nachos",
-              "price": "$"
+              "name": "Chicken Barbacoa Nachos"
             },
             {
-              "name": "Esquites",
-              "price": "$"
+              "name": "Esquites"
             },
             {
-              "name": "Queso Fundido",
-              "price": "$"
+              "name": "Queso Fundido"
             },
             {
-              "name": "TJ Dogs",
-              "price": "$"
+              "name": "TJ Dogs"
             },
             {
-              "name": "Campechana",
-              "price": "$"
+              "name": "Campechana"
             },
             {
-              "name": "Jalapeno-Cilantro Tempura Cauliflower",
-              "price": "$"
+              "name": "Jalapeno-Cilantro Tempura Cauliflower"
             },
             {
-              "name": "Rolled Taquitos",
-              "price": "$"
+              "name": "Rolled Taquitos"
             },
             {
-              "name": "Ceviche Verde",
-              "price": "$"
+              "name": "Ceviche Verde"
             }
           ]
         },
@@ -27789,44 +27732,34 @@
           "title": "Drinks",
           "items": [
             {
-              "name": "Casa Gabriela's Margarita",
-              "price": "$"
+              "name": "Casa Gabriela's Margarita"
             },
             {
-              "name": "Cantarito",
-              "price": "$"
+              "name": "Cantarito"
             },
             {
-              "name": "Los Javis CRG Mezcal shot",
-              "price": "$"
+              "name": "Los Javis CRG Mezcal shot"
             },
             {
-              "name": "Real Del Valle Blanco Tequila \"The Mummy\" shot",
-              "price": "$"
+              "name": "Real Del Valle Blanco Tequila \"The Mummy\" shot"
             },
             {
-              "name": "Gaby's Handcrafted Michelada",
-              "price": "$"
+              "name": "Gaby's Handcrafted Michelada"
             },
             {
-              "name": "Gaby's Blonde Ale",
-              "price": "$"
+              "name": "Gaby's Blonde Ale"
             },
             {
-              "name": "Sangria de la Casa",
-              "price": "$"
+              "name": "Sangria de la Casa"
             },
             {
-              "name": "Vino de la Casa Red & White",
-              "price": "$"
+              "name": "Vino de la Casa Red & White"
             },
             {
-              "name": "Suero",
-              "price": "$"
+              "name": "Suero"
             },
             {
-              "name": "Seasonal Fresca",
-              "price": "$"
+              "name": "Seasonal Fresca"
             }
           ]
         }
@@ -28061,24 +27994,19 @@
           "title": "Food",
           "items": [
             {
-              "name": "Burgers",
-              "price": "Discounted"
+              "name": "Burgers"
             },
             {
-              "name": "Tacos",
-              "price": "Discounted"
+              "name": "Tacos"
             },
             {
-              "name": "Wings",
-              "price": "Discounted"
+              "name": "Wings"
             },
             {
-              "name": "Sliders",
-              "price": "Discounted"
+              "name": "Sliders"
             },
             {
-              "name": "Shareables",
-              "price": "Discounted"
+              "name": "Shareables"
             }
           ]
         }
@@ -29897,15 +29825,15 @@
           "items": [
             {
               "name": "Specialty Cocktails",
-              "price": "1/2 off"
+              "price": "½ off"
             },
             {
               "name": "Glasses of Wine",
-              "price": "1/2 off"
+              "price": "½ off"
             },
             {
               "name": "17 oz Beers",
-              "price": "1/2 off"
+              "price": "½ off"
             }
           ]
         }
@@ -30165,11 +30093,11 @@
           "items": [
             {
               "name": "Traditional Wings",
-              "price": "½ Off"
+              "price": "½ off"
             },
             {
               "name": "Select Pitchers of Beer",
-              "price": "½ Off"
+              "price": "½ off"
             },
             {
               "name": "Draft Beers",
@@ -30206,12 +30134,11 @@
               "price": "$31"
             },
             {
-              "name": "Tuesday: All Day Happy Hour",
-              "price": "Happy Hour Pricing"
+              "name": "Tuesday: All Day Happy Hour"
             },
             {
               "name": "Wednesday: Boneless Wings All Day",
-              "price": "½ Off"
+              "price": "½ off"
             },
             {
               "name": "Thursday: A La Carte Tacos All Day",
@@ -30219,7 +30146,7 @@
             },
             {
               "name": "Thursday: All Tequilas All Day",
-              "price": "½ Off"
+              "price": "½ off"
             },
             {
               "name": "Thursday: 818 Margaritas All Day",
@@ -30653,9 +30580,7 @@
       "Carajillo $11",
       "Gin Cafe $12",
       "Short Drinks $10–$12",
-      "Campari cocktails $10–$11",
-      "Frizzante $8–$13",
-      "Long Drinks $10–$12"
+      "Campari cocktails $10–$11"
     ],
     "vibe": "Wine bar",
     "website": "https://caffecalabria.com/",
@@ -33722,60 +33647,46 @@
           "title": "Drinks",
           "items": [
             {
-              "name": "Mai Tai",
-              "price": "Happy Hour pricing"
+              "name": "Mai Tai"
             },
             {
-              "name": "Deep Blue Sea",
-              "price": "Happy Hour pricing"
+              "name": "Deep Blue Sea"
             },
             {
-              "name": "Big Island Iced Tea",
-              "price": "Happy Hour pricing"
+              "name": "Big Island Iced Tea"
             },
             {
-              "name": "Moscow Mule",
-              "price": "Happy Hour pricing"
+              "name": "Moscow Mule"
             },
             {
-              "name": "Well Rocks & Mixed Drinks",
-              "price": "Happy Hour pricing"
+              "name": "Well Rocks & Mixed Drinks"
             },
             {
-              "name": "Margaritas (Rocks or Frozen)",
-              "price": "Happy Hour pricing"
+              "name": "Margaritas (Rocks or Frozen)"
             },
             {
-              "name": "Mangorita®",
-              "price": "Happy Hour pricing"
+              "name": "Mangorita®"
             },
             {
-              "name": "Frozen Strawberry",
-              "price": "Happy Hour pricing"
+              "name": "Frozen Strawberry"
             },
             {
-              "name": "Coors Light Draft 16 oz",
-              "price": "Happy Hour pricing"
+              "name": "Coors Light Draft 16 oz"
             },
             {
-              "name": "Coors Light Draft 22 oz",
-              "price": "Happy Hour pricing"
+              "name": "Coors Light Draft 22 oz"
             },
             {
-              "name": "Domestic Bottled Beer",
-              "price": "Happy Hour pricing"
+              "name": "Domestic Bottled Beer"
             },
             {
-              "name": "Islands House Beer",
-              "price": "Happy Hour pricing"
+              "name": "Islands House Beer"
             },
             {
-              "name": "Copper Ridge Cabernet",
-              "price": "Happy Hour pricing"
+              "name": "Copper Ridge Cabernet"
             },
             {
-              "name": "Copper Ridge Chardonnay",
-              "price": "Happy Hour pricing"
+              "name": "Copper Ridge Chardonnay"
             }
           ]
         },
@@ -33783,48 +33694,37 @@
           "title": "Eats",
           "items": [
             {
-              "name": "Chips & Salsa",
-              "price": "Happy Hour pricing"
+              "name": "Chips & Salsa"
             },
             {
-              "name": "Cheddar Fries",
-              "price": "Happy Hour pricing"
+              "name": "Cheddar Fries"
             },
             {
-              "name": "Onion Rings",
-              "price": "Happy Hour pricing"
+              "name": "Onion Rings"
             },
             {
-              "name": "Beachside Sliders™",
-              "price": "Happy Hour pricing"
+              "name": "Beachside Sliders™"
             },
             {
-              "name": "Street Tacos",
-              "price": "Happy Hour pricing"
+              "name": "Street Tacos"
             },
             {
-              "name": "Spinach Artichoke Dip",
-              "price": "Happy Hour pricing"
+              "name": "Spinach Artichoke Dip"
             },
             {
-              "name": "Boneless Wings & Fries",
-              "price": "Happy Hour pricing"
+              "name": "Boneless Wings & Fries"
             },
             {
-              "name": "Quesadilla",
-              "price": "Happy Hour pricing"
+              "name": "Quesadilla"
             },
             {
-              "name": "Tempura Green Beans",
-              "price": "Happy Hour pricing"
+              "name": "Tempura Green Beans"
             },
             {
-              "name": "Tiki Tenders & Fries",
-              "price": "Happy Hour pricing"
+              "name": "Tiki Tenders & Fries"
             },
             {
-              "name": "Islands Nachitos",
-              "price": "Happy Hour pricing"
+              "name": "Islands Nachitos"
             }
           ]
         }
@@ -37566,7 +37466,7 @@
           "items": [
             {
               "name": "Select Drafts",
-              "price": "1/2 off"
+              "price": "½ off"
             },
             {
               "name": "Beer & Shot",
@@ -37582,7 +37482,7 @@
             },
             {
               "name": "Most Spirits",
-              "price": "1/2 off"
+              "price": "½ off"
             },
             {
               "name": "Towers",
@@ -39182,7 +39082,7 @@
             },
             {
               "name": "Wine Bottles",
-              "price": "Half off"
+              "price": "½ off"
             }
           ]
         }
@@ -42767,11 +42667,11 @@
           "items": [
             {
               "name": "Domestic Draft Beer",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Craft Beer on Draft",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Well Drinks",
@@ -44856,7 +44756,6 @@
     "startTime": "15:00",
     "endTime": "22:00",
     "deals": [
-      "$10 5 wings + special beer",
       "Wing Wednesday: $10 5 wings + special beer"
     ],
     "vibe": "Cocktail bar",
@@ -51567,7 +51466,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Food and Drink Specials",
       "sections": [
         {
           "title": "Food",
@@ -51663,8 +51561,7 @@
               "price": "$12"
             },
             {
-              "name": "Milagro Silver Tequila",
-              "price": "N/A"
+              "name": "Milagro Silver Tequila"
             }
           ]
         }
@@ -51692,8 +51589,7 @@
       "$6 wells",
       "$6 salads, fish taco, fries or tots",
       "$8 wings, onion rings, blistered green beans",
-      "$10 nachos, harissa meatballs, 10in cheese pizza",
-      "$12 pork belly bites"
+      "$10 nachos, harissa meatballs, 10in cheese pizza"
     ],
     "vibe": "Brewery",
     "website": "http://sandiegobrewing.com/",
@@ -52464,11 +52360,11 @@
             },
             {
               "name": "House Wine by the Glass",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Bottles of Wine",
-              "price": "50% OFF"
+              "price": "50% off"
             }
           ]
         },
@@ -52863,15 +52759,15 @@
           "items": [
             {
               "name": "Well Cocktails",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Draft Beer",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Wine & Champagne",
-              "price": "$2 OFF"
+              "price": "$2 off"
             }
           ]
         },
@@ -52880,23 +52776,23 @@
           "items": [
             {
               "name": "Chicken Caesar Salad",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Chicken Tenders",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Corn Dog",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Buttered Soft Pretzel",
-              "price": "$2 OFF"
+              "price": "$2 off"
             },
             {
               "name": "Wings",
-              "price": "$2 OFF"
+              "price": "$2 off"
             }
           ]
         }
@@ -55558,7 +55454,7 @@
           "items": [
             {
               "name": "All Draft Beers",
-              "price": "$3 OFF"
+              "price": "$3 off"
             }
           ]
         },
@@ -56803,7 +56699,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Shakeables and Drink Specials",
       "sections": [
         {
           "title": "Shakeables",
@@ -57768,7 +57663,7 @@
           "items": [
             {
               "name": "All Draft Beers",
-              "price": "1/2 off"
+              "price": "½ off"
             }
           ]
         },
@@ -65599,7 +65494,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour Bites and Drinks menu",
       "sections": [
         {
           "title": "Drinks",
@@ -66260,8 +66154,7 @@
       "Pretzel Bites $8",
       "Cheese Flatbread $9",
       "Pepperoni $2",
-      "Birria Quesadilla $11",
-      "Peppered Brown Sugar Bacon Burger $14"
+      "Birria Quesadilla $11"
     ],
     "vibe": "Restaurant",
     "website": "https://parksocialsd.com/",
@@ -66889,8 +66782,7 @@
               "price": "$31"
             },
             {
-              "name": "Tuesday: All Day Happy Hour",
-              "price": "varies"
+              "name": "Tuesday: All Day Happy Hour"
             },
             {
               "name": "Wednesday: ½ Off Boneless Wings All Day",
@@ -66909,8 +66801,7 @@
               "price": "$5"
             },
             {
-              "name": "Friday: Happy Hour 3pm–6pm",
-              "price": "varies"
+              "name": "Friday: Happy Hour 3pm–6pm"
             },
             {
               "name": "Saturday & Sunday: Mimosa",
@@ -67720,7 +67611,6 @@
     "startTime": "15:00",
     "endTime": "18:00",
     "deals": [
-      "Wings Wednesdays",
       "Wings Wednesdays - Wednesdays"
     ],
     "vibe": "Cocktail bar",
@@ -78329,7 +78219,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour food and drink specials",
       "sections": [
         {
           "title": "Drinks",
@@ -78340,7 +78229,7 @@
             },
             {
               "name": "Select Wine Btg",
-              "price": "$3 Off"
+              "price": "$3 off"
             },
             {
               "name": "House Margarita",
@@ -82278,24 +82167,19 @@
           "title": "Cocktails (Happy Hour)",
           "items": [
             {
-              "name": "Whaling Vesper",
-              "price": "Not specified"
+              "name": "Whaling Vesper"
             },
             {
-              "name": "Dirty Martini",
-              "price": "Not specified"
+              "name": "Dirty Martini"
             },
             {
-              "name": "Perfect Manhattan",
-              "price": "Not specified"
+              "name": "Perfect Manhattan"
             },
             {
-              "name": "Afternoon Aperitivo",
-              "price": "Not specified"
+              "name": "Afternoon Aperitivo"
             },
             {
-              "name": "Prospect \"Margarita\"",
-              "price": "Not specified"
+              "name": "Prospect \"Margarita\""
             }
           ]
         },
@@ -82303,28 +82187,22 @@
           "title": "Bites",
           "items": [
             {
-              "name": "Caesar \"Twinkies\"",
-              "price": "Not specified"
+              "name": "Caesar \"Twinkies\""
             },
             {
-              "name": "Celery Salad",
-              "price": "Not specified"
+              "name": "Celery Salad"
             },
             {
-              "name": "French Fries",
-              "price": "Not specified"
+              "name": "French Fries"
             },
             {
-              "name": "Fried Chicken",
-              "price": "Not specified"
+              "name": "Fried Chicken"
             },
             {
-              "name": "\"Single Single\" Burger",
-              "price": "Not specified"
+              "name": "\"Single Single\" Burger"
             },
             {
-              "name": "Duck Meatball and Polenta",
-              "price": "Not specified"
+              "name": "Duck Meatball and Polenta"
             }
           ]
         }
@@ -82687,7 +82565,6 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy hour drinks and bites menu",
       "sections": [
         {
           "title": "Drinks",
@@ -125106,7 +124983,6 @@
       "turned_in_not Happy Hour No",
       "turned_in_not Drive-Thru No",
       "directions_bike Bike Parking Yes",
-      "The Sister House. 21851 Mission Blvd, Hayward, USA",
       "Taqueria Eduardo 2. 1104 W Tennyson Rd, Hayward, USA"
     ],
     "vibe": "Restaurant",
@@ -126348,7 +126224,7 @@
       "$3 off all flatbreads",
       "$5 tacos (Taco Tuesday)",
       "Half-price game day bites",
-      "Taco Tuesday: $5 tacos from"
+      "Taco Tuesday: $5 tacos"
     ],
     "vibe": "Cocktail bar",
     "website": "https://www.hiddencraftsd.com/",
@@ -127616,7 +127492,6 @@
       "3-6pm Daily",
       "Taco Tuesday - 3 tacos and your drink is $1",
       "Torta Thursday - grab any Torta and your drink is $1",
-      "427 Lincoln Blvd., Venice, 90291",
       "Not valid on holidays or special events."
     ],
     "vibe": "Seafood spot",
@@ -127649,9 +127524,7 @@
     "startTime": "14:00",
     "endTime": "17:00",
     "deals": [
-      "Pajama Brunch $5 All You Can Eat Waffles & $3 mimosas when you’re in PJs Every Saturday and Sunday from -->",
-      "3367 India St. Suite B San Diego, CA 92103 (619) 297-7211",
-      "Pajama Brunch $5 All You Can Eat Waffles & $3 mimosas when you’re in PJs"
+      "Pajama Brunch $5 All You Can Eat Waffles & $3 mimosas when you’re in PJs Every Saturday and Sunday"
     ],
     "vibe": "Cocktail bar",
     "website": "http://www.dynobarsd.com/",
