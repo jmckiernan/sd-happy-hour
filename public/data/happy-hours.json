@@ -99699,17 +99699,42 @@
     ],
     "startTime": "12:00",
     "endTime": "17:00",
-    "deals": [],
+    "deals": [
+      "$10 off all hookahs",
+      "20% off wine bottles",
+      "$7 draft beer",
+      "$7 house wine",
+      "$7 well shots",
+      "$4 tea"
+    ],
     "vibe": "Nightlife spot",
     "website": "http://www.minalounge.com/",
     "phone": "(619) 234-6652",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12562917561219985173&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://www.minalounge.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://www.minalounge.com/",
+            "quote": "HAPPY HOUR MONDAY - FRIDAY 12-5pm $10 OFF ALL HOOKAHS 20% OFF WINE BOTTLES $4 TEA $5 COFFEE DRINKS $7 WELL SHOTS $7 RED OR WHITE SANGRIA $7 DRAFT BEER $7 HOUSE WINE",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 661,
@@ -99990,17 +100015,43 @@
     ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "$2 off all draft beer",
+      "$6 well drinks / house wine",
+      "$4-6 popular Chinese tapas",
+      "$8 Tito's / Hornitos",
+      "$9 Jack Daniels / Jameson",
+      "$5 bottle of selected wine"
+    ],
     "vibe": "Cocktail bar",
     "website": "https://www.shanghaibunsd.com/?utm_source=Google&utm_medium=Organic&utm_campaign=GMB",
     "phone": "(619) 795-1700",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9753790100158822412&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.shanghaibunsd.com/promotion/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.shanghaibunsd.com/promotion/",
+            "quote": "Happy Hour 3PM – 6PM Monday-Friday * Minimum one beverage purchase required. $2 Off All Draft Beer $6 Well Drinks / House Wine $8 Tito's / Hornitos $9 Jack Daniels / Jameson $4-6 Popular Chinese Tapas $5 Bottle of Selected Wine",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 671,
