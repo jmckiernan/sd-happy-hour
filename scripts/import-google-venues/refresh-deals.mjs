@@ -6,7 +6,7 @@
 //   npm run import:venues:refresh-deals -- --limit=25
 
 import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
-import { finalizeDeals, isRealDealLine, needsDealRefresh } from './lib/deals.mjs';
+import { MAX_DEAL_CHIPS, finalizeDeals, isRealDealLine, needsDealRefresh } from './lib/deals.mjs';
 import { extractWebsiteHappyHour } from './lib/happy-hour.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 
@@ -27,7 +27,9 @@ async function main() {
       const realDeals = nextDeals.filter(isRealDealLine);
       const currentReal = (venue.deals || []).filter(isRealDealLine);
       if (realDeals.length >= 2 && realDeals.length > currentReal.length) {
-        venue.deals = realDeals.slice(0, 8);
+        // The cap the page renders, not a second opinion about it. This read 8
+        // against a six-chip layout, so a good refresh quietly overflowed.
+        venue.deals = realDeals.slice(0, MAX_DEAL_CHIPS);
         improved += 1;
         console.log(`  ✓ ${venue.name}: ${venue.deals.join(' · ')}`);
       }
