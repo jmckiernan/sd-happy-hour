@@ -10,7 +10,8 @@ import { normalizeVenue } from './lib/normalize.mjs';
 import { displayName } from './lib/google-places.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
-import { isCorporateFastFood } from './lib/chain-blocklist.mjs';
+import { isBlockedChain } from './lib/chain-blocklist.mjs';
+import { isExcludedCategory } from './lib/category-rules.mjs';
 import { createVenueIdAllocator } from './lib/venue-ids.mjs';
 
 async function main() {
@@ -31,7 +32,10 @@ async function main() {
     .filter((place) => classifyCounty(place).inCounty)
     // A "happy hour" on one of these is always a misread — a Starbucks reached
     // the live site with a 09:00 window before this filter existed.
-    .filter((place) => !isCorporateFastFood(displayName(place)))
+    .filter((place) => !isBlockedChain(displayName(place)))
+    // Second pass on the category, because Place Details sometimes returns a
+    // primaryType the discovery record did not carry.
+    .filter((place) => !isExcludedCategory(place.primaryType, displayName(place)))
     .sort((a, b) => (b.userRatingCount || 0) - (a.userRatingCount || 0));
 
   const { kept, upgrades, skipped } = dedupeRecords(candidates, existing);
@@ -47,8 +51,8 @@ async function main() {
   for (const { record, venue } of upgrades) {
     // The candidate filter above tests the Google display name; a stub carrying
     // the brand under a different catalog name would otherwise be published.
-    if (isCorporateFastFood(venue.name)) {
-      rejected.push({ name: venue.name, reason: 'corporate-fast-food' });
+    if (isBlockedChain(venue.name)) {
+      rejected.push({ name: venue.name, reason: 'blocked-chain' });
       continue;
     }
     const normalized = normalizeVenue(record, venue.id);

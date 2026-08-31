@@ -32,6 +32,7 @@ function stagingIsStale(builtAt) {
     'lib/deals.mjs',
     'lib/dedupe.mjs',
     'lib/chain-blocklist.mjs',
+    'lib/category-rules.mjs',
     'lib/county.mjs',
     'build-staging.mjs',
   ];

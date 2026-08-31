@@ -17,9 +17,9 @@ change it here too.
 discover ──▶ enrich ──▶ extract ──▶ stage ──▶ merge ──▶ public/data/happy-hours.json
    │           │           │          │         │
    │           │           │          │         └─ staleness guard, stub upgrades
-   │           │           │          └─ dedupe, county, fast food, MAX_IMPORT cap
+   │           │           │          └─ dedupe, county, chains, categories, MAX_IMPORT cap
    │           │           └─ Google → website → locator → AI, in that order
-   │           └─ quality bar, county, fast food (the gate that protects spend)
+   │           └─ quality bar, county, chains, categories (the gate that protects spend)
    └─ grid search, no filtering
 
 import:stubs ──▶ same catalog, for venues with no happy hour
@@ -108,7 +108,9 @@ Buy Place Details for candidates worth having, and decide who qualifies.
 Applied to the candidate list in this order:
 
 - `businessStatus` must be `OPERATIONAL`.
-- Name must not match the fast-food blocklist (§9).
+- Name must not match the chain blocklist (§9).
+- `primaryType` must not be an excluded category (§9.3). Discovery returns the type in the mask, so
+  this costs nothing to check.
 - **Escape hatch:** if both `rating` and `userRatingCount` are absent, the place passes through.
   Unknown quality is not a rejection at this stage.
 - Otherwise `rating >= MIN_RATING` **and** `userRatingCount >= MIN_REVIEWS`.
@@ -444,7 +446,7 @@ A match is an **upgrade**, not a duplicate, when the existing row is a stub
 - Must have `hasHappyHour` and a `happyHour` object.
 - Must pass the county check again. The enriched cache predates that filter and still marks Orange
   and Riverside places as qualified, so staging would re-add venues `audit:county` just unlisted.
-- Must not be corporate fast food. A "happy hour" on one of those is always a misread. Upgrades are
+- Must not be a blocked chain or an excluded category. A "happy hour" on one of those is always a misread. Upgrades are
   checked twice: on the Google display name and again on the existing stub's catalog name.
 - Sorted by review count descending, then capped at `MAX_IMPORT` (default 1,000).
   - The cap applies to new venues only. **Upgrades are never capped.**
@@ -456,7 +458,8 @@ A match is an **upgrade**, not a duplicate, when the existing row is a stub
 ### 8.1 Staleness guard
 
 Merge refuses to run if any file that shaped the staging output has changed since it was built:
-`normalize.mjs`, `deals.mjs`, `dedupe.mjs`, `chain-blocklist.mjs`, `county.mjs`, `build-staging.mjs`.
+`normalize.mjs`, `deals.mjs`, `dedupe.mjs`, `chain-blocklist.mjs`, `category-rules.mjs`,
+`county.mjs`, `build-staging.mjs`.
 
 - The filters run at **staging** time and freeze their output into `staging.json`. Merge only
   copies rows across. So fixing a filter does nothing for a staging file built before the fix.
@@ -472,7 +475,12 @@ Merge refuses to run if any file that shaped the staging output has changed sinc
 
 ---
 
-## 9. Corporate fast food
+## 9. Corporate chains and non-venue categories
+
+Two separate axes, in two files, and they must not be argued from each other's evidence. Starbucks
+is out and a local coffee shop is in, so the brand list carries the Starbucks and `coffee_shop`
+stays. `lib/chain-blocklist.mjs` is the brand axis; `lib/category-rules.mjs` is the category axis.
+`docs/venue-category-audit.md` holds the per-category reasoning.
 
 Removed from the catalog and blocked at import. A brand qualifies only if **both** are true:
 
@@ -481,17 +489,22 @@ Removed from the catalog and blocked at import. A brand qualifies only if **both
 - It will never claim a listing, because franchise marketing runs through corporate software rather
   than a local owner filling in a form.
 
-**Sit-down chains are deliberately kept** — BJ's, Chili's, Applebee's, Yard House, Outback. They are
-corporate too, but they run real happy hours and are exactly what someone searching this site wants.
+**Sit-down chains are deliberately kept** — BJ's, Chili's, Applebee's, Yard House, Outback, Buffalo
+Wild Wings, Olive Garden, Texas Roadhouse. They are corporate too, but they have a bar, they run
+real happy hours and they are exactly what someone searching this site wants. So is a local operator
+with several addresses: Bird Rock Coffee Roasters, Lofty, Communal, The Taco Stand. The line is
+neither "chain" nor "multi-location" — it is whether afternoon pricing is set in a head office and
+marketed through the brand's own app, leaving no local operator with anything to gain from claiming.
 
 ### 9.1 Matching
 
-41 brand patterns, matched two ways:
+67 brand patterns, matched two ways:
 
 - **Word-boundary match** anywhere in the name, using custom boundaries rather than `\b` so
   hyphenated spellings like `in-n-out` cannot collapse to a bare `in`.
-- **Whole-name match** for `subway` and `sonic`, which are ordinary English words. These only match
-  when the brand is essentially the entire listing name, give or take a store number.
+- **Whole-name match** for `subway`, `sonic`, `cava`, `ampm` and `the melt`, which are ordinary
+  words or would otherwise reach into an unrelated local name. These only match when the brand is
+  essentially the entire listing name, give or take a store number or the chain's own descriptor.
 
 ### 9.2 Where it is enforced
 
@@ -503,6 +516,27 @@ corporate too, but they run real happy hours and are exactly what someone search
 Purge **deletes** rather than unlists, because an unlisted venue still occupies the claim search,
 which is the surface these were hurting most.
 
+### 9.3 Excluded categories
+
+A category earns exclusion only by failing all three of the owner's criteria at once: no location of
+any brand in it would ever run a special, and no owner would ever claim the page. That is a much
+shorter list than "categories that yield no happy hours" — `coffee_shop` (1.9%), `tea_house` (0%)
+and `breakfast_restaurant` (0%) all stay, because a quiet boba shop is inventory and a 7-Eleven is
+pollution.
+
+- **Matched on `primaryType` only, never on `types` membership.** Google tags a brewery
+  `manufacturer`, which appears in the `types` of 204 catalog listings at an 18.1% hit rate; a
+  `types` rule would delete a fifth of the breweries.
+- **Overridable by the name.** If the name carries `bar`, `pub`, `taproom`, `brew`, `cantina`,
+  `lounge`, `grill`, `kitchen`, `cocktail` and similar, the place survives whatever Google typed it.
+  SD TapRoom is a real taproom with a real happy hour that Google types `pizza_delivery`.
+- `fast_food_restaurant`, `meal_takeaway`, `pizza_delivery` and `catering_service` are deliberately
+  **not** excluded by category. Checked against the catalog, those types mostly hold local
+  independents Google mistyped — Angelo's Burgers, Mariscos Gonzalez, It's Raw Poke Shop, Leucadia
+  Pizza. The corporate half of that type is the brand list's job.
+
+Enforced at the same four gates as the brand list.
+
 ---
 
 ## 10. Claimable stubs
@@ -511,8 +545,8 @@ Every qualifying venue gets a page its owner can claim, whether or not we found 
 Without this, an owner searching the claim dashboard for their own restaurant finds nothing.
 
 - Costs nothing to run — every place involved was already enriched.
-- Skip conditions, in order: below 4.0★ / 10 reviews, out of county, corporate fast food, already
-  in the catalog, or unusable (no address, no coordinates, no valid source URL).
+- Skip conditions, in order: below 4.0★ / 10 reviews, out of county, blocked chain, excluded
+  category, already in the catalog, or unusable (no address, no coordinates, no valid source URL).
 - Already-in-catalog is checked by place ID **and** by name + street line, since two enriched
   records can share a storefront.
 

@@ -19,7 +19,8 @@ import { HAPPY_HOURS_PATH, ENRICHED_PATH, ROOT_DIR } from './lib/constants.mjs';
 import { normalizeStubVenue, stripImportMeta } from './lib/normalize.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
-import { isCorporateFastFood } from './lib/chain-blocklist.mjs';
+import { isBlockedChain } from './lib/chain-blocklist.mjs';
+import { isExcludedCategory } from './lib/category-rules.mjs';
 import { createVenueIdAllocator } from './lib/venue-ids.mjs';
 
 const MIN_RATING = 4.0;
@@ -45,7 +46,7 @@ async function main() {
   const knownIds = new Set(existing.map((venue) => venue.placeId).filter(Boolean));
   const knownAddresses = new Set(existing.map((venue) => addressKey(venue.name, venue.address)));
 
-  const skipped = { belowBar: 0, outOfCounty: 0, fastFood: 0, alreadyListed: 0, unusable: 0 };
+  const skipped = { belowBar: 0, outOfCounty: 0, blockedChain: 0, excludedCategory: 0, alreadyListed: 0, unusable: 0 };
   const venueIds = createVenueIdAllocator(existing);
   const stubs = [];
 
@@ -62,8 +63,14 @@ async function main() {
     const placeId = placeIdOf(record);
     const name = record.displayName?.text || record.displayName || record.name || '';
     // A franchise never claims its own listing, so a stub for one is dead weight.
-    if (isCorporateFastFood(name)) {
-      skipped.fastFood += 1;
+    if (isBlockedChain(name)) {
+      skipped.blockedChain += 1;
+      continue;
+    }
+    // Nor does a convenience store or a nail salon, and a stub is exactly how
+    // twenty 7-Elevens reached the claim search in the first place.
+    if (isExcludedCategory(record.primaryType, name)) {
+      skipped.excludedCategory += 1;
       continue;
     }
     if (knownIds.has(placeId) || knownAddresses.has(addressKey(name, record.formattedAddress))) {
@@ -88,7 +95,8 @@ async function main() {
   console.log(`Enriched places: ${Object.keys(enriched).length}`);
   console.log(`  below ${MIN_RATING}★/${MIN_REVIEWS} reviews: ${skipped.belowBar}`);
   console.log(`  outside San Diego County: ${skipped.outOfCounty}`);
-  console.log(`  corporate fast food: ${skipped.fastFood}`);
+  console.log(`  corporate chains: ${skipped.blockedChain}`);
+  console.log(`  excluded categories: ${skipped.excludedCategory}`);
   console.log(`  already in the catalog: ${skipped.alreadyListed}`);
   console.log(`  missing address or coordinates: ${skipped.unusable}`);
   console.log(`Claimable stubs: ${stubs.length}`);

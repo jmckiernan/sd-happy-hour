@@ -9,7 +9,8 @@ import { MIN_RATING, MIN_REVIEWS, ENRICHED_PATH, CANDIDATES_PATH } from './lib/c
 import { placeDetails, placeIdKey, displayName } from './lib/google-places.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { classifyCounty } from './lib/county.mjs';
-import { isCorporateFastFood } from './lib/chain-blocklist.mjs';
+import { isBlockedChain } from './lib/chain-blocklist.mjs';
+import { isExcludedCategory } from './lib/category-rules.mjs';
 
 /**
  * Re-apply the quality bar to details we already hold.
@@ -66,7 +67,11 @@ async function main() {
       if ((place.businessStatus || 'OPERATIONAL') !== 'OPERATIONAL') return false;
       // Discovery returns the name, so we can drop the McDonald's and Starbucks
       // of the world before paying for details we would only throw away.
-      if (isCorporateFastFood(displayName(place))) return false;
+      if (isBlockedChain(displayName(place))) return false;
+      // Discovery returns primaryType too, so the 7-Elevens and grocery stores
+      // cost nothing to recognise either. A brand list never catches the long
+      // tail of one-off convenience stores; the category does.
+      if (isExcludedCategory(place.primaryType, displayName(place))) return false;
       if (place.rating == null && place.userRatingCount == null) return true;
       return (place.rating ?? 0) >= MIN_RATING && (place.userRatingCount ?? 0) >= MIN_REVIEWS;
     })
