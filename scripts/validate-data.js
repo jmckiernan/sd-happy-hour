@@ -179,7 +179,14 @@ function validateListing(listing, label) {
   } else if (!hasStringArray(listing.dealTypes)) {
     errors.push(`${label}: dealTypes must be a non-empty string array unless dealsUnknown is true.`);
   }
-  if (!hasStringArray(listing.features)) errors.push(`${label}: features must be a non-empty string array.`);
+  // Google Atmosphere amenities, and optional in the strong sense: an absent
+  // key means nobody has asked Google about this venue, which is not the same
+  // claim as `false`. Only the type is checked, so the absence stays sayable.
+  for (const field of ['outdoorSeating', 'allowsDogs']) {
+    if (field in listing && typeof listing[field] !== 'boolean') {
+      errors.push(`${label}: ${field} must be boolean when present.`);
+    }
+  }
   // Optional admin-set featured photo. Absent means the site falls back to the
   // vibe stock photo, so only its shape is checked — same rule as
   // validateListing() in src/lib/validation.ts, since this value is rendered

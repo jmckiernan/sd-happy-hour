@@ -18,7 +18,6 @@ function validOwnerListing(overrides = {}) {
     endTime: '18:00',
     deals: ['$8 cocktails'],
     dealTypes: ['cocktails'],
-    features: ['patio'],
     vibe: 'Trendy gastropub',
     website: 'https://example.test',
     phone: '(619) 555-0100',

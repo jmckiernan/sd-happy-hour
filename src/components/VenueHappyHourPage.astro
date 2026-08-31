@@ -200,8 +200,8 @@ function formatWindowLine(window: {
        data-astro-cid attribute onto elements in the template and matching on
        it — an element created by client script never has that attribute, so a
        scoped `.deal` would silently stop applying the moment the repaint ran.
-       The containers (.deal-grid, .day-row, .tag-row) stay scoped: those come
-       from the template and are never replaced. */
+       The containers (.deal-grid, .day-row) stay scoped: those come from the
+       template and are never replaced. */
     :global(.deal) {
       background: linear-gradient(135deg, var(--sunset-end) 0%, var(--sunset-mid) 100%);
       color: var(--night);
@@ -298,9 +298,6 @@ function formatWindowLine(window: {
 
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
     .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
-    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-    /* Also rebuilt client-side by applyOwnerEdits() — see the note on .deal. */
-    :global(.feature-tag) { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
 
     .live-deal-wrap {
       max-width: 800px;
@@ -681,9 +678,6 @@ function formatWindowLine(window: {
         {hasWeeklySpecials && (
           <p class="weekly-jump">Day-by-day schedule below, including Drink Exchange hours.</p>
         )}
-        <div class="tag-row" id="hh-features" style={venue.features && venue.features.length > 0 ? '' : 'display:none;'}>
-          {(venue.features || []).map((f) => <span class="feature-tag">{f}</span>)}
-        </div>
         <p id="hh-address" style="margin-top: 16px; font-size: 0.85rem; color: var(--night-soft);">{venue.address}</p>
       </div>
     </div>
@@ -1627,14 +1621,6 @@ function formatWindowLine(window: {
         document.getElementById('hh-deals')!.innerHTML = venueDealLines(listing)
           .map((deal: string) => `<span class="deal">${esc(deal)}</span>`)
           .join('');
-      }
-
-      if (Array.isArray(listing.features)) {
-        const features = document.getElementById('hh-features') as HTMLElement;
-        features.innerHTML = listing.features
-          .map((feature: string) => `<span class="feature-tag">${esc(feature)}</span>`)
-          .join('');
-        features.style.display = listing.features.length ? '' : 'none';
       }
 
       if (listing.address) document.getElementById('hh-address')!.textContent = listing.address;

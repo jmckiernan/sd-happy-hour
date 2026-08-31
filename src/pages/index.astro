@@ -305,9 +305,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; }
     .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
 
-    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 14px; }
-    .feature-tag { background: var(--sand-warm); color: var(--night-soft); font-size: 0.7rem; font-weight: 600; padding: 5px 9px; border-radius: 100px; text-transform: capitalize; }
-
     .trust-row { display: flex; justify-content: space-between; gap: 12px; margin: -4px 0 14px; color: var(--night-soft); font-size: 0.75rem; font-weight: 500; }
     .trust-row a { color: var(--ocean); font-weight: 700; text-decoration: none; white-space: nowrap; }
     .trust-row a:hover { text-decoration: underline; }
@@ -477,10 +474,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
         <select class="filter-btn" id="deal-filter" aria-label="Filter by recurring happy hour deal">
           <option value="">All deals</option>
-        </select>
-
-        <select class="filter-btn" id="feature-filter" aria-label="Filter by venue vibe">
-          <option value="">All vibes</option>
         </select>
 
         <select class="filter-btn" id="status-filter" aria-label="Filter directory by current status">
@@ -698,7 +691,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         day: (document.getElementById('day-filter') as HTMLSelectElement).value,
         neighborhood: (document.getElementById('neighborhood-filter') as HTMLSelectElement).value,
         dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
-        feature: (document.getElementById('feature-filter') as HTMLSelectElement).value,
         status: (document.getElementById('status-filter') as HTMLSelectElement).value,
         trust: (document.getElementById('trust-filter') as HTMLSelectElement).value,
         nearMe: userLocation ? { ...userLocation } : null,
@@ -786,7 +778,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       }
       setSelectValue('neighborhood-filter', saved.neighborhood);
       setSelectValue('deal-filter', saved.dealType);
-      setSelectValue('feature-filter', saved.feature);
       setSelectValue('status-filter', saved.status);
       setSelectValue('trust-filter', saved.trust);
 
@@ -1137,7 +1128,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
-      populateSelect('feature-filter', [...new Set(happyHours.flatMap((h) => h.features || []))].sort(), labelize);
 
       if (!directoryFiltersRestored) {
         restoreDirectoryFilters();
@@ -1242,7 +1232,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     function matchesSearch(h: any, query: string) {
       if (!query) return true;
-      const haystack = [h.name, h.neighborhood, h.address, h.vibe, ...(h.deals || []), ...(h.dealTypes || []), ...(h.features || [])]
+      const haystack = [h.name, h.neighborhood, h.address, h.vibe, ...(h.deals || []), ...(h.dealTypes || [])]
         .join(' ')
         .toLowerCase();
       return haystack.includes(query);
@@ -1262,7 +1252,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const dayFilter = (document.getElementById('day-filter') as HTMLSelectElement).value;
       const neighborhoodFilter = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
       const dealFilter = (document.getElementById('deal-filter') as HTMLSelectElement).value;
-      const featureFilter = (document.getElementById('feature-filter') as HTMLSelectElement).value;
       const statusFilter = (document.getElementById('status-filter') as HTMLSelectElement).value;
       const trustFilter = (document.getElementById('trust-filter') as HTMLSelectElement).value;
 
@@ -1272,7 +1261,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       if (dayFilter) filtered = filtered.filter((h) => h.days.includes(dayFilter));
       if (neighborhoodFilter) filtered = filtered.filter((h) => h.neighborhood === neighborhoodFilter);
       if (dealFilter) filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
-      if (featureFilter) filtered = filtered.filter((h) => (h.features || []).includes(featureFilter));
       if (statusFilter === 'happy-hour-now') {
         filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.happyHourOccurrence));
       }
@@ -1347,9 +1335,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
           }).join('');
 
           const trustClass = h.verified ? '' : ' unverified';
-          const featureTags = (h.features || []).slice(0, 3)
-            .map((tag: string) => `<span class="feature-tag">${escapeHTML(labelize(tag))}</span>`)
-            .join('');
 
           const weekday = todayIndex >= 0 ? dayNames[todayIndex] : undefined;
           const specialChips = cardSpecials(h, weekday);
@@ -1398,8 +1383,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                     ${state.state === 'both' ? '<span>Happy hour also happening now</span>' : ''}
                   </div>
                 ` : ''}
-
-                <div class="tag-row">${featureTags}</div>
 
                 <div class="trust-row">
                   <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
@@ -1605,10 +1588,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       render();
       persistDirectoryFilters();
     });
-    document.getElementById('feature-filter')!.addEventListener('change', () => {
-      render();
-      persistDirectoryFilters();
-    });
     document.getElementById('status-filter')!.addEventListener('change', () => {
       render();
       persistDirectoryFilters();
@@ -1619,7 +1598,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     });
 
     // "Save as Alert" — captures whatever's currently in the filter bar
-    // (day/neighborhood/deal/feature/search) as a named, saved alert. Full
+    // (day/neighborhood/deal/search) as a named, saved alert. Full
     // editing (multi-day, toggling, deleting, sharing) happens in My Stuff (/account/);
     // this is just the quick-capture entry point.
     const saveAlertPanel = document.getElementById('save-alert-panel')!;
@@ -1656,7 +1635,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         days: dayValue ? [dayValue] : [],
         neighborhood: (document.getElementById('neighborhood-filter') as HTMLSelectElement).value,
         dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
-        feature: (document.getElementById('feature-filter') as HTMLSelectElement).value,
         query: (document.getElementById('search-input') as HTMLInputElement).value.trim(),
       };
       const channels = {

@@ -52,7 +52,6 @@ import Layout from '../../layouts/Layout.astro';
       if (filters.days?.length) pills.push(filters.days.join(', '));
       if (filters.neighborhood) pills.push(filters.neighborhood);
       if (filters.dealType) pills.push(filters.dealType);
-      if (filters.feature) pills.push(filters.feature);
       if (filters.query) pills.push(`"${filters.query}"`);
       if (!pills.length) return '<span class="filter-pill">Any day, any spot</span>';
       return pills.map((p) => `<span class="filter-pill">${escapeHTML(p)}</span>`).join('');

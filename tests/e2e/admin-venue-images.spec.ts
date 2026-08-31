@@ -18,7 +18,6 @@ const venue = {
   lastVerifiedAt: null,
   sourceUrl: 'https://consortium-holdings.com/craft-commerce',
   dealTypes: ['cocktails', 'beer'],
-  features: ['date night'],
   image: '/images/vibes/trendy-gastropub.jpg',
 };
 

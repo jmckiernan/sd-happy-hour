@@ -123,8 +123,8 @@ const DETAILS_MASK = [
  *
  * Atmosphere re-prices the whole call from $20/1k to $25/1k, so this is for the
  * one-time full-county capture run, not for routine refreshes. What it buys is
- * the amenity data we currently *guess* at from place types — `outdoorSeating`
- * for the patio feature, `allowsDogs` for dog friendly, `servesBeer`/`servesWine`/
+ * the amenity data nothing else can tell us — `outdoorSeating` and `allowsDogs`,
+ * which the catalog publishes as named booleans, `servesBeer`/`servesWine`/
  * `servesCocktails` for deal types, `liveMusic` for entertainment.
  *
  * Excluded on purpose, and free to exclude since the tier is already set:

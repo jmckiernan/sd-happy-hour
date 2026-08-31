@@ -169,15 +169,6 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
-      <div class="form-field full">
-        <label>Features (optional)</label>
-        <div class="checkbox-grid">
-          {['patio', 'dog friendly', 'date night', 'group friendly', 'waterfront', 'rooftop', 'casual', 'upscale'].map((f) => (
-            <label><input type="checkbox" name="features" value={f} /> {f[0].toUpperCase() + f.slice(1)}</label>
-          ))}
-        </div>
-      </div>
-
       <div class="submit-actions">
         <button type="submit">Submit for review</button>
         <span class="form-status" id="submit-status" aria-live="polite"></span>
@@ -212,7 +203,6 @@ import Layout from '../layouts/Layout.astro';
         vibe: formData.get('vibe'),
         notes: formData.get('notes'),
         dealTypes: getCheckedValues(form, 'dealTypes'),
-        features: getCheckedValues(form, 'features'),
       };
     }
 

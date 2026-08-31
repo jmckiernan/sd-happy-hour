@@ -21,7 +21,6 @@ export interface ConsumerVenueFixture {
   lastVerifiedAt: string | null;
   sourceUrl: string;
   dealTypes: string[];
-  features: string[];
   image: string;
 }
 
@@ -60,7 +59,6 @@ export function venueFixture(
     lastVerifiedAt: '2026-08-20T18:00:00.000Z',
     sourceUrl: 'https://example.com/menu',
     dealTypes: ['cocktails'],
-    features: ['patio'],
     image: '/images/vibes/craft-cocktails.jpg',
     ...overrides,
   };

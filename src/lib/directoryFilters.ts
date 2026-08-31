@@ -12,7 +12,6 @@ export interface DirectoryFiltersState {
   day?: string;
   neighborhood?: string;
   dealType?: string;
-  feature?: string;
   status?: string;
   trust?: string;
   nearMe?: DirectoryNearMe | null;
@@ -38,7 +37,6 @@ export function parseDirectoryFilters(raw: string | null): DirectoryFiltersState
     const day = cleanString(parsed.day);
     const neighborhood = cleanString(parsed.neighborhood);
     const dealType = cleanString(parsed.dealType);
-    const feature = cleanString(parsed.feature);
     const status = cleanString(parsed.status);
     const trust = cleanString(parsed.trust);
 
@@ -46,7 +44,6 @@ export function parseDirectoryFilters(raw: string | null): DirectoryFiltersState
     if (day !== undefined) state.day = day;
     if (neighborhood !== undefined) state.neighborhood = neighborhood;
     if (dealType !== undefined) state.dealType = dealType;
-    if (feature !== undefined) state.feature = feature;
     if (status !== undefined) state.status = status;
     if (trust !== undefined) state.trust = trust;
 

@@ -1,4 +1,4 @@
-import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES, FEATURES } from './constants.mjs';
+import { COUNTY_BOUNDS, DAY_NAMES, DEAL_TYPES } from './constants.mjs';
 import { finalizeDeals } from './deals.mjs';
 import { assignNeighborhood } from './neighborhood-assign.mjs';
 import { isUsableVenueWebsite } from './website-ownership.mjs';
@@ -88,15 +88,24 @@ export function inferDealTypes(deals = [], alcohol = {}) {
   return DEAL_TYPES.filter((type) => found.has(type));
 }
 
-function inferFeatures(types = [], vibe = '') {
-  const text = `${types.join(' ')} ${vibe}`.toLowerCase();
-  const found = new Set(['casual']);
-  if (/rooftop/.test(text)) found.add('rooftop');
-  if (/waterfront|harbor|bay|beach/.test(text)) found.add('waterfront');
-  if (/upscale|fine_dining/.test(text)) found.add('upscale');
-  if (/date|romantic/.test(text)) found.add('date night');
-  if (/group|sports/.test(text)) found.add('group friendly');
-  return [...found].filter((feature) => FEATURES.includes(feature));
+/**
+ * The two amenities we publish, read straight off Google's Atmosphere fields.
+ *
+ * Nothing is inferred here, and nothing is defaulted. A key is written only
+ * when Google answered, so an absent key means "nobody has told us", which is
+ * a different statement from `false`. That distinction is the whole point: the
+ * `features` array this replaced could not make it, so a venue without a
+ * `patio` tag and a venue nobody had asked about looked identical
+ * (docs/features-field-experiment.md §7).
+ *
+ * Atmosphere is only requested behind `IMPORT_CAPTURE_ALL`, so until a capture
+ * run buys it these stay absent on every record.
+ */
+function atmosphereAmenities(record = {}) {
+  const amenities = {};
+  if (typeof record.outdoorSeating === 'boolean') amenities.outdoorSeating = record.outdoorSeating;
+  if (typeof record.allowsDogs === 'boolean') amenities.allowsDogs = record.allowsDogs;
+  return amenities;
 }
 
 const MAX_WINDOW_MINUTES = 8 * 60;
@@ -259,7 +268,7 @@ export function normalizeVenue(record, nextId) {
     lastVerifiedAt: null,
     sourceUrl,
     dealTypes,
-    features: inferFeatures(record.types || [], inferVibe(record.primaryType, record.types)),
+    ...atmosphereAmenities(record),
     seoHidden: hh.confidence !== 'high',
     // Every catalog venue carries this explicitly; leaving it undefined on
     // imports makes visibility depend on how each consumer reads a missing key.
@@ -317,7 +326,7 @@ export function normalizeStubVenue(record, nextId) {
     lastVerifiedAt: null,
     sourceUrl,
     dealTypes: [],
-    features: inferFeatures(record.types || [], vibe),
+    ...atmosphereAmenities(record),
     seoHidden: true,
     listingStatus: 'unlisted',
     hasHappyHourData: false,

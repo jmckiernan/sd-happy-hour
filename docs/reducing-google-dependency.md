@@ -128,6 +128,11 @@ We still exclude it, on terms and cache-size grounds rather than cost — see co
 
 ## 3. Where do `dealTypes` and `features` actually come from?
 
+> **Resolved since.** The question this section raises about `features` was tested in
+> `docs/features-field-experiment.md` and answered by deleting the field. `outdoorSeating` and
+> `allowsDogs` replace it as named booleans off the Atmosphere mask (§4.3), and everything below
+> about `features` now describes a field the catalog no longer carries.
+
 The owner's belief is that these come from the venue's own website. That is **partly true for
 `dealTypes` and essentially false for `features`.** The code is in
 `scripts/import-google-venues/lib/normalize.mjs`.
@@ -414,7 +419,9 @@ happy-hour signal improves, the rating gate matters less.
    meaningless `food` from ~576 venues, and puts `beer`/`wine`/`cocktails` on the 210/167/133 that
    earned them. **Saves:** $0 directly, but it is the largest accuracy gain available at any price
    and it removes a Google input entirely.
-2. **Decide what `features` is for, then rebuild it.** Options, roughly in order of value:
+2. **Decide what `features` is for, then rebuild it.** *Done, and the decision was to remove it —
+   see `docs/features-field-experiment.md` §7 and `docs/venue-pipeline-reference.md` §5.8. The
+   options below are kept for the reasoning, not as work.* Options, roughly in order of value:
    `waterfront` from our own coordinates against a coastline polygon (we have lat/lng; this is pure
    computation); `upscale` from `priceLevel`, already free at the Enterprise tier we pay; `patio`,
    `dog friendly`, `rooftop`, `games` from menu and page text, which the scrapers already fetch; and

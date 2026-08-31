@@ -259,7 +259,6 @@ export interface AlertFilters {
   days: string[];
   neighborhood: string;
   dealType: string;
-  feature: string;
   query: string;
 }
 
@@ -692,7 +691,6 @@ export interface Listing {
   lastVerifiedAt: string | null;
   sourceUrl: string;
   dealTypes: string[];
-  features: string[];
   // Optional — not required at submission time (many submitters won't have
   // it handy), but worth capturing since it's what backs phone-based claim
   // verification (see venues.ts's Venue.phone).

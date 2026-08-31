@@ -1043,7 +1043,6 @@ import Layout from '../layouts/Layout.astro';
     function filterFieldsHTML(filters: any) {
       const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood))].sort();
       const dealTypes = [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort();
-      const features = [...new Set(happyHours.flatMap((h) => h.features || []))].sort();
       const days = filters.days || [];
 
       return `
@@ -1058,7 +1057,6 @@ import Layout from '../layouts/Layout.astro';
         <div class="filter-row">
           <select data-field="neighborhood">${optionList(neighborhoods, filters.neighborhood || '')}</select>
           <select data-field="dealType">${optionList(dealTypes, filters.dealType || '')}</select>
-          <select data-field="feature">${optionList(features, filters.feature || '')}</select>
         </div>
         <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters.query || '')}">
       `;
@@ -1070,7 +1068,6 @@ import Layout from '../layouts/Layout.astro';
         days,
         neighborhood: (container.querySelector('[data-field="neighborhood"]') as HTMLSelectElement)?.value || '',
         dealType: (container.querySelector('[data-field="dealType"]') as HTMLSelectElement)?.value || '',
-        feature: (container.querySelector('[data-field="feature"]') as HTMLSelectElement)?.value || '',
         query: (container.querySelector('[data-field="query"]') as HTMLInputElement)?.value || '',
       };
     }

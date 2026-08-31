@@ -28,7 +28,6 @@ const listing = {
   website: 'https://example.com',
   phone: '(619) 555-0100',
   dealTypes: ['cocktails'],
-  features: ['date night'],
   image: currentFeaturedImage,
 };
 

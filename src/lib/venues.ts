@@ -143,7 +143,18 @@ export interface Venue {
   sourceUrl?: string;
   lastVerifiedAt?: string | null;
   dealTypes?: string[];
-  features?: string[];
+  /** Google Atmosphere `outdoorSeating` / `allowsDogs`, captured on an import
+   * run rather than inferred from anything.
+   *
+   * Optional on purpose, and the three states are all distinct: `true` means
+   * Google says the venue has it, `false` means Google says it does not, and
+   * an absent key means nobody has told us either way. Collapsing that absence
+   * into `false` is what made the old `features` array useless — a venue with
+   * no `patio` tag was indistinguishable from a venue nobody had asked about
+   * (docs/features-field-experiment.md §7). Anything reading these has to
+   * treat `undefined` as unknown and say nothing rather than say no. */
+  outdoorSeating?: boolean;
+  allowsDogs?: boolean;
   // The venue's own listed phone number, independently sourced (not
   // self-reported by a claimant) — backs phone-based claim verification
   // (see api/restaurant/claim/send-code.ts). Absent on venues nobody has
@@ -274,9 +285,8 @@ export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean 
   if (filters.days?.length && !filters.days.some((day) => venue.days.includes(day))) return false;
   if (filters.neighborhood && venue.neighborhood !== filters.neighborhood) return false;
   if (filters.dealType && !(venue.dealTypes || []).includes(filters.dealType)) return false;
-  if (filters.feature && !(venue.features || []).includes(filters.feature)) return false;
   if (filters.query) {
-    const haystack = [venue.name, venue.neighborhood, venue.address, venue.vibe, ...(venue.deals || []), ...(venue.dealTypes || []), ...(venue.features || [])]
+    const haystack = [venue.name, venue.neighborhood, venue.address, venue.vibe, ...(venue.deals || []), ...(venue.dealTypes || [])]
       .join(' ')
       .toLowerCase();
     if (!haystack.includes(filters.query.toLowerCase())) return false;

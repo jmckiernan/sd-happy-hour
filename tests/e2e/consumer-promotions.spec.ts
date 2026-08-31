@@ -332,7 +332,7 @@ test('homepage refreshes a regular venue image on window focus without duplicati
   await expect(image).toHaveAttribute('src', firstImage);
   const requestsBeforeFocus = overrideRequests;
   const filterOptionCounts = await page.evaluate(() =>
-    ['day-filter', 'neighborhood-filter', 'deal-filter', 'feature-filter', 'status-filter', 'trust-filter']
+    ['day-filter', 'neighborhood-filter', 'deal-filter', 'status-filter', 'trust-filter']
       .map((id) => document.querySelectorAll(`#${id} option`).length)
   );
 
@@ -345,12 +345,11 @@ test('homepage refreshes a regular venue image on window focus without duplicati
     .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth))
     .toBeGreaterThan(0);
   expect(await page.evaluate(() =>
-    ['day-filter', 'neighborhood-filter', 'deal-filter', 'feature-filter', 'status-filter', 'trust-filter']
+    ['day-filter', 'neighborhood-filter', 'deal-filter', 'status-filter', 'trust-filter']
       .map((id) => document.querySelectorAll(`#${id} option`).length)
   )).toEqual(filterOptionCounts);
   await expect(page.locator('#neighborhood-filter option[value="North Park"]')).toHaveCount(1);
   await expect(page.locator('#deal-filter option[value="cocktails"]')).toHaveCount(1);
-  await expect(page.locator('#feature-filter option[value="patio"]')).toHaveCount(1);
 });
 
 test('homepage card retries a healthy original once after a CDN transform fails', async ({ page }) => {

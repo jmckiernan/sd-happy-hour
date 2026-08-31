@@ -42,7 +42,6 @@ export interface ListingFormValues {
   lastVerifiedAt?: string | null;
   sourceUrl?: string;
   dealTypes?: string[];
-  features?: string[];
   phone?: string;
   /** Featured photo URL — normally `/api/images/<key>`. Empty means the
    * public pages fall back to the vibe stock photo. */
@@ -54,7 +53,6 @@ export interface ListingFormValues {
 // Sunday last, matching the public submit form (src/pages/submit.astro).
 export const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export const DEAL_TYPES = ['beer', 'cocktails', 'wine', 'food', 'oysters', 'entertainment'];
-export const FEATURES = ['patio', 'dog friendly', 'date night', 'group friendly', 'waterfront', 'rooftop', 'casual', 'upscale'];
 
 function escapeHTML(value: unknown) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -85,8 +83,8 @@ export function previewSrc(url: string, width = 320): string {
 }
 
 /** Built-in options first, then anything already on the listing that isn't
- * among them. Without this, editing a venue tagged with a deal type or
- * feature that predates these lists would silently strip it on save. */
+ * among them. Without this, editing a venue tagged with a deal type that
+ * predates this list would silently strip it on save. */
 function optionSet(builtIn: string[], current: string[]) {
   return [...builtIn, ...current.filter((value) => !builtIn.includes(value))];
 }
@@ -253,7 +251,6 @@ function imageCropEditor(listing: ListingFormValues) {
 export function listingFormHTML(listing: ListingFormValues, options: ListingFormOptions = {}) {
   const days = listing.days || [];
   const dealTypes = listing.dealTypes || [];
-  const features = listing.features || [];
 
   const owner = options.ownerMode === true;
 
@@ -286,11 +283,6 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
       <div class="lf-field full">
         <label>Deal types</label>
         ${checkboxGrid('dealTypes', optionSet(DEAL_TYPES, dealTypes), dealTypes)}
-      </div>
-
-      <div class="lf-field full">
-        <label>Features</label>
-        ${checkboxGrid('features', optionSet(FEATURES, features), features)}
       </div>
 
       ${owner
@@ -380,8 +372,7 @@ function fieldValue(root: HTMLElement, field: string) {
  *
  * Returning plain DOM order instead would rewrite every listing's tag order
  * to match this form's option list on the first save — a spurious diff in
- * happy-hours.json, and a real behaviour change, since the homepage card
- * shows only the first three features (see index.astro's `.slice(0, 3)`). */
+ * happy-hours.json for no edit anyone made. */
 function checkedValues(root: HTMLElement, field: string) {
   const checked = [...root.querySelectorAll<HTMLInputElement>(`input[data-lf="${field}"]:checked`)].map((el) => el.value);
 
@@ -424,7 +415,6 @@ export function readListingForm(root: HTMLElement): Record<string, any> {
     website,
     sourceUrl: fieldValue(root, 'sourceUrl') || website,
     dealTypes: checkedValues(root, 'dealTypes'),
-    features: checkedValues(root, 'features'),
     phone: fieldValue(root, 'phone'),
     image: fieldValue(root, 'image'),
   };

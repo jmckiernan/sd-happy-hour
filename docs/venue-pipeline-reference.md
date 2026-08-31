@@ -324,8 +324,9 @@ an empty deal list.
   depend on how each consumer reads a missing key.
 - `seoHidden: confidence !== 'high'`.
 - `verified: false`, `lastVerifiedAt: null`.
-- `neighborhood` from coordinates (§6), `vibe` and `features` inferred from Google place types,
-  `dealTypes` from the venue's own deal text (§5.6).
+- `neighborhood` from coordinates (§6), `vibe` inferred from Google place types, `dealTypes` from
+  the venue's own deal text (§5.6), and `outdoorSeating` / `allowsDogs` copied from Google's
+  Atmosphere fields when the run bought them (§5.8).
 
 ### 5.6 `dealTypes`
 
@@ -375,6 +376,30 @@ For a venue with no happy hour. Differs from the above:
 - `listingStatus: 'unlisted'`, `seoHidden: true`, `hasHappyHourData: false`.
 - Website may legitimately be empty; plenty of small restaurants only have a Google listing, and we
   still want their owner to find the page.
+
+### 5.8 `outdoorSeating` and `allowsDogs`
+
+Two named booleans copied verbatim from Google's Atmosphere fields of the same name. Nothing is
+inferred and nothing is defaulted: `atmosphereAmenities()` writes a key only when Google gave a
+boolean, so an absent key means nobody has asked about that venue.
+
+- **Absent is not `false`.** `true` says Google observed the amenity, `false` says Google observed
+  its absence, and no key says we have never bought the answer. Anything reading these has to keep
+  the three states apart and say nothing on the third — a `false` printed for silence is exactly
+  the defect that killed `features`, which could not tell "no patio" from "never asked".
+- **Atmosphere is only requested behind `IMPORT_CAPTURE_ALL`** (§4 of
+  `docs/reducing-google-dependency.md`), which re-prices Place Details from $20/1k to $25/1k. It has
+  never been run, so **every catalog row is currently unknown** and no surface displays these yet.
+  Showing an empty filter facet would be worse than showing nothing.
+- **They replace the old `features` array**, removed in full — field, `inferFeatures()` regexes,
+  vocabulary constant, validator rule, submit and admin form controls, the homepage facet and the
+  venue-page chips. `docs/features-field-experiment.md` is the evidence: extraction from venue
+  websites was 78% accurate and still yielded nothing filterable, while `patio` and `dog friendly`
+  are answers Google sells outright for half a cent a venue.
+- **The claim form is the natural follow-up and is not built.** An owner ticking "patio" is correct
+  by construction, costs nothing, carries no caching terms, and answers for the venues Google will
+  not. Adding those two checkboxes to `src/lib/listingForm.ts` in owner mode is the cheapest way to
+  populate these before any capture run happens.
 
 ---
 
@@ -500,8 +525,10 @@ Enforced by `scripts/validate-data.js` on every write. Merge, stub import and pu
 ### 11.1 Required of every listing
 
 `id` (unique integer), `name`, `neighborhood`, `address`, `lat`/`lng` (in range), `vibe`,
-`verified` (boolean), a `lastVerifiedAt` key even when null, an `http(s)` `sourceUrl`, and a
-non-empty `features` array.
+`verified` (boolean), a `lastVerifiedAt` key even when null, and an `http(s)` `sourceUrl`.
+
+Nothing else is required of every listing. A non-empty `features` array used to be, which is the
+only reason `casual` sat on 3,193 rows; the field is gone (§5.8).
 
 ### 11.2 Required of a listing with a happy hour
 
@@ -523,6 +550,9 @@ merely exempt stubs — it **forbids** the fields they should not have:
 
 ### 11.4 Other invariants
 
+- `outdoorSeating` and `allowsDogs` are optional and must be boolean when present. Only the type is
+  checked, deliberately: the validator has no way to require an answer nobody has bought, and an
+  absent key is the honest report of that (§5.8).
 - `listingStatus` ∈ `published` | `unlisted`.
 - `publishedByClaim` cannot be set on an unlisted venue.
 - Every `windows` entry needs valid days plus either `allDay` or a valid time pair.

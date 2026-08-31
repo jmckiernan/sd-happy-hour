@@ -2152,7 +2152,74 @@ function testVenuesWithNoDealTextClaimNoFoodDiscount() {
   assert.deepEqual(invented.map((venue) => venue.name), []);
 }
 
+/**
+ * `features` was `casual` on 99.5% of the catalog and inferred from Google's
+ * place types rather than read off anything, so it said nothing about any
+ * venue (docs/features-field-experiment.md). It is gone, and an import must
+ * not quietly start writing it again.
+ */
+function testNoListingCarriesTheRemovedFeaturesField() {
+  const carriers = happyHours.filter((venue) => 'features' in venue);
+  assert.deepEqual(carriers.map((venue) => venue.name), []);
+}
+
+/**
+ * The amenities that replaced it are Google's, not ours, and they have three
+ * states rather than two: true, false, and nobody asked. Absent has to stay
+ * absent — writing `false` for an unanswered venue is the defect that made
+ * `features` unusable, inverted.
+ */
+function testAmenitiesAreBooleanOrAbsentButNeverGuessed() {
+  const mistyped = happyHours.filter((venue) =>
+    ['outdoorSeating', 'allowsDogs'].some(
+      (field) => field in venue && typeof venue[field] !== 'boolean'
+    )
+  );
+  assert.deepEqual(mistyped.map((venue) => venue.name), []);
+
+  // Atmosphere has never been bought, so every venue is currently unknown.
+  // This is the check that fails the day a capture run lands, which is when
+  // the surfaces that read these need revisiting.
+  const answered = happyHours.filter(
+    (venue) => 'outdoorSeating' in venue || 'allowsDogs' in venue
+  );
+  assert.equal(answered.length, 0);
+}
+
+/**
+ * The importer reads the two amenities off the Atmosphere fields and writes
+ * nothing at all when they are missing, which is what every record looks like
+ * until a run with IMPORT_CAPTURE_ALL=1 pays for them.
+ */
+function testAmenitiesAreWrittenOnlyWhenGoogleAnswered() {
+  const record = {
+    displayName: { text: 'Atmosphere Unknown' },
+    formattedAddress: '100 Test St, San Diego, CA 92101',
+    location: { latitude: 32.7157, longitude: -117.1611 },
+    websiteUri: 'https://example.com',
+    types: ['bar'],
+    happyHour: {
+      days: ['Monday'],
+      startTime: '15:00',
+      endTime: '18:00',
+      deals: ['$5 beers'],
+      confidence: 'high',
+      sourcePage: 'https://example.com/happy-hour',
+    },
+  };
+  const silent = normalizeVenue(record, 9002);
+  assert.equal('outdoorSeating' in silent, false);
+  assert.equal('allowsDogs' in silent, false);
+
+  const captured = normalizeVenue({ ...record, outdoorSeating: true, allowsDogs: false }, 9003);
+  assert.equal(captured.outdoorSeating, true);
+  assert.equal(captured.allowsDogs, false);
+}
+
 tests.push(
+  testNoListingCarriesTheRemovedFeaturesField,
+  testAmenitiesAreBooleanOrAbsentButNeverGuessed,
+  testAmenitiesAreWrittenOnlyWhenGoogleAnswered,
   testDealTypesComeFromTheVenuesOwnDealText,
   testAVenueWithNoReadableOffersNamesNoDealType,
   testAlcoholBooleansFillASilenceButNeverOverrideDealText,

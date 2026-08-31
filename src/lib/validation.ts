@@ -221,7 +221,6 @@ export function cleanAlertFilters(input: Record<string, any>): AlertFilters {
     days: cleanList(input?.days).filter((day) => VALID_DAYS.has(day)),
     neighborhood: cleanString(input?.neighborhood),
     dealType: cleanString(input?.dealType),
-    feature: cleanString(input?.feature),
     query: cleanString(input?.query).slice(0, 80),
   };
 }
@@ -259,7 +258,6 @@ export function validateListing(
     lastVerifiedAt: input.lastVerifiedAt || null,
     sourceUrl: cleanString(input.sourceUrl || input.website),
     dealTypes: cleanList(input.dealTypes),
-    features: cleanList(input.features),
     // Optional — no format requirement beyond a light sanity check below,
     // since submitters worldwide use different phone formats and this isn't
     // security-critical at submission time (it only matters later, when a

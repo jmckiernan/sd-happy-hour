@@ -493,8 +493,9 @@ Add the schema and dual-write. The file stays canonical.
 
 - `venues` table matching the `Venue` interface. Scalars as columns (`id`, `name`, `slug`,
   `neighborhood`, `address`, `lat`, `lng`, `listing_status`, `has_happy_hour_data`, `vibe`,
-  `verified`, `place_id`, `city`, `timezone`). `windows`, `weekly_specials`, `gallery_images`,
-  `hh_menu`, `hh_sources`, `last_scrape`, `features`, `deal_types`, `deals` as `jsonb` — they are
+  `verified`, `place_id`, `city`, `timezone`, and the nullable `outdoor_seating` / `allows_dogs`,
+  where null keeps meaning nobody asked Google). `windows`, `weekly_specials`, `gallery_images`,
+  `hh_menu`, `hh_sources`, `last_scrape`, `deal_types`, `deals` as `jsonb` — they are
   documents, they are read whole, and normalising them buys nothing until something queries inside
   them. `happy_hour_menus` already exists as a normalised table (`0018`) and should stay the
   canonical menu store, with `hh_menu` as pipeline input.
