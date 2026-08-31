@@ -112,8 +112,16 @@ export interface Venue {
     observedAt?: string;
     /** Built from the directory chips because no real menu was published. */
     fromDealChips?: boolean;
+    /**
+     * The venue's own menu flyer, kept as evidence of where `sections` came
+     * from so an extraction can be re-checked against the original. Provenance,
+     * not presentation: these are deliberately not shown as the menu, because
+     * an image cannot be searched, corrected, or read by anything downstream,
+     * and one of them turned out to be a photo of brewery tanks.
+     */
+    sourceImages?: GalleryImage[];
   };
-  /** Happy-hour menu flyers scraped from the venue site, shown in the photo gallery. */
+  /** Photos of the venue, shown in the photo gallery. */
   galleryImages?: GalleryImage[];
   /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
   lastScrape?: {

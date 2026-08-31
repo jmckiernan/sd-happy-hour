@@ -557,6 +557,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     import { listingImageStyle } from '../lib/imageCrop';
     import { cardSpecials, cardTimeLabel } from '../lib/listingCopy';
     import { isPubliclyListed } from '../lib/listingVisibility';
+    import { venueSearchText } from '../lib/venueSearchText';
     import {
       readStoredDirectoryFilters,
       writeStoredDirectoryFilters,
@@ -1232,9 +1233,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     function matchesSearch(h: any, query: string) {
       if (!query) return true;
-      const haystack = [h.name, h.neighborhood, h.address, h.vibe, ...(h.deals || []), ...(h.dealTypes || [])]
-        .join(' ')
-        .toLowerCase();
+      const haystack = venueSearchText(h).join(' ').toLowerCase();
       return haystack.includes(query);
     }
 

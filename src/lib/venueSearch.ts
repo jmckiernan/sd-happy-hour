@@ -1,4 +1,8 @@
-/** Claim-dashboard search: every query token must appear in name, neighborhood, or address. */
+/** Claim-dashboard search: every query token must appear in name, neighborhood, or address.
+ *
+ * Deliberately not the same haystack as the consumer search in index.astro: an
+ * owner is looking for their own venue by name, so matching on menu text would
+ * only add venues that happen to sell a similarly named dish. */
 
 const STOP = new Set(['the', 'and', 'of', 'at', 'a', 'an']);
 

@@ -122,6 +122,32 @@ export function venueSchema(venue: Venue, image: string, description: string): J
     }));
   }
 
+  // The itemized menu, for the crawlers and answer engines that read structured
+  // data rather than pixels. This is only expressible because the menu is
+  // stored as text; when it was a photo there was nothing to publish here.
+  const menuSections = (venue.hhMenu?.sections || []).filter((section) => section.items?.length);
+  if (menuSections.length) {
+    schema.hasMenu = {
+      '@type': 'Menu',
+      name: `${venue.name} happy hour menu`,
+      ...(venue.hhMenu?.note ? { description: venue.hhMenu.note } : {}),
+      hasMenuSection: menuSections.map((section) => ({
+        '@type': 'MenuSection',
+        name: section.title,
+        hasMenuItem: section.items.map((item) => {
+          const amount = /^\$\s*(\d+(?:\.\d{1,2})?)$/.exec(String(item.price || '').trim());
+          return {
+            '@type': 'MenuItem',
+            name: item.name,
+            ...(amount
+              ? { offers: { '@type': 'Offer', price: amount[1], priceCurrency: 'USD' } }
+              : {}),
+          };
+        }),
+      })),
+    };
+  }
+
   if (venue.phone) schema.telephone = venue.phone;
   return schema;
 }

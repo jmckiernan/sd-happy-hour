@@ -51677,7 +51677,13 @@
     "startTime": "15:00",
     "endTime": "17:00",
     "deals": [
-      "Beverages [no items listed]"
+      "$6 select house beers",
+      "$6 house wines",
+      "$6 wells",
+      "$6 salads, fish taco, fries or tots",
+      "$8 wings, onion rings, blistered green beans",
+      "$10 nachos, harissa meatballs, 10in cheese pizza",
+      "$12 pork belly bites"
     ],
     "vibe": "Brewery",
     "website": "http://sandiegobrewing.com/",
@@ -51688,7 +51694,8 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "seoHidden": false,
     "image": "/images/venues/347-san-diego-brewing-company.jpg",
@@ -51795,16 +51802,102 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/347-san-diego-brewing-company-hh-menu.jpg",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D600%2Cheight%3D600%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/dcc41aa8-320f-4550-b6a5-18df85a3ff6c.png"
-      },
-      {
         "url": "/images/venues/347-san-diego-brewing-company-hh-menu-2.jpg",
-        "caption": "Happy hour menu",
+        "caption": "Brewhouse",
         "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D1200%2Cheight%3D1200%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/2daf0dd3-74f4-4da0-87eb-de955ed67e56"
       }
-    ]
+    ],
+    "hhMenu": {
+      "note": "All day Monday, and Tues-Fri 3-5pm and 8pm to close.",
+      "sections": [
+        {
+          "title": "Beverages",
+          "items": [
+            {
+              "name": "Select house beers",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "House wines",
+              "price": "$6",
+              "category": "wine"
+            },
+            {
+              "name": "Wells",
+              "price": "$6",
+              "category": "cocktails"
+            }
+          ]
+        },
+        {
+          "title": "Appetizers",
+          "items": [
+            {
+              "name": "House or Caesar salad",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Brew Co fish taco",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Basket of fries or tots",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "5 wings (boneless or bone in)",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Basket of onion rings",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Blistered green beans",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Brew Co nachos",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Harissa meatballs",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "10in cheese pizza (additional toppings extra)",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Pork belly bites",
+              "price": "$12",
+              "category": "food"
+            }
+          ]
+        }
+      ],
+      "sourceUrl": "http://sandiegobrewing.com/happy-hour-specials",
+      "observedAt": "2026-08-29",
+      "sourceImages": [
+        {
+          "url": "/images/venues/347-san-diego-brewing-company-hh-menu.jpg",
+          "caption": "Happy hour menu flyer published by the venue",
+          "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D600%2Cheight%3D600%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/dcc41aa8-320f-4550-b6a5-18df85a3ff6c.png"
+        }
+      ]
+    },
+    "openTime": "11:00",
+    "closeTime": "22:00"
   },
   {
     "id": 348,

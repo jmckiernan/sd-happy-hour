@@ -51,7 +51,14 @@ import {
   indexPlacesByName,
 } from '../scripts/import-google-venues/lib/google-happy-hour.mjs';
 import { isPubliclyListed } from '../src/lib/listingVisibility.ts';
-import { isHappyHourActive, getHappyHourOccurrenceForDate } from '../src/lib/sanDiegoTime.ts';
+import {
+  isHappyHourActive,
+  getHappyHourOccurrenceForDate,
+  isUnboundedAllDayWindow,
+  boundAllDayWindow,
+} from '../src/lib/sanDiegoTime.ts';
+import { happyHourDayNames } from '../src/lib/happyHourDays.ts';
+import { venueSearchText, venueMenuText } from '../src/lib/venueSearchText.ts';
 import { isPlausibleHappyHourWindow, normalizeWindows, endTimeFromOpenUntilQuote, applyOpenUntilFromQuotes, repairOpenStartWindows } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
 import { classifyUrl, scoreMediaUrl, discoverSocialLinks, discoverSpecialsImages, discoverSpecialsMedia, sniffMediaFromBytes, anthropicMediaType, selectMenuFlyerPages } from '../scripts/import-google-venues/lib/media.mjs';
 import { pageMatchesVenueListing, isUsableVenueWebsite, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from '../scripts/import-google-venues/lib/website-ownership.mjs';
@@ -1050,6 +1057,180 @@ function testAllDayWindowIsLiveThatCalendarDay() {
   };
   assert.equal(isHappyHourActive(schedule, new Date('2026-08-24T18:00:00Z')), true);
   assert.equal(isHappyHourActive(schedule, new Date('2026-08-25T22:30:00Z')), true);
+}
+
+/**
+ * The owner found a brewery announcing happy hour at 3:13am. Its "all day
+ * Monday" window was stored as the calendar day, so the open-now check was
+ * right about the data and the data was wrong about the world.
+ */
+function testAnAllDayWindowIsNotLiveInTheSmallHours() {
+  const schedule = {
+    id: 347,
+    days: ['Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    startTime: '15:00',
+    endTime: '17:00',
+    windows: [
+      { days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true },
+      { days: ['Tuesday', 'Wednesday', 'Thursday', 'Friday'], startTime: '15:00', endTime: '17:00' },
+    ],
+  };
+  // Monday 03:13 Pacific — the time the owner checked.
+  assert.equal(isHappyHourActive(schedule, new Date('2026-08-31T10:13:00Z')), false);
+  // Monday 16:00 Pacific, inside the service day it does run.
+  assert.equal(isHappyHourActive(schedule, new Date('2026-08-31T23:00:00Z')), true);
+  // Monday 22:00 Pacific, the moment it closes.
+  assert.equal(isHappyHourActive(schedule, new Date('2026-09-01T05:00:00Z')), false);
+}
+
+/**
+ * 03:13 Pacific is already the next UTC day, so a UTC-versus-Pacific slip
+ * shows up here as the wrong weekday being matched.
+ */
+function testTheOpenNowCheckReadsTheSanDiegoWeekdayNotTheUtcOne() {
+  const mondayOnly = {
+    id: 1,
+    days: ['Monday'],
+    startTime: '11:00',
+    endTime: '22:00',
+    windows: [{ days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true }],
+  };
+  // Tuesday 03:13 Pacific is Tuesday 10:13 UTC. Monday only, so not live —
+  // and a UTC reading of the date would also say Tuesday, so pair it with the
+  // case that actually distinguishes them: Monday 17:00 Pacific is Tuesday
+  // 00:00 UTC, where a UTC reading would wrongly look for Tuesday.
+  assert.equal(isHappyHourActive(mondayOnly, new Date('2026-09-01T10:13:00Z')), false);
+  assert.equal(isHappyHourActive(mondayOnly, new Date('2026-09-01T00:00:00Z')), true);
+}
+
+function testAnUnboundedAllDayWindowIsRecognizedAndGivenServiceHours() {
+  const unbounded = { days: ['Monday'], startTime: '00:00', endTime: '23:59', allDay: true };
+  assert.equal(isUnboundedAllDayWindow(unbounded), true);
+  // Already bounded, and a plain window that merely spans the day, are left be.
+  assert.equal(isUnboundedAllDayWindow({ ...unbounded, startTime: '11:00', endTime: '22:00' }), false);
+  assert.equal(isUnboundedAllDayWindow({ ...unbounded, allDay: false }), false);
+
+  assert.deepEqual(boundAllDayWindow(unbounded, { openTime: '12:00', closeTime: '02:00' }), {
+    days: ['Monday'], startTime: '12:00', endTime: '02:00', allDay: true,
+  });
+  // No published hours, so the conservative default service day.
+  assert.deepEqual(boundAllDayWindow(unbounded, {}), {
+    days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true,
+  });
+}
+
+/** No listing may go back to claiming happy hour round the clock. */
+function testNoCatalogListingStoresAnUnboundedAllDayWindow() {
+  const offenders = happyHours
+    .filter((venue) => (venue.windows || []).some((window) => isUnboundedAllDayWindow(window)))
+    .map((venue) => `${venue.name} (${venue.id})`);
+  assert.deepEqual(offenders, []);
+}
+
+/**
+ * The prose said "all day Monday" while the Monday chip sat unhighlighted,
+ * because one renderer read the canonical windows and the other read the
+ * primary-window mirror of them.
+ */
+function testHighlightedDaysCoverEveryWindowNotJustThePrimaryOne() {
+  const venue = {
+    days: ['Tuesday', 'Wednesday'],
+    windows: [
+      { days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true },
+      { days: ['Tuesday', 'Wednesday'], startTime: '15:00', endTime: '17:00' },
+    ],
+  };
+  assert.deepEqual(happyHourDayNames(venue), ['Monday', 'Tuesday', 'Wednesday']);
+  // Week order, not the order the windows happen to be stored in.
+  assert.deepEqual(
+    happyHourDayNames({ days: ['Saturday', 'Monday'], windows: [{ days: ['Sunday'] }] }),
+    ['Sunday', 'Monday', 'Saturday']
+  );
+  assert.deepEqual(happyHourDayNames({ days: ['Friday'] }), ['Friday']);
+  assert.deepEqual(happyHourDayNames({}), []);
+}
+
+/** Every day a listing advertises has to be a day it can be highlighted on. */
+function testCatalogHighlightedDaysNeverOmitAScheduledDay() {
+  const offenders = happyHours
+    .filter((venue) => {
+      const shown = happyHourDayNames(venue);
+      return (venue.windows || []).some((window) =>
+        (window.days || []).some((day) => !shown.includes(day))
+      );
+    })
+    .map((venue) => `${venue.name} (${venue.id})`);
+  assert.deepEqual(offenders, []);
+}
+
+/**
+ * The point of storing the menu as text rather than as a photo of a menu: it
+ * can be searched. "Pork belly bites" appears nowhere else in the record.
+ */
+function testMenuTextIsSearchable() {
+  const venue = {
+    name: 'San Diego Brewing Company',
+    neighborhood: 'San Carlos',
+    deals: ['$6 select house beers'],
+    hhMenu: {
+      note: 'All day Monday',
+      sections: [{ title: 'Appetizers', items: [{ name: 'Pork belly bites', price: '$12' }] }],
+    },
+  };
+  assert.deepEqual(venueMenuText(venue), ['All day Monday', 'Appetizers', 'Pork belly bites', '$12']);
+  const haystack = venueSearchText(venue).join(' ').toLowerCase();
+  assert.ok(haystack.includes('pork belly bites'));
+  assert.ok(haystack.includes('appetizers'));
+  // Still finds what it always found.
+  assert.ok(haystack.includes('san carlos'));
+  // A venue with no menu is unchanged rather than throwing.
+  assert.deepEqual(venueMenuText({ name: 'No Menu' }), []);
+}
+
+/**
+ * A menu section with a heading and no items under it is what the venue page
+ * showed for San Diego Brewing Company, and what an extractor placeholder
+ * leaves behind.
+ */
+function testEveryStoredMenuSectionHasItemsUnderIt() {
+  const offenders = [];
+  for (const venue of happyHours) {
+    for (const section of venue.hhMenu?.sections || []) {
+      if (!section.items?.length) offenders.push(`${venue.name} (${venue.id}): ${section.title}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+}
+
+/** No deal chip may be an extractor annotation rather than an offer.
+ *
+ * Deliberately narrow. "House N/A wine" is a real offer — N/A is
+ * non-alcoholic, not a missing value — so only bracketed annotations and
+ * explicit statements of absence count. */
+function testNoDealChipIsAnExtractorPlaceholder() {
+  const placeholder = /\[[^\]]*\]|\bno items\b|\bnot listed\b|\bnone listed\b|\btbd\b/i;
+  const offenders = [];
+  for (const venue of happyHours) {
+    for (const deal of venue.deals || []) {
+      if (placeholder.test(deal)) offenders.push(`${venue.name} (${venue.id}): ${deal}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+}
+
+/**
+ * A photo of brewery tanks was captioned "Happy hour menu" because the caption
+ * was a constant. Menu provenance now lives on hhMenu.sourceImages, so nothing
+ * in the plain photo gallery may claim to be the menu.
+ */
+function testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu() {
+  const offenders = happyHours
+    .filter((venue) => !venue.hhMenu?.sections?.length)
+    .filter((venue) => (venue.galleryImages || []).some((image) => /menu/i.test(image.caption || '')))
+    .map((venue) => `${venue.name} (${venue.id})`);
+  // Listings still awaiting a transcription are reported so the count cannot
+  // grow silently; see docs/deal-and-menu-audit.md.
+  assert.ok(offenders.length <= 20, `menu-captioned photos without a stored menu: ${offenders.length}`);
 }
 
 function testDealChipsCapAtSix() {
@@ -2227,6 +2408,19 @@ tests.push(
   testAnImportWithNoReadableOffersInventsNoDealType,
   testCatalogDealTypesAreEmptyOnlyWhereTheOffersAreUnknown,
   testVenuesWithNoDealTextClaimNoFoodDiscount,
+);
+
+tests.push(
+  testAnAllDayWindowIsNotLiveInTheSmallHours,
+  testTheOpenNowCheckReadsTheSanDiegoWeekdayNotTheUtcOne,
+  testAnUnboundedAllDayWindowIsRecognizedAndGivenServiceHours,
+  testNoCatalogListingStoresAnUnboundedAllDayWindow,
+  testHighlightedDaysCoverEveryWindowNotJustThePrimaryOne,
+  testCatalogHighlightedDaysNeverOmitAScheduledDay,
+  testMenuTextIsSearchable,
+  testEveryStoredMenuSectionHasItemsUnderIt,
+  testNoDealChipIsAnExtractorPlaceholder,
+  testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu,
 );
 
 tests.push(
