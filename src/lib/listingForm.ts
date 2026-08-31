@@ -276,12 +276,16 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
       </div>
 
       <div class="lf-field full">
-        <label>Deals (one per line)</label>
+        <label>Deals (one per line, optional)</label>
         <textarea data-lf="deals" placeholder="$8 margaritas&#10;$5 tacos">${escapeHTML((listing.deals || []).join('\n'))}</textarea>
+        <p class="lf-image-hint">
+          Leave this blank if the happy hour times are published but the offers are not — the page
+          says so plainly rather than guessing at a price.
+        </p>
       </div>
 
       <div class="lf-field full">
-        <label>Deal types</label>
+        <label>Deal types (only with deals)</label>
         ${checkboxGrid('dealTypes', optionSet(DEAL_TYPES, dealTypes), dealTypes)}
       </div>
 

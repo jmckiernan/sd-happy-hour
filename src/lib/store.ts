@@ -685,6 +685,10 @@ export interface Listing {
   startTime: string;
   endTime: string;
   deals: string[];
+  // Derived from `deals` rather than supplied: a listing with an empty deal
+  // list is one whose offers nobody published, and the catalog says so with
+  // this flag instead of a placeholder deal line. See validateListing().
+  dealsUnknown: boolean;
   vibe: string;
   website: string;
   verified: boolean;

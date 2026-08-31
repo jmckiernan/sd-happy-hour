@@ -131,7 +131,14 @@ export function validateOwnerPatch(
   if (closeTime && !isValidTime(closeTime)) errors.push('Venue close time must use HH:MM 24-hour format.');
   if (!isValidTime(patch.startTime as string)) errors.push('Happy hour start time must use HH:MM 24-hour format.');
   if (!isValidTime(patch.endTime as string)) errors.push('Happy hour end time must use HH:MM 24-hour format.');
-  if (!deals.length) errors.push('Add at least one deal.');
+  // No deals requirement, matching validateListing(): the window is the
+  // minimum, and the owners this form exists for are precisely the ones whose
+  // listing has a window and nothing under it. Requiring a deal here closed
+  // the claim flow to them. Deal types still cannot stand without the deal
+  // text they are read off.
+  if (!deals.length && (patch.dealTypes as string[]).length) {
+    errors.push('Remove the deal types, or add the deals they describe.');
+  }
   if (!patch.vibe) errors.push('Vibe is required.');
   if (!patch.address) errors.push('Address is required.');
   if (!/^https?:\/\//i.test(patch.website as string)) errors.push('Website must start with http:// or https://.');

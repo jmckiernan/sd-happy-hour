@@ -15,8 +15,11 @@
  */
 
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
-import { getPublicVenues, hasSchedule, getVenues } from '../src/lib/venues';
+import { alertMatchesVenue, getPublicVenues, hasSchedule, getVenues } from '../src/lib/venues';
+import { OFFERS_UNKNOWN_FILTER } from '../src/lib/directoryFilters';
 import { isPubliclyListed, isSitemapEligible } from '../src/lib/listingVisibility';
 import { venueSearchText } from '../src/lib/venueSearchText';
 import { getNeighborhoodProfiles } from '../src/lib/neighborhoods';
@@ -88,8 +91,10 @@ function testEveryPublishedVenueSurvivesEveryFilterFacet() {
     .filter((venue) => {
       const byDay = (venue.days || []).some((day) => dayOptions.includes(day));
       const byNeighborhood = neighborhoodOptions.has(venue.neighborhood);
-      // "All deals" is the default, so a venue with no deal types is reachable;
-      // one that carries a type the facet never offers is not.
+      // Every venue is selectable by some option of the deal facet: one with
+      // deal types by those types, one without by "Offers not listed".
+      // Reachable only while the facet sits at its default is not reachable —
+      // that was the bug.
       const byDeal = (venue.dealTypes || []).every((type) => dealOptions.has(type));
       return !(byDay && byNeighborhood && byDeal);
     })
@@ -100,6 +105,36 @@ function testEveryPublishedVenueSurvivesEveryFilterFacet() {
   // window is what puts a venue in the default view at all.
   const withoutWindow = venues.filter((venue) => !hasSchedule(venue)).map(label);
   assert.deepEqual(withoutWindow, []);
+}
+
+async function testVenuesWithNoDealTypesAreReachableThroughTheDealFilter() {
+  // 140 published venues publish their happy hour times and nothing about what
+  // is on offer, so they carry no deal types and every deal-type selection
+  // excluded them. Tagging them with a type to keep them in those results
+  // would be a fabricated offer, so the homepage carries an explicit option for
+  // the state instead, plus a count of what a deal-type selection leaves out.
+  //
+  // Read from the repository root: this file runs bundled, so a path relative
+  // to it points into .data/tests rather than at the source.
+  const homepage = await readFile(path.join(process.cwd(), 'src', 'pages', 'index.astro'), 'utf8');
+  const offersUnknown = homepageGridVenues().filter((venue) => !(venue.dealTypes || []).length);
+  assert.ok(offersUnknown.length > 0);
+
+  assert.match(homepage, /<option value="offers-unknown">Offers not listed<\/option>/);
+  // Selected by the absence of deal types rather than by a value written onto
+  // the venues, so nothing in the catalog has to claim an offer.
+  assert.match(homepage, /dealFilter === OFFERS_UNKNOWN_FILTER[\s\S]*?!\(h\.dealTypes \|\| \[\]\)\.length/);
+  assert.match(homepage, /publish happy hour times but not what is on offer/);
+  // And the automatic day filter says what it is hiding, since the page chose
+  // that filter rather than the visitor.
+  assert.match(homepage, /!dayFilterTouched && dayFilter === automaticDayFilter/);
+  assert.match(homepage, /no happy hour on \$\{dayFilter\}/);
+
+  // An alert saved off the filter bar has to mean the same thing the bar did.
+  const filters = { days: [], neighborhood: '', dealType: OFFERS_UNKNOWN_FILTER, query: '' };
+  const withTypes = homepageGridVenues().find((venue) => (venue.dealTypes || []).length);
+  assert.equal(alertMatchesVenue(filters, offersUnknown[0]), true);
+  assert.equal(alertMatchesVenue(filters, withTypes), false);
 }
 
 function testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage() {
@@ -168,6 +203,7 @@ tests.push(
   testEveryPublishedVenueIsOnTheHomepage,
   testEveryPublishedVenueCanBeFoundBySearchingItsOwnName,
   testEveryPublishedVenueSurvivesEveryFilterFacet,
+  testVenuesWithNoDealTypesAreReachableThroughTheDealFilter,
   testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage,
   testABuildingFullOfTenantsIsNotAPublishedVenue,
 );

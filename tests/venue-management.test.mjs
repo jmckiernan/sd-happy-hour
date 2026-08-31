@@ -8,6 +8,7 @@ import {
   OWNER_EDITABLE_FIELDS,
   validateOwnerPatch,
 } from '../src/lib/venueContent.ts';
+import { validateListing, validateSubmission } from '../src/lib/validation.ts';
 
 const ROOT = process.cwd();
 
@@ -75,6 +76,96 @@ test('venue open and close times are an optional, validated pair', () => {
   assert.ok(malformed.errors.includes('Venue close time must use HH:MM 24-hour format.'));
   assert.ok(malformed.errors.includes('Happy hour start time must use HH:MM 24-hour format.'));
   assert.ok(malformed.errors.includes('Happy hour end time must use HH:MM 24-hour format.'));
+});
+
+/**
+ * The regression that would silently reclose the claim flow.
+ *
+ * A window-only venue page invites whoever works there to add the happy hour
+ * menu, and until this was fixed the save behind that invitation refused every
+ * listing with no deals — so the only owners the panel spoke to were the only
+ * owners who could not save. Requiring a deal again would restore that state
+ * with no other visible symptom.
+ */
+test('an owner can save a window-only listing', () => {
+  const windowOnly = validateOwnerPatch(validOwnerListing({ deals: [], dealTypes: [] }));
+  assert.deepEqual(windowOnly.errors, []);
+  assert.deepEqual(windowOnly.patch.deals, []);
+  assert.deepEqual(windowOnly.patch.dealTypes, []);
+
+  // A blank textarea reaches the validator as an empty string rather than an
+  // empty array, which is the shape the dashboard actually submits.
+  const blankTextarea = validateOwnerPatch(validOwnerListing({ deals: '', dealTypes: [] }));
+  assert.deepEqual(blankTextarea.errors, []);
+
+  // The window is still the minimum. A listing with neither times nor deals
+  // describes nothing and is not worth publishing.
+  const nothingAtAll = validateOwnerPatch(
+    validOwnerListing({ deals: [], dealTypes: [], days: [], startTime: '', endTime: '' })
+  );
+  assert.ok(nothingAtAll.errors.includes('Choose at least one valid day.'));
+  assert.ok(nothingAtAll.errors.includes('Happy hour start time must use HH:MM 24-hour format.'));
+
+  // Deal types are read off deal text, so they cannot outlive it: a ticked
+  // "beer" with no deals would put the venue in a filtered browse for an offer
+  // nobody published.
+  const typesWithoutDeals = validateOwnerPatch(validOwnerListing({ deals: [] }));
+  assert.ok(typesWithoutDeals.errors.includes('Remove the deal types, or add the deals they describe.'));
+
+  assert.ok(!JSON.stringify(validateOwnerPatch(validOwnerListing({ deals: [], dealTypes: [] })).errors)
+    .includes('at least one deal'));
+});
+
+test('the admin and submission validators accept a window with no deals too', () => {
+  const base = {
+    name: 'Window Only Tavern',
+    neighborhood: 'North Park',
+    address: '123 Test Street',
+    lat: 32.7157,
+    lng: -117.1611,
+    days: ['Monday'],
+    startTime: '15:00',
+    endTime: '18:00',
+    vibe: 'Neighborhood bar',
+    website: 'https://example.test',
+    sourceUrl: 'https://example.test/happy-hour',
+    deals: [],
+    dealTypes: [],
+  };
+
+  const listing = validateListing(base);
+  assert.deepEqual(listing.errors, []);
+  // happy-hours.json requires empty deals to say so rather than sit silent —
+  // scripts/validate-data.js rejects an empty deal list without this flag — so
+  // the validator derives it instead of trusting the form to send it.
+  assert.equal(listing.listing.dealsUnknown, true);
+  assert.equal(validateListing({ ...base, deals: ['$5 tacos'], dealTypes: ['food'] }).listing.dealsUnknown, false);
+
+  const submission = validateSubmission({
+    ...base,
+    contactName: 'Owner',
+    contactEmail: 'owner@example.test',
+  });
+  assert.deepEqual(submission.errors, []);
+
+  assert.ok(
+    validateListing({ ...base, dealTypes: ['beer'] }).errors
+      .includes('Remove the deal types, or add the deals they describe.')
+  );
+});
+
+test('every form on the claim path presents deals as optional', async () => {
+  const [submitPage, form] = await Promise.all([
+    readFile(path.join(ROOT, 'src', 'pages', 'submit.astro'), 'utf8'),
+    Promise.resolve(listingFormHTML(validOwnerListing(), { ownerMode: true })),
+  ]);
+
+  // A form that lets an owner submit and then fails server-side is no better
+  // than one that refuses up front, and a required marker is a refusal.
+  assert.match(submitPage, /<label for="submit-deals">Deals \(one per line, optional\)<\/label>/);
+  assert.doesNotMatch(submitPage, /id="submit-deals"[^>]*required/);
+  assert.match(form, /<label>Deals \(one per line, optional\)<\/label>/);
+  assert.doesNotMatch(form, /data-lf="deals"[^>]*required/);
 });
 
 test('manager listing form distinguishes venue hours from happy-hour hours', () => {

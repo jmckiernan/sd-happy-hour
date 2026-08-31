@@ -2,6 +2,15 @@ export const DIRECTORY_FILTERS_STORAGE_KEY = 'sdhh_directory_filters_v1';
 
 export type DirectoryViewMode = 'list' | 'map';
 
+/**
+ * The deal filter's one option that is not a deal type: venues whose offers
+ * nobody published, which carry no deal types at all and are therefore
+ * excluded by every real deal-type selection. Shared with the alert matcher
+ * (`alertMatchesVenue` in lib/venues.ts) so an alert saved off the filter bar
+ * means the same thing the filter bar meant.
+ */
+export const OFFERS_UNKNOWN_FILTER = 'offers-unknown';
+
 export interface DirectoryNearMe {
   lat: number;
   lng: number;

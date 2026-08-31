@@ -211,9 +211,22 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .view-toggle .view-btn { padding: 8px 16px; background: transparent; }
     .view-toggle .view-btn.active { background: var(--night); color: white; }
 
-    .results-info { font-size: 0.875rem; color: var(--night-soft); display: flex; align-items: center; gap: 12px; }
+    .results-info { font-size: 0.875rem; color: var(--night-soft); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .results-info strong { color: var(--night); font-weight: 700; }
     .distance-info { color: var(--ocean); font-weight: 500; }
+    /* Says what the current filters are leaving out. A filter that silently
+       removes venues reads as an empty catalog rather than a narrow query. */
+    .excluded-note { color: var(--night-soft); }
+    .excluded-note button {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: var(--ocean);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
 
     .save-alert-panel {
       max-width: 1400px;
@@ -472,8 +485,15 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
           <option value="">All neighborhoods</option>
         </select>
 
+        <!-- "Offers not listed" is a real answer rather than a missing one:
+             140 published venues publish their happy hour times and nothing
+             about what is on offer, so they carry no deal types and every
+             deal-type selection excludes them. Tagging them "food" to keep
+             them in those results would be a guess. This option, and the
+             excluded-count note below, are how a visitor reaches them. -->
         <select class="filter-btn" id="deal-filter" aria-label="Filter by recurring happy hour deal">
           <option value="">All deals</option>
+          <option value="offers-unknown">Offers not listed</option>
         </select>
 
         <select class="filter-btn" id="status-filter" aria-label="Filter directory by current status">
@@ -506,6 +526,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       <div class="results-info">
         <span><strong id="result-count">0</strong> spots</span>
         <span class="distance-info" id="distance-info" style="display: none;"></span>
+        <span class="excluded-note" id="excluded-note" hidden aria-live="polite"></span>
       </div>
 
       <div class="save-alert-panel hidden" id="save-alert-panel">
@@ -559,6 +580,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     import { isPubliclyListed } from '../lib/listingVisibility';
     import { venueSearchText } from '../lib/venueSearchText';
     import {
+      OFFERS_UNKNOWN_FILTER,
       readStoredDirectoryFilters,
       writeStoredDirectoryFilters,
       type DirectoryFiltersState,
@@ -1243,14 +1265,19 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       return 2;
     }
 
+    /** Which facet to leave out of a pass over the data, so the excluded-count
+     * note can say what that one facet is costing the visitor. */
+    type IgnoredFacet = '' | 'day' | 'dealType';
+
     function getFilteredData(
       now = getServerNow(),
-      venueStates = buildVenueStates(now)
+      venueStates = buildVenueStates(now),
+      ignore: IgnoredFacet = ''
     ) {
       const searchQuery = (document.getElementById('search-input') as HTMLInputElement).value.trim().toLowerCase();
-      const dayFilter = (document.getElementById('day-filter') as HTMLSelectElement).value;
+      const dayFilter = ignore === 'day' ? '' : (document.getElementById('day-filter') as HTMLSelectElement).value;
       const neighborhoodFilter = (document.getElementById('neighborhood-filter') as HTMLSelectElement).value;
-      const dealFilter = (document.getElementById('deal-filter') as HTMLSelectElement).value;
+      const dealFilter = ignore === 'dealType' ? '' : (document.getElementById('deal-filter') as HTMLSelectElement).value;
       const statusFilter = (document.getElementById('status-filter') as HTMLSelectElement).value;
       const trustFilter = (document.getElementById('trust-filter') as HTMLSelectElement).value;
 
@@ -1259,7 +1286,14 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       if (searchQuery) filtered = filtered.filter((h) => matchesSearch(h, searchQuery));
       if (dayFilter) filtered = filtered.filter((h) => h.days.includes(dayFilter));
       if (neighborhoodFilter) filtered = filtered.filter((h) => h.neighborhood === neighborhoodFilter);
-      if (dealFilter) filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
+      // A venue with no deal types is one whose offers nobody published, which
+      // is what this option selects. It is not a deal type, so it can never be
+      // matched by one.
+      if (dealFilter === OFFERS_UNKNOWN_FILTER) {
+        filtered = filtered.filter((h) => !(h.dealTypes || []).length);
+      } else if (dealFilter) {
+        filtered = filtered.filter((h) => (h.dealTypes || []).includes(dealFilter));
+      }
       if (statusFilter === 'happy-hour-now') {
         filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.happyHourOccurrence));
       }
@@ -1285,6 +1319,58 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       return filtered;
     }
 
+    /**
+     * Says out loud what the current filters are leaving out, for the two
+     * facets that exclude venues over something other than what the visitor
+     * asked about.
+     *
+     * A deal-type selection drops every venue whose offers nobody published —
+     * 140 of them — because they carry no deal types at all, and inventing one
+     * to keep them in the result would put a venue in a "beer" browse on a
+     * guess. And the day filter starts on today's weekday, which the page
+     * chose rather than the visitor, so its exclusions are ours to explain.
+     *
+     * Both notes offer the widening as a button: a count nobody can act on is
+     * trivia.
+     */
+    function paintExcludedNote(
+      now: Date | null,
+      venueStates: Map<number, ConsumerPromotionState>,
+      shownCount: number
+    ) {
+      const note = document.getElementById('excluded-note')!;
+      const dealFilter = (document.getElementById('deal-filter') as HTMLSelectElement).value;
+      const dayFilter = dayFilterEl.value;
+      const parts: string[] = [];
+
+      if (dealFilter && dealFilter !== OFFERS_UNKNOWN_FILTER) {
+        const unknownOffers = getFilteredData(now, venueStates, 'dealType')
+          .filter((venue) => !(venue.dealTypes || []).length).length;
+        if (unknownOffers) {
+          parts.push(
+            `${unknownOffers} more publish happy hour times but not what is on offer — `
+            + `<button type="button" data-excluded-show="deal">show those instead</button>`
+          );
+        }
+      }
+
+      // Only when the page set the day itself. A visitor who picked Tuesday
+      // knows Tuesday is excluding Wednesday.
+      if (dayFilter && !dayFilterTouched && dayFilter === automaticDayFilter) {
+        const anyDay = getFilteredData(now, venueStates, 'day').length;
+        const closedToday = anyDay - shownCount;
+        if (closedToday > 0) {
+          parts.push(
+            `${closedToday} are hidden because they have no happy hour on ${dayFilter} — `
+            + `<button type="button" data-excluded-show="day">show every day</button>`
+          );
+        }
+      }
+
+      note.innerHTML = parts.join(' · ');
+      note.hidden = parts.length === 0;
+    }
+
     function render(now = getServerNow()) {
       const todayIndex = now ? syncServerTimePresentation(now) : -1;
       const venueStates = buildVenueStates(now);
@@ -1300,6 +1386,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         .length;
       countEl.textContent = String(filtered.length);
       liveCountBig.textContent = String(happyHoursNow);
+      paintExcludedNote(now, venueStates, filtered.length);
 
       if (filtered.length === 0) {
         (grid as HTMLElement).style.display = 'none';
@@ -1588,6 +1675,21 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       persistDirectoryFilters();
     });
     document.getElementById('status-filter')!.addEventListener('change', () => {
+      render();
+      persistDirectoryFilters();
+    });
+    // The excluded-count note's own widenings, which move the filter the note
+    // is describing rather than adding a second way to browse.
+    document.getElementById('excluded-note')!.addEventListener('click', (event) => {
+      const target = (event.target as HTMLElement).closest('[data-excluded-show]') as HTMLElement | null;
+      if (!target) return;
+      if (target.dataset.excludedShow === 'deal') {
+        (document.getElementById('deal-filter') as HTMLSelectElement).value = OFFERS_UNKNOWN_FILTER;
+      } else {
+        dayFilterEl.value = '';
+        dayFilterInitialized = true;
+        dayFilterTouched = true;
+      }
       render();
       persistDirectoryFilters();
     });

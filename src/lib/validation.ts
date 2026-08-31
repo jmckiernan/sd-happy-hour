@@ -252,6 +252,7 @@ export function validateListing(
     startTime: cleanString(input.startTime),
     endTime: cleanString(input.endTime),
     deals: cleanList(input.deals),
+    dealsUnknown: !cleanList(input.deals).length,
     vibe: cleanString(input.vibe),
     website: cleanString(input.website),
     verified: Boolean(input.verified),
@@ -302,7 +303,19 @@ export function validateListing(
   if (listing.closeTime && !isValidTime(listing.closeTime)) errors.push('Venue close time must use HH:MM 24-hour format.');
   if (!isValidTime(listing.startTime)) errors.push('Happy hour start time must use HH:MM 24-hour format.');
   if (!isValidTime(listing.endTime)) errors.push('Happy hour end time must use HH:MM 24-hour format.');
-  if (!listing.deals.length) errors.push('Add at least one deal.');
+  // Deals are not required. The window is the minimum a listing has to carry:
+  // days, a start and an end, all checked above. A venue that publishes when
+  // its happy hour runs and nothing about what is on offer is the state
+  // docs/window-only-listings.md decided to keep published, and those are the
+  // pages that invite their owner to fill the offers in — so the claim flow
+  // has to accept a save that still has none.
+  //
+  // Deal types are read off deal text and nothing else, so they cannot outlive
+  // it: keeping a ticked "beer" on a listing with no deals would put the venue
+  // in a filtered browse for an offer nobody published.
+  if (!listing.deals.length && listing.dealTypes.length) {
+    errors.push('Remove the deal types, or add the deals they describe.');
+  }
   if (!listing.vibe) errors.push('Vibe is required.');
   if (requireCoordinates && (!Number.isFinite(listing.lat) || !Number.isFinite(listing.lng))) {
     errors.push('Latitude and longitude are required before approval.');
