@@ -3,6 +3,7 @@ import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } fro
 import type { UnifiedSavedState } from './savedLists';
 import { PROMOTION_TYPES, type PromotionType } from './promotionState';
 import { normalizeGalleryCrop } from './galleryCrop';
+import type { GalleryImage } from './venues';
 import { parseInstant, type InstantInput } from './sanDiegoTime';
 
 // ---------------------------------------------------------------------------
@@ -249,7 +250,7 @@ export function cleanAlertChannels(input: Record<string, any> | undefined): Aler
  * normal case: the public submit form has no such field, and neither does the
  * submission review queue.
  */
-function cleanGalleryImages(value: unknown): { rows: Record<string, any>[] | null; errors: string[] } {
+function cleanGalleryImages(value: unknown): { rows: GalleryImage[] | null; errors: string[] } {
   if (value === undefined || value === null) return { rows: null, errors: [] };
   if (!Array.isArray(value)) return { rows: null, errors: ['Gallery images must be a list.'] };
 
@@ -260,7 +261,7 @@ function cleanGalleryImages(value: unknown): { rows: Record<string, any>[] | nul
     if (!url || !/^(\/[^/]|https?:\/\/)/i.test(url)) {
       errors.push('Gallery images must each be a stored image path or an http(s) URL.');
     }
-    const row: Record<string, any> = { url };
+    const row: GalleryImage = { url };
     if ('caption' in source) row.caption = cleanString(source.caption);
     if ('sourceUrl' in source) row.sourceUrl = source.sourceUrl ? cleanString(source.sourceUrl) : null;
     if ('generated' in source) row.generated = Boolean(source.generated);

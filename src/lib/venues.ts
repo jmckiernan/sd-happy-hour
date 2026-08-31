@@ -18,6 +18,26 @@ export {
 export { DEALS_UNKNOWN_LABEL };
 export type { WeeklySpecial };
 
+/**
+ * One photo in a venue's gallery, usually a happy-hour menu flyer.
+ *
+ * Named rather than inlined on Venue so the submission and admin validators can
+ * state that they produce exactly this, instead of a loose record that happens
+ * to line up.
+ */
+export interface GalleryImage {
+  url: string;
+  caption?: string;
+  sourceUrl?: string | null;
+  /** Rendered by us from `hhMenu`, not scraped from the venue. */
+  generated?: boolean;
+  /** Which part of the image a fixed frame shows, set by an admin in the venue
+   * editor. Absent means centered and unmagnified — the framing every gallery
+   * image had before this existed. The file itself is never re-cropped; see
+   * lib/galleryCrop.ts. */
+  crop?: GalleryCrop;
+}
+
 export interface Venue {
   id: number;
   name: string;
@@ -99,18 +119,7 @@ export interface Venue {
     fromDealChips?: boolean;
   };
   /** Happy-hour menu flyers scraped from the venue site, shown in the photo gallery. */
-  galleryImages?: {
-    url: string;
-    caption?: string;
-    sourceUrl?: string | null;
-    /** Rendered by us from `hhMenu`, not scraped from the venue. */
-    generated?: boolean;
-    /** Which part of the image a fixed frame shows, set by an admin in the
-     * venue editor. Absent means centered and unmagnified — the framing every
-     * gallery image had before this existed. The file itself is never
-     * re-cropped; see lib/galleryCrop.ts. */
-    crop?: GalleryCrop;
-  }[];
+  galleryImages?: GalleryImage[];
   /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
   lastScrape?: {
     outcome: string;
