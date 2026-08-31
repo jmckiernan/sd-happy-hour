@@ -9,6 +9,8 @@ second city actually teaches us — append there rather than rewriting the claim
 
 For what each gate does and why, see `docs/venue-pipeline-reference.md`. This page does not repeat
 those rules; it only says which of them are about restaurants and which are about San Diego.
+For Google Places pricing, field tiers, the caching terms and the derivation of the cost estimates,
+see `docs/places-api-cost-analysis.md` — quoted here only where it changes a porting decision.
 Constants and counts here were read out of the code.
 
 ---
@@ -20,10 +22,15 @@ Constants and counts here were read out of the code.
 - **The per-city work is bounded and mostly geographic**: a bounds rectangle, a county name, a
   neighborhood classifier, editorial copy, and a handful of regional chain names. The neighborhood
   classifier is the bulk of it — expect about a week per metro.
-- **Two things are not engineering problems and should be settled before any of the above.** Happy
-  hour is restricted or banned in some states, and the data model assumes exactly one city.
+- **Three things are not engineering problems and should be settled before any of the above.** Happy
+  hour is restricted or banned in some states, the data model assumes exactly one city, and Google's
+  terms do not let us buy the Places data outright.
 - **Discovery is the dominant cost and it scales with density**, so a larger metro costs more than
   San Diego did, not the same.
+- **A city is a recurring obligation, not a purchase.** Google's terms permit keeping place IDs
+  indefinitely and almost nothing else, so every city added is another dataset with a shelf life.
+  What we genuinely own is the scraped happy hours, the owner claims, and the editorial copy —
+  which is the same reason the extraction pipeline, not the Google integration, is the asset.
 
 ---
 
@@ -32,6 +39,11 @@ Constants and counts here were read out of the code.
 None of this is San Diego-specific and none of it should be touched for a new city. It is also the
 most expensive part of the system to have built, because almost every line of it exists because
 something went wrong.
+
+It is additionally the part we own. Google's terms let us keep place IDs and rent everything else
+(§3.3), so the durable asset in any city is what the extraction cascade produces from the venue's
+own website — the windows, the deal text, the menu boards — plus owner claims and our editorial
+copy. The Google integration is a seed. Porting the cascade is porting the thing with value in it.
 
 ### 2.1 The extraction cascade
 
@@ -80,7 +92,7 @@ again:
 
 ## 3. What has to be decided before any code is written
 
-Both of these are cheap to settle at one city and expensive at three.
+All three are cheap to settle at one city and expensive at three.
 
 ### 3.1 Happy hour is not legal everywhere
 
@@ -124,10 +136,48 @@ Two ways forward, and they should be chosen deliberately:
 - **One app with a city dimension.** Needs id namespacing (or a switch to opaque ids), a per-venue
   timezone field replacing the constant, and `/{city}/venues/{slug}` routing. More work up front and
   it invalidates the "all schedules are Pacific" assumption that 17 modules currently rely on.
+  - Cheaper than it looks in one respect: Place Details exposes `timeZone` and `utcOffsetMinutes` as
+    Pro fields, free at the Enterprise tier we already pay. Populating a per-venue timezone is a
+    mask change, not a data-sourcing problem. The work is the 17 call sites, not the field.
 
 We have not chosen. The honest position is that one-deployment-per-city is right for city two and
 probably wrong for city five, and the migration is much cheaper while there is one city in
 production.
+
+### 3.3 The Google data is rented, and every city rents it separately
+
+`docs/places-api-cost-analysis.md` §2.6 is the detail. The short form, because it changes how a new
+city should be planned rather than merely how it should be budgeted:
+
+- **Place IDs may be stored indefinitely.** They are the documented exemption.
+- **Latitude and longitude may be cached for 30 consecutive calendar days.** Everything else —
+  names, addresses, ratings, hours, phone numbers, websites, amenity booleans, photos — must not be
+  pre-fetched or cached beyond a roughly 30-day performance allowance.
+- **There is no one-time-purchase option at any price.** The API has no mode that sells a permanent
+  copy. We are renting, and the rent comes due when the cache ages out.
+
+The consequences for porting:
+
+- **A city is a recurring obligation, not a one-time spend.** Ten cities is ten datasets each
+  needing refresh, not ten purchases banked. This is the strongest single argument for building the
+  second city slowly and the fifth only once the refresh cadence is a solved, automated thing rather
+  than a person remembering to re-run discovery.
+- **It sharpens what "owning a market" means.** The defensible assets in a new city are the
+  happy-hour windows and deal text scraped from venues' own sites, the owner claims, and the
+  editorial neighborhood copy. Those are ours, they compound, and none of them expire. The Google
+  layer underneath is a rented index of where the restaurants are.
+- **The recommended posture is Google as discovery and seed, not as a database.** Place IDs are the
+  permanent key; the response caches under `.data/import/` are working files with a lifetime;
+  anything published prefers data we own; displayed Google content carries attribution and gets
+  refreshed rather than frozen.
+- **We are not currently clean on this.** `public/data/happy-hours.json` is committed to git and
+  holds Google-origin names, addresses and coordinates. That is a known exposure in San Diego rather
+  than something a port would introduce — but a port replicates it into a second jurisdiction with
+  a second set of records, which is the moment to decide how strictly to read the terms rather than
+  inherit the decision by default.
+
+This is a judgement call for the owner, not an arithmetic one, and it should be made before the
+first discovery run of a new city rather than after.
 
 ---
 
@@ -243,7 +293,10 @@ Two things that look like hazards and are not:
   `America/Los_Angeles` independently. It is a constant rather than a per-venue field, which is
   correct for one deployment per city and wrong for a single multi-city deployment (§3.2). All the
   hard parts — DST ambiguity, overnight windows, spring-forward rejection — are already
-  timezone-general.
+  timezone-general, and Google will hand us a per-venue `timeZone` for free if we ever want it.
+  - One caveat for a metro that straddles a timezone line — Phoenix and its DST exemption,
+    Chattanooga, the Florida panhandle. There the constant is wrong even for a single-city
+    deployment, and the per-venue field stops being optional.
 
 ### 5.1 Cosmetic but visible
 
@@ -256,67 +309,108 @@ in San Diego on…"), and `astro.config.mjs` (`site: 'https://happyhoursd.com'`)
 
 ## 6. Cost
 
-Numbers from San Diego, which is a mid-density metro.
+San Diego is the reference data point for extrapolating to another metro. It is mid-density, and
+the numbers below are modelled rather than invoiced — `docs/places-api-cost-analysis.md` §3 has the
+derivation, the assumptions, and what breaks them.
 
-- **Discovery ran roughly $600** and still sits at about **30–45% coverage** — two exhaustively
-  probed cells found 6.0× and 3.8× more venues than the original fixed grid saw. That figure is
-  operational history rather than something the repository records, so treat it as an order of
-  magnitude.
-- **Denser metros cost meaningfully more, not proportionally more.** Adaptive subdivision splits a
-  cell whenever a response returns a full page of 20, so LA, NYC and Chicago subdivide deeper and
-  more often. The `--max-calls` budget (default 2,000) caps this, but capping it is the same thing as
-  accepting worse coverage.
-- **Enrichment scales with candidate count** at the Enterprise Place Details tier (~$20/1k for the
-  current mask), gated by the 4.0★ / 10-review prefilter.
-- **Extraction is cheap and predictable**: $0.012–0.023 per venue on Haiku, so roughly $7–14 for a
-  full 611-listing pass. The AI fallback during import is ~$0.26 a run thanks to the
-  `siteMentionsHappyHour` gate.
-- **Stubs cost nothing** beyond the enrichment already paid for.
+- **Budget $350 for a full county run, with a plausible range of $190 to $600.** The ~$600 figure
+  quoted in earlier planning is the pessimistic end of that range, not the expected case. It assumes
+  coverage was really 30%, that urban squares subdivide to the floor across all five place types,
+  and that the newly found tail clears the quality bar at a higher rate than expected.
+- **The expected case is roughly 7,500 discovery calls and 5,700 Place Details calls**, at
+  $35/1k Nearby Search Enterprise and $20/1k Place Details Enterprise, less about $55 of monthly free
+  allowance. Discovery is about 70% of the bill.
+- Meanwhile discovery still sits at roughly **30–45% coverage** — two exhaustively probed cells
+  found 6.0× and 3.8× more venues than the original fixed grid saw. That is the estimate the $350
+  is meant to close, not a description of what $350 has already bought.
 
-So the model is: discovery dominates and scales with area and density; everything downstream scales
-with venue count and is small by comparison.
+**How this scales to a denser metro.** Adaptive subdivision splits a square whenever a response
+returns a full page of 20, so LA, NYC and Chicago subdivide more often and deeper, and the growth is
+almost entirely in the `restaurant` queue — `night_club` and `brewery` barely subdivide anywhere.
+What keeps it bounded is the **120 m radius floor**: covering radius halves each level, so a
+0.045° root square bottoms out at **depth 4** and can spawn at most 341 calls. A denser metro
+therefore costs meaningfully more than San Diego but not unboundedly more, and the honest way to
+extrapolate is to scale the discovery call count rather than to scale the dollar total. Note the
+corollary: squares that hit the 120 m floor while still returning full pages are places even a
+complete run will not fully cover, so a denser metro also buys a lower ceiling on coverage.
+
+Everything downstream is small and predictable by comparison:
+
+- **Enrichment scales with candidate count** at $20/1k, gated by the 4.0★ / 10-review prefilter.
+  Expect newly discovered venues to pass that bar at a *lower* rate than the current set, since they
+  are the tail the popularity ranking hid.
+- **Extraction is cheap**: $0.012–0.023 per venue on Haiku, so roughly $7–14 for a full 611-listing
+  pass. The AI fallback during import is ~$0.26 a run thanks to the `siteMentionsHappyHour` gate.
+- **Stubs cost nothing** beyond the enrichment already paid for — and less than that now, since
+  capturing `formattedAddress` in the discovery mask is free at the Enterprise tier and removes the
+  $5/1k Essentials Details call a stub used to need.
+
+**None of this is a one-time spend.** §3.3 is the reason: what the money buys is a fresh snapshot
+with a shelf life. Plan a new city's budget as an ongoing line item covering discovery, enrichment
+and periodic refresh, and note that this term is what compounds across cities — the per-city
+engineering work is paid once, the per-city data rent is not.
+
+Two mistakes that are easy to make in a new city and are called out in the cost analysis: re-running
+discovery repeats every root call (2,835 root calls is $99 a time in San Diego, and partial runs
+against the default 2,000-call budget are the easiest way to overspend), and a bounds rectangle that
+overhangs a neighboring county means paying Place Details for venues the county filter later
+discards — 5–8% of the spend in San Diego, and free to avoid by drawing a tighter box in step 3.
 
 ---
 
 ## 7. New-city checklist
 
-In order. Do not skip ahead — steps 1 and 2 can invalidate everything after them.
+In order. Do not skip ahead — steps 1 to 3 can invalidate everything after them, and the first two
+are both "check before you spend".
 
 1. **Verify the law.** Check the target state's current alcoholic beverage control regulations for
    restrictions on discounted drinks, and whether any restriction is partial (food but not drinks,
    or no multi-drink discounts). Record the finding and the date in §8. Stop here if it is a ban.
-2. **Decide the deployment model** (§3.2): separate deployment, or a city dimension in the data
+2. **Settle the Google terms question** (§3.3), if it has not already been settled for the business
+   as a whole. Confirm how strictly the caching terms are being read, that the new city's catalog
+   handles Google-origin fields the same agreed way, and that the recurring refresh obligation is
+   budgeted rather than assumed away. Re-check the terms themselves — the cost analysis was accurate
+   on 31 August 2026 and Google's pricing and terms have both changed recently.
+3. **Decide the deployment model** (§3.2): separate deployment, or a city dimension in the data
    model. If it is the latter, do the id namespacing, per-venue timezone and routing work *before*
    importing anything.
-3. **Draw `COUNTY_BOUNDS`** around the metro and set the county name (or set of names) in
-   `lib/county.mjs`. Build the out-of-county neighbor city regex from a map.
-4. **Fix the ZIP assumptions** — `zipsIn` in `lib/location-page.mjs`, the CA regexes in
+4. **Draw `COUNTY_BOUNDS`** around the metro and set the county name (or set of names) in
+   `lib/county.mjs`. Build the out-of-county neighbor city regex from a map. Draw the box tightly —
+   overhang into a neighboring county is Place Details spend on venues that get discarded.
+5. **Fix the ZIP assumptions** — `zipsIn` in `lib/location-page.mjs`, the CA regexes in
    `lib/neighborhood-assign.mjs`, the strip in `lib/venue-quality.mjs`, and `locationSignals` in
    `src/lib/website-ownership.mjs`. This is a small diff and skipping it degrades chain handling
    invisibly (§5).
-5. **Add regional chains** to `lib/chain-blocklist.mjs`, checking the existing 41 first.
-6. **Build the neighborhood classifier** — boxes, address rules with local aliases, ZIP table.
+6. **Add regional chains** to `lib/chain-blocklist.mjs`, checking the existing 41 first.
+7. **Build the neighborhood classifier** — boxes, address rules with local aliases, ZIP table.
    Budget a week. Order boxes most-specific-first and check every pair for containment before
    trusting them.
-7. **Run a smoke discovery** (`discover --smoke`, or `--limit` a handful of cells) and eyeball the
-   candidates for out-of-area places and obvious junk before committing to a full run.
-8. **Run discovery for real**, adaptive, with an explicit `--max-calls` budget you have decided you
-   are willing to spend.
-9. **Enrich**, then read the qualification counts. A surprising out-of-county rate means the bounds
-   or the county string is wrong; fix it and `--requalify` rather than re-fetching.
-10. **Extract on a sample first** — a few hundred venues — and read the scrape outcomes. A high
-    `wrong_website` or `other_location` rate is the signature of step 4 having been skipped.
-11. **Stage, and audit the neighborhood distribution before merging.** Every venue landing on the
+8. **Set a ceiling on the Cloud billing account**, then run a **smoke discovery**
+   (`discover --smoke`, or `--limit` a handful of cells) and eyeball the candidates for out-of-area
+   places and obvious junk before committing to a full run. The failure mode of an accidental
+   re-run is silent and it repeats every root call.
+9. **Run discovery for real**, adaptive, with an explicit `--max-calls` budget you have decided you
+   are willing to spend. Expect several runs at the 2,000 default; plan them rather than drifting
+   into them, because each restart re-pays for the root calls.
+10. **Enrich**, then read the qualification counts. A surprising out-of-county rate means the bounds
+    or the county string is wrong; fix it and `--requalify` rather than re-fetching.
+11. **Extract on a sample first** — a few hundred venues — and read the scrape outcomes. A high
+    `wrong_website` or `other_location` rate is the signature of step 5 having been skipped.
+12. **Stage, and audit the neighborhood distribution before merging.** Every venue landing on the
     default neighborhood, or one neighborhood swallowing a coast, is the Cardiff bug. This is the
     last cheap moment to catch it.
-12. **Merge**, let `validate-data.js` run, and spot-check twenty venue pages by hand against their
+13. **Merge**, let `validate-data.js` run, and spot-check twenty venue pages by hand against their
     own websites.
-13. **Write the editorial neighborhood copy** (`src/lib/neighborhoods.ts`) for every neighborhood the
+14. **Write the editorial neighborhood copy** (`src/lib/neighborhoods.ts`) for every neighborhood the
     data actually produced — a neighborhood with venues and no profile has no page and no filter
     entry.
-14. **Update `src/lib/marketAreas.ts`, `src/lib/seo.ts` and the site config**, then run
+15. **Update `src/lib/marketAreas.ts`, `src/lib/seo.ts` and the site config**, then run
     `npm run audit:venues` and the test suite.
-15. **Append what you learned to §8.**
+16. **Schedule the refresh** before calling the city done. The Google-origin data has a shelf life
+    (§3.3) and a city that is never refreshed is a city whose data quietly rots and whose terms
+    position quietly worsens.
+17. **Append what you learned to §8**, including the actual spend against the $350 San Diego
+    reference and the legal finding with its date.
 
 ---
 
@@ -360,6 +454,13 @@ Seeded from San Diego; nothing here has yet been tested in a second city.
 - **The quality bar moved.** 4.0★ / 10 reviews after lowering it, which added 37 venues. A new city
   should expect to tune this rather than inherit it, and should remember that `--requalify` exists so
   tuning does not mean re-paying.
+- **We planned around buying the data and we are renting it.** The Places terms permit keeping place
+  IDs and essentially nothing else, which was found late enough that the committed catalog already
+  holds Google-origin names and addresses. A second city should start from the "discovery source,
+  not database" posture rather than arriving at it (§3.3).
+- **The cost figure everyone was quoting was the pessimistic tail.** ~$600 was carried around as the
+  San Diego number until it was modelled properly and came out at $350 expected, $190–$600 range. If
+  a second city produces a headline cost, write down whether it is expected or worst case.
 
 ### 8.3 Open questions
 
@@ -379,6 +480,11 @@ Seeded from San Diego; nothing here has yet been tested in a second city.
   which would change which city to build second.
 - **At what point does one-deployment-per-city stop being cheaper?** Guessing three to five cities,
   with no evidence.
+- **What is the steady-state refresh cost of a city, as distinct from the cost of building it?**
+  §6 budgets a build. Nobody has measured what keeping a city current costs per year, and under
+  §3.3 that recurring number, not the build, is what decides how many cities are sustainable.
+- **How strictly should the caching terms be read, and does the answer change per city?** It is a
+  judgement call today. A larger footprint across more states makes it a louder one.
 
 ### 8.4 Log
 
