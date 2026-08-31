@@ -28,11 +28,10 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://ironsidefishandoyster.com",
     "dealTypes": [
-      "oysters",
       "beer",
-      "wine",
       "cocktails",
-      "food"
+      "wine",
+      "oysters"
     ],
     "features": [
       "seafood",
@@ -228,9 +227,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://waterfrontbarandgrill.com/happy-hour",
     "dealTypes": [
-      "cocktails",
       "beer",
-      "wine"
+      "cocktails",
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -803,9 +803,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.herbandwood.com/happy-hour",
     "dealTypes": [
-      "cocktails",
+      "beer",
       "wine",
-      "beer"
+      "food",
+      "oysters"
     ],
     "features": [
       "mediterranean",
@@ -1013,8 +1014,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "food",
-      "wine"
+      "food"
     ],
     "features": [
       "casual",
@@ -1302,10 +1302,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://cohnrestaurants.com/coasterra/menu/happy-hour",
     "dealTypes": [
-      "cocktails",
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "waterfront",
@@ -1417,6 +1415,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
+      "wine",
       "entertainment"
     ],
     "features": [
@@ -1748,6 +1747,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -2171,6 +2171,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11254217522953341943&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -2293,6 +2296,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.philsbbq.com/san-diego-point-loma-phil-s-bbq-food-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -2509,6 +2515,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.steamypiggy.com/happy-hour-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -2816,6 +2824,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5386074018441073538&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -2888,7 +2899,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://fogodechao.com/location/san-diego/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -3158,8 +3171,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.daveandbusters.com/us/en/play/specials",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine",
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual",
@@ -3411,6 +3427,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14731232986280580132&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -3476,6 +3495,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://crackshack.com/cluck-yeah-pb-its-happy-hour-time/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -3534,6 +3556,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4533354448690309846&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -3603,6 +3627,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://rockinbaja.com/specials/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -3940,7 +3965,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thefishermansrestaurantsanclemente.com/sunset-happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -4149,6 +4177,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://lapuertasd.com/happy-hours/header-happy-hour/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -4366,7 +4395,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.coasterra.com/menu-happy-hour/",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual",
@@ -4560,6 +4590,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12438828370960474578&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -4629,6 +4662,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1858256368564793451&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -4697,6 +4733,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.eatpuesto.com/menus/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -4912,7 +4950,6 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://bluewaterseafoodsandiego.com/specials",
     "dealTypes": [
-      "oysters",
       "food"
     ],
     "features": [
@@ -4990,7 +5027,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9455005247333141135&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food",
       "entertainment"
     ],
@@ -5063,6 +5102,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://worldfamouspb.com/san-diego-pacific-beach-world-famous-pb-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -5235,7 +5277,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.tomhamslighthouse.com/happy-hour-menu/",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -5523,6 +5568,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14298829408041334999&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -5581,6 +5628,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7164259063197366117&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -5643,6 +5693,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -5843,8 +5896,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://americancomedyco.com/collections/gaslamp-comedy-open-mic-happy-hour-tuesdays",
     "dealTypes": [
-      "cocktails",
-      "food"
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -5998,6 +6050,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://southbeachob.com/san-diego-ocean-beach-south-beach-bar-and-grill-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -6230,6 +6285,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1163025909113537404&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -6614,6 +6671,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.philsbbq.com/san-diego-point-loma-phil-s-bbq-food-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -6826,6 +6886,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.yardhouse.com/menu/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -7088,6 +7151,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.benihana.com/menus/happy-hour/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -7404,6 +7469,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1136575806614048066&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food",
       "entertainment"
     ],
@@ -7485,6 +7553,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://balihairestaurant.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -7697,6 +7768,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -7902,6 +7976,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://kingsinnsandiego.com/specials/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -8084,6 +8161,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13603044661964816377&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -8150,7 +8230,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3982964883629329720&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -8234,6 +8316,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=110545121247627633&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -8299,6 +8384,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.pradobalboa.com/menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -8528,8 +8616,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.clevelsd.com/menu?menu=2277104",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -8748,7 +8837,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.anthonysfishgrotto.com/la-mesa-anthony-s-fish-grotto-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -8980,6 +9073,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -9181,6 +9277,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=13459811404984422734&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -9269,6 +9368,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.labellas.com/menu#menu=happy-hour",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -9471,9 +9572,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.casadebandini.com/specials--happy-hour",
     "dealTypes": [
-      "cocktails",
-      "food",
-      "entertainment"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -9575,6 +9674,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://rockinbaja.com/specials/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -9932,6 +10034,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11389742099361537844&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -10034,8 +10139,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bluewatergrill.com/coronado-menu",
     "dealTypes": [
-      "oysters",
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -10409,6 +10515,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://queenstownpublichouse.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -10577,7 +10686,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.sushideliusa.com/all-happy-hour",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -10745,6 +10854,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12198888311732364258&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -10839,6 +10951,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://tavern.belchingbeaver.com/vista-belching-beaver-brewery-tavern-and-grill-happy-hours-specials",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food"
@@ -11059,6 +11172,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.gaslampunion.com/happy-hour-gaslamp-quarter/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -11245,6 +11361,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -11446,6 +11565,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17168513117347842874&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -11552,6 +11674,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.jfamous.com/menus/happy-hour-menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -11771,6 +11896,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=628246438862836901&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -11839,6 +11967,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.poseidonrestaurant.com/posts/poseidon-happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -12154,8 +12285,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.theshouthouse.com/",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -12236,7 +12366,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://waterfrontbarandgrill.com/happy-hour",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -12427,6 +12559,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://crackshack.com/cluck-yeah-pb-its-happy-hour-time/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -12557,6 +12692,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8852523747450590667&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -12632,6 +12770,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://haciendacasablanca.net/restro_menu/tacos-de-papa/",
     "dealTypes": [
+      "cocktails",
       "food"
     ],
     "features": [
@@ -12820,6 +12959,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3317694619445034608&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -12892,7 +13033,8 @@
       "beer",
       "cocktails",
       "wine",
-      "food"
+      "food",
+      "oysters"
     ],
     "features": [
       "casual",
@@ -13105,7 +13247,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.herbandwood.com/happy-hour",
     "dealTypes": [
-      "food"
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -13306,6 +13451,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thehenryrestaurant.com/menus/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -13547,8 +13695,11 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=252979018488981183&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "oysters",
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -13629,7 +13780,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.waterbarsd.com/food-menu",
     "dealTypes": [
-      "food"
+      "cocktails",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -13932,8 +14085,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://stksteakhouse.com/en-us/location/san-diego/menu?menu=Happy-Hour-Menu",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual",
@@ -14192,6 +14348,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://gaslampmeze.com/page/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -14422,8 +14581,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.daveandbusters.com/us/en/play/specials",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine",
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual",
@@ -14631,7 +14793,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/locations/us/california/chula-vista/rancho-del-rey?utm_source=google&utm_medium=local&utm_campaign=Chilis",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -14829,6 +14993,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2468097030264934124&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -15003,8 +15170,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://thegalleyatthemarina.com/",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
     ],
     "features": [
       "casual"
@@ -15307,6 +15476,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://elpueblomex.com/bars/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -15875,7 +16047,8 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "food"
+      "food",
+      "entertainment"
     ],
     "hhSources": {
       "times": {
@@ -16122,6 +16295,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.lovebencotto.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -16338,7 +16514,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://bubssandiego.com/specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual",
@@ -16558,6 +16735,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.shakespearepub.com/upcoming-events/weekly-special/26-26-8/wine-wednesday-happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -16778,6 +16958,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -16998,6 +17181,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15524587931819295976&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -17100,6 +17286,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10101188510373556018&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -17207,9 +17396,8 @@
     "sourceUrl": "https://www.eddiev.com/happy-hour",
     "dealTypes": [
       "cocktails",
-      "oysters",
-      "food",
-      "entertainment"
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -17460,6 +17648,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.miguadalajararestaurant.com/specials-deals/",
     "dealTypes": [
+      "cocktails",
       "food"
     ],
     "features": [
@@ -17634,6 +17823,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.pizzanova.net/san-diego-point-loma-pizza-nova-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -17821,6 +18013,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.kettnerexchange.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -18036,6 +18231,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.localtaphouse.com/happy-hour-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -18260,6 +18457,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.bajabettyssd.com/food/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -18460,6 +18660,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://punchbowlsocial.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -18694,7 +18897,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/locations/us/california/san-diego/mission-valley?utm_source=google&utm_medium=local&utm_campaign=Chilis",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -18872,6 +19076,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7809928131468213720&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -18961,7 +19168,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -19088,7 +19297,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.oceanside-broiler.com/menus/food-menus/happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -19428,6 +19639,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2356861832324282964&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -19485,8 +19698,11 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=17142740878365762596&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "oysters",
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -19566,6 +19782,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://eatgrubbys.com/menu/specials/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -19761,7 +19979,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.redrobin.com/happy-hour-ca",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -19975,6 +20195,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://maps.google.com/?cid=270796202819703834&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -20119,6 +20341,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://louisianapurchasesd.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -20300,6 +20525,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.seasons52.com/happy-hour",
     "dealTypes": [
+      "cocktails",
       "wine",
       "food"
     ],
@@ -20548,6 +20774,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.lasolasrestaurant.com/menus",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -20757,6 +20986,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -20958,6 +21188,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8259063037810315976&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -21034,6 +21267,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.theblindburro.com/burro-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -21314,6 +21550,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://gossipgrill.com/menu/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -21545,7 +21784,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -21668,6 +21909,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14211366796238481330&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -21744,6 +21988,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.sandbarsportsgrill.com/specials/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -21946,7 +22191,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.thehillspub.com/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -22087,6 +22334,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://nicksrestaurants.com/southofnicks/san-clemente/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -22191,7 +22440,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.redrobin.com/happy-hour-ca",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -22408,7 +22659,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://dinisbythesea.com/carlsbad-carlsbad-village-dini-s-by-the-sea-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -22671,6 +22926,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10058280890496515520&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -22735,7 +22993,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.zamasandiego.com/menus/happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -23063,7 +23323,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -23183,9 +23445,11 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5090320454177762448&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "oysters",
+      "wine",
       "food",
+      "oysters",
       "entertainment"
     ],
     "features": [
@@ -23259,6 +23523,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9178275330111994357&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -23322,6 +23589,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7622796271616880325&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -23403,6 +23673,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11977828636074447658&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -23459,6 +23731,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11999375618720049262&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -23534,6 +23809,8 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=15006953509313611670&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -23608,8 +23885,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.lionssharesd.com/san-diego-the-lion-s-share-food-menu",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23819,6 +24097,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7501712989547763651&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -23884,6 +24165,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11953853405299306905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -24074,7 +24358,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://pitstopdineroside.com/oceanside-mission-avenue-pit-stop-diner-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -24176,7 +24460,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://insideoutsd.com/san-diego-hillcrest-insideout-drink-menu-46740",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -24428,6 +24714,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1794228646124025127&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -24499,6 +24788,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://commontheorysd.com/specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -24697,6 +24989,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2016334354964366480&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -24779,6 +25074,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13838889188578506478&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -24915,6 +25213,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.lacocinatemecula.com/la-cocina-de-reyes-happy-hour-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -25145,8 +25445,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.bayparkfishcompany.com/san-diego-bay-park-fish-company-bay-park-fish-company-happy-hours-specials",
     "dealTypes": [
-      "oysters",
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -25399,7 +25702,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -25518,6 +25823,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15960452677614799838&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -25681,6 +25989,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5184095277808518332&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -25760,6 +26071,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://otbsd.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -26029,7 +26343,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://casamachadomex.com/san-diego-kearny-mesa-casa-machado-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -26260,6 +26576,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://abbeystexasbbq.com/bbq-menu/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -26424,6 +26741,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://coinopgameroom.com/san-diego-gaslamp-coin-op-game-room-specials-gaslamp",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -26641,6 +26960,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://locations.pfchangs.com/ca/carlsbad/5621-paseo-del-norte.html?utm_source=google_gbp&utm_medium=organic",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -26794,6 +27116,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8818979904802642823&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -26862,6 +27187,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.dirtybirdsbarandgrill.com/specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -27176,7 +27504,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.missionavebarandgrill.com/happy-hour",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -27387,7 +27717,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.delshideout.com/menu/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -27589,7 +27921,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=18065171264332884956&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -27651,6 +27985,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://texaslilsmesquitegrill.com/menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -27743,6 +28080,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://elpueblomex.com/bars/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -27993,6 +28333,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1134021119205110495&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -28053,7 +28396,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.casagabrielalamesa.com/menu/print?id=2266822",
     "dealTypes": [
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -28274,6 +28617,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.thewhiskeyhousesd.com/news/finding-the-best-spring-happy-hour-deals-in-san-diego/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -28346,6 +28692,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://harbortownpub.com/happy-hour-point-loma",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -29153,8 +29501,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://baily.com/happy-hour/",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual"
@@ -29416,7 +29765,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.redrobin.com/happy-hour-ca",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -29623,6 +29974,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://elpueblomex.com/bars/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -29907,7 +30261,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.trustrestaurantsd.com/happy-hour",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -30117,6 +30473,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14592429268940451604&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -30178,6 +30536,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.nolitahall.com/happy-hour",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food"
@@ -30385,7 +30744,6 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.giardinosd.com/",
     "dealTypes": [
-      "beer",
       "wine",
       "food"
     ],
@@ -30493,6 +30851,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.dirtybirdsbarandgrill.com/specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -30727,6 +31087,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.madisononpark.com/happy-hour-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -30808,7 +31171,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -30934,7 +31299,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://mcgregorssandiego.com/menu",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -31118,8 +31485,7 @@
     "sourceUrl": "https://caffecalabria.com/menu/cocktails",
     "dealTypes": [
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -31373,7 +31739,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -31750,6 +32118,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=18360997318186557250&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -31817,7 +32188,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -32016,6 +32389,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://enfuegocantina.com/happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -32284,7 +32659,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.corkfirekitchen.com/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -32524,6 +32901,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://carverssteak.com/lounge-menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -32742,6 +33122,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://tonysjacalsd.com/solana-beach-lomas-santa-fe-tonys-jacal-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -32914,7 +33297,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://blueoceansushibar.com/carlsbad-menu/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -33105,6 +33490,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1085273529519434376&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33168,6 +33556,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3255195533791609749&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33240,6 +33631,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9137597140602703489&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33404,6 +33798,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4937252662228191320&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33480,6 +33877,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10031587263868540234&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -33560,6 +33959,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.theduckdive.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33656,6 +34058,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.benihana.com/menus/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -33917,6 +34322,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://eurekarestaurantgroup.com/locations/carlsbad/",
     "dealTypes": [
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -34343,6 +34750,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7273071940014721696&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -34407,6 +34816,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.greendragontavernca.com/menu",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food"
@@ -34593,7 +35003,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.lighthouseoceanside.com/specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -34837,6 +35250,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5474674332806891943&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -34907,6 +35322,8 @@
     "sourceUrl": "https://www.biergardensandiego.com/encinitas-specials",
     "dealTypes": [
       "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -35147,6 +35564,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4592719508896703600&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -35234,7 +35654,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -35365,7 +35787,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://aeroclubbar.com/happenings",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -35503,7 +35927,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -35626,6 +36052,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://osullivansescondido.com/specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -35863,6 +36292,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://sdtaproom.com/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -36006,6 +36438,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.thejointob.com/menu",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food"
@@ -36112,6 +36545,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.gravityheights.com/happy-hour-sorrento-valley",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -36333,6 +36769,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.corkandcraft.net/menu#Happy-Hour",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -36521,6 +36959,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12955184000505520883&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -36838,6 +37279,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.publichousetemecula.com/food-menu#happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -37087,7 +37531,9 @@
     "sourceUrl": "https://woodstockssd.com/home/happy-hour-image/",
     "dealTypes": [
       "beer",
-      "food"
+      "cocktails",
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -37299,6 +37745,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.johnnybsburgersandbrew.com/menu-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -37721,6 +38170,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.downtowncafe-ec.com/menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -37970,8 +38422,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://theholdingcompanyob.com/menus/#happy-hour",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -38143,7 +38595,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://thesandboxpizza.com/specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual",
@@ -38333,6 +38789,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.hapajs.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -38568,6 +39027,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7473994127953015568&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food",
       "entertainment"
     ],
@@ -38658,7 +39120,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.covehouselajolla.com/menu#happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -38838,8 +39302,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.thedraftoceanside.com/oceanside-the-draft-happy-hours-specials",
     "dealTypes": [
-      "wine",
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual",
@@ -38982,6 +39447,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.savoieeatery.com/chula-vista-otay-ranch-savoie-italian-eatery-daily-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -39190,7 +39657,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chilis.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -39592,6 +40061,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.pacificadelmar.com/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -39764,6 +40236,7 @@
     "sourceUrl": "https://www.akagaslamp.com/happy-hour",
     "dealTypes": [
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -39973,7 +40446,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.amalficucinaitaliana.com/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -40210,7 +40685,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.birdseyerooftop.com/happy-hour/",
     "dealTypes": [
-      "cocktails",
+      "beer",
       "food"
     ],
     "features": [
@@ -40355,6 +40830,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6126832931279164965&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -40621,6 +41098,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://ladonaob.com/menus/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -40832,6 +41311,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://kisrestaurant.com/cardiff-cardiff-beach-kis-restaurant-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -41091,6 +41573,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.asadacantina.com/menu",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -41322,6 +41805,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8452772284618566469&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -41464,7 +41950,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://texasdebrazil.com/specials/happy-hour/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -41621,7 +42109,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.hennesseystavern.com/promotions/wednesday-hump-day-happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -41838,6 +42328,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.winstonsob.com/happy-hour-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "entertainment"
     ],
     "features": [
@@ -42033,6 +42525,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.killarneys.com/temecula-killarneys-irish-pub-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -42264,7 +42759,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://thenolenrooftop.com/mainmenu/",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -42389,7 +42886,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.hennesseystavern.com/promotions/wednesday-hump-day-happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -42605,6 +43104,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.mainstreampoway.net/poway-mainstream-bar-and-grill-happy-hours-specials",
     "dealTypes": [
+      "cocktails",
       "food"
     ],
     "features": [
@@ -42762,6 +43262,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.moonshineflats.com/entertainment/menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -42868,6 +43371,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14479334790739298046&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -42944,6 +43450,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.smokeyandthebrisketsd.com/happy-hour-menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -43165,6 +43674,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.porfavorrestaurants.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -43392,8 +43904,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://havana1920.com/happy-hour/",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual"
@@ -43584,6 +44097,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -43881,7 +44397,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://khanscave.com/happy-hour/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -44058,7 +44576,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.pointbreakbargrill.com/yappy-and-happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -44268,6 +44787,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.theprivateercoalfirepizza.com/food-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -44463,6 +44984,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.northitalia.com/?menu=happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -44690,6 +45213,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://maps.google.com/?cid=14938546636806138222&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -44764,8 +45290,8 @@
     "sourceUrl": "https://www.rivierasupperclub.com/happy-hour",
     "dealTypes": [
       "cocktails",
-      "food",
-      "entertainment"
+      "wine",
+      "food"
     ],
     "features": [
       "casual"
@@ -44972,6 +45498,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.hooleys.com/happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -45231,7 +45759,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://ocminingco.com/san-marcos-grand-avenue-the-mining-company-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -45446,6 +45976,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.offshoretavern.com/san-diego-bay-park-offshore-tavern-and-grill-happy-hours-specials",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -45591,8 +46122,8 @@
     "sourceUrl": "https://toasted.net/Menu",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -45782,6 +46313,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.beachfire.com/menus/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -46006,6 +46540,7 @@
     "sourceUrl": "http://www.workingclasssd.com/san-diego-north-park-working-class-happy-hours-specials",
     "dealTypes": [
       "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -46269,7 +46804,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.cicciottis.com/cardiff-by-the-sea-cicciottis-trattoria-italiana-food-menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -46577,6 +47115,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13321354222674441176&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -46713,8 +47254,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.chicagobrospizzeria.com/specials",
     "dealTypes": [
-      "cocktails",
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual",
@@ -46865,9 +47406,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.roxyencinitas.com/happyhour",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -47064,6 +47605,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://lapuertasd.com/happy-hours/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -47177,6 +47721,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.pizzanova.net/san-diego-point-loma-pizza-nova-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -47347,6 +47894,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17565128396295963551&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -47410,6 +47958,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.oggis.com/location/oggis-sports-brewhouse-pizza-santee/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -47736,6 +48286,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14965355720914624291&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -47803,8 +48354,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://blade1936.com/oceanside-blade-1936-food-menu",
     "dealTypes": [
-      "wine",
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -47993,7 +48545,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://oscarsbrewingcompany.com/oscars-happy-hour/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -48179,6 +48733,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://maps.google.com/?cid=6259001404282369509&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "entertainment"
     ],
     "features": [
@@ -48253,6 +48810,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://monarchdelmar.com/del-mar-del-mar-monarch-ocean-pub-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -48436,6 +48995,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2120186011402060805&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -48516,6 +49078,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2606807976732745590&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -48589,6 +49154,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12911059971497017680&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -48672,6 +49240,8 @@
     "sourceUrl": "https://maps.google.com/?cid=12535112549629451120&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -48802,6 +49372,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://loveboatsushi.com/happy-hour-menu/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -49016,7 +49588,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://barbarellarestaurant.com/happy-hours-specials",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -49461,6 +50037,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.bayhilltavernsd.com/specials/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -49563,8 +50142,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://aquamaredelmar.com/del-mar-carmel-valley-aqua-mare-cucina-italiana-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
-      "food"
+      "oysters"
     ],
     "features": [
       "casual"
@@ -49857,8 +50438,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.zencurryandgrill.com/",
     "dealTypes": [
-      "cocktails",
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual"
@@ -49975,6 +50556,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.oggis.com/event/mission-valley-happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -50311,6 +50895,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.taproombeerco.com/happy-hour-north-park-san-diego",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -50502,8 +51089,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.sbiccadelmar.com/del-mar-del-mar-sbicca-del-mar-restaurant-with-ocean-views-happy-hours-specials",
     "dealTypes": [
-      "wine",
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -50802,7 +51390,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3857128409905882533&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -50890,6 +51480,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bushfirekitchen.com/happyhour",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -51058,6 +51650,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://pacificcatch.com/menu/",
     "dealTypes": [
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -51343,7 +51937,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.whistlestopbar.com/event/friday-happy-hour-w-dj-shoeshine-44/",
     "dealTypes": [
-      "entertainment"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -51450,6 +52045,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15766616208226523012&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -51514,6 +52112,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7314365555955041688&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -51571,6 +52172,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.dijamara.com/specials/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -51638,7 +52242,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10643759064138978990&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -51897,6 +52503,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://mariscoselpacificofb.com/fallbrook-mariscos-el-pacifico-fallbrook-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -52159,8 +52768,8 @@
     "sourceUrl": "https://northsidetavernob.com/san-diego-ocean-beach-northside-tavern-happy-hours-specials",
     "dealTypes": [
       "beer",
-      "food",
-      "entertainment"
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual",
@@ -52395,6 +53004,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://sandiegobrewing.com/happy-hour-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -52548,8 +53160,9 @@
     "sourceUrl": "https://www.herbandsea.com/happy-hour",
     "dealTypes": [
       "cocktails",
-      "oysters",
-      "food"
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -52755,8 +53368,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://gibronispizza.com/menu",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -52929,7 +53544,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.tower13.com/cardiff-by-the-sea-cardiff-by-the-sea-cardiff-beach-bar-at-tower-13-food-menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual",
@@ -53125,6 +53742,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3651634803786481565&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -53303,6 +53923,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2060257528129516813&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -53394,8 +54017,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.theshackbarandgrill.co/copy-of-menu",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -53547,7 +54171,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=10721818431067456456&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -53683,6 +54309,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9763718137587762962&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -53833,6 +54462,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12066722113876289503&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food"
@@ -53905,8 +54535,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://theharpoceanbeach.com/happy-hours-specials",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -54028,6 +54657,7 @@
     "sourceUrl": "http://www.pillboxtavern.com/solana-beach-north-rios-pillbox-tavern-happy-hours-specials",
     "dealTypes": [
       "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -54262,10 +54892,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.thecellarsite.com/menu",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual"
@@ -54452,6 +55082,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.tonypepperonipizzeria.net/specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -54559,6 +55191,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13282837342654777490&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -54623,6 +55257,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://wulanramentaphouse.com/oceanside-wu-lan-ramen-tap-house-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -54796,6 +55432,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3297148268981575634&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food",
       "entertainment"
     ],
@@ -54899,6 +55538,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.regalseagull.com/encinitas-leucadia-the-regal-seagull-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -55061,6 +55702,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10890547649337180810&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -55122,6 +55765,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.tommyvsurbankitchencarlsbad.com/happy-hour-menu",
     "dealTypes": [
+      "cocktails",
       "food"
     ],
     "features": [
@@ -55354,6 +55998,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://knbbistro.com/san-diego-del-cerro-knb-bistro-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -55723,6 +56370,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1464338904427640611&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -55816,6 +56466,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bellamysdining.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -56065,6 +56717,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15054305714348974156&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food",
       "entertainment"
@@ -56129,7 +56783,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://obbrewingco.com/food-menu",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -56459,6 +57113,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.baysidelanding.com/san-diego-pacific-beach-bayside-landing-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -56682,6 +57339,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://pressboxsportslounge.com/specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -56874,7 +57533,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://huntresssteak.com/happy-hour/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -57093,8 +57754,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://aromaslamesa.com/la-mesa-aromas-of-india-happy-hours-specials",
     "dealTypes": [
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -57205,7 +57865,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.sunshineob.com/2017/04/25/happy-hour/",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -57315,7 +57975,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://voguetavern.com/",
     "dealTypes": [
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -57409,6 +58069,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.unclebobstemecula.com/events",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -57598,6 +58261,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.tamarindodelmar.com/menus/happy-hour",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -57827,6 +58491,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.islandpalms.com/shelter-island-restaurant/blue-wave-bar-grill/menus/#weekly-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -58051,7 +58717,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://davantienotecadelmar.com/san-diego-del-mar-carmel-valley-davanti-enoteca-del-mar-food-menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -58296,6 +58964,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4710818241685765495&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -58357,8 +59028,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://paljoeys.net/specials",
     "dealTypes": [
-      "cocktails",
-      "entertainment"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual",
@@ -58616,6 +59287,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5961096928754863735&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -58689,6 +59363,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6494343809916813950&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -58752,7 +59429,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.oggis.com/menus",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -58878,6 +59557,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://therosewinebar.com/",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -58987,7 +59668,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://amigospotsandiego.com/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -59124,6 +59807,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://buonaforchettasd.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -59323,7 +60008,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://wheatandwater.com/happy-hours-specials",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -59549,7 +60236,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://kingfishersd.com/list",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -59732,6 +60421,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.ranchobernardoinn.com/happy-hour-menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -59812,6 +60504,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13627252351470462043&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -59901,7 +60594,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12709115604190239813&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -59967,9 +60662,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
     "dealTypes": [
-      "food",
-      "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "features": [
       "casual"
@@ -60299,6 +60993,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://3n1sportsbarandgrill.com/chula-vista-eastlake-3n1-sports-bar-and-grill-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -60519,7 +61216,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7999398388603405654&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -60576,6 +61275,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.buckboardsbbq.com/el-cajon-buckboard-s-barbecue-and-brew-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -60816,6 +61517,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14876832088111260526&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -60909,8 +61613,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://mangiaoceanside.com/specials",
     "dealTypes": [
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -61116,6 +61819,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.missionbayresort.com/2026-meeting-offer/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -61292,6 +61997,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11496640037751652830&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -61812,7 +62519,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://curbsidelamesa.com/drink-menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -61969,6 +62677,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8224619457974463588&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -62029,6 +62740,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://chefjun.com/menu",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -62223,6 +62935,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2537453021715406536&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -62277,6 +62991,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thecrossingsatcarlsbad.com/dining/menus",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -62474,6 +63191,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://moderntimes.pub/bar/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -62625,7 +63343,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -62757,8 +63475,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://webeob.com/san-diego-ocean-beach-we-be-ob-happy-hours-specials",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -63149,6 +63866,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://thewaverly.com/happy-hour/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -63394,6 +64114,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://clubmarinabar.com/stories/best-happy-hour-point-loma",
     "dealTypes": [
+      "beer",
       "cocktails"
     ],
     "features": [
@@ -63516,6 +64237,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.culinarydropout.com/locations/culinary-dropout-del-mar-ca/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -63773,7 +64497,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://frescorestaurants.com/bonsall-fresco-grill-food-menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -64468,7 +65194,6 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.grandcomedyclub.com/",
     "dealTypes": [
-      "food",
       "entertainment"
     ],
     "features": [
@@ -64540,6 +65265,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2074117154884162678&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -64599,6 +65326,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1012651650769778780&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -64662,9 +65392,11 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16385768116713394050&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "oysters",
-      "food"
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -64718,6 +65450,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9109581548291048867&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -64773,6 +65507,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://activeculturecafe.com/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -64900,6 +65635,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thehavenpizzeria.com/menu",
     "dealTypes": [
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -65073,6 +65810,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.shoresbar.com/san-marcos-shores-bar-kitchen-menu-special",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -65287,7 +66027,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.counterpointsd.com/menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -65526,6 +66267,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.tiltwoclub.com/drinks/",
     "dealTypes": [
+      "beer",
       "cocktails"
     ],
     "features": [
@@ -65738,6 +66480,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://hideawaypb.com/happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
       "food"
     ],
@@ -65980,7 +66723,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://boujiemana.com/discover-kearny-mesa-happy-hour-unwind-at-boujiemana/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -66192,10 +66937,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://blackrailkitchen.com/menu/",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual"
@@ -66407,6 +67152,7 @@
     "sourceUrl": "https://maps.google.com/?cid=18310781026049378570&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -66464,6 +67210,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12021929344698573143&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -66527,6 +67275,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.limoncellolamesa.com/happy-hour-menu/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -66788,6 +67539,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://americanheroesandbrew.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -67151,7 +67904,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.casanorisushi.com/specials",
     "dealTypes": [
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -67363,7 +68116,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://thetowerbar.com/",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -67451,6 +68205,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.dirtybirdsbarandgrill.com/specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -67684,7 +68440,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://maps.google.com/?cid=6950397439078363045&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -67803,6 +68561,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10149275315647885934&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -67938,6 +68699,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.aromisd.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -68123,6 +68887,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11925484781249875722&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -68213,6 +68980,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://eatindya.com/happy-hour-specials/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -68473,8 +69243,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://harrysfallbrook.com/event-details-registration/happy-hour-food-specials",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -68665,6 +69437,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.q-town.com/happyhour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -68736,6 +69511,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.sakuraomakase.com/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -68885,7 +69662,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://hopnonymousbrewing.com/happy-hour",
     "dealTypes": [
-      "food",
+      "beer",
       "entertainment"
     ],
     "features": [
@@ -69090,9 +69867,9 @@
     "sourceUrl": "http://sanvicenteresort.com/menu",
     "dealTypes": [
       "beer",
+      "cocktails",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual",
@@ -69239,9 +70016,7 @@
     "sourceUrl": "http://www.1ststreetbar.com/",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "food",
-      "entertainment"
+      "cocktails"
     ],
     "features": [
       "casual",
@@ -69459,8 +70234,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://papagayoseastlake.com/#happyhour",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual"
@@ -69641,7 +70417,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://hearthhousebar.com/happy-hour",
     "dealTypes": [
-      "cocktails"
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -69826,8 +70603,11 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://seaandskylajolla.com/event/sea-sky-lounge-roof-top-happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "food"
+      "wine",
+      "food",
+      "oysters"
     ],
     "features": [
       "casual",
@@ -70031,6 +70811,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5346478791681650298&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -70273,6 +71056,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://mastiffkitchen.com/la-mesa-mastiff-kitchen-la-mesa-daily-deals",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -70470,6 +71255,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13566602444991542281&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -70537,7 +71325,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://ryanbroscoffee.com/specials",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -70645,6 +71433,7 @@
     "sourceUrl": "http://thepizzataproom.com/la-jolla-san-diego-the-pizza-taproom-happy-hours-specials",
     "dealTypes": [
       "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -70947,6 +71736,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13994750120400594722&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -71193,6 +71985,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.flowerpotcafe.org/happy-hour",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -71374,6 +72168,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.frescosd.com/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -71576,8 +72372,10 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.hendosbarrelhouse.com/menu",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -71964,6 +72762,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://shanespizza.com/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -72188,6 +72988,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://primosmex.com/menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -72339,6 +73142,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.happydoesbar.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -72518,6 +73323,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8248326989096772983&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -72597,7 +73403,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://raresociety.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -72867,6 +73675,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=18140846623352385203&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -72928,6 +73739,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://delmarhighlandstowncenter.com/a-day-at-del-mar-highlands/happy-hour-at-sky-deck/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -73225,6 +74039,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=658191038757568418&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -73341,7 +74156,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.californiaenglishsd.com/menus",
     "dealTypes": [
-      "food"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -73710,6 +74527,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.trattoriadasofia.com/happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -73958,6 +74778,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8291080587629046905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -74043,6 +74866,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://kilowatt.beer/happy-hour/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -74321,7 +75145,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.barefootcoffee.com/pages/barefoot-solana-beach",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -74580,6 +75404,7 @@
     "sourceUrl": "https://maps.google.com/?cid=747445388789259125&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -74709,8 +75534,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.nickandgs.com/happy-hour",
     "dealTypes": [
-      "wine",
-      "food"
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -74960,6 +75785,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6629030925317854687&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -75020,6 +75848,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11093297785364593062&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -75094,7 +75925,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.theregalbar.com/la-mesa-the-regal-bar-happy-hours-specials",
     "dealTypes": [
-      "beer"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -75296,6 +76129,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10562731286702680340&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -75354,8 +76189,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.solterrawinery.com/encinitas-leucadia-solterra-winery-and-kitchen-food-menu",
     "dealTypes": [
-      "wine",
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual"
@@ -75565,6 +76400,7 @@
     "sourceUrl": "https://www.ludica.mx/menu/",
     "dealTypes": [
       "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -75667,6 +76503,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10796773544721739749&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -75792,7 +76631,6 @@
     "sourceUrl": "https://kilowatt.beer/happy-hour/",
     "dealTypes": [
       "beer",
-      "cocktails",
       "food"
     ],
     "features": [
@@ -76085,7 +76923,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://misadventure.co/happy-hour-menu/",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual"
@@ -76370,6 +77210,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6181652414488111206&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -76435,6 +77277,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14061272876305411463&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -76594,8 +77437,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.firenzetrattoria.com/join-us-for-happy-hour/",
     "dealTypes": [
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -76742,7 +77584,9 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=12936940128755585936&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -76809,9 +77653,9 @@
     "sourceUrl": "http://sanvicenteresort.com/menu",
     "dealTypes": [
       "beer",
+      "cocktails",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual"
@@ -76959,7 +77803,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.surfsidefishhouse.com/menu/",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -77188,6 +78034,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.setskitchenandbar.com/san-marcos-san-elijo-hills-sets-kitchen-and-bar-happy-hours-specials",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -77374,9 +78223,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://europavillage.com/temecula-wineries/bolero/",
     "dealTypes": [
+      "beer",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual"
@@ -77582,7 +78431,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.shooterscocktailsbar.com/",
     "dealTypes": [
-      "cocktails"
+      "beer"
     ],
     "features": [
       "casual",
@@ -77710,6 +78559,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thehenryrestaurant.com/menus/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -77957,7 +78809,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://prontocucinaitaliana.com/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -78239,6 +79093,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://rockonpizza.com/",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -78388,8 +79244,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.postino.com/locations/postino-del-mar",
     "dealTypes": [
-      "wine",
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual"
@@ -78518,6 +79374,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.gravityheights.com/happy-hour-sorrento-valley",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -78760,6 +79619,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.sevineandtap.com/happy-hour/",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -79017,7 +79877,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9571305424493758055&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -79081,7 +79943,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://crafthouseskydeck.com/del-mar-craft-house-sky-deck-happy-hours-specials",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -79345,7 +80209,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16963731578871057855&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -79475,8 +80341,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://firangisd.com/#HappyHour",
     "dealTypes": [
-      "food",
-      "entertainment"
+      "beer",
+      "wine",
+      "food"
     ],
     "features": [
       "casual",
@@ -79822,6 +80689,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://thedelistop.com/specials/",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -79991,6 +80859,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://samesamecarlsbad.com/menu",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -80109,10 +80980,11 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4450594799692255941&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
-      "oysters",
-      "food"
+      "food",
+      "oysters"
     ],
     "features": [
       "casual"
@@ -80181,8 +81053,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.pontevineyardinn.com/dining-bar/the-cellar/",
     "dealTypes": [
-      "wine",
-      "food"
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -80404,7 +81275,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thebowlob.com/menu",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual"
@@ -80563,6 +81435,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14866104623838569007&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -80657,6 +81532,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.bayclubhotel.com/specials/commodore-club",
     "dealTypes": [
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -80806,6 +81683,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://sushirokasd.com/poway-northeastern-san-diego-sushi-roka-happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -81089,7 +81969,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://inkamamas.com/happy-hour-menu/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -81292,6 +82174,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.ballparksc.com/menu",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -81509,6 +82393,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13241723082988133906&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "wine",
       "food"
     ],
     "features": [
@@ -81662,6 +82548,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.labarritabar.com/",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -81917,6 +82806,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3194841574986616776&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -81979,6 +82869,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -82212,6 +83103,8 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://maps.google.com/?cid=17288042290687712782&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -82338,8 +83231,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://carruthcellars.com/carruth-cellars-carlsbad-launches-new-happy-hour-meal-menu-by-chef-luke/",
     "dealTypes": [
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -82485,7 +83377,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://understorybar.com/happy-hour-menu/",
     "dealTypes": [
-      "cocktails"
+      "beer",
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual"
@@ -82903,6 +83797,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17810947532818713073&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -83078,6 +83975,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15408913041000753107&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food",
       "entertainment"
     ],
@@ -83142,6 +84042,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13292988590367563585&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -83218,6 +84121,7 @@
     "sourceUrl": "https://www.lavalencia.com/dining/the-whaling-bar",
     "dealTypes": [
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -83375,7 +84279,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.thegaslamplighter.com/happy-hour-specials-gaslamp-san-diego-downtown/",
     "dealTypes": [
-      "cocktails"
+      "cocktails",
+      "food"
     ],
     "features": [
       "casual"
@@ -83567,7 +84472,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://lobbytikibar.com/happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -83779,9 +84686,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://barnoa.com/san-clemente-barnoa-wine-company-food-menu",
     "dealTypes": [
+      "beer",
       "wine",
-      "food",
-      "entertainment"
+      "food"
     ],
     "features": [
       "casual"
@@ -83980,7 +84887,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://kilowatt.beer/happy-hour/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -84237,6 +85146,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2908384889870139096&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -84375,6 +85287,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12833584484378321594&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -84583,6 +85498,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13030354201397184828&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "food"
     ],
     "features": [
@@ -84682,8 +85598,7 @@
     "sourceUrl": "https://www.chaunceyspizza.com/happy-hour",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual",
@@ -85003,8 +85918,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.barndoorpublic.com/menu",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -85201,6 +86115,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://ev.knottybarrel.com/san-diego-east-village-downtown-san-diego-knotty-barrel-east-village-happy-hour",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -85430,7 +86347,7 @@
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.mainstreampoway.net/poway-mainstream-bar-and-grill-happy-hours-specials",
     "dealTypes": [
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -85538,6 +86455,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6698632634162918919&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -85607,6 +86527,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5187557905937271008&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -85731,8 +86654,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mias101.com/menus/",
     "dealTypes": [
+      "beer",
       "cocktails",
-      "oysters",
+      "wine",
       "food"
     ],
     "features": [
@@ -85924,6 +86848,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://nomadadining.com/happy-hour",
     "dealTypes": [
+      "beer",
       "cocktails",
       "wine",
       "food",
@@ -86081,7 +87006,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://tourdetapas.com/",
     "dealTypes": [
-      "food"
+      "beer",
+      "wine"
     ],
     "features": [
       "casual"
@@ -86236,6 +87162,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.hardrockhotels.com/san-diego/207-bar.aspx",
     "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -86498,7 +87427,9 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5116874602453440203&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "food"
     ],
     "features": [
@@ -86712,7 +87643,9 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.collective-sd.com/",
     "dealTypes": [
+      "beer",
       "cocktails",
+      "wine",
       "entertainment"
     ],
     "features": [
@@ -86965,7 +87898,7 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://kilowatt.beer/happy-hour/",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -87136,7 +88069,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://hopnonymousbrewing.com/happy-hour",
     "dealTypes": [
-      "food"
+      "beer",
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -87376,6 +88310,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11278333726400001491&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
+      "beer",
       "wine",
       "food"
     ],
@@ -87500,9 +88435,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
     "dealTypes": [
-      "food",
-      "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "features": [
       "casual"
@@ -87669,9 +88603,8 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
     "dealTypes": [
-      "food",
-      "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "features": [
       "casual"
@@ -88048,6 +88981,7 @@
     "sourceUrl": "http://obsurflodge.com/san-diego-ocean-beach-ob-surf-lodge-happy-hours-specials",
     "dealTypes": [
       "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -88203,8 +89137,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -88282,8 +89215,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88357,8 +89289,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88392,8 +89323,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "http://osushiandgrill.com/san-diego-scripps-ranch-o-sushi-and-grill-happy-hours-specials",
     "dealTypes": [
-      "beer",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -88429,8 +89359,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88504,8 +89433,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88541,8 +89469,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88690,7 +89617,6 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://zanzibarcafe.com/happy-hour",
     "dealTypes": [
-      "wine",
       "food"
     ],
     "features": [
@@ -88727,8 +89653,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88764,8 +89689,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88801,8 +89725,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88838,8 +89761,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -88875,8 +89797,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -89492,8 +90413,7 @@
     "sourceUrl": "https://lasahumaderasusa.com/specials",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -89563,6 +90483,7 @@
     "sourceUrl": "http://thelocalpb.com/",
     "dealTypes": [
       "beer",
+      "cocktails",
       "wine",
       "food"
     ],
@@ -89872,8 +90793,8 @@
     "sourceUrl": "https://oggis.com/menus",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "cocktails",
+      "wine"
     ],
     "features": [
       "casual",
@@ -123840,8 +124761,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -123992,9 +124912,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://mingsrevolvingsushi.com/specials",
     "dealTypes": [
-      "beer",
-      "cocktails",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -127355,8 +128273,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.buffalowildwings.com/happy-hour",
     "dealTypes": [
-      "cocktails",
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -128524,6 +129441,7 @@
     "sourceUrl": "http://kearnymesa.playerssportsbar.com/specials",
     "dealTypes": [
       "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -136167,7 +137085,6 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://cloakandpetal.com/specials--happy-hour",
     "dealTypes": [
-      "cocktails",
       "food"
     ],
     "features": [
@@ -136857,7 +137774,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://ryanbroscoffee.com/specials",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -137099,8 +138016,7 @@
     "sourceUrl": "https://lilpiggyscoronado.com/",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -137300,8 +138216,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://lumirooftop.com/specials/happy-hour",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -137477,8 +138392,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://bottlecraft.com/specials/happy-hour",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -137687,7 +138601,8 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.hiddencraftsd.com/food-menu",
     "dealTypes": [
-      "food"
+      "food",
+      "entertainment"
     ],
     "features": [
       "casual"
@@ -137932,6 +138847,7 @@
     "sourceUrl": "https://shorebirdrestaurant.com/specials--happy-hour",
     "dealTypes": [
       "beer",
+      "cocktails",
       "food"
     ],
     "features": [
@@ -138957,7 +139873,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "http://ryanbroscoffee.com/specials",
     "dealTypes": [
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -139059,8 +139975,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://api.storepoint.co/v1/166117680d6ae4/locations",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"

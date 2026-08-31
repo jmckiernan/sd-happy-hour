@@ -324,10 +324,42 @@ an empty deal list.
   depend on how each consumer reads a missing key.
 - `seoHidden: confidence !== 'high'`.
 - `verified: false`, `lastVerifiedAt: null`.
-- `neighborhood` from coordinates (§6), `vibe` / `dealTypes` / `features` inferred from Google
-  place types.
+- `neighborhood` from coordinates (§6), `vibe` and `features` inferred from Google place types,
+  `dealTypes` from the venue's own deal text (§5.6).
 
-### 5.6 Stub normalization
+### 5.6 `dealTypes`
+
+Derived from the venue's **own deal text** (§5.3), which is the only thing that says what a happy
+hour discounts. `DEAL_TYPES` is the permitted vocabulary: `beer`, `cocktails`, `wine`, `food`,
+`oysters`, `entertainment`. Output is ordered by that list, so the same offers always serialize the
+same way.
+
+- **Google's place `types` are not an input, and there is no `food` default.** They used to be:
+  deal text and `types` went into one lowercased blob, and a venue matching nothing was labelled
+  `food`. Google tags essentially every eating establishment with the literal type `food` — 4,876 of
+  the 5,361 places in the enrich cache — so `food` landed on 767 of 800 scheduled venues whatever
+  they discounted, and 525 carried `['food']` and nothing else.
+- **The vocabulary is read off live deal text, not guessed.** Brand names are in it, because plenty
+  of venues quote a price against the beer rather than the word: `Bud Light, Victoria, Pacifico` was
+  the whole of one venue's draft list. Sangria and sake are `wine`, mimosas are `cocktails`. Word
+  boundaries are load-bearing — an unanchored `ale` matches "wholesale", an unanchored `gin` matches
+  "ginger".
+- **Google's cached `servesBeer` / `servesWine` / `servesCocktails` are a supplementary signal**,
+  and subordinate: they add a drink type only where the deal text names no drink at all. The
+  booleans say what a venue *pours*; the deal text says what it *discounts*. A brewery that serves
+  wine and only ever discounts beer should not be filterable under wine.
+- **An empty result is the honest answer** for a venue whose window we know and whose offers we do
+  not, which is what `dealsUnknown` (§5.4) already says. `scripts/validate-data.js` still requires a
+  non-empty `dealTypes` on any listing with a window, so `normalizeVenue` falls back to `food` there
+  — a contract artefact, not an inference. `docs/reducing-google-dependency.md` §6 step 1 argues the
+  validator should accept `[]` instead.
+- Stored values go stale, because deal text is cleaned, compressed and refreshed after import
+  (`clean-deal-text.mjs`, `compress-deals.mjs`, `refresh-deals.mjs`) while `dealTypes` was not
+  recomputed. That is what left 210 beer-advertising venues unfindable by the beer filter.
+  `npm run rederive:deal-types` re-derives the whole catalog, `--dry-run` first; a venue with no
+  deal text keeps what it has rather than losing a hand-curated value to silence.
+
+### 5.7 Stub normalization
 
 For a venue with no happy hour. Differs from the above:
 

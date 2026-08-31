@@ -83,6 +83,7 @@ import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
 import { applyScrape } from '../scripts/import-google-venues/lib/apply-scrape.mjs';
 import { cleanDeals, isJunkDealLine, isRealDealLine, MAX_DEAL_CHIPS } from '../scripts/import-google-venues/lib/deals.mjs';
 import { isAnthropicBillingError } from '../scripts/import-google-venues/lib/anthropic-errors.mjs';
+import { inferDealTypes } from '../scripts/import-google-venues/lib/normalize.mjs';
 
 function testAnthropicBillingErrorIsDetected() {
   assert.equal(isAnthropicBillingError('Anthropic API error (400): credit balance is too low'), true);
@@ -2032,6 +2033,71 @@ tests.push(
   testLocatorOfferSurvivesWithoutAPriceField,
   testLocatorOffersAreMatchedPerLocationNotBrandWide,
   testLocatorLinksRankBelowSpecialsAndMenus,
+);
+
+/**
+ * The deal text is the only thing that says what a happy hour discounts.
+ * Google's place `types` used to feed the same derivation, and because its
+ * taxonomy carries a literal `food` type on 91% of eating establishments, every
+ * venue came out labelled `food` whatever its offers said.
+ */
+function testDealTypesComeFromTheVenuesOwnDealText() {
+  assert.deepEqual(
+    inferDealTypes(['$1.50 oysters', '$6 beers', '$8 wines', '$9 cocktails']),
+    ['beer', 'cocktails', 'wine', 'oysters']
+  );
+  assert.deepEqual(inferDealTypes(['$5 select draft beers', '$6 Lager']), ['beer']);
+  assert.deepEqual(inferDealTypes(['$5 wells', 'Half-price apps']), ['cocktails', 'food']);
+  assert.deepEqual(inferDealTypes(['½ price games', '$10 for 10 wings']), ['food', 'entertainment']);
+  // A price quoted against the beer rather than the word "beer".
+  assert.deepEqual(inferDealTypes(['Bud Light, Victoria, Pacifico']), ['beer']);
+  // Sangria is wine and a mimosa is sold as a cocktail, whatever is in it.
+  assert.deepEqual(inferDealTypes(['$7 sangria']), ['wine']);
+  assert.deepEqual(inferDealTypes(['$5 mimosas']), ['cocktails']);
+}
+
+/**
+ * The old derivation defaulted to `food`, which is how 525 venues came to carry
+ * `['food']` and nothing else. Naming no deal type is the honest answer, and it
+ * is what `dealsUnknown` already says about the same venues.
+ */
+function testAVenueWithNoReadableOffersNamesNoDealType() {
+  assert.deepEqual(inferDealTypes([]), []);
+  assert.deepEqual(inferDealTypes(['Happy hour every day']), []);
+}
+
+/**
+ * Google's cached alcohol booleans say what a venue pours; the deal text says
+ * what it discounts. So they fill a silence and never contradict a statement —
+ * a brewery that also serves wine stays un-filterable under wine.
+ */
+function testAlcoholBooleansFillASilenceButNeverOverrideDealText() {
+  const servesEverything = { servesBeer: true, servesWine: true, servesCocktails: true };
+  assert.deepEqual(inferDealTypes(['$5 tacos'], servesEverything), ['beer', 'cocktails', 'wine', 'food']);
+  assert.deepEqual(inferDealTypes(['$5 draft beers'], servesEverything), ['beer']);
+  assert.deepEqual(inferDealTypes([], { servesBeer: true, servesWine: false }), ['beer']);
+  assert.deepEqual(inferDealTypes([]), []);
+}
+
+/**
+ * The stored values went stale once, when deal text was cleaned and refreshed
+ * after import, and filtering for beer then hid 210 venues advertising beer on
+ * the same page. Anything the deal text names has to be on the listing.
+ */
+function testCatalogDealTypesStillAgreeWithTheirDealText() {
+  const scheduled = happyHours.filter((venue) => venue.startTime && venue.deals?.length);
+  const contradicted = scheduled.filter((venue) => {
+    const derived = inferDealTypes(venue.deals);
+    return derived.some((type) => !(venue.dealTypes || []).includes(type));
+  });
+  assert.deepEqual(contradicted.map((venue) => venue.name), []);
+}
+
+tests.push(
+  testDealTypesComeFromTheVenuesOwnDealText,
+  testAVenueWithNoReadableOffersNamesNoDealType,
+  testAlcoholBooleansFillASilenceButNeverOverrideDealText,
+  testCatalogDealTypesStillAgreeWithTheirDealText,
 );
 
 tests.push(

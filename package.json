@@ -13,6 +13,7 @@
     "import:stubs": "node scripts/import-google-venues/import-claimable-stubs.mjs",
     "purge:chains": "node scripts/import-google-venues/purge-chains.mjs",
     "clean:deals": "node scripts/import-google-venues/clean-deal-text.mjs",
+    "rederive:deal-types": "node scripts/import-google-venues/rederive-deal-types.mjs",
     "audit:county": "node scripts/import-google-venues/audit-county.mjs",
     "audit:missed": "node scripts/import-google-venues/audit-missed-happy-hours.mjs",
     "recover:missed": "node --env-file-if-exists=.env.local scripts/import-google-venues/recover-missed.mjs",

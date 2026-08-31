@@ -28,17 +28,64 @@ function inferVibe(primaryType, types = []) {
   return 'Restaurant';
 }
 
-function inferDealTypes(deals = [], types = []) {
-  const text = `${deals.join(' ')} ${types.join(' ')}`.toLowerCase();
+/**
+ * Vocabulary for each deal type, read off the deal text the catalog already
+ * publishes rather than guessed at: every branch below matches at least one
+ * live venue's offers. Brand names are in because plenty of venues quote a
+ * price against the beer rather than the word ("Bud Light, Victoria, Pacifico"
+ * was the whole of one venue's draft list).
+ *
+ * Sangria and sake sit under `wine` because that is what they are made of, and
+ * mimosas under `cocktails` because that is how a bar sells them. Word
+ * boundaries are load-bearing: an unanchored `ale` matches "wholesale" and an
+ * unanchored `gin` matches "ginger".
+ */
+const DEAL_TYPE_PATTERNS = [
+  ['beer', /\bbeers?\b|\bcervezas?\b|\bdrafts?\b|\bdraughts?\b|\bpints?\b|\bpitchers?\b|\blagers?\b|\bales?\b|\bipas?\b|\bpilsners?\b|\bstouts?\b|\bbrews?\b|\bschooners?\b|\bcrowlers?\b|\bdomestics?\b|\bimports?\b|\bon tap\b|\btaps?\b|\bbiergar|\bbud light\b|\bcoors\b|\bmichelob\b|\bmodelo\b|\bpacifico\b|\bcorona\b|\btecate\b|\bestrella\b|\bvictoria\b|\bguinness\b|\bperoni\b|\bsapporo\b|\btsingtao\b|\bkirin\b|\bstella\b|\bmiller\b|\bdos equis\b/],
+  ['cocktails', /\bcocktails?\b|\bmargaritas?\b|\bmargs?\b|\bmartinis?\b|\bmojitos?\b|\bmules?\b|\bpalomas?\b|\bmai tais?\b|\bnegronis?\b|\bspritz\b|\bcaipirinhas?\b|\bsidecars?\b|\bcosmopolitans?\b|\bgreyhounds?\b|\bscrewdrivers?\b|\bhighballs?\b|\bold fashioneds?\b|\bbloody mar(?:y|ys|ies)\b|\bmarys\b|\bmimosas?\b|\britas?\b|\blong island\b|\bwells?\b|\byou call it\b|\bspirits?\b|\bliquor\b|\btequilas?\b|\bwhiske?ys?\b|\bbourbons?\b|\bvodkas?\b|\bgin\b|\brum\b|\bmezcals?\b|\bsojus?\b|\bshots?\b|\bshooters?\b|\baperol\b/],
+  ['wine', /\bwines?\b|\bchardonnay\b|\bcabernet\b|\bpinots?\b|\bgrigio\b|\bsauvignon\b|\bmerlot\b|\bmalbec\b|\bmoscato\b|\bros[eé]\b|\bproseccos?\b|\bchampagnes?\b|\bfrizzante\b|\bbubbl(?:es|y)\b|\bsangrias?\b|\bsakes?\b|\bcorkage\b/],
+  ['food', /\bfoods?\b|\btacos?\b|\bappetizers?\b|\bapps\b|\bsnacks?\b|\bbites?\b|\bpizzas?\b|\bslices?\b|\bburgers?\b|\bwings?\b|\bfries\b|\btots\b|\bnachos\b|\bsliders?\b|\bquesadillas?\b|\bplates?\b|\bstarters?\b|\bentr[eé]es?\b|\bshareables?\b|\bsharable\b|\bsushi\b|\brolls?\b|\bflatbreads?\b|\bchips\b|\bdips?\b|\bguacamole\b|\bqueso\b|\bcalamari\b|\bshrimp\b|\bmussels?\b|\bedamame\b|\bempanadas?\b|\bceviche\b|\bsalads?\b|\bpasta\b|\bsandwich|\bwraps?\b|\btortas?\b|\bbirria\b|\bcarnitas\b|\basada\b|\bpupus\b|\btapas\b|\bmeatballs?\b|\bpretzels?\b|\bhummus\b|\bfalafel\b|\bgyros?\b|\bpoke\b|\btuna\b|\bsalmon\b|\bchicken\b|\bcheese\b|\bfish\b|\bdesserts?\b|\bcake\b|\bgelato\b/],
+  ['oysters', /\boysters?\b|\bshuck/],
+  ['entertainment', /\bentertainment\b|\btrivia\b|\bkaraoke\b|\bbingo\b|\bmusic\b|\bdjs?\b|\bopen mic\b|\barcade\b|\bgames?\b/],
+];
+
+const DRINK_DEAL_TYPES = ['beer', 'cocktails', 'wine'];
+
+/**
+ * What a happy hour discounts, read from the venue's own published deal text.
+ *
+ * This used to concatenate the deal text with Google's place `types` into one
+ * blob and default to `food` when nothing matched. Google tags essentially
+ * every eating establishment with the literal type `food` — 4,876 of the 5,361
+ * places in the enrich cache — so `food` landed on 96% of scheduled venues
+ * whatever they actually discounted, and the deal text's own evidence was
+ * indistinguishable from the taxonomy's afterwards. The deal text is also ours:
+ * scraped from the venue's site, with none of the caching terms Places content
+ * carries (docs/places-api-cost-analysis.md §2.6).
+ *
+ * `alcohol` is Google's cached `servesBeer` / `servesWine` / `servesCocktails`,
+ * and it is deliberately subordinate: **deal text wins wherever it names a
+ * drink at all.** The booleans only say what a venue pours, the deal text says
+ * what it discounts, and those are different claims — a brewery that serves
+ * wine but only ever discounts beer should not be filterable under wine. So the
+ * booleans fill a silence and never contradict a statement.
+ *
+ * Returns `[]` when the text names nothing: a venue whose window we know and
+ * whose offers we do not is what `dealsUnknown` already describes.
+ */
+export function inferDealTypes(deals = [], alcohol = {}) {
+  const text = deals.join('\n').toLowerCase();
   const found = new Set();
-  if (/beer|draft|pint/.test(text)) found.add('beer');
-  if (/cocktail|margarita|martini/.test(text)) found.add('cocktails');
-  if (/wine/.test(text)) found.add('wine');
-  if (/oyster/.test(text)) found.add('oysters');
-  if (/food|taco|appetizer|snack|bite|pizza|burger/.test(text)) found.add('food');
-  if (/entertainment|trivia|music|dj/.test(text)) found.add('entertainment');
-  if (!found.size) found.add('food');
-  return [...found].filter((type) => DEAL_TYPES.includes(type));
+  for (const [type, pattern] of DEAL_TYPE_PATTERNS) {
+    if (pattern.test(text)) found.add(type);
+  }
+  if (!DRINK_DEAL_TYPES.some((type) => found.has(type))) {
+    if (alcohol.servesBeer) found.add('beer');
+    if (alcohol.servesWine) found.add('wine');
+    if (alcohol.servesCocktails) found.add('cocktails');
+  }
+  // Ordered by DEAL_TYPES so the same offers always serialize the same way.
+  return DEAL_TYPES.filter((type) => found.has(type));
 }
 
 function inferFeatures(types = [], vibe = '') {
@@ -191,6 +238,14 @@ export function normalizeVenue(record, nextId) {
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
 
+  const derivedDealTypes = inferDealTypes(deals, record);
+  // Every listing with a window has to carry a non-empty dealTypes
+  // (scripts/validate-data.js), so a venue whose offers we cannot read keeps
+  // the historical `food` placeholder. That is a contract artefact, not an
+  // inference — docs/reducing-google-dependency.md §6 step 1 argues the
+  // validator should accept [] here, which is a change of its own.
+  const dealTypes = derivedDealTypes.length ? derivedDealTypes : ['food'];
+
   return {
     id: nextId,
     name,
@@ -209,7 +264,7 @@ export function normalizeVenue(record, nextId) {
     verified: false,
     lastVerifiedAt: null,
     sourceUrl,
-    dealTypes: inferDealTypes(deals, record.types || []),
+    dealTypes,
     features: inferFeatures(record.types || [], inferVibe(record.primaryType, record.types)),
     seoHidden: hh.confidence !== 'high',
     // Every catalog venue carries this explicitly; leaving it undefined on
