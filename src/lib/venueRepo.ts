@@ -1,4 +1,10 @@
-import { getGitHubTarget, getOctokit } from './github';
+import {
+  getGitHubTarget,
+  getOctokit,
+  parseRepoJson,
+  readRepoFile,
+  RepoContentError,
+} from './github';
 import type { Listing } from './store';
 import type { Venue } from './venues';
 
@@ -42,17 +48,28 @@ function repoConfig() {
  * commitVenues() needs to make the write a conflict-checked update rather
  * than a blind overwrite. */
 export async function fetchVenues(): Promise<VenueFileSnapshot> {
-  const { owner, repo, branch, octokit } = repoConfig();
-  const existing = await octokit.repos.getContent({ owner, repo, path: DATA_PATH, ref: branch });
+  const { octokit, ...target } = repoConfig();
+  const file = await readRepoFile(octokit, target, DATA_PATH);
 
-  if (Array.isArray(existing.data) || existing.data.type !== 'file' || !('content' in existing.data)) {
-    throw new Error(`${DATA_PATH} not found in the repo.`);
+  // Absent is a different problem from present-but-unreadable: the catalog
+  // every venue page is built from has never been committed, or the path/branch
+  // is wrong. Nothing to merge an edit into, so it can't be a legitimate state
+  // here the way a missing blog draft is.
+  if (!file) {
+    throw new RepoContentError(
+      `${DATA_PATH} does not exist in ${target.owner}/${target.repo}@${target.branch}. ` +
+        'Check GITHUB_OWNER, GITHUB_REPO, and GITHUB_BRANCH point at the repo the site deploys from.'
+    );
   }
 
-  return {
-    venues: JSON.parse(Buffer.from(existing.data.content, 'base64').toString('utf-8')),
-    sha: existing.data.sha,
-  };
+  const venues = parseRepoJson<Venue[]>(file.text, target, DATA_PATH);
+  if (!Array.isArray(venues)) {
+    throw new RepoContentError(
+      `${DATA_PATH} in ${target.owner}/${target.repo}@${target.branch} is valid JSON but not an array of venues.`
+    );
+  }
+
+  return { venues, sha: file.sha };
 }
 
 export async function commitVenues(venues: Venue[], sha: string, message: string) {

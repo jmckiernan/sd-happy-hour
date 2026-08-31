@@ -2,11 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   GitHubConfigError,
+  RepoContentError,
   describeGitHubError,
   describeRepoError,
   getGitHubTarget,
   isGitHubError,
   isGitHubNotFound,
+  parseRepoJson,
+  readRepoFile,
 } from '../src/lib/github.ts';
 import { getBlogFile, parseFrontmatter, setField, splitFrontmatter } from '../src/lib/blogDrafts.ts';
 
@@ -140,9 +143,111 @@ test('isGitHubNotFound is true only for 404', () => {
 
 const target = { owner: 'someone', repo: 'sd-happy-hour', branch: 'main', token: 't' };
 
-function fakeOctokit(getContent) {
-  return { repos: { getContent } };
+function fakeOctokit(getContent, getBlob) {
+  return { repos: { getContent }, git: { getBlob: getBlob ?? (async () => { throw new Error('getBlob not expected'); }) } };
 }
+
+function base64(text) {
+  return Buffer.from(text, 'utf-8').toString('base64');
+}
+
+test('readRepoFile decodes a normal inlined file', async () => {
+  const octokit = fakeOctokit(async () => ({
+    data: { type: 'file', size: 12, encoding: 'base64', content: base64('hello world!'), sha: 'sha1' },
+  }));
+  assert.deepEqual(await readRepoFile(octokit, target, 'a.txt'), { text: 'hello world!', sha: 'sha1' });
+});
+
+test('readRepoFile falls back to the Blobs API for a file over 1 MB', async () => {
+  // The actual Bug: GitHub will not inline a file above 1 MB. It answers 200
+  // with encoding "none" and content "", which is not an error and carries no
+  // status, so venueRepo handed JSON.parse an empty string and every admin
+  // venue page died on "Unexpected end of JSON input".
+  const big = JSON.stringify([{ id: 552, name: 'Sushi Roka Bar & Grill' }]);
+  let blobArgs = null;
+  const octokit = fakeOctokit(
+    async () => ({ data: { type: 'file', size: 2738669, encoding: 'none', content: '', sha: 'bigsha' } }),
+    async (args) => {
+      blobArgs = args;
+      return { data: { encoding: 'base64', content: base64(big), size: 2738669 } };
+    }
+  );
+
+  const file = await readRepoFile(octokit, target, 'public/data/happy-hours.json');
+  assert.equal(file.sha, 'bigsha', 'the sha must come from getContent so a later commit stays conflict-checked');
+  assert.equal(file.text, big);
+  assert.equal(blobArgs.file_sha, 'bigsha');
+  assert.deepEqual(JSON.parse(file.text)[0].id, 552);
+});
+
+test('readRepoFile tells a genuinely empty file apart from an un-inlined big one', async () => {
+  // Both report content: "". size 0 is the only thing separating them, and
+  // reaching for the Blobs API on a truly empty file would be a wasted call.
+  const octokit = fakeOctokit(async () => ({
+    data: { type: 'file', size: 0, encoding: 'base64', content: '', sha: 'emptysha' },
+  }));
+  assert.deepEqual(await readRepoFile(octokit, target, 'empty.json'), { text: '', sha: 'emptysha' });
+});
+
+test('readRepoFile returns null for an absent path and rethrows everything else', async () => {
+  const missing = fakeOctokit(async () => { throw githubError(404, 'Not Found'); });
+  assert.equal(await readRepoFile(missing, target, 'nope.json'), null);
+
+  const unauthorized = fakeOctokit(async () => { throw githubError(401, 'Bad credentials'); });
+  await assert.rejects(() => readRepoFile(unauthorized, target, 'a.json'), /Bad credentials/);
+});
+
+test('readRepoFile refuses a directory rather than decoding nothing', async () => {
+  const octokit = fakeOctokit(async () => ({ data: [{ type: 'file', name: 'a.md' }] }));
+  await assert.rejects(
+    () => readRepoFile(octokit, target, 'src/content/blog'),
+    (err) => {
+      assert.ok(err instanceof RepoContentError);
+      assert.match(err.message, /is a directory, not a file/);
+      return true;
+    }
+  );
+});
+
+test('parseRepoJson names the file and repo instead of surfacing a parse error', async () => {
+  assert.deepEqual(parseRepoJson('[{"id":1}]', target, 'public/data/happy-hours.json'), [{ id: 1 }]);
+
+  for (const bad of ['', '   ', '\n']) {
+    assert.throws(() => parseRepoJson(bad, target, 'public/data/happy-hours.json'), (err) => {
+      assert.ok(err instanceof RepoContentError);
+      assert.match(err.message, /public\/data\/happy-hours\.json in someone\/sd-happy-hour@main is empty/);
+      return true;
+    });
+  }
+
+  // A truncated or conflict-marked commit: the admin needs to hear which file
+  // and where, never "Unexpected end of JSON input".
+  for (const bad of ['[{"id":1}', '<<<<<<< HEAD', 'not json at all']) {
+    assert.throws(() => parseRepoJson(bad, target, 'public/data/happy-hours.json'), (err) => {
+      assert.ok(err instanceof RepoContentError);
+      assert.match(err.message, /is not valid JSON/);
+      assert.match(err.message, /someone\/sd-happy-hour@main/);
+      assert.doesNotMatch(err.message, /Unexpected|JSON input|position/);
+      return true;
+    });
+  }
+});
+
+test('describeGitHubError explains a content problem without leaking the parse error', () => {
+  const empty = new RepoContentError('public/data/happy-hours.json in someone/sd-happy-hour@main is empty.');
+  const message = describeGitHubError(empty, 'load this venue');
+  assert.match(message, /^Could not load this venue\./);
+  assert.match(message, /happy-hours\.json/);
+  assert.match(message, /someone\/sd-happy-hour@main/);
+
+  // The bare parse error must not be what reaches the browser, and a content
+  // problem must not be misreported as a credential problem.
+  const raw = describeGitHubError(new SyntaxError('Unexpected end of JSON input'), 'load this venue');
+  assert.doesNotMatch(raw, /Unexpected end of JSON input/);
+  assert.doesNotMatch(raw, /GITHUB_TOKEN/);
+
+  assert.match(describeRepoError(empty, 'load the current live venue'), /is empty/);
+});
 
 test('getBlogFile returns null for a post that really is absent', async () => {
   const octokit = fakeOctokit(async () => {
@@ -188,6 +293,8 @@ test('getBlogFile loads an already-published post so it can be edited', async ()
     return {
       data: {
         type: 'file',
+        size: raw.length,
+        encoding: 'base64',
         sha: 'abc123',
         content: Buffer.from(raw, 'utf-8').toString('base64'),
       },

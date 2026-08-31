@@ -4,7 +4,7 @@
 // This lets the admin UI preview and publish a draft without anyone
 // opening GitHub's own editor.
 import type { Octokit } from '@octokit/rest';
-import { isGitHubNotFound, type GitHubTarget } from './github';
+import { readRepoFile, type GitHubTarget } from './github';
 
 const BLOG_DIR = 'src/content/blog';
 
@@ -150,23 +150,17 @@ export async function listBlogFiles(
 // to swallow every error into null, which is how an expired token turned into
 // "Draft not found — it may have already been published or discarded" on
 // /admin/drafts/[slug]: the post was right there, GitHub had simply answered
-// 401. Rethrowing anything that isn't a 404 mirrors what contentEngine/
-// publish.ts already does, and lets callers say which failure it was.
+// 401. readRepoFile() keeps that 404-means-absent, everything-else-throws
+// split, and shares one decode path with the venue file so the over-1 MB
+// `encoding: "none"` case can't come back here either.
 export async function getBlogFile(
   octokit: Octokit,
   target: GitHubTarget,
   slug: string
 ): Promise<BlogFile | null> {
   const path = `${BLOG_DIR}/${slug}.md`;
-  let res;
-  try {
-    res = await octokit.repos.getContent({ owner: target.owner, repo: target.repo, path, ref: target.branch });
-  } catch (err: any) {
-    if (isGitHubNotFound(err)) return null;
-    throw err;
-  }
-  if (Array.isArray(res.data) || res.data.type !== 'file' || !('content' in res.data)) return null;
-  const raw = Buffer.from(res.data.content, 'base64').toString('utf-8');
-  const { lines, body } = splitFrontmatter(raw);
-  return { slug, path, sha: res.data.sha, lines, body, data: parseFrontmatter(lines) };
+  const file = await readRepoFile(octokit, target, path);
+  if (!file) return null;
+  const { lines, body } = splitFrontmatter(file.text);
+  return { slug, path, sha: file.sha, lines, body, data: parseFrontmatter(lines) };
 }
