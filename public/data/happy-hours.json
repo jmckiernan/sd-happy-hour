@@ -624,12 +624,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://juniperandivy.com/juni/",
-    "dealTypes": [
-      "cocktails",
-      "wine",
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "chef-driven",
       "date night",
@@ -1415,8 +1410,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "games",
@@ -1626,11 +1620,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://barkindred.com/pages/menu",
-    "dealTypes": [
-      "beer",
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "vegan",
       "date night",
@@ -1981,9 +1971,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.shopplazabonita.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -2062,9 +2050,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mission-valley.com/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -2173,8 +2159,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -2234,9 +2219,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.westfield.com/en/united-states/utc/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -2726,11 +2709,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.casaguadalajara.com/menus/happy-hour-menu",
-    "dealTypes": [
-      "cocktails",
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -2826,8 +2805,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -3055,9 +3033,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://libertypublicmarketsd.com/events/wml-happy-hour/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -3429,8 +3405,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -3497,8 +3472,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -3557,8 +3531,7 @@
     "sourceUrl": "https://maps.google.com/?cid=4533354448690309846&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -3882,9 +3855,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://locations.thecheesecakefactory.com/ca/san-diego-28.html?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -4592,8 +4563,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -4664,8 +4634,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -5029,9 +4998,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -5503,9 +5470,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.snoozeeatery.com/restaurant/california/hillcrest/?utm_source=Google&utm_medium=BusinessListing",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -5569,8 +5534,7 @@
     "sourceUrl": "https://maps.google.com/?cid=14298829408041334999&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -5630,8 +5594,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -6286,8 +6249,7 @@
     "sourceUrl": "https://maps.google.com/?cid=1163025909113537404&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -6381,10 +6343,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.karlstrauss.com/location/sorrento-mesa/menu/",
-    "dealTypes": [
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -7471,9 +7430,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual",
@@ -8163,8 +8120,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -8232,8 +8188,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -8318,8 +8273,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -9279,8 +9233,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -10036,8 +9989,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -10517,8 +10469,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -10619,9 +10570,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16896532741344255161&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -10856,8 +10805,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -11567,8 +11515,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -11898,8 +11845,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -12561,8 +12507,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -12620,9 +12565,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://locations.thecheesecakefactory.com/ca/chula-vista-115.html?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -12694,8 +12637,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -12960,8 +12902,7 @@
     "sourceUrl": "https://maps.google.com/?cid=3317694619445034608&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -13697,9 +13638,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "oysters"
+      "wine"
     ],
     "features": [
       "casual"
@@ -14995,8 +14934,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -15063,9 +15001,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mariecallenders.com/specials--happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -15415,9 +15351,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -16193,9 +16127,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://264fresco.com/banquet-menu.php",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -17183,8 +17115,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -17288,8 +17219,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -19078,8 +19008,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -19641,8 +19570,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -19700,9 +19628,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "oysters"
+      "wine"
     ],
     "features": [
       "casual"
@@ -20197,8 +20123,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -20268,8 +20193,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=61168630897612049&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -21190,8 +21114,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -21911,8 +21834,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -22193,8 +22115,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -22928,8 +22849,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23447,10 +23367,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "oysters",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual",
@@ -23525,8 +23442,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23591,8 +23507,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23674,8 +23589,7 @@
     "sourceUrl": "https://maps.google.com/?cid=11977828636074447658&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23733,8 +23647,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -23811,8 +23724,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -24099,8 +24011,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -24167,8 +24078,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -24232,9 +24142,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://pho-hoa.cafes-world.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -24294,9 +24202,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://restaurants.applebees.com/en-us/ca/el-cajon/2508-jamacha-79045?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79045&utm_content=website",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -24716,8 +24622,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -24991,8 +24896,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -25076,8 +24980,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -25135,9 +25038,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://burgersandbeer.com/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -25634,9 +25535,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=772769132568774259&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -25825,8 +25724,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -25897,9 +25795,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.windmillfoodhall.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -25991,8 +25887,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -26483,10 +26378,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7595079809529299441&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -27118,8 +27010,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -27923,8 +27814,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -27987,8 +27877,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -28335,8 +28224,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -28619,8 +28507,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -28875,9 +28762,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html?utm_source=google_gbp&utm_medium=organic",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -29426,9 +29311,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79044&utm_content=website",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -29664,9 +29547,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://chebahut.com/locations/sandiegoca/?utm_source=google&utm_medium=GBP&utm_campaign=San+Diego-SDSU",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -30474,8 +30355,7 @@
     "sourceUrl": "https://maps.google.com/?cid=14592429268940451604&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -31089,8 +30969,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -32120,8 +31999,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -32309,9 +32187,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.brewskissd.com/specials--happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -33492,8 +33368,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -33558,8 +33433,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -33633,8 +33507,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -33732,9 +33605,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://restaurants.applebees.com/en-us/ca/san-diego/9480-east-mira-mesa-blvd.-79042?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79042&utm_content=website",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -33800,8 +33671,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -33879,8 +33749,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -33961,8 +33830,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -34751,8 +34619,7 @@
     "sourceUrl": "https://maps.google.com/?cid=7273071940014721696&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -35251,8 +35118,7 @@
     "sourceUrl": "https://maps.google.com/?cid=5474674332806891943&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -35566,8 +35432,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -36440,8 +36305,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -36961,8 +36825,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -38361,9 +38224,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://naruto.kitchen/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -39029,9 +38890,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -39747,9 +39606,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -40831,8 +40688,7 @@
     "sourceUrl": "https://maps.google.com/?cid=6126832931279164965&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -41807,8 +41663,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -43264,8 +43119,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -43373,8 +43227,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -45215,8 +45068,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -47029,10 +46881,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6685213316396692591&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -47117,8 +46966,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -47175,10 +47023,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2057649848313847702&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -47607,8 +47452,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -47894,8 +47738,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17565128396295963551&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -48202,8 +48045,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13119574593955159093&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -48287,8 +48129,7 @@
     "sourceUrl": "https://maps.google.com/?cid=14965355720914624291&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -48735,8 +48576,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -48997,8 +48837,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -49080,8 +48919,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -49156,8 +48994,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -49241,8 +49078,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -49313,9 +49149,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -49800,9 +49634,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7565493610886118607&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -50817,9 +50649,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://antique-row-cafe.cafes-city.com/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -51331,10 +51161,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8147990610849062631&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -51392,8 +51219,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -52047,8 +51873,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -52114,8 +51939,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -52174,8 +51998,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -52244,8 +52067,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -52322,9 +52144,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.swamiscafe.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -52382,9 +52202,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://krakencardiff.com/bar",
-    "dealTypes": [
-      "cocktails"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -52431,9 +52249,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://amalficucinaitaliana.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -53006,8 +52822,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -53744,8 +53559,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -53925,8 +53739,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -54173,8 +53986,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -54255,9 +54067,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://dolcicafeitaliano.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -54311,8 +54121,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -54402,9 +54211,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.societebrewing.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -54464,8 +54271,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -55083,8 +54889,7 @@
     "sourceUrl": "https://www.tonypepperonipizzeria.net/specials",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -55192,8 +54997,7 @@
     "sourceUrl": "https://maps.google.com/?cid=13282837342654777490&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -55434,9 +55238,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -55703,8 +55505,7 @@
     "sourceUrl": "https://maps.google.com/?cid=10890547649337180810&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -56218,9 +56019,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.tomcatsportsbar.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -56277,9 +56076,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.numberonefifth.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -56372,8 +56169,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -56719,9 +56515,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -56992,10 +56786,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://hamburgerhut.com/menu",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -58966,8 +58757,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -59222,9 +59012,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5593667502302898513&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -59289,8 +59077,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -59365,8 +59152,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -59559,8 +59345,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -60423,8 +60208,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -60505,8 +60289,7 @@
     "sourceUrl": "https://maps.google.com/?cid=13627252351470462043&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -60596,8 +60379,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -61145,9 +60927,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.kimballsd.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -61519,8 +61299,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -61998,8 +61777,7 @@
     "sourceUrl": "https://maps.google.com/?cid=11496640037751652830&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -62254,11 +62032,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2698280965994420526&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -62679,8 +62453,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -62936,8 +62709,7 @@
     "sourceUrl": "https://maps.google.com/?cid=2537453021715406536&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -62993,8 +62765,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -63409,9 +63180,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.swamiscafe.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -63817,10 +63586,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.camelsbarandgrill.com/",
-    "dealTypes": [
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -64731,9 +64497,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.prohibitionbrewingcompany.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -64828,9 +64592,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://silverfoxloungepb.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -64957,9 +64719,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -65267,8 +65027,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -65328,8 +65087,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -65394,9 +65152,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "oysters"
+      "wine"
     ],
     "features": [
       "casual"
@@ -65451,8 +65207,7 @@
     "sourceUrl": "https://maps.google.com/?cid=9109581548291048867&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -67152,8 +66907,7 @@
     "sourceUrl": "https://maps.google.com/?cid=18310781026049378570&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -67211,8 +66965,7 @@
     "sourceUrl": "https://maps.google.com/?cid=12021929344698573143&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -68442,8 +68195,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -68506,9 +68258,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.acropolisgreekgrill.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -68563,8 +68313,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -68619,10 +68368,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.original40brewing.com/",
-    "dealTypes": [
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -68889,8 +68635,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -69439,8 +69184,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -69816,9 +69560,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://mcguffieslive.com/",
-    "dealTypes": [
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -70813,8 +70555,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -71257,8 +70998,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -71606,9 +71346,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.surfingcrabca.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -71663,9 +71401,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.mammamiasd.com/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -71738,8 +71474,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -73324,8 +73059,7 @@
     "sourceUrl": "https://maps.google.com/?cid=8248326989096772983&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -73677,8 +73411,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -73741,8 +73474,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -74040,8 +73772,7 @@
     "sourceUrl": "https://maps.google.com/?cid=658191038757568418&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -74098,9 +73829,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -74425,9 +74154,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.sushibar-bluefin.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -74780,8 +74507,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -75033,9 +74759,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.mayascookies.com/pages/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -75404,8 +75128,7 @@
     "sourceUrl": "https://maps.google.com/?cid=747445388789259125&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -75475,9 +75198,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://goodystavern.net/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -75787,8 +75508,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -75850,8 +75570,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -76130,8 +75849,7 @@
     "sourceUrl": "https://maps.google.com/?cid=10562731286702680340&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -76400,8 +76118,7 @@
     "sourceUrl": "https://www.ludica.mx/menu/",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "food"
+      "cocktails"
     ],
     "features": [
       "casual"
@@ -76505,8 +76222,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -76560,10 +76276,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.junospointloma.com/",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -77142,9 +76855,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "https://www.zsouth.net/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -77212,8 +76923,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -77277,8 +76987,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14061272876305411463&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -77360,9 +77069,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://caffe-adesso.edan.io/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -77586,8 +77293,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -78372,9 +78078,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -79824,9 +79528,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -80211,8 +79913,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -80982,9 +80683,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "oysters"
+      "wine"
     ],
     "features": [
       "casual"
@@ -81215,9 +80914,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -81437,8 +81134,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -82324,10 +82020,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=852793885448719623&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -82394,8 +82087,7 @@
     "sourceUrl": "https://maps.google.com/?cid=13241723082988133906&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -82461,9 +82153,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.tonypepperonipizzeria.net/specials",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -82550,8 +82240,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -82736,9 +82425,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://the-elwood.poi.place/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -82806,8 +82493,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3194841574986616776&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -83105,8 +82791,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -83172,9 +82857,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.happymediumsd.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -83586,9 +83269,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.urbansweetcafe.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -83799,8 +83480,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual",
@@ -83879,9 +83559,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.relentlessbrewingandspirits.com/menus",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -83977,9 +83655,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual",
@@ -84044,8 +83720,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -85053,10 +84728,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://www.meadiocritymead.com/",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -85148,8 +84820,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -85219,8 +84890,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12744172379974176906&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -85289,8 +84959,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -85437,9 +85106,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://severin-wine-cellar.poi.place/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -85498,8 +85165,7 @@
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13030354201397184828&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
-      "beer",
-      "food"
+      "beer"
     ],
     "features": [
       "casual"
@@ -86057,9 +85723,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.sycuan.com/restaurants/retreat-pool-cabanas/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -86457,8 +86121,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -86529,8 +86192,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -86585,9 +86247,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.societebrewing.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -86850,9 +86510,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -86949,9 +86607,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87164,8 +86820,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -87300,10 +86955,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://maps.google.com/?cid=6511650316447621590&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87370,9 +87022,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-28",
     "sourceUrl": "http://www.backstreetbrew.com/tags/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87429,8 +87079,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -87484,9 +87133,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87537,9 +87184,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87589,9 +87234,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -87645,8 +87288,7 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine",
-      "entertainment"
+      "wine"
     ],
     "features": [
       "casual"
@@ -88228,9 +87870,7 @@
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.nightparadebrewing.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -88311,8 +87951,7 @@
     "sourceUrl": "https://maps.google.com/?cid=11278333726400001491&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "wine",
-      "food"
+      "wine"
     ],
     "features": [
       "casual"
@@ -88377,9 +88016,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.instagram.com/happyhour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -89055,9 +88692,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://grandolebbq.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -89576,9 +89211,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.deanospub.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -89828,9 +89461,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10016199411468839298&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -89897,10 +89528,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11302657976751291088&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -89968,9 +89596,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6840669488220601777&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90037,9 +89663,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10892325523891901854&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90070,9 +89694,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8094451903458797080&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90174,9 +89796,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16558875211881891926&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -90209,9 +89829,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2706000933676143000&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90241,9 +89859,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16879871315118052586&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90274,9 +89890,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5376576591093730115&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90309,9 +89923,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5313511137233588495&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90342,9 +89954,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.firehousepb.com/specials/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90375,10 +89985,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14999075707679720256&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90444,10 +90051,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17332753364550410459&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90518,9 +90122,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3205759359574492429&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90551,9 +90153,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12562917561219985173&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90586,9 +90186,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11151873821008635901&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90620,9 +90218,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5112288116524204905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90654,10 +90250,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17528201686186311726&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -90689,9 +90282,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11196644517581285231&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90722,9 +90313,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10320620252604327508&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -90756,9 +90345,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1960751366530124586&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90826,9 +90413,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2382476540765899950&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90859,11 +90444,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4900059553631707679&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -90897,9 +90478,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9753790100158822412&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90930,10 +90509,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4845405168367396353&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -90998,9 +90574,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8430619913484577150&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -91029,9 +90603,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9643932778995308777&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -91061,9 +90633,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6523398128869872296&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -120649,9 +120219,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7165123055599479899&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -128716,9 +128284,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7208471725611385687&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -132003,9 +131569,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.sycuan.com/restaurants/viewpoint-kitchen-and-bar/#menus",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -132151,9 +131715,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13614964804238951436&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -132276,10 +131838,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15506115075424716189&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -132631,11 +132190,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8141385290667701834&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -133101,9 +132656,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.sycuan.com/restaurants/viewpoint-neighborhood-kitchen/#menus",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -134574,9 +134127,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=12534592953068963680&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136339,9 +135890,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.osf.com/location/san-diego-ca/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136371,9 +135920,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11982577858719059867&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136404,9 +135951,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://civico1845.com/drinks",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136437,9 +135982,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6696008260180735778&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136472,9 +136015,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16802621157533613927&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136506,9 +136047,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9901194976784499895&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "upscale"
@@ -136540,9 +136079,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5214672795908862116&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136610,9 +136147,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5873643228895057361&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136644,10 +136179,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5607939352686011690&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136680,10 +136212,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=826742881788391519&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136714,9 +136243,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14372992759049941844&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136749,9 +136276,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1563397020059271303&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136783,10 +136308,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://vincenzosd.com/happy-hour",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136817,9 +136339,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15667385261161267826&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136850,9 +136370,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3105876869221285554&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136882,9 +136400,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11997671531667284417&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136915,9 +136431,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11519478808822647613&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -136949,9 +136463,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8603496863835518332&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "upscale"
@@ -136983,9 +136495,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1596965606054487921&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137015,9 +136525,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3116762965222032781&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137049,9 +136557,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11605136723262786728&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137193,9 +136699,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2378655720415381030&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137226,9 +136730,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15366962897702126401&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -137298,10 +136800,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=18211913828659775616&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137333,9 +136832,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9373874668777053509&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137366,10 +136863,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=113760295849481294&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "beer",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -137401,9 +136895,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://freddyschophouse.com/specials",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137434,9 +136926,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3952144572133286275&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137468,9 +136958,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1717745463548785285&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -137500,9 +136988,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3264774811913683909&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137533,9 +137019,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1136306259703003030&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137568,9 +137052,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11303879801333713294&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137600,9 +137082,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=4307371037665307089&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137632,9 +137112,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=406670588161446482&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137665,10 +137143,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=15845931239721186116&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137734,9 +137209,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13497752781889689444&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "upscale"
@@ -137807,9 +137280,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7371756046788656061&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137840,9 +137311,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14559822810886055653&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137874,9 +137343,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14248614692394560179&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137944,9 +137411,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2456524587593021279&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -137979,9 +137444,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9556468143662950652&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138047,9 +137510,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1762012877355379425&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138112,10 +137573,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=18332165392527178080&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138147,9 +137605,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13146064320171634646&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138177,9 +137633,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13579257447229972161&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -138249,9 +137703,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8406095478439803564&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -138283,10 +137735,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7990023932737645375&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138319,9 +137768,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=17376796769778142565&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -138423,9 +137870,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=9755423406748263590&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138493,9 +137938,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://tabacplus.com/menu",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138561,10 +138004,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7922322355584697343&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138632,9 +138072,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2001327124305556854&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138667,9 +138105,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.osteriacottoemangiato.com/happy-hour",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138701,9 +138137,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13339553309654416688&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138736,10 +138170,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6644947312265847411&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food",
-      "entertainment"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "upscale"
@@ -138771,9 +138202,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2656423638329385302&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "group friendly"
@@ -138805,9 +138234,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=330940116403306722&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138877,9 +138304,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16237996078734139463&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138910,9 +138335,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7231415992486100560&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138944,9 +138367,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1114621992690385623&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -138977,9 +138398,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8839484897185858006&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139010,9 +138429,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14707417897346370680&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual",
       "upscale"
@@ -139046,9 +138463,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8449889971641216544&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139078,10 +138493,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5490919979550232060&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139112,9 +138524,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3619175052953306700&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139143,9 +138553,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5621191806005002068&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139176,10 +138584,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10392207299602605463&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139212,11 +138617,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8194837307523636155&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139247,9 +138648,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16519420385599313943&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139358,9 +138757,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11183076129950193167&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139390,11 +138787,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5652226779188097075&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139461,11 +138854,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=13485790396700018918&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139496,9 +138885,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8914412623542440517&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139529,9 +138916,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1979334071136415546&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139564,10 +138949,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14228891903474592320&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "wine",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139600,9 +138982,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.karinasseafood.com/bar",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139632,9 +139012,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=190925733795725207&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139665,9 +139043,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=11838645285155947356&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139735,10 +139111,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3694620751716914603&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139769,9 +139142,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8753968290535758262&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139801,10 +139172,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10705626585154768469&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "cocktails",
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139834,9 +139202,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6846569710709321174&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139904,9 +139270,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=7251135600036255246&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -139937,9 +139301,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=3703844177146191426&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -140041,9 +139403,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://grandolebbq.com/",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],
@@ -140153,9 +139513,7 @@
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=6575411729647010542&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [
-      "food"
-    ],
+    "dealTypes": [],
     "features": [
       "casual"
     ],

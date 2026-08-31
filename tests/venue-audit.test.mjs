@@ -83,7 +83,7 @@ import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
 import { applyScrape } from '../scripts/import-google-venues/lib/apply-scrape.mjs';
 import { cleanDeals, isJunkDealLine, isRealDealLine, MAX_DEAL_CHIPS } from '../scripts/import-google-venues/lib/deals.mjs';
 import { isAnthropicBillingError } from '../scripts/import-google-venues/lib/anthropic-errors.mjs';
-import { inferDealTypes } from '../scripts/import-google-venues/lib/normalize.mjs';
+import { inferDealTypes, normalizeVenue } from '../scripts/import-google-venues/lib/normalize.mjs';
 
 function testAnthropicBillingErrorIsDetected() {
   assert.equal(isAnthropicBillingError('Anthropic API error (400): credit balance is too low'), true);
@@ -2093,11 +2093,73 @@ function testCatalogDealTypesStillAgreeWithTheirDealText() {
   assert.deepEqual(contradicted.map((venue) => venue.name), []);
 }
 
+/**
+ * An import that finds a window but no offers used to be labelled `food`
+ * anyway, because the validator demanded a non-empty dealTypes. It no longer
+ * does, so the listing goes out saying what it actually knows: the same answer
+ * `dealsUnknown` gives about the deal text it was derived from.
+ */
+function testAnImportWithNoReadableOffersInventsNoDealType() {
+  const record = {
+    displayName: { text: 'Silent About Its Offers' },
+    formattedAddress: '100 Test St, San Diego, CA 92101',
+    location: { latitude: 32.7157, longitude: -117.1611 },
+    websiteUri: 'https://example.com',
+    types: ['restaurant', 'food', 'point_of_interest'],
+    happyHour: {
+      days: ['Monday'],
+      startTime: '15:00',
+      endTime: '18:00',
+      deals: [],
+      confidence: 'high',
+      sourcePage: 'https://example.com/happy-hour',
+    },
+  };
+  const venue = normalizeVenue(record, 9001);
+  assert.equal(venue.dealsUnknown, true);
+  assert.deepEqual(venue.deals, []);
+  assert.deepEqual(venue.dealTypes, []);
+}
+
+/**
+ * `dealTypes` drives the deal filter, so a value nobody derived from anything
+ * is a false positive for every reader who uses it. The catalog may only leave
+ * it empty, and may only leave it empty where the offers are unknown.
+ */
+function testCatalogDealTypesAreEmptyOnlyWhereTheOffersAreUnknown() {
+  const scheduled = happyHours.filter((venue) => venue.startTime && venue.endTime);
+  const emptyWithKnownDeals = scheduled.filter(
+    (venue) => !(venue.dealTypes || []).length && venue.dealsUnknown !== true
+  );
+  assert.deepEqual(emptyWithKnownDeals.map((venue) => venue.name), []);
+
+  const knownOffersWithoutTypes = scheduled.filter(
+    (venue) => venue.deals?.length && !(venue.dealTypes || []).length
+  );
+  assert.deepEqual(knownOffersWithoutTypes.map((venue) => venue.name), []);
+}
+
+/**
+ * The `food` default put `['food']` on 162 venues that publish no offers at
+ * all. Nothing about those pages says food is discounted, so nothing on the
+ * listing should claim it: the only drink types left on them come from
+ * Google's cached alcohol booleans, which are at least an observation.
+ */
+function testVenuesWithNoDealTextClaimNoFoodDiscount() {
+  const invented = happyHours.filter(
+    (venue) => venue.dealsUnknown === true && (venue.dealTypes || []).some((type) => !['beer', 'cocktails', 'wine'].includes(type))
+  );
+  assert.deepEqual(invented.map((venue) => venue.name), []);
+}
+
 tests.push(
   testDealTypesComeFromTheVenuesOwnDealText,
   testAVenueWithNoReadableOffersNamesNoDealType,
   testAlcoholBooleansFillASilenceButNeverOverrideDealText,
   testCatalogDealTypesStillAgreeWithTheirDealText,
+  testAnImportWithNoReadableOffersInventsNoDealType,
+  testCatalogDealTypesAreEmptyOnlyWhereTheOffersAreUnknown,
+  testVenuesWithNoDealTextClaimNoFoodDiscount,
 );
 
 tests.push(

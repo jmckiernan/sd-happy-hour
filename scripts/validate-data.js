@@ -165,7 +165,20 @@ function validateListing(listing, label) {
   if ('seoHidden' in listing && typeof listing.seoHidden !== 'boolean') errors.push(`${label}: seoHidden must be boolean when present.`);
   if (!('lastVerifiedAt' in listing)) errors.push(`${label}: lastVerifiedAt is required, even when null.`);
   if (!isUrl(listing.sourceUrl)) errors.push(`${label}: sourceUrl must be an http(s) URL.`);
-  if (!isStub && !hasStringArray(listing.dealTypes)) errors.push(`${label}: dealTypes must be a non-empty string array.`);
+  // dealTypes is derived from the deal text and nothing else (§5.6 of
+  // docs/venue-pipeline-reference.md), so a listing whose offers nobody
+  // published has nothing to categorize — the same silence dealsUnknown
+  // already reports about `deals`, and for the same reason: a guessed deal
+  // type is a false positive for anyone filtering on it.
+  if (isStub) {
+    // Nothing to describe, so nothing to categorize either.
+  } else if (listing.dealsUnknown === true) {
+    if (!Array.isArray(listing.dealTypes) || listing.dealTypes.some((type) => !hasString(type))) {
+      errors.push(`${label}: dealTypes must be a string array when dealsUnknown is set.`);
+    }
+  } else if (!hasStringArray(listing.dealTypes)) {
+    errors.push(`${label}: dealTypes must be a non-empty string array unless dealsUnknown is true.`);
+  }
   if (!hasStringArray(listing.features)) errors.push(`${label}: features must be a non-empty string array.`);
   // Optional admin-set featured photo. Absent means the site falls back to the
   // vibe stock photo, so only its shape is checked — same rule as

@@ -238,13 +238,7 @@ export function normalizeVenue(record, nextId) {
   const sourceUrl = hh.sourcePage || record.googleMapsUri || website;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
 
-  const derivedDealTypes = inferDealTypes(deals, record);
-  // Every listing with a window has to carry a non-empty dealTypes
-  // (scripts/validate-data.js), so a venue whose offers we cannot read keeps
-  // the historical `food` placeholder. That is a contract artefact, not an
-  // inference — docs/reducing-google-dependency.md §6 step 1 argues the
-  // validator should accept [] here, which is a change of its own.
-  const dealTypes = derivedDealTypes.length ? derivedDealTypes : ['food'];
+  const dealTypes = inferDealTypes(deals, record);
 
   return {
     id: nextId,

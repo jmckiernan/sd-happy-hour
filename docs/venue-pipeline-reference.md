@@ -349,15 +349,20 @@ same way.
   booleans say what a venue *pours*; the deal text says what it *discounts*. A brewery that serves
   wine and only ever discounts beer should not be filterable under wine.
 - **An empty result is the honest answer** for a venue whose window we know and whose offers we do
-  not, which is what `dealsUnknown` (§5.4) already says. `scripts/validate-data.js` still requires a
-  non-empty `dealTypes` on any listing with a window, so `normalizeVenue` falls back to `food` there
-  — a contract artefact, not an inference. `docs/reducing-google-dependency.md` §6 step 1 argues the
-  validator should accept `[]` instead.
+  not, and `scripts/validate-data.js` accepts it wherever `dealsUnknown` (§5.4) is true — the same
+  exemption, and the same reason, as the one `deals` already has (§11.2). `dealTypes` drives the
+  deal filter, so a value nobody derived from anything is a false positive for every reader who
+  filters on it: 162 venues that publish no offers at all carried `['food']`, purely because the
+  validator used to demand something and `normalizeVenue` had a `food` default to give it. There is
+  no default now. Where the offers are unknown the only types left are the ones the cached alcohol
+  booleans observed, which is why an unknown-offer listing can still name a drink but never food.
 - Stored values go stale, because deal text is cleaned, compressed and refreshed after import
   (`clean-deal-text.mjs`, `compress-deals.mjs`, `refresh-deals.mjs`) while `dealTypes` was not
   recomputed. That is what left 210 beer-advertising venues unfindable by the beer filter.
-  `npm run rederive:deal-types` re-derives the whole catalog, `--dry-run` first; a venue with no
-  deal text keeps what it has rather than losing a hand-curated value to silence.
+  `npm run rederive:deal-types` re-derives the whole catalog, `--dry-run` first. Published deal
+  text the vocabulary cannot categorize is the one case where the stored value survives: the
+  listing still needs a non-empty `dealTypes`, and a gap in the vocabulary is no reason to drop a
+  hand-curated one.
 
 ### 5.7 Stub normalization
 
@@ -503,7 +508,8 @@ non-empty `features` array.
 - Non-empty `days`, all valid day names.
 - `startTime` and `endTime` in `HH:MM`.
 - Non-empty `deals`, **unless** `dealsUnknown` is true.
-- Non-empty `dealTypes`.
+- Non-empty `dealTypes`, **unless** `dealsUnknown` is true — there is no deal text to read a deal
+  type off, and a guessed one would be filterable (§5.6).
 - A valid `website` URL.
 
 ### 11.3 Required of a stub

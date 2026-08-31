@@ -11,27 +11,23 @@
 // found by filtering for beer.
 //
 // Google's cached servesBeer/servesWine/servesCocktails supplement the text
-// where it names no drink at all (see inferDealTypes). A venue we can derive
-// nothing for keeps what it has: the catalog requires a non-empty dealTypes,
-// and silence is no reason to overwrite a hand-curated value.
+// where it names no drink at all (see inferDealTypes). A venue that publishes
+// no deal text is left with an empty dealTypes, which is what dealsUnknown
+// already says about it; one whose published text we simply cannot categorize
+// keeps what it has, since it still needs a non-empty value.
 //
 // Usage:
 //   npm run rederive:deal-types -- --dry-run
 //   npm run rederive:deal-types
 
 import { execSync } from 'node:child_process';
-import { DEAL_TYPES, ENRICHED_PATH, HAPPY_HOURS_PATH, ROOT_DIR } from './lib/constants.mjs';
+import { ENRICHED_PATH, HAPPY_HOURS_PATH, ROOT_DIR } from './lib/constants.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 import { inferDealTypes } from './lib/normalize.mjs';
 
 /** A stub has no window, so it carries no deals and no dealTypes by design. */
 function isStub(venue) {
   return venue.hasHappyHourData === false && !venue.startTime && !venue.endTime;
-}
-
-function union(...lists) {
-  const all = new Set(lists.flat());
-  return DEAL_TYPES.filter((type) => all.has(type));
 }
 
 function distribution(venues) {
@@ -68,14 +64,19 @@ async function main() {
     const alcohol = venue.placeId ? places[venue.placeId] || {} : {};
     const stored = venue.dealTypes || [];
 
-    // With deal text to read, the derivation replaces what is stored — that is
-    // the whole point. Without it there is nothing to overrule, so the cached
-    // booleans add to the stored value rather than standing in for it; a games
-    // bar with no published offers should not lose its `entertainment`.
+    // The derivation replaces what is stored — that is the whole point, and it
+    // applies just as much to a venue that published no offers: whatever was
+    // stored for one of those was guessed at import, from Google's taxonomy or
+    // from the `food` default, and never read off anything the venue said.
     const fromText = inferDealTypes(deals);
     const fromAlcohol = inferDealTypes([], alcohol);
-    const derived = fromText.length ? inferDealTypes(deals, alcohol) : union(stored, fromAlcohol);
-    if (!derived.length) return venue;
+    const derived = inferDealTypes(deals, alcohol);
+    // Deal text that names nothing we recognize is not the same silence as no
+    // deal text at all: the offers are published, we just cannot categorize
+    // them, and the listing still has to carry a non-empty dealTypes. So it
+    // keeps what it has rather than losing a hand-curated value to a gap in
+    // the vocabulary.
+    if (!derived.length && deals.length) return venue;
 
     if (!fromText.length) noDealText += 1;
     if (fromAlcohol.some((type) => !stored.includes(type) && derived.includes(type))) fromBooleans += 1;
@@ -94,7 +95,7 @@ async function main() {
   const scheduled = catalog.filter((venue) => !isStub(venue));
   console.log(`Listings: ${catalog.length} (${scheduled.length} with a window)`);
   console.log(`  dealTypes changed: ${changed}`);
-  console.log(`  no deal text to read (stored value kept, booleans added): ${noDealText}`);
+  console.log(`  no deal text to read (cached booleans only, otherwise empty): ${noDealText}`);
   console.log(`  gained a drink type from the cached Google booleans: ${fromBooleans}`);
   console.log('\nDistribution (before → after):');
   console.log(formatDistribution(distribution(scheduled), distribution(rederived.filter((venue) => !isStub(venue)))));
