@@ -126,6 +126,28 @@ function validateListing(listing, label) {
         && hasStringArray(w?.days) && w.days.every((day) => validDays.has(day)),
     );
     if (!windowsValid) errors.push(`${label}: windows must be {days, startTime, endTime} entries.`);
+    // Product rule: no overnight happy hours. end before start is invalid unless
+    // endTime is the midnight sentinel ("until midnight" same evening).
+    if (Array.isArray(listing.windows)) {
+      for (const w of listing.windows) {
+        if (!isTime(w?.startTime) || !isTime(w?.endTime)) continue;
+        const [sh, sm] = w.startTime.split(':').map(Number);
+        const [eh, em] = w.endTime.split(':').map(Number);
+        const start = sh * 60 + sm;
+        const end = eh * 60 + em;
+        if (end < start && w.endTime !== '00:00') {
+          errors.push(`${label}: window ${w.startTime}-${w.endTime} crosses midnight; overnight happy hours are not allowed.`);
+        }
+      }
+    }
+  }
+  // Flat primary fields follow the same rule (windows is canonical when present).
+  if (isTime(listing.startTime) && isTime(listing.endTime)) {
+    const [sh, sm] = listing.startTime.split(':').map(Number);
+    const [eh, em] = listing.endTime.split(':').map(Number);
+    if (eh * 60 + em < sh * 60 + sm && listing.endTime !== '00:00') {
+      errors.push(`${label}: primary window ${listing.startTime}-${listing.endTime} crosses midnight; overnight happy hours are not allowed.`);
+    }
   }
   if ('galleryImages' in listing) {
     const galleryValid = Array.isArray(listing.galleryImages) && listing.galleryImages.every(

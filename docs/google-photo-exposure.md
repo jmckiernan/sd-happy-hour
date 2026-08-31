@@ -15,6 +15,15 @@ now publishes. How to tell this page has rotted: re-run the census in §1.5, and
 `fetch-photos.mjs` still discards `authorAttributions` and that `getListingImage` still falls back
 to a vibe stock photo.
 
+**Owner decision, 31 August 2026 — venue-site photos are the chosen long-term path; deferred, not
+now.** The right destination is §4.2 (retrieve hero photos from each venue's own website) rather
+than continuing to depend on Google Places photo bytes or spending engineering on attribution
+recovery for those bytes. That work is **explicitly not scheduled in this pass**: do not scrape
+venue-site photos yet, and do not recover Google `authorAttributions` as a substitute. Until that
+path ships, Google bytes remain on disk as the dated, known exposure this document already
+describes. Owner uploads through the claim flow (§4.3) stay the permanent end-state for venues that
+never publish a usable site photo.
+
 **This is an engineering read, not legal advice.** Where a statement is a reading of published terms
 it says so; where it is an observation about how those terms get enforced in practice it says that
 instead, and the two are kept apart on purpose.

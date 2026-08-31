@@ -416,6 +416,7 @@ invariants), `tests/homepage-reachability.test.mjs`, `tests/neighborhood-assign.
 | No menu section is stored with zero items under it | `testEveryStoredMenuSectionHasItemsUnderIt` |
 | No deal chip is an extractor annotation, and chips cap at six | `testNoDealChipIsAnExtractorPlaceholder`, `testDealChipsCapAtSix` |
 | No stored all-day window is unbounded, and none is live in the small hours | `testNoCatalogListingStoresAnUnboundedAllDayWindow`, `testAnAllDayWindowIsNotLiveInTheSmallHours` |
+| No overnight / end-before-start happy hour window in the catalog | `tests/no-overnight-windows.test.mjs` |
 | Open-now reads the San Diego weekday, not the UTC one | `testTheOpenNowCheckReadsTheSanDiegoWeekdayNotTheUtcOne` |
 | Highlighted days never omit a day a listing is scheduled on | `testHighlightedDaysCoverEveryWindowNotJustThePrimaryOne`, `testCatalogHighlightedDaysNeverOmitAScheduledDay` |
 | A window-only page shows an admission, not a chip, and names no price | `testAWindowOnlyVenuePageOffersNoChipsToShow`, `testTheHonestEmptyStateNamesNoOfferAndNoPrice`, `testEveryWindowOnlyListingSaysItsOffersAreUnknown` |
@@ -452,10 +453,12 @@ failing.
 - **Provenance is required by convention, not by the validator.** New scrapes write `sourceUrl` and
   `observedAt`; nothing rejects an `hhMenu` that lacks both. 269 rows would fail such a rule today,
   so it has to be introduced as "no *new* menu without provenance" rather than a flat invariant.
-- **32 windows stored as `19:00–18:00` and similar are left alone deliberately.** `12:00–08:00` is
-  genuinely ambiguous between a transposition and a real overnight window, and guessing publishes
-  wrong hours. All but two are unlisted. This is a known-bad set with no owner.
-- **`endTime: "23:59"` and `endTime: "00:00"` are two encodings of the same intent** differing by a
+- **Overnight / end-before-start windows are refused (31 Aug 2026).** Product rule: there are
+  no overnight happy hours. `12:00–08:00` is cleared rather than guessed as a transposition;
+  `21:00–02:00` is refused rather than published as late night. `endTime: "00:00"` remains the
+  until-midnight sentinel. Guarded by `isPlausibleHappyHourWindow`, `validate:data`, and
+  `tests/no-overnight-windows.test.mjs`.
+- **`endTime: "23:59"` and `endTime: "00:00"` are two encodings** (close vs midnight) differing by a
   minute. An explicit `endsAtClose` flag, mirroring the existing `startsAtOpen`, would retire the
   sentinel.
 - **Neighborhood boxes still overlap around Carlsbad and Encinitas**, which is the Cardiff bug not

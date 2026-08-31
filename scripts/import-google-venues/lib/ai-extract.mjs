@@ -73,7 +73,7 @@ Return ONLY valid JSON (no markdown fences):
 }
 
 Field rules:
-- startTime/endTime: 24-hour local time, e.g. "15:30". Overnight windows are allowed (22:00–01:00).
+- startTime/endTime: 24-hour local time, e.g. "15:30". Happy hour is same-calendar-day only — never return a window that continues past midnight into the morning (no 21:00–02:00). Ending at midnight is fine: use endTime "00:00". If the source says "9pm–2am", omit that window rather than invent a same-day substitute.
 - startsAtOpen: true only when the source gives no start time because happy hour runs from opening ("open until 7", "open–7pm", "from open"). Still fill startTime with the venue's opening time when the page states it, otherwise your best estimate — it is used for filtering, never displayed.
 - days: full English day names Sunday..Saturday. If the menu says Monday–Saturday or Tues–Fri, include every day in that span. Do not drop Friday because a FAQ said weekdays.
 - windows: one entry per distinct schedule (afternoon HH, late-night HH, all-day Monday). Omit a window rather than guess. Max 4 windows. An allDay window's days are only the days the source calls all-day.

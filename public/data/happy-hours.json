@@ -16411,7 +16411,7 @@
       "Thursday",
       "Friday"
     ],
-    "startTime": "19:00",
+    "startTime": "16:00",
     "endTime": "18:00",
     "deals": [],
     "website": "https://locations.thecheesecakefactory.com/ca/chula-vista-115.html?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
@@ -16422,7 +16422,7 @@
     "dealTypes": [],
     "seoHidden": true,
     "image": "/images/venues/93-the-cheesecake-factory.jpg",
-    "hasHappyHourData": false,
+    "hasHappyHourData": true,
     "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
@@ -16460,7 +16460,21 @@
       "locationApplicability": "other_location",
       "confidence": "low",
       "observedAt": "2026-08-29"
-    }
+    },
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "startTime": "16:00",
+        "endTime": "18:00",
+        "kind": "happy_hour"
+      }
+    ]
   },
   {
     "id": 94,
@@ -20185,15 +20199,6 @@
     "address": "Calle Onceava No. 8389, Marron, 22015 Tijuana, B.C., Mexico",
     "lat": 32.5250335,
     "lng": -117.02359609999999,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "12:00",
-    "endTime": "08:00",
     "deals": [],
     "website": "https://www.instagram.com/chichosrestaurantetj/",
     "phone": "664 686 2582",
@@ -20204,7 +20209,6 @@
     "seoHidden": true,
     "image": "/images/venues/109-restaurante-chicho-s.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -20568,7 +20572,7 @@
     ],
     "openTime": "12:00",
     "closeTime": "02:00",
-    "startTime": "00:00",
+    "startTime": "12:00",
     "endTime": "23:59",
     "deals": [
       "$5 Michelob Ultra Drafts",
@@ -20882,7 +20886,7 @@
           "Saturday"
         ],
         "startTime": "12:00",
-        "endTime": "02:00",
+        "endTime": "23:59",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Game Day Specials (when applicable)"
@@ -21071,7 +21075,8 @@
         "caption": "Unconfirmed happy hour menu candidate",
         "sourceUrl": "http://thetipsycrow.com/"
       }
-    ]
+    ],
+    "allDay": true
   },
   {
     "id": 112,
@@ -33461,17 +33466,6 @@
     "address": "41577 Margarita Rd #101, Temecula, CA 92591, USA",
     "lat": 33.5223599,
     "lng": -117.15278739999998,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "08:00",
-    "endTime": "03:00",
     "deals": [],
     "website": "https://burgersandbeer.com/",
     "phone": "(951) 296-9716",
@@ -33481,8 +33475,7 @@
     "dealTypes": [],
     "seoHidden": true,
     "image": "/images/venues/170-burgers-beer.jpg",
-    "hasHappyHourData": true,
-    "dealsUnknown": true,
+    "hasHappyHourData": false,
     "listingStatus": "unlisted",
     "hhSources": {
       "deals": {
@@ -38260,17 +38253,6 @@
     "address": "2015 Birch Rd #1401, Chula Vista, CA 91915, USA",
     "lat": 32.6218196,
     "lng": -116.96550180000001,
-    "days": [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ],
-    "startTime": "21:00",
-    "endTime": "20:00",
     "deals": [],
     "website": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html?utm_source=google_gbp&utm_medium=organic",
     "phone": "(619) 421-2080",
@@ -38281,7 +38263,6 @@
     "seoHidden": true,
     "image": "/images/venues/195-p-f-chang-s.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -38811,17 +38792,6 @@
     "address": "1216 Auto Park Way, Escondido, CA 92029, USA",
     "lat": 33.110020899999995,
     "lng": -117.09839009999999,
-    "days": [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ],
-    "startTime": "19:00",
-    "endTime": "18:00",
     "deals": [],
     "website": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79044&utm_content=website",
     "phone": "(760) 743-6612",
@@ -38832,7 +38802,6 @@
     "seoHidden": true,
     "image": "/images/venues/198-applebee-s-grill-bar.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
@@ -44649,13 +44618,6 @@
           "Wednesday",
           "Thursday",
           "Friday"
-        ]
-      },
-      {
-        "startTime": "11:00",
-        "endTime": "00:00",
-        "days": [
-          "Sunday"
         ]
       }
     ],
@@ -65499,15 +65461,6 @@
     "address": "Jiménez 7771, Independencia, 22055 Tijuana, B.C., Mexico",
     "lat": 32.5239816,
     "lng": -117.0417593,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "18:00",
-    "endTime": "15:00",
     "deals": [],
     "website": "https://www.instagram.com/lacarmelitatj/",
     "phone": "664 686 1084",
@@ -65518,7 +65471,6 @@
     "seoHidden": true,
     "image": "/images/venues/320-carmelita-molino-y-cocina.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -67419,17 +67371,6 @@
     "address": "1185 E Main St, El Cajon, CA 92021, USA",
     "lat": 32.794754,
     "lng": -116.9411011,
-    "days": [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ],
-    "startTime": "18:00",
-    "endTime": "15:00",
     "deals": [],
     "website": "http://antique-row-cafe.cafes-city.com/",
     "phone": "(619) 442-8770",
@@ -67440,7 +67381,6 @@
     "seoHidden": true,
     "image": "/images/venues/330-antique-row-cafe.png",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -69505,15 +69445,6 @@
     "address": "1035 La Bonita Dr Suite B, San Marcos, CA 92078, USA",
     "lat": 33.1238813,
     "lng": -117.2075972,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "14:00",
-    "endTime": "01:00",
     "deals": [],
     "website": "https://amalficucinaitaliana.com/",
     "phone": "(760) 653-3230",
@@ -69524,7 +69455,6 @@
     "seoHidden": true,
     "image": "/images/venues/344-amalfi-marina-bar-dockside.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "other_location",
@@ -72172,17 +72102,6 @@
     "address": "8262 Clairemont Mesa Blvd, San Diego, CA 92111, USA",
     "lat": 32.833881999999996,
     "lng": -117.14637219999999,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "18:00",
-    "endTime": "15:00",
     "deals": [],
     "vibe": "Brewery",
     "website": "http://www.societebrewing.com/",
@@ -72194,7 +72113,6 @@
     "seoHidden": true,
     "image": "/images/venues/358-societe-brewing-company.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -86159,17 +86077,6 @@
     "address": "1833 Garnet Ave, San Diego, CA 92109, USA",
     "lat": 32.8005474,
     "lng": -117.23628710000001,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "06:00",
-    "endTime": "02:00",
     "deals": [],
     "website": "https://silverfoxloungepb.com/",
     "phone": "(858) 270-1343",
@@ -86180,7 +86087,6 @@
     "seoHidden": true,
     "image": "/images/venues/430-the-silver-fox-lounge.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -86280,15 +86186,6 @@
     "address": "Av Revolución 740-744, El Refugio, 21440 Tecate, B.C., Mexico",
     "lat": 32.571759799999995,
     "lng": -116.65079270000001,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "12:00",
-    "endTime": "08:00",
     "deals": [],
     "website": "https://www.instagram.com/ensamble43",
     "phone": "665 521 0655",
@@ -86299,7 +86196,6 @@
     "seoHidden": true,
     "image": "/images/venues/432-ensamble-43.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -86526,35 +86422,16 @@
     "address": "200 E Via Rancho Pkwy #125, Escondido, CA 92025, USA",
     "lat": 33.070735899999995,
     "lng": -117.0648744,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "16:00",
-    "endTime": "07:00",
-    "deals": [
-      "$17 entry",
-      "Jeremiah Watkins - $20",
-      "Grand Illusion - All Ages Magic Show - $13",
-      "Free music, Friday 4–7pm"
-    ],
+    "deals": [],
     "website": "https://www.grandcomedyclub.com/",
     "phone": "(760) 741-5233",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://www.grandcomedyclub.com/",
-    "dealTypes": [
-      "entertainment"
-    ],
+    "dealTypes": [],
     "seoHidden": true,
     "image": "/images/venues/434-grand-comedy-club-pizzeria.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": false,
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -90892,17 +90769,6 @@
     "address": "3295 Business Park Dr Ste d, Vista, CA 92081, USA",
     "lat": 33.1318246,
     "lng": -117.2296609,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "12:00",
-    "endTime": "11:00",
     "deals": [],
     "website": "http://www.acropolisgreekgrill.com/",
     "phone": "(760) 599-9959",
@@ -90913,7 +90779,6 @@
     "seoHidden": true,
     "image": "/images/venues/456-acropolis-greek-grill.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -91025,13 +90890,6 @@
     "address": "3117 University Ave, San Diego, CA 92104, USA",
     "lat": 32.7483021,
     "lng": -117.12661320000001,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday"
-    ],
-    "startTime": "07:00",
-    "endTime": "01:00",
     "deals": [],
     "vibe": "Brewery",
     "website": "http://www.original40brewing.com/",
@@ -91043,7 +90901,6 @@
     "seoHidden": true,
     "image": "/images/venues/458-original-40-brewing-company.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -92815,18 +92672,9 @@
           "Thursday"
         ],
         "startTime": "21:00",
-        "endTime": "02:00",
+        "endTime": "23:59",
         "kind": "late_night",
         "label": "Pitcher Specials"
-      },
-      {
-        "days": [
-          "Sunday"
-        ],
-        "startTime": "21:00",
-        "endTime": "02:00",
-        "kind": "weekly_special",
-        "label": "Karaoke Night with Industry Drink Specials"
       }
     ],
     "galleryImages": [
@@ -94601,13 +94449,6 @@
     "address": "202 E Via Rancho Pkwy, Escondido, CA 92025, USA",
     "lat": 33.069496199999996,
     "lng": -117.06805349999999,
-    "days": [
-      "Sunday",
-      "Friday",
-      "Saturday"
-    ],
-    "startTime": "12:00",
-    "endTime": "03:00",
     "deals": [],
     "website": "https://www.surfingcrabca.com/",
     "phone": "(760) 270-2551",
@@ -94618,7 +94459,6 @@
     "seoHidden": true,
     "image": "/images/venues/478-surfing-crab-escondido.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -97887,15 +97727,6 @@
     "address": "8423 Paradise Valley Rd # B, Spring Valley, CA 91977, USA",
     "lat": 32.6973041,
     "lng": -117.01767609999999,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "16:00",
-    "endTime": "13:00",
     "deals": [],
     "website": "https://www.instagram.com/kababayanbakery/",
     "phone": "(619) 267-1493",
@@ -97906,7 +97737,6 @@
     "seoHidden": true,
     "image": "/images/venues/494-kababayan-bakery.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -98801,20 +98631,6 @@
           "Friday",
           "Saturday"
         ]
-      },
-      {
-        "startTime": "09:00",
-        "endTime": "02:00",
-        "days": [
-          "Sunday"
-        ]
-      },
-      {
-        "startTime": "11:00",
-        "endTime": "02:00",
-        "days": [
-          "Tuesday"
-        ]
       }
     ],
     "hasHappyHourData": true,
@@ -99568,17 +99384,6 @@
     "address": "206 S El Camino Real, San Clemente, CA 92672, USA",
     "lat": 33.4267225,
     "lng": -117.61213839999998,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "20:00",
-    "endTime": "10:00",
     "deals": [],
     "vibe": "Pub",
     "website": "https://goodystavern.net/",
@@ -99590,7 +99395,6 @@
     "seoHidden": true,
     "image": "/images/venues/504-goody-s-tavern.png",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -100272,15 +100076,6 @@
         "endTime": "16:00",
         "kind": "happy_hour",
         "label": "Happy Hour"
-      },
-      {
-        "days": [
-          "Friday"
-        ],
-        "startTime": "21:00",
-        "endTime": "02:00",
-        "kind": "weekly_special",
-        "label": "Karaoke"
       }
     ],
     "galleryImages": [
@@ -101649,17 +101444,6 @@
     "address": "5256 S Mission Rd Ste 907, Bonsall, CA 92003, USA",
     "lat": 33.2960483,
     "lng": -117.22263450000001,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "12:00",
-    "endTime": "05:00",
     "deals": [],
     "website": "http://zsouth.net/",
     "phone": "(760) 295-2481",
@@ -101670,7 +101454,6 @@
     "seoHidden": true,
     "image": "/images/venues/517-z-south.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -101903,15 +101686,6 @@
     "address": "1140 Tavern Rd, Alpine, CA 91901, USA",
     "lat": 32.8416286,
     "lng": -116.78112979999999,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "09:00",
-    "endTime": "05:00",
     "deals": [],
     "website": "http://caffe-adesso.edan.io/",
     "phone": "(619) 884-9541",
@@ -101922,7 +101696,6 @@
     "seoHidden": true,
     "image": "/images/venues/520-caff-adesso.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -104917,15 +104690,6 @@
     "address": "Av. Benito Juárez 265, Primera, 21400 Tecate, B.C., Mexico",
     "lat": 32.5738145,
     "lng": -116.6258809,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "16:00",
-    "endTime": "07:00",
     "deals": [],
     "website": "http://instagram.com/kilolibracafe",
     "verified": false,
@@ -104935,7 +104699,6 @@
     "seoHidden": true,
     "image": "/images/venues/536-kilolibra-cafe.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -108509,15 +108272,6 @@
     "address": "725 Broadway, Chula Vista, CA 91910, USA",
     "lat": 32.6232155,
     "lng": -117.0861886,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "09:00",
-    "endTime": "05:00",
     "deals": [],
     "website": "http://the-elwood.poi.place/",
     "phone": "(619) 651-8038",
@@ -108528,7 +108282,6 @@
     "seoHidden": true,
     "image": "/images/venues/559-the-elwood.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -109055,15 +108808,6 @@
     "address": "4002 30th St, San Diego, CA 92104, USA",
     "lat": 32.7504907,
     "lng": -117.13038119999999,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "08:00",
-    "endTime": "03:00",
     "deals": [],
     "website": "http://www.happymediumsd.com/",
     "phone": "(619) 310-5642",
@@ -109074,7 +108818,6 @@
     "seoHidden": true,
     "image": "/images/venues/563-happy-medium.png",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -109724,11 +109467,10 @@
     "lat": 33.5103241,
     "lng": -117.15771579999999,
     "days": [
-      "Friday",
-      "Saturday"
+      "Thursday"
     ],
     "startTime": "16:00",
-    "endTime": "02:00",
+    "endTime": "22:00",
     "deals": [],
     "website": "https://temeculasportslounge.com/",
     "phone": "(951) 349-5884",
@@ -109743,21 +109485,6 @@
     "seoHidden": true,
     "image": "/images/venues/568-temecula-sports-lounge-restaurant.jpg",
     "windows": [
-      {
-        "startTime": "16:00",
-        "endTime": "02:00",
-        "days": [
-          "Friday",
-          "Saturday"
-        ]
-      },
-      {
-        "startTime": "16:00",
-        "endTime": "10:00",
-        "days": [
-          "Wednesday"
-        ]
-      },
       {
         "startTime": "16:00",
         "endTime": "22:00",
@@ -111684,15 +111411,6 @@
     "address": "5980 Severin Dr, La Mesa, CA 91942, USA",
     "lat": 32.78652840000001,
     "lng": -116.9990847,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "09:00",
-    "endTime": "05:00",
     "deals": [],
     "website": "http://severin-wine-cellar.poi.place/",
     "phone": "(619) 462-8899",
@@ -111703,7 +111421,6 @@
     "seoHidden": true,
     "image": "/images/venues/582-severin-liquor-deli-wine-cellar.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "times": {
@@ -111938,241 +111655,25 @@
     "galleryImages": [
       {
         "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board.webp",
-        "caption": "Happy hour menu (page 1 of 3)",
-        "sourceUrl": "http://chaunceyspizza.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.chaunceyspizza.com/happy-hour",
         "generated": true
       },
       {
         "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board-2.webp",
-        "caption": "Happy hour menu (page 2 of 3)",
-        "sourceUrl": "http://chaunceyspizza.com/",
-        "generated": true
-      },
-      {
-        "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board-3.webp",
-        "caption": "Happy hour menu (page 3 of 3)",
-        "sourceUrl": "http://chaunceyspizza.com/",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.chaunceyspizza.com/happy-hour",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "",
+      "note": "Happy Hour 3:00pm–5:00pm. Weekly specials after 5pm are listed separately.",
       "sections": [
         {
-          "title": "Cocktails",
+          "title": "Drafts",
           "items": [
             {
-              "name": "BLACKBERRY APEROL SPRITZ",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "SPICY WATERMELON MARGARITA",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "CHAUNCEY'S ESPRESSO MARTINI",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "ROSEMARY GREYHOUND",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "CUCUMBER MINT GIN FIZZ",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "CHAUNCEY'S OLD FASHION",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "HOUSE CADILLAC MARGARITA",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            },
-            {
-              "name": "MEZCAL NEGRONI",
-              "price": "$13",
-              "offer": {
-                "kind": "absolute",
-                "amount": 13
-              }
-            }
-          ]
-        },
-        {
-          "title": "Beers",
-          "items": [
-            {
-              "name": ".394 PALE ALE",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "THE PUPIL IPA",
-              "price": "$4.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4.5
-              }
-            },
-            {
-              "name": "MAGICAL AND DELICIOUS PALE ALE",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "June Shine Hard Kombucha",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "BLOOD ORANGE IPA",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "HARLAND HAZY IPA",
-              "price": "$4.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4.5
-              }
-            },
-            {
-              "name": "805 BLONDE ALE",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "MANGO CART WHEAT ALE",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "TREEVANA IPA",
-              "price": "$4.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4.5
-              }
-            },
-            {
-              "name": "PACIFICO ESPECIAL LAGER",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "COORS LIGHT LAGER",
-              "price": "$3.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 3.5
-              }
-            },
-            {
-              "name": "FIESTA ISLAND PILSNER",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "CALI CREAMIN' VANILLA CREAM ALE",
-              "price": "$4",
-              "offer": {
-                "kind": "absolute",
-                "amount": 4
-              }
-            },
-            {
-              "name": "EASY RIDER",
-              "price": "$3.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 3.5
-              }
-            }
-          ]
-        },
-        {
-          "title": "Wine",
-          "items": [
-            {
-              "name": "ANGELINE CHARDONNAY",
-              "price": "$5",
-              "offer": {
-                "kind": "absolute",
-                "amount": 5
-              }
-            },
-            {
-              "name": "ST. FRANCIS CHARDONNAY",
-              "price": "$6.50",
-              "offer": {
-                "kind": "absolute",
-                "amount": 6.5
-              }
-            },
-            {
-              "name": "MATUA SAUVIGNON BLANC",
-              "price": "$6",
-              "offer": {
-                "kind": "absolute",
-                "amount": 6
-              }
-            },
-            {
-              "name": "BONTERRA SAUVIGNON BLANC",
+              "name": "Craft Pint",
               "price": "$7",
               "offer": {
                 "kind": "absolute",
@@ -112180,23 +111681,15 @@
               }
             },
             {
-              "name": "CASTELLO BANFI PINOT GRIGIO",
-              "price": "$5.50",
+              "name": "Craft Pitcher",
+              "price": "$25",
               "offer": {
                 "kind": "absolute",
-                "amount": 5.5
+                "amount": 25
               }
             },
             {
-              "name": "SUMMER WATER ROSE",
-              "price": "$6",
-              "offer": {
-                "kind": "absolute",
-                "amount": 6
-              }
-            },
-            {
-              "name": "ANGELINE PINOT NOIR",
+              "name": "Draft Pint (Coors, Easy Rider)",
               "price": "$5",
               "offer": {
                 "kind": "absolute",
@@ -112204,23 +111697,20 @@
               }
             },
             {
-              "name": "ANGELINE CABERNET SAUVIGNON",
-              "price": "$5",
+              "name": "Draft Pitcher (Coors, Easy Rider)",
+              "price": "$20",
               "offer": {
                 "kind": "absolute",
-                "amount": 5
+                "amount": 20
               }
-            },
+            }
+          ]
+        },
+        {
+          "title": "House Wines",
+          "items": [
             {
-              "name": "PREDATOR CABERNET SAUVIGNON",
-              "price": "$7",
-              "offer": {
-                "kind": "absolute",
-                "amount": 7
-              }
-            },
-            {
-              "name": "HANH PINOT NOIR",
+              "name": "Angeline Cabernet",
               "price": "$8",
               "offer": {
                 "kind": "absolute",
@@ -112228,141 +111718,249 @@
               }
             },
             {
-              "name": "ACHAVAL FERRER MALBEC",
-              "price": "$6.50",
+              "name": "Angeline Chardonnay",
+              "price": "$8",
               "offer": {
                 "kind": "absolute",
-                "amount": 6.5
+                "amount": 8
               }
             },
             {
-              "name": "GIBBIANI CHAINTI CLASSICO",
-              "price": "$6.50",
+              "name": "Angeline Pinot Noir",
+              "price": "$8",
               "offer": {
                 "kind": "absolute",
-                "amount": 6.5
+                "amount": 8
               }
             },
             {
-              "name": "ROBERT HALL ARTISAN MERLOT",
-              "price": "$6.50",
+              "name": "Summer Water Rosé",
+              "price": "$8",
               "offer": {
                 "kind": "absolute",
-                "amount": 6.5
+                "amount": 8
+              }
+            },
+            {
+              "name": "Matua Sauvignon Blanc",
+              "price": "$8",
+              "offer": {
+                "kind": "absolute",
+                "amount": 8
               }
             }
           ]
         },
         {
-          "title": "Bubbles & Bottle Beers",
+          "title": "Cocktails & Wells",
           "items": [
             {
-              "name": "CAMPO VIEGO BRUT",
-              "price": "$5.50",
+              "name": "Spicy Watermelon Margarita",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 5.5
+                "amount": 10
               }
             },
             {
-              "name": "CAMPO VIEGO ROSE",
-              "price": "$5.50",
+              "name": "Classic Margarita",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 5.5
+                "amount": 10
               }
             },
             {
-              "name": "MINNIOTTA PROSECCO",
+              "name": "Cucumber Mint Gin Fizz",
+              "price": "$10",
+              "offer": {
+                "kind": "absolute",
+                "amount": 10
+              }
+            },
+            {
+              "name": "Rosemary Greyhound",
+              "price": "$10",
+              "offer": {
+                "kind": "absolute",
+                "amount": 10
+              }
+            },
+            {
+              "name": "Blackberry Aperol Spritz",
+              "price": "$10",
+              "offer": {
+                "kind": "absolute",
+                "amount": 10
+              }
+            },
+            {
+              "name": "Well Drinks",
               "price": "$5",
               "offer": {
                 "kind": "absolute",
                 "amount": 5
               }
-            },
+            }
+          ]
+        },
+        {
+          "title": "Apps, Salads & Slices",
+          "items": [
             {
-              "name": "SIERRA NEVADA",
-              "price": "$4",
+              "name": "Garlic Breadsticks",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 4
+                "amount": 10
               }
             },
             {
-              "name": "CORONA",
-              "price": "$3.50",
+              "name": "Brussels Sprouts",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3.5
+                "amount": 10
               }
             },
             {
-              "name": "MODELO",
-              "price": "$3.50",
+              "name": "Buffalo Cauliflower",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3.5
+                "amount": 10
               }
             },
             {
-              "name": "STELLA ARTOIS",
-              "price": "$3.50",
+              "name": "Arancini",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3.5
+                "amount": 10
               }
             },
             {
-              "name": "HEINEKEN",
-              "price": "$3.50",
+              "name": "House Salad",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3.5
+                "amount": 10
               }
             },
             {
-              "name": "PERONI",
-              "price": "$3.50",
+              "name": "Caesar Salad",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3.5
+                "amount": 10
               }
             },
             {
-              "name": "COORS LIGHT",
-              "price": "$3",
+              "name": "Arugula Salad",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3
+                "amount": 10
               }
             },
             {
-              "name": "BUD LIGHT",
-              "price": "$3",
+              "name": "Slices",
+              "price": "$5",
               "offer": {
                 "kind": "absolute",
-                "amount": 3
+                "amount": 5
+              }
+            }
+          ]
+        },
+        {
+          "title": "Weekly Specials (5pm–Close)",
+          "items": [
+            {
+              "name": "Tuesdays: $7 off large pizzas all day",
+              "price": "$7 off",
+              "offer": {
+                "kind": "amount_off",
+                "amountOff": 7
               }
             },
             {
-              "name": "JUNESHINE",
-              "price": "$3",
+              "name": "Tuesdays: Breadsticks",
+              "price": "$10",
               "offer": {
                 "kind": "absolute",
-                "amount": 3
+                "amount": 10
               }
             },
             {
-              "name": "ATHLETIC N/A BEER",
-              "price": "$3",
+              "name": "Tuesdays: $2 off pints",
+              "price": "$2 off",
+              "offer": {
+                "kind": "amount_off",
+                "amountOff": 2
+              }
+            },
+            {
+              "name": "Tuesdays: $8 off all pitchers",
+              "price": "$8 off",
+              "offer": {
+                "kind": "amount_off",
+                "amountOff": 8
+              }
+            },
+            {
+              "name": "Wine & Wings Wednesday: Wings (min 4)",
+              "price": "$1.50",
               "offer": {
                 "kind": "absolute",
-                "amount": 3
+                "amount": 1.5
+              }
+            },
+            {
+              "name": "Wine & Wings Wednesday: Summer Water Rosé / Matua Sauvignon Blanc",
+              "price": "$8",
+              "offer": {
+                "kind": "absolute",
+                "amount": 8
+              }
+            },
+            {
+              "name": "Wine & Wings Wednesday: Predator Cab",
+              "price": "$12",
+              "offer": {
+                "kind": "absolute",
+                "amount": 12
+              }
+            },
+            {
+              "name": "Wine & Wings Wednesday: Hanh Pinot Noir",
+              "price": "$14",
+              "offer": {
+                "kind": "absolute",
+                "amount": 14
+              }
+            },
+            {
+              "name": "Wine & Wings Wednesday: St Francis Chardonnay",
+              "price": "$11",
+              "offer": {
+                "kind": "absolute",
+                "amount": 11
+              }
+            },
+            {
+              "name": "Pitcher Thursday: $8 off all pitchers of beer",
+              "price": "$8 off",
+              "offer": {
+                "kind": "amount_off",
+                "amountOff": 8
               }
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.chaunceyspizza.com/happy-hour",
+      "observedAt": "2026-08-31"
     },
     "menuCandidateImages": [
       {
@@ -113181,17 +112779,6 @@
     "address": "2415 San Diego Ave #111, San Diego, CA 92110, USA",
     "lat": 32.751385899999995,
     "lng": -117.19356270000002,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "startTime": "18:00",
-    "endTime": "15:00",
     "deals": [],
     "vibe": "Brewery",
     "website": "http://www.societebrewing.com/",
@@ -113203,7 +112790,6 @@
     "seoHidden": true,
     "image": "/images/venues/591-societe-brewing-company.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "not_published",
@@ -113644,15 +113230,6 @@
     "address": "6344 El Cajon Blvd, San Diego, CA 92115, USA",
     "lat": 32.7643913,
     "lng": -117.0621461,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "14:00",
-    "endTime": "13:00",
     "deals": [],
     "website": "https://instagram.com/majorette_sd",
     "verified": false,
@@ -113662,7 +113239,6 @@
     "seoHidden": true,
     "image": "/images/venues/594-majorette.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -114333,15 +113909,6 @@
     "address": "Durango 11050, Guadalupe Victoria, 22426 Tijuana, B.C., Mexico",
     "lat": 32.5177692,
     "lng": -116.9774097,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "13:00",
-    "endTime": "12:00",
     "deals": [],
     "website": "https://www.instagram.com/kendascoffee/?img_index=1",
     "verified": false,
@@ -114351,7 +113918,6 @@
     "seoHidden": true,
     "image": "/images/venues/602-kenda-s-coffee-beauty.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",
@@ -115152,15 +114718,6 @@
     "address": "6435 Caminito Blythefield Suite A, La Jolla, CA 92037, USA",
     "lat": 32.8322551,
     "lng": -117.244276,
-    "days": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ],
-    "startTime": "23:00",
-    "endTime": "13:00",
     "deals": [],
     "website": "http://www.instagram.com/jaybirdsuperette",
     "verified": false,
@@ -115170,7 +114727,6 @@
     "seoHidden": true,
     "image": "/images/venues/609-jaybird-superette.jpg",
     "hasHappyHourData": false,
-    "dealsUnknown": true,
     "listingStatus": "unlisted",
     "lastScrape": {
       "outcome": "wrong_website",

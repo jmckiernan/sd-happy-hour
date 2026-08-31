@@ -173,8 +173,9 @@ const MIN_WINDOW_MINUTES = 30;
  *
  * Three Cheesecake Factories came through as 11:00–22:00 and a casino as
  * 13:00–08:00. Nobody discounts for eleven hours; those are business hours
- * that happened to sit near the words "happy hour". A window that runs past
- * midnight is real (21:00–00:00), so short backwards spans are allowed.
+ * that happened to sit near the words "happy hour". Ending at midnight
+ * (`00:00`) is allowed ("until midnight"); any other end-before-start wrap
+ * is refused — this product does not publish overnight happy hours.
  */
 export function isPlausibleWindow(startTime, endTime) {
   const toMinutes = (value) => {
@@ -182,8 +183,9 @@ export function isPlausibleWindow(startTime, endTime) {
     return h * 60 + m;
   };
   const start = toMinutes(startTime);
-  let end = toMinutes(endTime);
-  if (end <= start) end += 24 * 60;
+  const endRaw = toMinutes(endTime);
+  if (endRaw < start && endTime !== '00:00') return false;
+  const end = endRaw <= start ? endRaw + 24 * 60 : endRaw;
   const span = end - start;
   return span >= MIN_WINDOW_MINUTES && span <= MAX_WINDOW_MINUTES;
 }

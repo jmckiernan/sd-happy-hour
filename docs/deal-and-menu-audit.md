@@ -159,21 +159,21 @@ happy hour overnight.** Only one venue in the catalog publishes its own hours, s
 30 of the 31 use a conservative 11am–10pm default; Brewing Company's default
 lands on exactly the 11am–10pm its own page quotes.
 
-**Overnight windows crossing midnight**: 50 exist and roughly 18 are legitimate
-late-night service (`21:00–00:00`, `22:30–00:00`). 32 have a duration over ten
-hours and are almost certainly transpositions — `19:00–18:00`, `12:00–11:00`,
-`18:00–15:00`, mostly on all seven days. These are **left alone**: `12:00–08:00`
-is genuinely ambiguous between `08:00–12:00` and a real overnight, and guessing
-publishes wrong hours. All but two are unlisted. Note `endTime: "23:59"` and
-`endTime: "00:00"` are two encodings of the same intent that differ by a minute;
-an explicit `endsAtClose` flag, mirroring the existing `startsAtOpen`, would
-retire the sentinel.
+**Overnight windows crossing midnight**: product rule as of 31 August 2026 — **there are no
+overnight happy hours.** A window that continues past midnight (21:00–02:00) or that has
+end-before-start for any other reason (19:00–18:00) is bad data. Ending at midnight
+(`endTime: "00:00"`) is the one allowed wrap: it means until midnight, same evening.
+The cohort that had been left alone (~32 long swaps plus shorter past-midnight ends) was
+cleared or corrected from evidence; extraction and `validate:data` now refuse new ones.
+See `fix-overnight-windows.mjs` and `tests/no-overnight-windows.test.mjs`. Note
+`endTime: "23:59"` and `endTime: "00:00"` are still two encodings of close vs midnight that
+differ by a minute; an explicit `endsAtClose` flag, mirroring the existing `startsAtOpen`,
+would retire the sentinel.
 
 **Timezone handling is correct.** `sanDiegoTime.ts` resolves every wall clock
 through `America/Los_Angeles`, refuses offsetless strings rather than letting
 `new Date` apply the machine zone, and handles both DST transitions. The 3am bug
-was not a timezone bug. Tests cover all-day windows, overnight windows crossing
-midnight, and the day-boundary case where Pacific and UTC disagree on the date.
+was not a timezone bug. Tests cover all-day windows, until-midnight windows, and the day-boundary case where Pacific and UTC disagree on the date.
 
 ## 5. The day chips that disagreed with the prose
 

@@ -12,13 +12,27 @@ export function minutesOfDay(clock) {
   return h * 60 + m;
 }
 
-/** Duration in minutes. Overnight windows (end <= start) wrap past midnight. */
+/**
+ * Duration in minutes. The only allowed end-before-start form is ending at
+ * midnight (`endTime === '00:00'`), which means "until midnight" on the same
+ * evening — not a happy hour that continues into the next morning.
+ */
 export function windowDurationMinutes(startTime, endTime) {
   if (!isClock(startTime) || !isClock(endTime)) return null;
   const start = minutesOfDay(startTime);
   const end = minutesOfDay(endTime);
   if (end === start) return 0;
-  return end > start ? end - start : end + 24 * 60 - start;
+  if (end > start) return end - start;
+  if (endTime === '00:00') return end + 24 * 60 - start;
+  return null;
+}
+
+/** True when end is before start and is not the midnight-end sentinel. */
+export function isOvernightOrSwappedWindow(startTime, endTime) {
+  if (!isClock(startTime) || !isClock(endTime)) return false;
+  const start = minutesOfDay(startTime);
+  const end = minutesOfDay(endTime);
+  return end < start && endTime !== '00:00';
 }
 
 export function isLateNightStart(startTime) {
@@ -28,14 +42,26 @@ export function isLateNightStart(startTime) {
 
 /**
  * Reject windows that are almost certainly operating hours or parser junk.
- * Overnight happy hour (22:00–01:00) is allowed; 02:00–08:00 and 11-hour
- * spans are not.
+ *
+ * Product rule: there are no overnight happy hours. A window that continues
+ * past midnight into the next morning (22:00–02:00) or that looks swapped
+ * (19:00–18:00) is always bad data. Ending at midnight (`00:00`) is allowed —
+ * that is "until midnight", same evening. Long spans and pre-11am starts are
+ * still refused as operating hours.
  */
 export function isPlausibleHappyHourWindow(window) {
   if (!window || !Array.isArray(window.days) || !window.days.length) return false;
   if (window.days.some((day) => !DAY_NAMES.includes(day))) return false;
-  if (window.allDay) return true;
+  if (window.allDay) {
+    // All-day still needs same-day bounds when times are present.
+    if (isClock(window.startTime) && isClock(window.endTime)
+      && isOvernightOrSwappedWindow(window.startTime, window.endTime)) {
+      return false;
+    }
+    return true;
+  }
   if (!isClock(window.startTime) || !isClock(window.endTime)) return false;
+  if (isOvernightOrSwappedWindow(window.startTime, window.endTime)) return false;
 
   const duration = windowDurationMinutes(window.startTime, window.endTime);
   if (duration == null || duration < 30) return false;

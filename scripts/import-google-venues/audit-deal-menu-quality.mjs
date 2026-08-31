@@ -122,7 +122,9 @@ for (const venue of venues) {
   for (const w of windows) {
     if (!CLOCK.test(w.startTime || '') || !CLOCK.test(w.endTime || '')) continue;
     const s = mins(w.startTime), e = mins(w.endTime);
-    if (e < s && (24 * 60 - s) + e > 10 * 60) judgment.swappedWindow.push({ venue, w, hours: ((24 * 60 - s) + e) / 60 });
+    // Overnight past midnight / swapped windows are now refused at write time
+    // (isPlausibleHappyHourWindow + validate:data). This report should stay empty.
+    if (e < s && w.endTime !== '00:00') judgment.swappedWindow.push({ venue, w, hours: ((24 * 60 - s) + e) / 60 });
     else if (e > s && s < 8 * 60 && !w.allDay) judgment.earlyWindow.push({ venue, w });
   }
   const union = new Set((venue.windows || []).flatMap((w) => w.days || []));

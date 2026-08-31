@@ -640,7 +640,8 @@ function testNormalizeAiNotFoundAndWindows() {
       locationApplicability: 'this_location',
       windows: [
         { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], startTime: '16:00', endTime: '18:00', kind: 'happy_hour' },
-        { days: ['Friday', 'Saturday'], startTime: '22:00', endTime: '01:00', kind: 'late_night' },
+        // 22:00–01:00 is overnight — refused. Until-midnight is the late-night form.
+        { days: ['Friday', 'Saturday'], startTime: '22:00', endTime: '00:00', kind: 'late_night' },
       ],
       deals: ['$6 well drinks'],
       weeklySpecials: ['Wine Wednesday $6 glasses'],
@@ -654,6 +655,44 @@ function testNormalizeAiNotFoundAndWindows() {
   assert.equal(multi.found, true);
   assert.equal(multi.windows.length, 2);
   assert.ok(multi.deals.some((line) => /well drinks/i.test(line)));
+
+  const overnightRefused = normalizeAiHappyHourResult(
+    {
+      found: true,
+      locationApplicability: 'this_location',
+      windows: [
+        { days: ['Friday'], startTime: '21:00', endTime: '02:00', kind: 'late_night' },
+      ],
+      deals: [],
+      confidence: 'high',
+      evidence: [
+        { url: 'https://example.com/specials', quote: 'Late night 9pm–2am', field: 'times' },
+      ],
+    },
+    'https://example.com/specials'
+  );
+  assert.equal(overnightRefused.windows.length, 0, 'overnight windows must be dropped');
+  assert.equal(overnightRefused.found, false, 'overnight-only extract must not publish');
+
+  const overnightDroppedKeepsDayWindow = normalizeAiHappyHourResult(
+    {
+      found: true,
+      locationApplicability: 'this_location',
+      windows: [
+        { days: ['Friday'], startTime: '16:00', endTime: '18:00', kind: 'happy_hour' },
+        { days: ['Friday'], startTime: '21:00', endTime: '02:00', kind: 'late_night' },
+      ],
+      deals: ['$5 wells'],
+      confidence: 'high',
+      evidence: [
+        { url: 'https://example.com/specials', quote: 'HH 4–6 and late 9–2', field: 'times' },
+      ],
+    },
+    'https://example.com/specials'
+  );
+  assert.equal(overnightDroppedKeepsDayWindow.found, true);
+  assert.equal(overnightDroppedKeepsDayWindow.windows.length, 1);
+  assert.equal(overnightDroppedKeepsDayWindow.windows[0].endTime, '18:00');
 
   const salvage = normalizeAiHappyHourResult(
     {
@@ -702,7 +741,11 @@ function testImplausibleWindowsRejected() {
   assert.equal(normalizeWindows([{ days: ['Monday'], allDay: true, label: 'All day Monday' }]).length, 1);
   assert.equal(isPlausibleHappyHourWindow({ days: ['Monday'], startTime: '02:00', endTime: '08:00' }), false);
   assert.equal(isPlausibleHappyHourWindow({ days: ['Monday'], startTime: '19:00', endTime: '19:00' }), false);
-  assert.equal(isPlausibleHappyHourWindow({ days: ['Friday'], startTime: '22:00', endTime: '01:00' }), true);
+  // Overnight past midnight is refused; until-midnight (00:00) is allowed.
+  assert.equal(isPlausibleHappyHourWindow({ days: ['Friday'], startTime: '22:00', endTime: '01:00' }), false);
+  assert.equal(isPlausibleHappyHourWindow({ days: ['Friday'], startTime: '22:00', endTime: '02:00' }), false);
+  assert.equal(isPlausibleHappyHourWindow({ days: ['Friday'], startTime: '19:00', endTime: '18:00' }), false);
+  assert.equal(isPlausibleHappyHourWindow({ days: ['Friday'], startTime: '22:00', endTime: '00:00' }), true);
   assert.equal(normalizeWindows([{ days: ['Monday'], startTime: '15:00', endTime: '18:00' }]).length, 1);
 }
 
@@ -1023,19 +1066,20 @@ function testAiDealsDoNotNeedDollarSigns() {
   assert.ok(venue.deals.some((line) => /half off/i.test(line)));
 }
 
-function testOvernightHappyHourIsActiveAfterMidnight() {
+function testUntilMidnightHappyHourIsActiveBeforeMidnight() {
   const schedule = {
     id: 9,
     days: ['Friday'],
     startTime: '22:00',
-    endTime: '02:00',
+    endTime: '00:00',
   };
   const occurrence = getHappyHourOccurrenceForDate(schedule, '2026-08-21');
   assert.ok(occurrence);
-  assert.equal(occurrence.endTime, '02:00');
-  // Saturday 12:30am Pacific, still Friday's overnight window.
-  assert.equal(isHappyHourActive(schedule, new Date('2026-08-22T07:30:00Z')), true);
-  assert.equal(isHappyHourActive(schedule, new Date('2026-08-22T09:00:00Z')), false);
+  assert.equal(occurrence.endTime, '00:00');
+  // Friday 11:30pm Pacific — still inside until-midnight.
+  assert.equal(isHappyHourActive(schedule, new Date('2026-08-22T06:30:00Z')), true);
+  // Saturday 12:30am Pacific — past midnight end, inactive.
+  assert.equal(isHappyHourActive(schedule, new Date('2026-08-22T07:30:00Z')), false);
 }
 
 function testMultiWindowScheduleUsesLateNightToo() {
@@ -1866,7 +1910,7 @@ const tests = [
   testMenuBoardFormatHelpers,
   testApplyScrapeRequiresEvidence,
   testAiDealsDoNotNeedDollarSigns,
-  testOvernightHappyHourIsActiveAfterMidnight,
+  testUntilMidnightHappyHourIsActiveBeforeMidnight,
   testMultiWindowScheduleUsesLateNightToo,
   testAllDayWindowIsLiveThatCalendarDay,
   testEveryStoredMenuHasARenderedBoard,

@@ -131,6 +131,32 @@ much the better record and was kept.
 
 None of these had anything written to them.
 
+## Human look outcomes (31 August 2026)
+
+Each of the fifteen was opened against its own specials/happy-hour page (browser fetch where
+the plain response was a shell). Prices were never invented; a stored menu was only replaced when
+the source page clearly disagreed with it.
+
+| Venue | Decision | Why |
+| --- | --- | --- |
+| Rockin' Baja Lobster Oceanside | **Kept** | Specials page prices match the stored HH items (tacos, daily $12 drinks, Go Big draft). |
+| Jimmy's Famous Point Loma | **Kept** | Happy-hour menu page matches stored cocktails/wines/beers/food line for line. |
+| Gossip Grill | **Kept** | HH page confirms $3 off food, BOGO drinks, Monday spaghetti, brunch buckets. |
+| El Pueblo Carlsbad | **Kept** | Bars page HH block matches; fuller cocktail list on the same page is regular menu, not HH. |
+| The Rabbit Hole | **Left alone** | Source page is chip-style summaries; stored itemization is richer and earlier three-reads disagreed (5/6/3). |
+| Pacific Catch | **Left alone** | Menu page barely surfaces Aloha Hour prices; not enough to replace or expand the board. |
+| Bellamy's | **Left alone** | Happy-hour URL is a JS shell whose visible text is prix-fixe dinner, not the bar HH. |
+| Bayside Landing | **Kept** | Specials page confirms $3 off apps / $2 off drinks / $1 off wine and the weekly specials. |
+| Sushi Lounge Encinitas | **Kept** | Specials page has no item prices; stored 42-item board remains the better record (re-read was ~40 shorter). |
+| Mangia e Bevi | **Left alone** | Specials page lists lunch/weekly offers; aperitivo still has no priced items on the page. |
+| Shores Bar + Kitchen | **Kept** | Menu-special page matches stored HH and taco/Thursday lines. |
+| Rare Society | **Left alone** | Location HH page only markets "$10 classic cocktails, wines and drafts" with no item list. |
+| Sky Deck Del Mar | **Left alone** | Only source is the shopping-centre page (`delmarhighlandstowncenter.com`); multi-tenant conflict. |
+| Chauncey's Pizza & Bar | **Updated** | Stored board was a full bar list ($13 cocktails). Source HH page is 3–5pm drafts/wines/cocktails/apps at different prices — replaced from that page. |
+| Trattoria da Sofia | **Kept** | Browser read of the HH page confirms the stored food/drinks/spritz/beer board (earlier wine-list contamination was the wrong page). |
+
+Scoreboard: **1 updated**, **9 kept** (source agrees or stored is clearly better), **5 left alone** (ambiguous / wrong-location / no item prices on source).
+
 ## Provenance
 
 Every recovered menu now records the page it was read from and the date. That

@@ -8,6 +8,8 @@ allowed to say when it gets there. One page, in pipeline order.
 assignment order, menu `offer` kinds, browser `needs_browser`, Atmosphere amenities, and venue-id
 banding are implemented. Proprietary character vibes (`docs/proprietary-venue-attributes.md`) and
 Google photo attribution recovery (`docs/google-photo-exposure.md`) are **proposed, not built**.
+**Owner decision (31 Aug 2026):** long-term photo sourcing is venue-site heroes (§4.2 of that doc),
+**deferred** — do not scrape photos or recover Google attribution in the meantime.
 Detailed investigations stay in their own docs; this page is the gate list.
 
 This is the *what and why*. For the narrative playbook — how to run a job, what a scrape outcome
@@ -796,6 +798,11 @@ Honest list. None are currently breaking anything, but all are traps.
 - **55 published `browseHold: unverified_window`.** Mostly never scraped; fix is scrape or convert
   to claim stubs (`docs/window-only-listings.md` §4, `docs/homepage-reachability.md`).
 - **Google photo bytes stored without attribution metadata.** Assessment only —
-  `docs/google-photo-exposure.md`. Not implemented.
-- **32 overnight/ambiguous windows** (`19:00–18:00` and similar) left alone on purpose —
-  `docs/deal-and-menu-audit.md`, `docs/lessons-and-invariants.md` §4.
+  `docs/google-photo-exposure.md`. Owner chose venue-site photo sourcing as the long-term path;
+  deferred (not built). Do not recover Google attribution as a side quest.
+- **Overnight / end-before-start happy hour windows are refused.** Product rule: there are no
+  overnight happy hours. `endTime: "00:00"` means until midnight (same evening); anything past
+  midnight or swapped (`19:00–18:00`) is cleared or corrected from evidence.
+  `scripts/import-google-venues/fix-overnight-windows.mjs`, `isPlausibleHappyHourWindow`,
+  `validate:data`, and `tests/no-overnight-windows.test.mjs` guard it. See
+  `docs/deal-and-menu-audit.md`, `docs/lessons-and-invariants.md` §2.

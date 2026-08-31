@@ -158,18 +158,19 @@ test('happy hour is inactive on a different day', () => {
   assert.equal(isHappyHourActive(fridayHappyHour, new Date('2026-08-20T23:30:00Z')), false);
 });
 
-test('zero-length happy-hour windows are rejected; overnight windows wrap midnight', () => {
+test('zero-length happy-hour windows are rejected; until-midnight wraps to 00:00', () => {
   assert.equal(
     getHappyHourOccurrenceForDate({ ...fridayHappyHour, startTime: '18:00', endTime: '18:00' }, '2026-08-21'),
     null
   );
-  const overnight = getHappyHourOccurrenceForDate(
-    { ...fridayHappyHour, startTime: '22:00', endTime: '02:00' },
+  // Catalog forbids overnight past midnight; 00:00 is the until-midnight sentinel.
+  const untilMidnight = getHappyHourOccurrenceForDate(
+    { ...fridayHappyHour, startTime: '22:00', endTime: '00:00' },
     '2026-08-21'
   );
-  assert.ok(overnight);
-  assert.equal(overnight.startTime, '22:00');
-  assert.equal(overnight.endTime, '02:00');
+  assert.ok(untilMidnight);
+  assert.equal(untilMidnight.startTime, '22:00');
+  assert.equal(untilMidnight.endTime, '00:00');
 });
 
 test('happy-hour occurrence respects the spring DST offset change', () => {

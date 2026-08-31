@@ -33,7 +33,10 @@ function toClock(hour, minute = 0) {
 
 /**
  * Collapse Google periods into distinct time windows, each with the days it runs.
- * A period that closes on the following day (e.g. 10pm–1am) keeps its opening day.
+ * A period that closes at midnight on the following calendar day (10pm–12am)
+ * keeps its opening day and endTime `00:00`. Periods that continue past
+ * midnight into the morning (10pm–1am) are dropped — this product does not
+ * publish overnight happy hours.
  */
 export function windowsFromPeriods(periods = []) {
   const byRange = new Map();
@@ -51,6 +54,12 @@ export function windowsFromPeriods(periods = []) {
     // than inventing an end time.
     if (!close || typeof close.hour !== 'number') continue;
     const end = toClock(close.hour, close.minute || 0);
+    const startMins = open.hour * 60 + (open.minute || 0);
+    const endMins = close.hour * 60 + (close.minute || 0);
+    const crossesMidnight = typeof close.day === 'number' && close.day !== open.day;
+    // Until midnight is fine; anything later the next morning is not.
+    if (crossesMidnight && !(end === '00:00' || endMins === 0)) continue;
+    if (!crossesMidnight && endMins < startMins && end !== '00:00') continue;
 
     const key = `${start}-${end}`;
     if (!byRange.has(key)) byRange.set(key, { startTime: start, endTime: end, days: new Set() });
