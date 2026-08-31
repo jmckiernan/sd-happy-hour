@@ -12397,8 +12397,8 @@
         "days": [
           "Sunday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Sunday / All Padres Games / All NFL Games"
@@ -14672,8 +14672,8 @@
         "days": [
           "Sunday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "Happy Hour"
@@ -15566,8 +15566,8 @@
           "Friday",
           "Saturday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "12:00",
+        "endTime": "02:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Game Day Specials (when applicable)"
@@ -18251,8 +18251,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Monday Funday"
@@ -21532,8 +21532,8 @@
           "Sunday",
           "Saturday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Saturday All Day"
@@ -24141,8 +24141,8 @@
           "Friday",
           "Saturday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "Everyday Happy Day"
@@ -24151,8 +24151,8 @@
         "days": [
           "Tuesday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Taco Tuesday"
@@ -25432,8 +25432,8 @@
           "Saturday",
           "Sunday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Happy Hour"
@@ -40123,8 +40123,8 @@
         "days": [
           "Tuesday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Taco Tuesday"
@@ -51709,8 +51709,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Monday Happy Hour"
@@ -59193,8 +59193,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Chronic Rolls Monday"
@@ -69190,8 +69190,8 @@
         "days": [
           "Sunday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Happy Hour"
@@ -74705,8 +74705,8 @@
         "days": [
           "Tuesday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Tuesday"
@@ -75037,8 +75037,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "Happy Hour"
@@ -82775,8 +82775,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "All Day Happy Hour"
@@ -85859,8 +85859,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "happy_hour",
         "allDay": true,
         "label": "Monday Happy Hour All Day"
@@ -86172,8 +86172,8 @@
         "days": [
           "Monday"
         ],
-        "startTime": "00:00",
-        "endTime": "23:59",
+        "startTime": "11:00",
+        "endTime": "22:00",
         "kind": "weekly_special",
         "allDay": true,
         "label": "Monday Chronic Roll Special"
