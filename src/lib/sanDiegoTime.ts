@@ -37,6 +37,15 @@ export interface SanDiegoDayBounds {
   end: Date;
 }
 
+/**
+ * `allDay` is a presentation fact, not a schedule: it means the venue runs the
+ * offer for its whole service day, so the page says "All day" instead of a
+ * clock range. It does NOT mean midnight to midnight. The window still has to
+ * carry the real bounds of that service day in startTime/endTime, because
+ * "all day Monday" at a venue that opens at 11am is not happy hour at 3am.
+ * Storing an unbounded 00:00–23:59 here is what made a brewery claim happy
+ * hour was live in the middle of the night.
+ */
 export interface HappyHourWindow {
   days: readonly string[];
   startTime: string;
@@ -337,23 +346,10 @@ export function getActiveHappyHourOccurrence(
   const yesterday = addCalendarDays(today, -1);
 
   for (const window of scheduleWindows(schedule)) {
-    if (window.allDay) {
-      const weekday = weekdayForDateKey(today);
-      if (window.days.includes(weekday)) {
-        const bounds = getSanDiegoDayBounds(today);
-        const occurrence = {
-          venueId: schedule.id,
-          dateKey: today,
-          weekday,
-          startTime: '00:00',
-          endTime: '23:59',
-          startsAt: bounds.start,
-          endsAt: bounds.end,
-        };
-        if (occurrenceContains(occurrence, instant)) return occurrence;
-      }
-      continue;
-    }
+    // An all-day window is an ordinary window that happens to be described as
+    // "all day". It is deliberately not widened to the calendar day here: the
+    // stored bounds are the venue's service hours and are the whole truth
+    // about when the offer is live.
     const slice = {
       ...schedule,
       days: window.days,
@@ -370,4 +366,41 @@ export function getActiveHappyHourOccurrence(
 
 export function isHappyHourActive(schedule: HappyHourSchedule, now: InstantInput = new Date()): boolean {
   return getActiveHappyHourOccurrence(schedule, now) !== null;
+}
+
+/**
+ * Fall-back service day for a venue that advertises an all-day happy hour but
+ * has never told us when it opens. Deliberately conservative: claiming happy
+ * hour too narrowly disappoints someone who arrives at 10am, but claiming it
+ * at 3am makes the whole site look untrustworthy.
+ */
+export const DEFAULT_SERVICE_DAY = { startTime: '11:00', endTime: '22:00' } as const;
+
+/**
+ * True when a window claims to be all day but stores the calendar day rather
+ * than the venue's service hours. These are the records that report happy
+ * hour as live overnight.
+ */
+export function isUnboundedAllDayWindow(window: Pick<HappyHourWindow, 'allDay' | 'startTime' | 'endTime'>): boolean {
+  if (!window.allDay) return false;
+  return window.startTime === '00:00' && (window.endTime === '23:59' || window.endTime === '00:00');
+}
+
+/**
+ * Give an all-day window real bounds, preferring the venue's own hours and
+ * falling back to a plausible service day. Returned unchanged when the window
+ * is already bounded, so this is safe to run over the whole catalog.
+ */
+export function boundAllDayWindow<T extends HappyHourWindow>(
+  window: T,
+  hours: { openTime?: string | null; closeTime?: string | null } = {}
+): T {
+  if (!isUnboundedAllDayWindow(window)) return window;
+  const open = clockMinutes(String(hours.openTime || '')) != null ? String(hours.openTime) : null;
+  const close = clockMinutes(String(hours.closeTime || '')) != null ? String(hours.closeTime) : null;
+  return {
+    ...window,
+    startTime: open || DEFAULT_SERVICE_DAY.startTime,
+    endTime: close || DEFAULT_SERVICE_DAY.endTime,
+  };
 }

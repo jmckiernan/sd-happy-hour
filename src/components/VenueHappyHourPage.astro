@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import LiveDealStyles from './LiveDealStyles.astro';
 import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
+import { happyHourDayNames } from '../lib/happyHourDays';
 import { listingImageStyle } from '../lib/imageCrop';
 import { specialsByDay, occasionSpecials, venueDealLines } from '../lib/listingCopy';
 import { neighborhoodPath } from '../lib/neighborhoods';
@@ -20,9 +21,7 @@ const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 const weeklyGroups = specialsByDay(venue.weeklySpecials || [], dayNames);
 const eventSpecials = occasionSpecials(venue.weeklySpecials || []);
 const hasWeeklySpecials = weeklyGroups.length > 0 || eventSpecials.length > 0;
-const pillDays = venue.windows?.length
-  ? dayNames.filter((day) => venue.windows.some((window) => window.days.includes(day)))
-  : venue.days;
+const pillDays = happyHourDayNames(venue);
 const dealSummary = `${venueDealLines(venue).slice(0, 2).join(', ')}. `;
 // A window that runs from opening has no published start time, so every
 // customer-facing rendering of the primary window goes through this.
@@ -811,6 +810,7 @@ function formatWindowLine(window: {
     import { vibeImageFor } from '../lib/vibeImages';
     import { imageFramingStyle } from '../lib/imageCrop';
     import { venueDealLines } from '../lib/listingCopy';
+    import { happyHourDayNames, WEEKDAY_NAMES } from '../lib/happyHourDays';
     import {
       getHappyHourOccurrenceForDate,
       getSanDiegoDayBounds,
@@ -1610,9 +1610,15 @@ function formatWindowLine(window: {
       }
 
       if (Array.isArray(listing.days) && listing.days.length) {
-        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        document.getElementById('hh-days')!.innerHTML = names
-          .map((day) => `<span class="day-pill ${listing.days.includes(day) ? 'active' : ''}">${day.slice(0, 3)}</span>`)
+        // Owner edits only carry the primary window, so the extra periods have
+        // to come from the build-time schedule or an all-day Monday would go
+        // dark in the chips while the prose above still announced it.
+        const active = happyHourDayNames({
+          days: listing.days,
+          windows: readJsonScript('venue-windows'),
+        });
+        document.getElementById('hh-days')!.innerHTML = WEEKDAY_NAMES
+          .map((day) => `<span class="day-pill ${active.includes(day) ? 'active' : ''}">${day.slice(0, 3)}</span>`)
           .join('');
         heroFrame.dataset.days = listing.days.join('|');
       }

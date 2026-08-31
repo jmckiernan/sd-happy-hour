@@ -301,6 +301,8 @@ export function formatTime(time: string): string {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
+export { WEEKDAY_NAMES, happyHourDayNames } from './happyHourDays';
+
 // Re-exported from lib/vibeImages.ts, where the map itself now lives so the
 // admin listing form can share it without dragging this module (and the venue
 // dataset it imports) into a browser bundle.
