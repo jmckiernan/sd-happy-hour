@@ -29,14 +29,17 @@ export interface VenueFileSnapshot {
 }
 
 /** Drops `image` when it's empty rather than writing `"image": ""` into
- * happy-hours.json. Matters for more than tidiness: updateVenue() merges the
- * incoming listing over the stored row, so an empty string has to actually
- * remove the key for "clear the featured image, go back to the vibe photo" to
- * work — and getListingImage() treats both absent and empty as no photo. */
-function withoutEmptyImage<T extends { image?: string }>(row: T): T {
-  if (row.image) return row;
-  const { image, ...rest } = row;
-  return rest as T;
+ * happy-hours.json, and `imageCrop` when there is no framing to record.
+ * Matters for more than tidiness: updateVenue() merges the incoming listing
+ * over the stored row, so an empty value has to actually remove the key for
+ * "clear the featured image, go back to the vibe photo" — and for "put the
+ * framing back to centered" — to work. getListingImage() treats both absent
+ * and empty as no photo. */
+function withoutEmptyImage<T extends { image?: string; imageCrop?: unknown }>(row: T): T {
+  const next = { ...row };
+  if (!next.image) delete next.image;
+  if (!next.imageCrop) delete next.imageCrop;
+  return next;
 }
 
 function repoConfig() {

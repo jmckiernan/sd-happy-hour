@@ -5,6 +5,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getNeighborhoodProfiles } from '../../lib/neighborhoods';
 import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
 import { getListingImage, getVenueImage } from '../../lib/venues';
+import { listingImageStyle } from '../../lib/imageCrop';
 
 const neighborhoods = getNeighborhoodProfiles();
 const breadcrumbs = [
@@ -40,6 +41,7 @@ const breadcrumbs = [
             height="534"
             loading="lazy"
             data-fallback-src={getVenueImage(area.venues[0].vibe, 'card')}
+            style={listingImageStyle(area.venues[0]) || undefined}
           />
           <div>
             <p class="count">{area.venues.length} {area.venues.length === 1 ? 'venue' : 'venues'}</p>

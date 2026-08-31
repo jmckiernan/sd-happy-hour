@@ -14,20 +14,12 @@
 
 import { vibeImageFor } from './vibeImages';
 import {
-  DEFAULT_GALLERY_CROP,
-  MAX_GALLERY_CROP_SCALE,
-  galleryCropStyle,
-  normalizeGalleryCrop,
-  type GalleryCrop,
-} from './galleryCrop';
-
-export interface GalleryImageValue {
-  url: string;
-  caption?: string;
-  sourceUrl?: string | null;
-  generated?: boolean;
-  crop?: GalleryCrop;
-}
+  DEFAULT_IMAGE_CROP,
+  MAX_IMAGE_CROP_SCALE,
+  imageCropStyle,
+  normalizeImageCrop,
+  type ImageCrop,
+} from './imageCrop';
 
 export interface ListingFormValues {
   name?: string;
@@ -52,9 +44,8 @@ export interface ListingFormValues {
   /** Featured photo URL — normally `/api/images/<key>`. Empty means the
    * public pages fall back to the vibe stock photo. */
   image?: string;
-  /** Scraped or typeset happy-hour flyers. Not editable here beyond their
-   * framing — the pipeline owns which images exist. */
-  galleryImages?: GalleryImageValue[];
+  /** Which part of that photo the site's fixed frames show. */
+  imageCrop?: ImageCrop | null;
 }
 
 // Sunday last, matching the public submit form (src/pages/submit.astro).
@@ -187,69 +178,65 @@ function featuredPhotoPicker(photos: OwnerPhotoOption[], current: string, stockF
 }
 
 /**
- * Framing control for the venue's gallery flyers.
+ * Framing control for the featured photo.
  *
- * The images themselves come from the import pipeline, so there is nothing to
- * add or remove here — the only thing an admin adjusts is which part of a tall
- * menu flyer a fixed frame shows. Both output ratios are drawn at once so that
- * choice is made against what visitors actually see rather than a single
- * representative box, and the preview uses galleryCropStyle(), the same
- * function the public page renders with.
+ * That photo is shown in a fixed frame everywhere the venue appears, and a
+ * `cover` fit decides on its own what to keep — often the sky rather than the
+ * storefront. So the admin drags the photo to say what matters, once, and
+ * every surface honours it.
  *
- * Nothing is written to the image. The crop rides along on the gallery row and
- * is read back by readListingForm(), so it saves through the venue editor's
- * existing Save button with no separate endpoint.
+ * All three shapes the site actually renders are drawn at once, using
+ * imageCropStyle() — the same function the public pages render with — so this
+ * is a preview only in the sense that it is smaller. Nothing is written to the
+ * file; the crop rides along on the listing and is read back by
+ * readListingForm(), so it saves through the existing Save button.
  */
 const CROP_FRAMES: { ratio: string; label: string }[] = [
-  { ratio: '4 / 3', label: 'Gallery tile' },
-  { ratio: '16 / 9', label: 'Wide' },
+  { ratio: '5 / 2', label: 'Venue hero' },
+  { ratio: '3 / 2', label: 'Card' },
+  { ratio: '1 / 1', label: 'Neighborhood tile' },
 ];
 
-function galleryCropEditor(images: GalleryImageValue[]) {
-  if (!images.length) return '';
+function imageCropEditor(listing: ListingFormValues) {
+  const image = listing.image || '';
+  const crop = normalizeImageCrop(listing.imageCrop) || DEFAULT_IMAGE_CROP;
+  const scale = crop.scale ?? 1;
+  const style = imageCropStyle(listing.imageCrop);
 
-  const row = (image: GalleryImageValue, index: number) => {
-    const crop = normalizeGalleryCrop(image.crop) || DEFAULT_GALLERY_CROP;
-    const scale = crop.scale ?? 1;
-    const style = galleryCropStyle(image.crop);
-    const caption = image.caption || 'Happy hour menu';
-    return `
-      <div class="lf-crop" data-lf-crop data-lf-crop-row="${escapeHTML(JSON.stringify(image))}"
-           data-lf-crop-x="${crop.x}" data-lf-crop-y="${crop.y}" data-lf-crop-scale="${scale}">
-        <div class="lf-crop-frames">
-          ${CROP_FRAMES.map((frame) => `
-            <figure class="lf-crop-frame">
-              <div class="lf-crop-window" data-lf-crop-window style="aspect-ratio: ${frame.ratio};"
-                   role="application" tabindex="0"
-                   aria-label="Drag to reposition ${escapeHTML(caption)} in the ${escapeHTML(frame.label.toLowerCase())} frame">
-                <img src="${escapeHTML(previewSrc(image.url, 640))}" alt="" draggable="false" loading="lazy" style="${style}">
-              </div>
-              <figcaption>${escapeHTML(frame.label)} · ${escapeHTML(frame.ratio.replace(/\s/g, ''))}</figcaption>
-            </figure>
-          `).join('')}
-        </div>
-        <div class="lf-crop-controls">
-          <label>
-            Zoom
-            <input type="range" data-lf-crop-zoom min="1" max="${MAX_GALLERY_CROP_SCALE}" step="0.05" value="${scale}"
-                   aria-label="Zoom ${escapeHTML(caption)}">
-          </label>
-          <output data-lf-crop-readout>${scale.toFixed(2)}×</output>
-          <button type="button" class="lf-image-btn" data-lf-crop-reset>Reset framing</button>
-        </div>
-        <p class="lf-image-hint">${escapeHTML(caption)}${index === 0 ? ' — drag the image to choose what stays visible.' : ''}</p>
-      </div>
-    `;
-  };
-
+  // Rendered even with no photo, hidden, so uploading one reveals the control
+  // straight away instead of after the next save. There is nothing to frame
+  // until then: the stock vibe image is shared by every venue with that vibe,
+  // so it isn't anyone's to crop.
   return `
-    <div class="lf-field full lf-gallery" data-lf-gallery>
-      <label>Gallery image framing</label>
+    <div class="lf-field full lf-crop" data-lf-crop data-lf-crop-src="${escapeHTML(image)}"
+         data-lf-crop-x="${crop.x}" data-lf-crop-y="${crop.y}" data-lf-crop-scale="${scale}"
+         ${image ? '' : 'hidden'}>
+      <label>Featured image framing</label>
       <p class="lf-image-hint">
-        Repositioning is stored alongside the image, never applied to the file, so the
-        full-resolution original still opens when a visitor zooms in.
+        Drag the photo to choose what stays visible. Stored alongside the image rather than
+        applied to it, so it can be changed again later and the original is never re-cropped.
       </p>
-      ${images.map(row).join('')}
+      <div class="lf-crop-frames">
+        ${CROP_FRAMES.map((frame) => `
+          <figure class="lf-crop-frame">
+            <div class="lf-crop-window" data-lf-crop-window style="aspect-ratio: ${frame.ratio};"
+                 role="application" tabindex="0"
+                 aria-label="Drag to reposition the featured photo in the ${escapeHTML(frame.label.toLowerCase())} frame">
+              <img src="${escapeHTML(image ? previewSrc(image, 640) : '')}" alt="" draggable="false" loading="lazy" style="${style}">
+            </div>
+            <figcaption>${escapeHTML(frame.label)} · ${escapeHTML(frame.ratio.replace(/\s/g, ''))}</figcaption>
+          </figure>
+        `).join('')}
+      </div>
+      <div class="lf-crop-controls">
+        <label>
+          Zoom
+          <input type="range" data-lf-crop-zoom min="1" max="${MAX_IMAGE_CROP_SCALE}" step="0.05" value="${scale}"
+                 aria-label="Zoom the featured photo">
+        </label>
+        <output data-lf-crop-readout>${scale.toFixed(2)}×</output>
+        <button type="button" class="lf-image-btn" data-lf-crop-reset>Reset framing</button>
+      </div>
     </div>
   `;
 }
@@ -358,7 +345,7 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
         </div>
       </div>`}
 
-      ${owner ? '' : galleryCropEditor(listing.galleryImages || [])}
+      ${owner ? '' : imageCropEditor(listing)}
 
       ${options.includeVerification ? `
         <div class="lf-field">
@@ -437,36 +424,25 @@ export function readListingForm(root: HTMLElement): Record<string, any> {
   // existing values would be overwritten with false/null.
   if (verifiedBox) listing.verified = verifiedBox.checked;
   if (lastVerified) listing.lastVerifiedAt = lastVerified.value || null;
-  const gallery = readGalleryImages(root);
-  if (gallery) listing.galleryImages = gallery;
+  // Null rather than absent when the photo is centered or the control isn't on
+  // this form: the venue editor saves the difference from the record it
+  // loaded, so clearing framing has to be a value it can see.
+  listing.imageCrop = readImageCrop(root);
 
   return listing;
 }
 
-/** Gallery rows with the admin's current framing, or null when this form has
- * no gallery block — a venue with no flyers, or the submission queue, where
- * omitting the key leaves the stored gallery alone. Each row is rebuilt from
- * the one it was rendered from, so a save that only moved a crop doesn't also
- * rewrite the row's other keys. */
-function readGalleryImages(root: HTMLElement): Record<string, any>[] | null {
-  if (!root.querySelector('[data-lf-gallery]')) return null;
-  return [...root.querySelectorAll<HTMLElement>('[data-lf-crop]')].map((el) => {
-    let row: Record<string, any> = {};
-    try {
-      row = JSON.parse(el.dataset.lfCropRow || '{}');
-    } catch {
-      row = {};
-    }
-    const crop = normalizeGalleryCrop({
-      x: Number(el.dataset.lfCropX),
-      y: Number(el.dataset.lfCropY),
-      scale: Number(el.dataset.lfCropScale),
-    });
-    // Deleting rather than storing the default keeps "put it back the way it
-    // was" a true removal, not a row that merely encodes centered framing.
-    delete row.crop;
-    if (crop) row.crop = crop;
-    return row;
+/** The admin's current framing, or null when it is centered, when the form has
+ * no crop control, or when the photo it was framing has since been replaced —
+ * a crop belongs to the image it was dragged against, not to the venue. */
+function readImageCrop(root: HTMLElement): ImageCrop | null {
+  const el = root.querySelector('[data-lf-crop]') as HTMLElement | null;
+  const image = fieldValue(root, 'image');
+  if (!el || !image || el.dataset.lfCropSrc !== image) return null;
+  return normalizeImageCrop({
+    x: Number(el.dataset.lfCropX),
+    y: Number(el.dataset.lfCropY),
+    scale: Number(el.dataset.lfCropScale),
   });
 }
 
@@ -530,6 +506,23 @@ function showPreview(ui: ImageBlock, url: string) {
   ui.preview.src = url ? previewSrc(url) : fallback;
   ui.preview.hidden = !ui.preview.getAttribute('src');
   ui.empty.hidden = Boolean(url);
+  syncCropSource(ui.block.closest('.lf-form') as HTMLElement | null, url);
+}
+
+/** Points the framing control at whatever photo the form now holds. A new
+ * photo starts centered rather than inheriting the last one's framing, which
+ * was dragged against a different picture. */
+function syncCropSource(form: HTMLElement | null, url: string) {
+  const el = form?.querySelector('[data-lf-crop]') as HTMLElement | null;
+  if (!el || el.dataset.lfCropSrc === url) return;
+  el.dataset.lfCropSrc = url;
+  el.hidden = !url;
+  el.querySelectorAll<HTMLImageElement>('[data-lf-crop-window] img').forEach((img) => {
+    img.src = url ? previewSrc(url, 640) : '';
+  });
+  setCrop(el, DEFAULT_IMAGE_CROP.x, DEFAULT_IMAGE_CROP.y, DEFAULT_IMAGE_CROP.scale);
+  const slider = el.querySelector('[data-lf-crop-zoom]') as HTMLInputElement | null;
+  if (slider) slider.value = String(DEFAULT_IMAGE_CROP.scale);
 }
 
 /** Disables every control in the block while a request is in flight, so an
@@ -675,53 +668,54 @@ export function wireListingImageControls(container: HTMLElement) {
 }
 
 // ---------------------------------------------------------------------------
-// Gallery framing controls
+// Featured-image framing controls
 //
-// Direct manipulation: the admin drags the image inside the frame the way they
-// would in an image editor, and both output ratios move together because they
-// are two views of one focal point. State lives on the row's dataset — the
-// same place readListingForm() reads it from — so there is no parallel model
-// to keep in sync, and a repaint after Save starts from the saved values.
-// Delegated on a container for the same reason the image controls are.
+// Direct manipulation: the admin drags the photo inside the frame the way they
+// would in an image editor, and all three output shapes move together because
+// they are three views of one focal point. State lives on the control's
+// dataset — the same place readListingForm() reads it from — so there is no
+// parallel model to keep in sync, and a repaint after Save starts from the
+// saved values. Delegated on a container for the same reason the image
+// controls are.
 // ---------------------------------------------------------------------------
 
-function cropRowFor(el: HTMLElement): HTMLElement | null {
+function cropBlockFor(el: HTMLElement): HTMLElement | null {
   return el.closest('[data-lf-crop]');
 }
 
-function paintCrop(row: HTMLElement) {
-  const x = Number(row.dataset.lfCropX);
-  const y = Number(row.dataset.lfCropY);
-  const scale = Number(row.dataset.lfCropScale);
-  const style = galleryCropStyle({ x, y, scale });
-  row.querySelectorAll<HTMLImageElement>('[data-lf-crop-window] img').forEach((img) => {
+function paintCrop(block: HTMLElement) {
+  const x = Number(block.dataset.lfCropX);
+  const y = Number(block.dataset.lfCropY);
+  const scale = Number(block.dataset.lfCropScale);
+  const style = imageCropStyle({ x, y, scale });
+  block.querySelectorAll<HTMLImageElement>('[data-lf-crop-window] img').forEach((img) => {
     // An untouched image is left with no inline framing at all, so the preview
-    // shows exactly what a visitor sees for a row with no crop.
+    // shows exactly what a visitor sees for a block with no crop.
     img.setAttribute('style', style);
   });
-  const readout = row.querySelector('[data-lf-crop-readout]');
+  const readout = block.querySelector('[data-lf-crop-readout]');
   if (readout) readout.textContent = `${(Number.isFinite(scale) ? scale : 1).toFixed(2)}×`;
 }
 
-function setCrop(row: HTMLElement, x: number, y: number, scale: number) {
-  row.dataset.lfCropX = String(Math.min(100, Math.max(0, x)));
-  row.dataset.lfCropY = String(Math.min(100, Math.max(0, y)));
-  row.dataset.lfCropScale = String(Math.min(MAX_GALLERY_CROP_SCALE, Math.max(1, scale)));
-  paintCrop(row);
+function setCrop(block: HTMLElement, x: number, y: number, scale: number) {
+  block.dataset.lfCropX = String(Math.min(100, Math.max(0, x)));
+  block.dataset.lfCropY = String(Math.min(100, Math.max(0, y)));
+  block.dataset.lfCropScale = String(Math.min(MAX_IMAGE_CROP_SCALE, Math.max(1, scale)));
+  paintCrop(block);
 }
 
-export function wireGalleryCropControls(container: HTMLElement) {
-  let dragging: { row: HTMLElement; window: HTMLElement; pointerId: number; lastX: number; lastY: number } | null = null;
+export function wireImageCropControls(container: HTMLElement) {
+  let dragging: { block: HTMLElement; window: HTMLElement; pointerId: number; lastX: number; lastY: number } | null = null;
 
   container.addEventListener('pointerdown', (event) => {
     const target = event.target as HTMLElement;
     const frameWindow = target.closest('[data-lf-crop-window]') as HTMLElement | null;
-    const row = frameWindow && cropRowFor(frameWindow);
-    if (!frameWindow || !row || !container.contains(row)) return;
+    const block = frameWindow && cropBlockFor(frameWindow);
+    if (!frameWindow || !block || !container.contains(block)) return;
     event.preventDefault();
     frameWindow.setPointerCapture(event.pointerId);
     frameWindow.classList.add('dragging');
-    dragging = { row, window: frameWindow, pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
+    dragging = { block, window: frameWindow, pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
   });
 
   container.addEventListener('pointermove', (event) => {
@@ -730,12 +724,12 @@ export function wireGalleryCropControls(container: HTMLElement) {
     if (!box.width || !box.height) return;
     // Dragging right reveals what is further left, so the focal point moves
     // the opposite way — the grab-and-move feel of an image editor.
-    const scale = Number(dragging.row.dataset.lfCropScale) || 1;
-    const x = Number(dragging.row.dataset.lfCropX) - ((event.clientX - dragging.lastX) / box.width) * 100 / scale;
-    const y = Number(dragging.row.dataset.lfCropY) - ((event.clientY - dragging.lastY) / box.height) * 100 / scale;
+    const scale = Number(dragging.block.dataset.lfCropScale) || 1;
+    const x = Number(dragging.block.dataset.lfCropX) - ((event.clientX - dragging.lastX) / box.width) * 100 / scale;
+    const y = Number(dragging.block.dataset.lfCropY) - ((event.clientY - dragging.lastY) / box.height) * 100 / scale;
     dragging.lastX = event.clientX;
     dragging.lastY = event.clientY;
-    setCrop(dragging.row, x, y, scale);
+    setCrop(dragging.block, x, y, scale);
   });
 
   function endDrag(event: PointerEvent) {
@@ -755,32 +749,32 @@ export function wireGalleryCropControls(container: HTMLElement) {
   container.addEventListener('keydown', (event) => {
     const step = NUDGE[event.key];
     const frameWindow = (event.target as HTMLElement).closest?.('[data-lf-crop-window]') as HTMLElement | null;
-    const row = step && frameWindow && cropRowFor(frameWindow);
-    if (!row) return;
+    const block = step && frameWindow && cropBlockFor(frameWindow);
+    if (!block) return;
     event.preventDefault();
     setCrop(
-      row,
-      Number(row.dataset.lfCropX) + step[0],
-      Number(row.dataset.lfCropY) + step[1],
-      Number(row.dataset.lfCropScale) || 1
+      block,
+      Number(block.dataset.lfCropX) + step[0],
+      Number(block.dataset.lfCropY) + step[1],
+      Number(block.dataset.lfCropScale) || 1
     );
   });
 
   container.addEventListener('input', (event) => {
     const slider = event.target as HTMLInputElement;
     if (!slider.matches?.('[data-lf-crop-zoom]')) return;
-    const row = cropRowFor(slider);
-    if (!row) return;
-    setCrop(row, Number(row.dataset.lfCropX), Number(row.dataset.lfCropY), Number(slider.value));
+    const block = cropBlockFor(slider);
+    if (!block) return;
+    setCrop(block, Number(block.dataset.lfCropX), Number(block.dataset.lfCropY), Number(slider.value));
   });
 
   container.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest('[data-lf-crop-reset]') as HTMLElement | null;
-    const row = button && cropRowFor(button);
-    if (!row) return;
-    setCrop(row, DEFAULT_GALLERY_CROP.x, DEFAULT_GALLERY_CROP.y, DEFAULT_GALLERY_CROP.scale);
-    const slider = row.querySelector('[data-lf-crop-zoom]') as HTMLInputElement | null;
-    if (slider) slider.value = String(DEFAULT_GALLERY_CROP.scale);
+    const block = button && cropBlockFor(button);
+    if (!block) return;
+    setCrop(block, DEFAULT_IMAGE_CROP.x, DEFAULT_IMAGE_CROP.y, DEFAULT_IMAGE_CROP.scale);
+    const slider = block.querySelector('[data-lf-crop-zoom]') as HTMLInputElement | null;
+    if (slider) slider.value = String(DEFAULT_IMAGE_CROP.scale);
   });
 }
 

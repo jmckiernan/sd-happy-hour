@@ -255,6 +255,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       formatSanDiegoDateTime,
     } from '../lib/promotionClientTime';
     import { getListingImage } from '../lib/venues';
+    import { listingImageStyle } from '../lib/imageCrop';
     import { isPubliclyListed } from '../lib/listingVisibility';
 
     let baseVenues: any[] = [];
@@ -414,6 +415,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           primary: promotionImage || getListingImage({}, 'card'),
           original: promotionImageOriginal,
           stock: getListingImage({}, 'card'),
+          framing: '',
         };
       }
       if (promotionImage) {
@@ -421,12 +423,16 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
           primary: promotionImage,
           original: promotionImageOriginal,
           stock: getListingImage({ vibe: venue.vibe }, 'card'),
+          // A promotion supplies its own artwork, which the venue's framing
+          // was not dragged against.
+          framing: '',
         };
       }
       return {
         primary: getListingImage(venue, 'card'),
         original: typeof venue.image === 'string' ? venue.image : '',
         stock: getListingImage({ vibe: venue.vibe }, 'card'),
+        framing: listingImageStyle(venue),
       };
     }
 
@@ -460,6 +466,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
               data-listing-image
               data-original-src="${escapeHTML(imageSources.original)}"
               data-stock-src="${escapeHTML(imageSources.stock)}"
+              style="${escapeHTML(imageSources.framing)}"
             >
           </a>
           <div class="live-deal-discovery-body">
@@ -606,7 +613,11 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
 
       const stock = image.dataset.stockSrc || '';
       delete image.dataset.stockSrc;
-      if (stock && stock !== current) image.src = stock;
+      if (stock && stock !== current) {
+        image.src = stock;
+        // The framing belongs to the venue's own photo, not the shared stock one.
+        image.removeAttribute('style');
+      }
     }
 
     document.getElementById('live-deals-grid')!.addEventListener('error', restoreListingImage, true);

@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import LiveDealStyles from './LiveDealStyles.astro';
 import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
-import { galleryCropStyle } from '../lib/galleryCrop';
+import { listingImageStyle } from '../lib/imageCrop';
 import { specialsByDay, occasionSpecials, venueDealLines } from '../lib/listingCopy';
 import { neighborhoodPath } from '../lib/neighborhoods';
 import { breadcrumbSchema, venueSchema, withSiteName } from '../lib/seo';
@@ -35,9 +35,9 @@ const description = `${venue.name}'s happy hour in ${venue.neighborhood}: ${deal
 // photo. Also the page's social/OG image, via the Layout prop below.
 const heroImage = getListingImage(venue, 'hero');
 const areaPath = neighborhoodPath(venue.neighborhood);
-// Flyers and the menu boards we typeset. Each tile is framed by the admin's
-// stored crop; the file behind it is untouched, so the lightbox can still open
-// the full-resolution original.
+// Flyers and the menu boards we typeset. Shown whole rather than cropped to a
+// frame — a menu with its edges trimmed off is a menu with items missing — and
+// the lightbox opens the full-resolution original for reading.
 const galleryImages = venue.galleryImages || [];
 const breadcrumbs = [
   { name: 'Home', path: '/' },
@@ -453,9 +453,12 @@ function formatWindowLine(window: {
       .lightbox-nav { top: auto; bottom: 76px; transform: none; }
     }
 
-    /* Gallery of scraped/typeset happy-hour menus. Each tile is framed by the
-       admin's stored crop (lib/galleryCrop.ts) — the file is never cropped, so
-       the tile and the full-resolution lightbox share one source. */
+    /* Gallery of scraped/typeset happy-hour menus.
+       These are never cropped, in the frame or in the file. A menu trimmed to
+       fit a tidy grid is a menu with items missing, so each one is shown whole
+       at its own proportions and the tiles are allowed to end at different
+       heights — presented as a pinned-up sheet, with the card's padding and
+       shadow making the ragged bottom edge read as deliberate. */
     .venue-gallery {
       max-width: 800px;
       margin: 0 auto 40px;
@@ -464,22 +467,43 @@ function formatWindowLine(window: {
     .venue-gallery h2 { font-family: var(--font-display); margin-bottom: 8px; }
     .venue-gallery .section-note { color: var(--night-soft); margin-bottom: 16px; }
     .gallery-strip {
+      align-items: start;
       display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
     .gallery-tile {
-      background: var(--sand-warm);
+      background: white;
       border: 0;
       border-radius: var(--radius);
       cursor: zoom-in;
-      overflow: hidden;
-      padding: 0;
-      aspect-ratio: 4 / 3;
+      display: grid;
+      font: inherit;
+      gap: 8px;
+      padding: 10px;
+      text-align: left;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
     }
     .gallery-tile:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
-    .gallery-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .gallery-tile img {
+      background: var(--sand-warm);
+      border-radius: var(--radius-sm);
+      display: block;
+      width: 100%;
+      height: auto;
+      /* A tall flyer is scaled down to fit rather than cropped; contain keeps
+         it undistorted if the cap is what decides the height. */
+      max-height: 520px;
+      object-fit: contain;
+    }
+    .gallery-tile span {
+      color: var(--night-soft);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 0 2px 2px;
+      text-transform: uppercase;
+    }
 
     .related-posts {
       max-width: 800px;
@@ -556,6 +580,7 @@ function formatWindowLine(window: {
         height="1000"
         fetchpriority="high"
         decoding="async"
+        style={listingImageStyle(venue) || undefined}
       />
       <div class="scrim"></div>
       <div class="hero-primary-badge" id="hero-primary-badge" aria-live="polite" hidden>
@@ -709,7 +734,8 @@ function formatWindowLine(window: {
     <section class="venue-gallery" aria-labelledby="venue-gallery-heading">
       <h2 id="venue-gallery-heading">Happy hour menus</h2>
       <p class="section-note">
-        Open one to read it full screen — pinch, scroll or use the zoom buttons to magnify the small print.
+        Shown in full. Open one to read it full screen — pinch, scroll or use the zoom buttons to
+        magnify the small print.
       </p>
       <div class="gallery-strip">
         {galleryImages.map((image, index) => (
@@ -725,8 +751,8 @@ function formatWindowLine(window: {
               alt={image.caption || `${venue.name} happy hour menu`}
               loading="lazy"
               decoding="async"
-              style={galleryCropStyle(image.crop)}
             />
+            <span>{image.caption || 'Happy hour menu'}</span>
           </button>
         ))}
       </div>
@@ -1174,6 +1200,18 @@ function formatWindowLine(window: {
     let venueGalleryPhotos: any[] = [];
     let menuPhotoGallery: LightboxPhoto[] = [];
     let activeHeroVibe = heroFrame.dataset.stockVibe || '';
+    // The admin's framing was dragged against the photo this page was built
+    // with. If an owner has since swapped that photo, or it fell back to the
+    // vibe stock image, the framing goes with it rather than being imposed on
+    // a picture nobody framed.
+    const builtHeroSrc = heroImg.getAttribute('src') || '';
+    const builtHeroFraming = heroImg.getAttribute('style') || '';
+
+    function applyHeroFraming() {
+      const matches = (heroImg.getAttribute('src') || '') === builtHeroSrc;
+      if (matches && builtHeroFraming) heroImg.setAttribute('style', builtHeroFraming);
+      else heroImg.removeAttribute('style');
+    }
 
     function esc(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -1614,6 +1652,7 @@ function formatWindowLine(window: {
         const stock = stockHeroFor(activeHeroVibe);
         const requested = listing.image ? sized(String(listing.image), 1600) : stock;
         heroImg.src = (await canLoadImage(requested)) ? requested : stock;
+        applyHeroFraming();
       }
 
       // The schedule may have moved, so recompute the consumer hierarchy from
@@ -1646,6 +1685,7 @@ function formatWindowLine(window: {
       const stock = stockHeroFor(activeHeroVibe);
       if ((heroImg.getAttribute('src') || '') === stock) return;
       heroImg.src = stock;
+      applyHeroFraming();
       setVenueGallery(venueGalleryPhotos);
     }
     heroImg.addEventListener('error', restoreStockHero);

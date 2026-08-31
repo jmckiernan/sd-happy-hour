@@ -36,12 +36,13 @@ function isPercent(value) {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
 }
 
-// A gallery image's optional framing metadata: where in the image a fixed
-// frame should be centered, and how far in. Absent on every row that predates
-// the venue editor's crop control, which is why it is only checked when the
-// key is there. Same rule as isGalleryCrop() in src/lib/galleryCrop.ts, which
-// this script can't import — it is plain node, and that module is TypeScript.
-function isGalleryCrop(value) {
+// The featured photo's optional framing metadata: where in the image a fixed
+// frame should be centered, and how far in. Absent on every listing that
+// predates the venue editor's crop control, which is why it is only checked
+// when the key is there. Same rule as isImageCrop() in src/lib/imageCrop.ts,
+// which this script can't import — it is plain node, and that module is
+// TypeScript.
+function isImageCrop(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   if (!isPercent(value.x) || !isPercent(value.y)) return false;
   if ('scale' in value && value.scale !== undefined) {
@@ -117,11 +118,8 @@ function validateListing(listing, label) {
   if ('galleryImages' in listing) {
     const galleryValid = Array.isArray(listing.galleryImages) && listing.galleryImages.every(
       (row) => hasString(row?.url) && /^(\/[^/]|https?:\/\/)/i.test(row.url)
-        && (!('crop' in row) || isGalleryCrop(row.crop))
     );
-    if (!galleryValid) {
-      errors.push(`${label}: galleryImages must be {url} entries, with a {x, y, scale} crop when present.`);
-    }
+    if (!galleryValid) errors.push(`${label}: galleryImages must be {url} entries when present.`);
   }
   if ('weeklySpecials' in listing) {
     const kinds = new Set(['named_night', 'exchange', 'fixed_price', 'food', 'venue_note', 'event']);
@@ -164,6 +162,15 @@ function validateListing(listing, label) {
   // straight into an <img src> on public pages.
   if ('image' in listing && !(hasString(listing.image) && /^(\/[^/]|https?:\/\/)/i.test(listing.image))) {
     errors.push(`${label}: image must be a stored image path or an http(s) URL when present.`);
+  }
+  // Framing for that photo, and only for that photo: a crop with nothing to
+  // crop would be applied to the vibe stock image, which no admin ever framed.
+  if ('imageCrop' in listing) {
+    if (!isImageCrop(listing.imageCrop)) {
+      errors.push(`${label}: imageCrop must be {x, y} percentages with an optional scale of 1–4 when present.`);
+    } else if (!hasString(listing.image)) {
+      errors.push(`${label}: imageCrop cannot be set without an image.`);
+    }
   }
   return errors;
 }

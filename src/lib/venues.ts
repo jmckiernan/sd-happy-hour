@@ -6,7 +6,7 @@ import { isHappyHourActive } from './sanDiegoTime';
 import { DEALS_UNKNOWN_LABEL } from './listingCopy';
 import type { WeeklySpecial } from './listingCopy';
 import { slugify, buildVenueSlugMap, slugFromMap, type SlugVenue } from './venueSlug';
-import type { GalleryCrop } from './galleryCrop';
+import type { ImageCrop } from './imageCrop';
 
 export { slugify };
 
@@ -31,11 +31,6 @@ export interface GalleryImage {
   sourceUrl?: string | null;
   /** Rendered by us from `hhMenu`, not scraped from the venue. */
   generated?: boolean;
-  /** Which part of the image a fixed frame shows, set by an admin in the venue
-   * editor. Absent means centered and unmagnified — the framing every gallery
-   * image had before this existed. The file itself is never re-cropped; see
-   * lib/galleryCrop.ts. */
-  crop?: GalleryCrop;
 }
 
 export interface Venue {
@@ -159,6 +154,11 @@ export interface Venue {
   // this venue is shown. Set in the submission review queue or the venue
   // editor; see getListingImage() for the fallback chain.
   image?: string;
+  /** Which part of `image` the fixed frames on cards and the venue hero show,
+   * set by an admin in the venue editor. Absent means centered and
+   * unmagnified — how every featured photo was framed before this existed.
+   * The file is never re-cropped; see lib/imageCrop.ts. */
+  imageCrop?: ImageCrop;
 }
 
 let slugsById: Map<number, string> | null = null;

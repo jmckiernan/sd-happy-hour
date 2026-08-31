@@ -2,8 +2,7 @@ import crypto from 'node:crypto';
 import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
 import type { UnifiedSavedState } from './savedLists';
 import { PROMOTION_TYPES, type PromotionType } from './promotionState';
-import { normalizeGalleryCrop } from './galleryCrop';
-import type { GalleryImage } from './venues';
+import { normalizeImageCrop } from './imageCrop';
 import { parseInstant, type InstantInput } from './sanDiegoTime';
 
 // ---------------------------------------------------------------------------
@@ -238,44 +237,6 @@ export function cleanAlertChannels(input: Record<string, any> | undefined): Aler
   };
 }
 
-/**
- * Gallery rows as they may be re-saved by the venue editor's crop control.
- *
- * Only the keys we know about survive, and only the ones the incoming row
- * actually had — so a save that changes nothing but one image's framing
- * produces exactly that diff in happy-hours.json. The URL rule matches the
- * one `image` gets below and the one scripts/validate-data.js enforces on the
- * committed file, because these values land in an `<img src>` on a public
- * page. Returns null when the caller sent no gallery at all, which is the
- * normal case: the public submit form has no such field, and neither does the
- * submission review queue.
- */
-function cleanGalleryImages(value: unknown): { rows: GalleryImage[] | null; errors: string[] } {
-  if (value === undefined || value === null) return { rows: null, errors: [] };
-  if (!Array.isArray(value)) return { rows: null, errors: ['Gallery images must be a list.'] };
-
-  const errors: string[] = [];
-  const rows = value.map((input) => {
-    const source = (input && typeof input === 'object' ? input : {}) as Record<string, any>;
-    const url = cleanString(source.url);
-    if (!url || !/^(\/[^/]|https?:\/\/)/i.test(url)) {
-      errors.push('Gallery images must each be a stored image path or an http(s) URL.');
-    }
-    const row: GalleryImage = { url };
-    if ('caption' in source) row.caption = cleanString(source.caption);
-    if ('sourceUrl' in source) row.sourceUrl = source.sourceUrl ? cleanString(source.sourceUrl) : null;
-    if ('generated' in source) row.generated = Boolean(source.generated);
-    // Out-of-range or default framing is dropped rather than rejected: it is a
-    // slider the admin dragged, not a typed value, and "no crop" is a valid
-    // resting state that must leave the row exactly as it was.
-    const crop = normalizeGalleryCrop(source.crop);
-    if (crop) row.crop = crop;
-    return row;
-  });
-
-  return { rows, errors };
-}
-
 export function validateListing(
   input: Record<string, any>,
   { requireCoordinates = false }: { requireCoordinates?: boolean } = {}
@@ -314,13 +275,20 @@ export function validateListing(
   if (!listing.openTime) delete listing.openTime;
   if (!listing.closeTime) delete listing.closeTime;
 
+  // The featured photo's framing. Out-of-range or centered values normalize
+  // away rather than failing the save: this is a slider an admin dragged, not
+  // a typed field. Cleared along with the photo, since framing a stock vibe
+  // image means nothing.
+  //
+  // Explicitly null rather than absent when there is no framing, for the same
+  // reason `image` is kept as an empty string: the venue editor diffs this
+  // record against the one it loaded and merges the difference over the stored
+  // row, so "put it back to centered" has to be a value it can see. The key
+  // stops existing at the point of the commit — see withoutEmptyImage() in
+  // lib/venueRepo.ts.
+  listing.imageCrop = listing.image ? normalizeImageCrop(input.imageCrop) : null;
+
   const errors: string[] = [];
-  // Only carried when the caller supplied one. A form that doesn't render the
-  // gallery control (the submission queue) must not be able to blank out a
-  // venue's flyers merely by not mentioning them.
-  const gallery = cleanGalleryImages(input.galleryImages);
-  if (gallery.rows) listing.galleryImages = gallery.rows;
-  errors.push(...new Set(gallery.errors));
   const validDays = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
   if (!listing.name) errors.push('Restaurant name is required.');
   if (!listing.neighborhood) errors.push('Neighborhood is required.');

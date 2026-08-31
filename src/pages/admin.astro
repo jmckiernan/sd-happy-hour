@@ -175,7 +175,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
   </script>
 
   <script>
-    import { listingFormHTML, readListingForm, wireListingImageControls, previewSrc } from '../lib/listingForm';
+    import { listingFormHTML, readListingForm, wireImageCropControls, wireListingImageControls, previewSrc } from '../lib/listingForm';
     import { vibeImageFor } from '../lib/vibeImages';
 
     const statusEl = document.getElementById('status')!;
@@ -446,6 +446,9 @@ const venueSlugByNameAndHood = Object.fromEntries(
     // including the forms that don't exist yet — cards are repainted on every
     // filter change and after every save.
     wireListingImageControls(submissionsEl);
+    // Same for the framing control, which appears on a card as soon as its
+    // submission has a photo to frame.
+    wireImageCropControls(submissionsEl);
 
     document.getElementById('dispatch-alerts')!.addEventListener('click', async () => {
       const button = document.getElementById('dispatch-alerts') as HTMLButtonElement;

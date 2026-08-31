@@ -276,7 +276,11 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .card.has-live-deal { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.7), 0 18px 42px rgba(139, 92, 246, 0.2); }
     .card-image { position: relative; height: 200px; overflow: hidden; }
     .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-    .card:hover .card-image img { transform: scale(1.05); }
+    /* Composed with the admin's framing rather than replacing it: a card whose
+       photo is zoomed in on a focal point still grows on hover, from there.
+       --image-crop-scale is published by imageCropStyle() (lib/imageCrop.ts)
+       and defaults to 1 for the venues nobody has framed. */
+    .card:hover .card-image img { transform: scale(calc(var(--image-crop-scale, 1) * 1.05)); }
     .card-image .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); }
 
     .card-image .card-status-badge { left: 12px; position: absolute; top: 12px; }
@@ -405,7 +409,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       .card,
       .card-image img { transition: none; }
       .card:hover { transform: none; }
-      .card:hover .card-image img { transform: none; }
+      /* Drops the hover growth but keeps the framing, which isn't motion. */
+      .card:hover .card-image img { transform: scale(var(--image-crop-scale, 1)); }
     }
   </style>
 
@@ -556,6 +561,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       getSanDiegoParts,
     } from '../lib/sanDiegoTime';
     import { getListingImage, venuePath, venueSlug } from '../lib/venues';
+    import { listingImageStyle } from '../lib/imageCrop';
     import { cardSpecials, cardTimeLabel } from '../lib/listingCopy';
     import { isPubliclyListed } from '../lib/listingVisibility';
     import {
@@ -1219,6 +1225,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         primary: getListingImage(venue, 'card'),
         original: typeof venue.image === 'string' ? venue.image : '',
         stock: getListingImage({ vibe: venue.vibe }, 'card'),
+        // The admin's framing for this card's fixed 200px-tall frame. Empty
+        // for a venue nobody has framed, and for the stock fallback, so those
+        // cards render exactly as they always have.
+        framing: listingImageStyle(venue),
       };
     }
 
@@ -1359,6 +1369,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                     data-listing-image
                     data-original-src="${escapeHTML(imageSources.original)}"
                     data-stock-src="${escapeHTML(imageSources.stock)}"
+                    style="${escapeHTML(imageSources.framing)}"
                   >
                   <div class="overlay"></div>
                   ${statusBadge}
@@ -1566,7 +1577,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       const stock = image.dataset.stockSrc || '';
       delete image.dataset.stockSrc;
-      if (stock && stock !== current) image.src = stock;
+      if (stock && stock !== current) {
+        image.src = stock;
+        // The admin framed the venue's own photo, not the stock one every
+        // venue with this vibe shares.
+        image.removeAttribute('style');
+      }
     }
 
     document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
