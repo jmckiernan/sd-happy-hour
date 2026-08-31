@@ -4330,70 +4330,106 @@
       {
         "url": "/images/venues/38-fisherman-s-restaurant-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.thefishermansrestaurantsanclemente.com/",
+        "sourceUrl": "https://www.thefishermansrestaurantsanclemente.com/sunset-happy-hour",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Food plates with purchase of beverage only. No take-out. Not valid on holidays including Valentine's Day.",
+      "note": "",
       "sections": [
         {
-          "title": "Daily Drink Specials",
+          "title": "Monday - Friday Sunset Happy Hour $8 Pla",
           "items": [
             {
-              "name": "House: Vodka, rum, gin, scotch, bourbon, tequila, or brandy (one liquor)",
-              "price": "$7"
+              "name": "Plate",
+              "price": "$8",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Oyster Bar Sunset Specials",
+          "title": "Monday - Friday Sunset Hour Drink Specia",
           "items": [
             {
-              "name": "Oysters",
-              "price": "$2 each"
-            },
-            {
-              "name": "Smoked Fish",
-              "price": "$2 per oz"
-            },
-            {
-              "name": "Prawns chilled",
-              "price": "$2"
-            }
-          ]
-        },
-        {
-          "title": "Monday",
-          "items": [
-            {
-              "name": "Italian Sausage",
-              "price": "$8"
+              "name": "Fisherman's Wine",
+              "price": "$7",
+              "category": "wine"
             },
             {
               "name": "Bud Light Draft",
-              "price": "$7"
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Cottons",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Mai Tai's",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Pacifico Beer",
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Corona Beer",
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Fisherman's Margarita",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Boneyard",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Long Island Iced Tea",
+              "price": "$9",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Tuesday",
+          "title": "Monday - Friday Sunset Happy Hour Item S",
           "items": [
             {
-              "name": "BBQ Ribs",
-              "price": "$8"
+              "name": "Oysters",
+              "price": "$2",
+              "category": "oysters"
             },
             {
-              "name": "Cottons",
-              "price": "$9"
+              "name": "Smoked Fish",
+              "price": "$2",
+              "category": "food"
             },
             {
-              "name": "Mai Tai",
-              "price": "$9"
+              "name": "Prawns",
+              "price": "$2",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Wine Wednesday",
+          "items": [
+            {
+              "name": "All bottles of wine",
+              "price": "½ off",
+              "category": "wine"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.thefishermansrestaurantsanclemente.com/sunset-happy-hour",
+      "observedAt": "2026-08-31"
     },
     "unlistedReason": "outside_san_diego_county",
     "outdoorSeating": true,
@@ -4585,19 +4621,25 @@
     "galleryImages": [
       {
         "url": "/images/venues/39-la-puerta-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://lapuertasd.com/?utm_source=Business-Listings",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://lapuertasd.com/happy-hours/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/39-la-puerta-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://lapuertasd.com/happy-hours/",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Must be 21 years of age after 3pm daily",
+      "note": "Downtown location. Must be 21 years of age after 3pm daily.",
       "sections": [
         {
           "title": "Monday Happy Hour (3-5pm)",
           "items": [
             {
-              "name": "Drinks and Apps",
+              "name": "All Drinks and Apps",
               "price": "½ off"
             }
           ]
@@ -4606,42 +4648,145 @@
           "title": "Monday All Night (3pm to close)",
           "items": [
             {
+              "name": "All Drinks and Apps",
+              "price": "½ off"
+            }
+          ]
+        },
+        {
+          "title": "Taco Tuesday (3pm to close)",
+          "items": [
+            {
+              "name": "TJ Dawgs",
+              "price": "$3",
+              "category": "food"
+            },
+            {
+              "name": "Street Tacos",
+              "price": "$3",
+              "category": "food"
+            },
+            {
+              "name": "Tecate",
+              "price": "$3",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Tuesday Late Night (10-close)",
+          "items": [
+            {
+              "name": "Appetizers and Quesadillas",
+              "price": "½ off",
+              "category": "food"
+            },
+            {
+              "name": "Sangrias, Frozen Margaritas, and Frozen Mojitos",
+              "price": "$5",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday Happy Hour (3-5pm)",
+          "items": [
+            {
               "name": "Drinks and Apps",
               "price": "½ off"
             }
           ]
         },
         {
-          "title": "Taco Tuesday All Night (3pm to close)",
+          "title": "Wednesday Late Night (10-close)",
           "items": [
             {
-              "name": "TJ Dawgs",
-              "price": "$3"
+              "name": "Appetizers and Quesadillas",
+              "price": "½ off",
+              "category": "food"
             },
             {
-              "name": "Street Tacos",
-              "price": "$3"
-            },
-            {
-              "name": "Tecate",
-              "price": "$3"
+              "name": "Sangrias, Frozen Margaritas, and Frozen Mojitos",
+              "price": "$5",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Tuesday-Friday-Saturday-Sunday Late Nigh",
+          "title": "Thursday Happy Hour (3-5pm)",
           "items": [
             {
-              "name": "Appetizers and quesadillas",
+              "name": "Drinks and Apps",
               "price": "½ off"
+            }
+          ]
+        },
+        {
+          "title": "Thursday Late Night (10-close)",
+          "items": [
+            {
+              "name": "Appetizers and Quesadillas",
+              "price": "½ off",
+              "category": "food"
             },
             {
-              "name": "Sangrias, frozen margaritas, and frozen mojitos",
-              "price": "$5"
+              "name": "Sangrias, Frozen Margaritas, and Frozen Mojitos",
+              "price": "$5",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Friday Happy Hour (3-5pm)",
+          "items": [
+            {
+              "name": "Drinks and Apps",
+              "price": "½ off"
+            }
+          ]
+        },
+        {
+          "title": "Friday Late Night (10-close)",
+          "items": [
+            {
+              "name": "Appetizers and Quesadillas",
+              "price": "½ off",
+              "category": "food"
+            },
+            {
+              "name": "Sangrias, Frozen Margaritas, and Frozen Mojitos",
+              "price": "$5",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Saturday Happy Hour (3-5pm)",
+          "items": [
+            {
+              "name": "Drinks and Apps",
+              "price": "½ off"
+            }
+          ]
+        },
+        {
+          "title": "Saturday Late Night (10-close)",
+          "items": [
+            {
+              "name": "Appetizers and Quesadillas",
+              "price": "½ off",
+              "category": "food"
+            },
+            {
+              "name": "Sangrias, Frozen Margaritas, and Frozen Mojitos",
+              "price": "$5",
+              "category": "cocktail"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://lapuertasd.com/happy-hours/",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "liveMusic": false,
@@ -5176,24 +5321,62 @@
     "galleryImages": [
       {
         "url": "/images/venues/43-puesto-la-jolla-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.eatpuesto.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.eatpuesto.com/menus/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/43-puesto-la-jolla-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.eatpuesto.com/menus/",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "See locations for days offered",
+      "note": "3PM-5PM",
       "sections": [
+        {
+          "title": "Guacamole & Salsa Bar",
+          "items": [
+            {
+              "name": "Classic Guacamole",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Puesto Perfect",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Nogada",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Filet Chicharrón",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Salsa Flight",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
         {
           "title": "Snacks",
           "items": [
             {
               "name": "Cucumber Salad",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Esquite",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             }
           ]
         },
@@ -5202,19 +5385,23 @@
           "items": [
             {
               "name": "Classic Guacamole",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Potato Taquitos",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Chicken Flautas",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Passionfruit & Mango Shrimp Ceviche",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             }
           ]
         },
@@ -5223,52 +5410,224 @@
           "items": [
             {
               "name": "Carnitas",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             },
             {
               "name": "Quesabirria",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             },
             {
               "name": "Chicken Al Pastor",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Drinks",
+          "title": "Tacos",
+          "items": [
+            {
+              "name": "Filet Mignon",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Surf & Turf Héroe",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Short Rib Quesabirria",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Chicken Al Pastor",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Carnitas",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Grilled Shrimp",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Baja Fish",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Tamarindo Shrimp",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Lobster",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Veggie",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Mushroom",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Enchiladas",
+          "items": [
+            {
+              "name": "Enchiladas Suizas",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Short Rib",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Summer",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Shrimp",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Burritos",
+          "items": [
+            {
+              "name": "Filet Mignon",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Chicken Al Pastor",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Short Rib Quesabirria",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Mushroom",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "California Burrito",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Bowls",
+          "items": [
+            {
+              "name": "Filet Mignon",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Short Rib Birria",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Chicken Al Pastor",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Shrimp A La Plancha",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Calabacitas",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Margaritas",
           "items": [
             {
               "name": "Puesto Perfect Margarita",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
-              "name": "Clara Cerveza",
-              "price": "$6"
+              "name": "Puesto Perfect Margarita - Make it spicy",
+              "price": "$6",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Cervezas",
+          "items": [
+            {
+              "name": "Clara",
+              "price": "$6",
+              "category": "beer"
             },
             {
-              "name": "Negra Cerveza",
-              "price": "$6"
+              "name": "Negra (GABF Gold Medalist)",
+              "price": "$6",
+              "category": "beer"
             },
             {
-              "name": "IPA Cerveza",
-              "price": "$6"
+              "name": "IPA",
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Michelada",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
-              "name": "Non-Alcoholic Passionfruit Margarita",
-              "price": "$6"
-            },
+              "name": "BERO Double Tasty West Coast Style IPA",
+              "price": "$6",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Non-Alcoholic",
+          "items": [
             {
-              "name": "BERO Double Tasty IPA",
-              "price": "$6"
+              "name": "Passionfruit Margarita",
+              "price": "",
+              "category": "na_beverage"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.eatpuesto.com/menus/",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -5782,94 +6141,37 @@
     "galleryImages": [
       {
         "url": "/images/venues/47-tom-ham-s-lighthouse-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.tomhamslighthouse.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.tomhamslighthouse.com/happy-hour-menu/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/47-tom-ham-s-lighthouse-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://www.tomhamslighthouse.com/happy-hour-menu/",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour is First Come First Serve in the Bar",
+      "note": "First Come First Serve in the Bar",
       "sections": [
         {
           "title": "Drinks",
           "items": [
             {
-              "name": "Wines by the Glass",
-              "price": "$1 off"
+              "name": "Wines by the glass",
+              "price": "$1 off",
+              "category": "wine"
             },
             {
-              "name": "Lighthouse Libations",
-              "price": "$2 off"
+              "name": "Lighthouse libations",
+              "price": "$2 off",
+              "category": "cocktail"
             },
             {
               "name": "Selected Beers",
-              "price": "$3 for 8oz / $5 for 16oz"
-            }
-          ]
-        },
-        {
-          "title": "Small Bites",
-          "items": [
-            {
-              "name": "Soup of the day",
-              "price": "$2 off"
-            },
-            {
-              "name": "Olives & Almonds",
-              "price": "$2 off"
-            },
-            {
-              "name": "Cheese Plate",
-              "price": "$2 off"
-            },
-            {
-              "name": "Calamari",
-              "price": "$2 off"
-            },
-            {
-              "name": "Chicken Lollipops",
-              "price": "$2 off"
-            },
-            {
-              "name": "Grilled Oysters",
-              "price": "$2 off"
-            },
-            {
-              "name": "Grilled Peppers",
-              "price": "$2 off"
-            },
-            {
-              "name": "Roasted Cauliflower",
-              "price": "$2 off"
-            },
-            {
-              "name": "Seasonal Crudo",
-              "price": "$2 off"
-            }
-          ]
-        },
-        {
-          "title": "Appetizers",
-          "items": [
-            {
-              "name": "Mussels",
-              "price": "$3 off"
-            },
-            {
-              "name": "House Shrimp Ceviche",
-              "price": "$3 off"
-            },
-            {
-              "name": "Tenderloin Tips",
-              "price": "$3 off"
-            },
-            {
-              "name": "Herb Gnocchi & Cheese",
-              "price": "$3 off"
-            },
-            {
-              "name": "Loaded Hummus",
-              "price": "$3 off"
+              "price": "$3 for 8oz / $5 for 16oz",
+              "category": "beer"
             }
           ]
         },
@@ -5878,11 +6180,104 @@
           "items": [
             {
               "name": "Oysters",
-              "price": "$1.50"
+              "price": "$1.50",
+              "category": "oysters"
+            }
+          ]
+        },
+        {
+          "title": "Small Bites",
+          "items": [
+            {
+              "name": "Small Bites",
+              "price": "$2 off",
+              "category": "food"
+            },
+            {
+              "name": "soup of the day",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Olives & Almonds",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Cheese Plate",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Calamari",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "chicken lollipops",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "grilled Oysters",
+              "price": "",
+              "category": "oysters"
+            },
+            {
+              "name": "Grilled Peppers",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Roasted Cauliflower",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Seasonal Crudo",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Appetizers",
+          "items": [
+            {
+              "name": "Appetizers",
+              "price": "$3 off",
+              "category": "food"
+            },
+            {
+              "name": "Mussels",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "House Shrimp Ceviche",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Tenderloin Tips",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Herb Gnocchi & Cheese",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Loaded Hummus",
+              "price": "",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.tomhamslighthouse.com/happy-hour-menu/",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": false,
@@ -7018,51 +7413,63 @@
           "items": [
             {
               "name": "Parmesan-Crusted Fish Cakes",
-              "price": "$14.95"
+              "price": "$14.95",
+              "category": "food"
             },
             {
               "name": "Tallow Fries",
-              "price": "$13.95"
+              "price": "$13.95",
+              "category": "food"
             },
             {
               "name": "Harissa Hummus",
-              "price": "$15.50"
+              "price": "$15.50",
+              "category": "food"
             },
             {
               "name": "Beer Pretzels",
-              "price": "$16.95"
+              "price": "$16.95",
+              "category": "food"
             },
             {
               "name": "Double Truffle Fries",
-              "price": "$14.95"
+              "price": "$14.95",
+              "category": "food"
             },
             {
               "name": "Calamari Umami",
-              "price": "$16.95"
+              "price": "$16.95",
+              "category": "food"
             },
             {
               "name": "Crispy Brussels Sprouts",
-              "price": "$16.95"
+              "price": "$16.95",
+              "category": "food"
             },
             {
               "name": "Duck Fat Pretzel Bites",
-              "price": "$16.50"
+              "price": "$16.50",
+              "category": "food"
             },
             {
               "name": "Ahi Poke Nachos",
-              "price": "$18.95"
+              "price": "$18.95",
+              "category": "food"
             },
             {
               "name": "Boneless Wings",
-              "price": "$18.50"
+              "price": "$18.50",
+              "category": "food"
             },
             {
               "name": "Asada Fries",
-              "price": "$18.50"
+              "price": "$18.50",
+              "category": "food"
             },
             {
               "name": "Roasted Tomato Bisque",
-              "price": "$7.95"
+              "price": "$7.95",
+              "category": "food"
             }
           ]
         },
@@ -7071,19 +7478,23 @@
           "items": [
             {
               "name": "BBQ Brisket Chop",
-              "price": "$21.95"
+              "price": "$21.95",
+              "category": "food"
             },
             {
               "name": "Mixed Organic",
-              "price": "$16.95"
+              "price": "$16.95",
+              "category": "food"
             },
             {
               "name": "Chicken Chop Shop",
-              "price": "$21.95"
+              "price": "$21.95",
+              "category": "food"
             },
             {
               "name": "Salmon Caesar",
-              "price": "$24.95"
+              "price": "$24.95",
+              "category": "food"
             }
           ]
         },
@@ -7092,35 +7503,43 @@
           "items": [
             {
               "name": "Beer Brat Double Smash",
-              "price": "$21.95"
+              "price": "$21.95",
+              "category": "food"
             },
             {
               "name": "Wagyu Royale Burger",
-              "price": "$23.95"
+              "price": "$23.95",
+              "category": "food"
             },
             {
               "name": "Pub Burger",
-              "price": "$17.95"
+              "price": "$17.95",
+              "category": "food"
             },
             {
               "name": "Cotija Avocado Turkey Burger",
-              "price": "$21.75"
+              "price": "$21.75",
+              "category": "food"
             },
             {
               "name": "Black Bean Burger",
-              "price": "$17.95"
+              "price": "$17.95",
+              "category": "food"
             },
             {
               "name": "West Coast Cheesesteak",
-              "price": "$19.95"
+              "price": "$19.95",
+              "category": "food"
             },
             {
               "name": "Cherry Cola BBQ Pork",
-              "price": "$18.95"
+              "price": "$18.95",
+              "category": "food"
             },
             {
               "name": "Mesquite Chicken",
-              "price": "$21.50"
+              "price": "$21.50",
+              "category": "food"
             }
           ]
         },
@@ -7129,59 +7548,84 @@
           "items": [
             {
               "name": "Beer Sausages",
-              "price": "$20.50"
+              "price": "$20.50",
+              "category": "food"
             },
             {
               "name": "Fish N Chips",
-              "price": "$23.50"
+              "price": "$23.50",
+              "category": "food"
             },
             {
               "name": "Korean BBQ Rice Bowl",
-              "price": "$16.50"
+              "price": "$16.50",
+              "category": "food"
             },
             {
               "name": "Grilled Chicken Tacos",
-              "price": "$21.75"
+              "price": "$21.75",
+              "category": "food"
             },
             {
               "name": "Blackened Shrimp or Carne Asada Tacos",
-              "price": "$23.95"
+              "price": "$23.95",
+              "category": "food"
             },
             {
               "name": "Ginger Salmon",
-              "price": "$26.95"
-            },
+              "price": "$26.95",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Steaks & Chops",
+          "items": [
             {
               "name": "Beer-Brined Pork Chops",
-              "price": "$29.95"
+              "price": "$29.95",
+              "category": "food"
             },
             {
               "name": "Aged Ribeye Steak Frite",
-              "price": "$38.95"
+              "price": "$38.95",
+              "category": "food"
             },
             {
               "name": "Brewer's Steak",
-              "price": "$27.95"
+              "price": "$27.95",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Mac On Tap",
+          "items": [
+            {
+              "name": "The Norm",
+              "price": "$20.95",
+              "category": "food"
             },
             {
-              "name": "Mac On Tap - The Norm",
-              "price": "$20.95"
+              "name": "Piggy Bank",
+              "price": "$22.95",
+              "category": "food"
             },
             {
-              "name": "Mac On Tap - Piggy Bank",
-              "price": "$22.95"
+              "name": "Tree Hugger",
+              "price": "$21.95",
+              "category": "food"
             },
             {
-              "name": "Mac On Tap - Tree Hugger",
-              "price": "$21.95"
-            },
-            {
-              "name": "Mac On Tap - Holy Cow",
-              "price": "$24.95"
+              "name": "Holy Cow!",
+              "price": "$24.95",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.karlstrauss.com/location/sorrento-mesa/menu/",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
@@ -15289,156 +15733,152 @@
       {
         "url": "/images/venues/101-waterbar-hh-menu-board.png",
         "caption": "Happy hour menu (page 1 of 3)",
-        "sourceUrl": "https://www.waterbarsd.com/",
+        "sourceUrl": "https://www.waterbarsd.com/food-menu",
         "generated": true
       },
       {
         "url": "/images/venues/101-waterbar-hh-menu-board-2.png",
         "caption": "Happy hour menu (page 2 of 3)",
-        "sourceUrl": "https://www.waterbarsd.com/",
+        "sourceUrl": "https://www.waterbarsd.com/food-menu",
         "generated": true
       },
       {
         "url": "/images/venues/101-waterbar-hh-menu-board-3.png",
         "caption": "Happy hour menu (page 3 of 3)",
-        "sourceUrl": "https://www.waterbarsd.com/",
+        "sourceUrl": "https://www.waterbarsd.com/food-menu",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Menu from 3-5pm M-F",
+      "note": "Menu from 3-5pm M-F. Subject to availability on Holidays & Special Events.",
       "sections": [
         {
           "title": "Drinks",
           "items": [
             {
               "name": "Draft Beers",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Seasonal Sangria",
-              "price": "$6"
+              "price": "$6",
+              "category": "wine"
             },
             {
               "name": "House Wines",
-              "price": "$6"
+              "price": "$6",
+              "category": "wine"
             },
             {
               "name": "House Margarita",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Aperol Spritz",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Hugo Spritz",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Sun Kissed Spritz",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Mike Hess Grazias Amber Ale",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Vienna Style Cream Ale",
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "PNKYS Canned Rose",
-              "price": "$10"
+              "price": "$10",
+              "category": "wine"
             },
             {
               "name": "Los Siento Blanco",
-              "price": "$10"
+              "price": "$10",
+              "category": "spirit"
             },
             {
               "name": "Los Siento Caliente",
-              "price": "$10"
+              "price": "$10",
+              "category": "spirit"
             },
             {
               "name": "Los Sientos Reposado",
-              "price": "$12"
+              "price": "$12",
+              "category": "spirit"
             },
             {
               "name": "Los Siento Anejo",
-              "price": "$14"
+              "price": "$14",
+              "category": "spirit"
             },
             {
               "name": "Tullemore Dew",
-              "price": "$8"
+              "price": "$8",
+              "category": "spirit"
             },
             {
               "name": "Sip Margs",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Titos Dirty Tini",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Tanqueray Dirty Tini",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Citrus Yuzu Tini",
-              "price": "$10"
-            },
-            {
-              "name": "Amaras Mezcal shots",
-              "price": "$4"
-            },
-            {
-              "name": "Mexican Candy Shots",
-              "price": "$5"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Cazadores Margaritas",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Patron Margarita",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Don Julio Cadillac Margarita",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Pacifico",
-              "price": "$5"
-            }
-          ]
-        },
-        {
-          "title": "Food",
-          "items": [
-            {
-              "name": "Edamame",
-              "price": ""
+              "price": "$5",
+              "category": "beer"
             },
             {
-              "name": "Half Off Fresh Oysters",
-              "price": "Half $9.50 | Dozen $17.5"
+              "name": "Amaras Mezcal shots",
+              "price": "$4",
+              "category": "spirit"
             },
             {
-              "name": "Crispy Calamari",
-              "price": "$6"
-            },
-            {
-              "name": "A La carte Fish Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Sushi Roll Selections",
-              "price": "$8"
-            },
-            {
-              "name": "Classic Waterbar Combo",
-              "price": "$20"
-            },
-            {
-              "name": "Herb & Butter Maine Lobster Roll",
-              "price": "$20"
+              "name": "Mexican Candy Shots",
+              "price": "$5",
+              "category": "cocktail"
             }
           ]
         },
@@ -15447,40 +15887,94 @@
           "items": [
             {
               "name": "Standard Oysters",
-              "price": "$9.75 | $17.75"
+              "price": "$9.75",
+              "category": "oysters"
+            },
+            {
+              "name": "Standard Oysters (Dozen)",
+              "price": "$17.75",
+              "category": "oysters"
             },
             {
               "name": "Fried Oysters",
-              "price": "$15.75"
+              "price": "$15.75",
+              "category": "oysters"
             },
             {
               "name": "Dressed Oysters",
-              "price": "$17.75"
+              "price": "$17.75",
+              "category": "oysters"
             },
             {
               "name": "Shuck'in Oysters",
-              "price": "$7.75 | $18"
+              "price": "$7.75",
+              "category": "oysters"
+            },
+            {
+              "name": "Shuck'in Oysters (A Dozen)",
+              "price": "$18",
+              "category": "oysters"
             }
           ]
         },
         {
-          "title": "Tacos & Tequila Tuesdays",
+          "title": "Food",
           "items": [
             {
-              "name": "Battered Fish A La Carte Tacos",
-              "price": "$14/2 | $20/3"
+              "name": "Edamame",
+              "price": "",
+              "category": "food"
             },
             {
-              "name": "Blackened Shrimp A La Carte Tacos",
-              "price": "$14/2 | $20/3"
+              "name": "Half Off Fresh Oysters (Half)",
+              "price": "$9.50",
+              "category": "oysters"
             },
             {
-              "name": "Chargrilled Skirt Steak A La Carte Tacos",
-              "price": "$14/2 | $20/3"
+              "name": "Half Off Fresh Oysters (Dozen)",
+              "price": "$17.50",
+              "category": "oysters"
+            },
+            {
+              "name": "Crispy Calamari",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "A La carte Fish Taco",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Sushi Roll Selections",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Classic Waterbar Combo",
+              "price": "$20",
+              "category": "food"
+            },
+            {
+              "name": "Herb & Butter Maine Lobster Roll",
+              "price": "$20",
+              "category": "food"
+            },
+            {
+              "name": "A La Carte Tacos (2)",
+              "price": "$14",
+              "category": "food"
+            },
+            {
+              "name": "A La Carte Tacos (3)",
+              "price": "$20",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.waterbarsd.com/food-menu",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -18191,7 +18685,7 @@
       {
         "url": "/images/venues/114-bub-s-at-the-ballpark-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://bubssandiego.com/",
+        "sourceUrl": "https://bubssandiego.com/specials",
         "generated": true
       }
     ],
@@ -18202,20 +18696,24 @@
           "title": "Happy Hour",
           "items": [
             {
-              "name": "Drafts",
-              "price": "$1 off"
+              "name": "Draft beer",
+              "price": "$1 off",
+              "category": "beer"
             },
             {
               "name": "Sidecars",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "Wells",
-              "price": "$5"
+              "price": "$5",
+              "category": "spirit"
             },
             {
               "name": "Red Baskets",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "food"
             }
           ]
         },
@@ -18223,62 +18721,100 @@
           "title": "Wednesday Specials",
           "items": [
             {
-              "name": "Grilled Wings, Buy 5 Get 5 Free",
-              "price": ""
+              "name": "Grilled Wings",
+              "price": "Buy 5 Get 5 Free",
+              "category": "food"
             },
             {
               "name": "Boneless Wings",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "food"
             },
             {
-              "name": "Select Beer Pints",
-              "price": "$6"
+              "name": "Select beer pints",
+              "price": "$6",
+              "category": "beer"
             },
             {
-              "name": "Select Beer Pitchers",
-              "price": "$24"
+              "name": "Select beer pitchers",
+              "price": "$24",
+              "category": "beer"
             },
             {
-              "name": "Cutwater Vodka, Rum, and Tequila",
-              "price": "$7"
+              "name": "Cutwater Vodka",
+              "price": "$7",
+              "category": "spirit"
+            },
+            {
+              "name": "Cutwater Rum",
+              "price": "$7",
+              "category": "spirit"
+            },
+            {
+              "name": "Cutwater Tequila",
+              "price": "$7",
+              "category": "spirit"
             }
           ]
         },
         {
-          "title": "Tuesday - Family Feud + Burger & Beer Ni",
-          "items": [
-            {
-              "name": "Burger + Beer",
-              "price": "$15"
-            },
-            {
-              "name": "Select Beers",
-              "price": "$7"
-            },
-            {
-              "name": "Captain Morgan Spiced Rum",
-              "price": "$7"
-            },
-            {
-              "name": "New Amsterdam (Raspberry, Tangerine, Lemon)",
-              "price": "$7"
-            }
-          ]
-        },
-        {
-          "title": "Thursday Specials",
+          "title": "Thursday Evening Specials (5 PM - 11 PM)",
           "items": [
             {
               "name": "Jalapeno Poppers & Bacon Wrapped Chorizo Popper",
-              "price": "$15"
+              "price": "$15",
+              "category": "food"
             },
             {
-              "name": "Gran Malo Margarita & Ghost Spicy Margarita",
-              "price": "$9"
+              "name": "Gran Malo Margarita",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Ghost Spicy Margarita",
+              "price": "$9",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Tuesday Night (7 PM - 11 PM)",
+          "items": [
+            {
+              "name": "Burger + Beer",
+              "price": "$15",
+              "category": "food"
+            },
+            {
+              "name": "Select Beers",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Captain Morgan Spiced Rum",
+              "price": "$7",
+              "category": "spirit"
+            },
+            {
+              "name": "New Amsterdam Raspberry",
+              "price": "$7",
+              "category": "spirit"
+            },
+            {
+              "name": "New Amsterdam Tangerine",
+              "price": "$7",
+              "category": "spirit"
+            },
+            {
+              "name": "New Amsterdam Lemon",
+              "price": "$7",
+              "category": "spirit"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://bubssandiego.com/specials",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "reservable": true,
@@ -23663,40 +24199,52 @@
     "galleryImages": [
       {
         "url": "/images/venues/141-the-blind-burro-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.theblindburro.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.theblindburro.com/burro-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/141-the-blind-burro-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://www.theblindburro.com/burro-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Specials not valid on special events & select game days. Dine-in only.",
+      "note": "dine-in only. Not valid on special events & select game days.",
       "sections": [
         {
           "title": "Drinks",
           "items": [
             {
               "name": "Buena Cerveza",
-              "price": "$5"
+              "price": "$5",
+              "category": "beer"
             },
             {
               "name": "Nütrl Hard Seltzer",
-              "price": "$6"
+              "price": "$6",
+              "category": "na_beverage"
             },
             {
               "name": "Skimmers Vodka Iced Tea",
-              "price": "$6"
+              "price": "$6",
+              "category": "cocktail"
             },
             {
               "name": "La Marca Prosecco",
-              "price": "$7"
+              "price": "$7",
+              "category": "wine"
             },
             {
-              "name": "House Red or White Wine",
-              "price": "$8"
+              "name": "House red or white Wine",
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "House Margarita",
-              "price": "$8"
+              "price": "$8",
+              "category": "cocktail"
             }
           ]
         },
@@ -23705,85 +24253,133 @@
           "items": [
             {
               "name": "Fresh Catch Taco | Baja Shrimp Taco",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
               "name": "TJ Dog with Fries",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Mexican Pizza",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Queso Fundido Supremo",
-              "price": "$11"
+              "price": "$11",
+              "category": "food"
             },
             {
               "name": "Crispy Calamari",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Taco Tuesday",
+          "title": "Taco Tuesday Drinks",
           "items": [
+            {
+              "name": "Buena Cerveza",
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Nütrl Hard Seltzer",
+              "price": "$6",
+              "category": "na_beverage"
+            },
+            {
+              "name": "Skimmers Vodka Iced Tea",
+              "price": "$6",
+              "category": "cocktail"
+            },
+            {
+              "name": "House red or white Wine",
+              "price": "$8",
+              "category": "wine"
+            },
+            {
+              "name": "House Margarita",
+              "price": "$8",
+              "category": "cocktail"
+            },
             {
               "name": "Bottomless Margaritas",
-              "price": "$20"
-            },
-            {
-              "name": "Carne Molida Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Veggie Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Pollo Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Al Pastor Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Fresh Catch Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Baja Shrimp Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Asada Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Macha Angus Short Rib Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Coffee Rubbed Salmon Taco",
-              "price": "$6"
-            },
-            {
-              "name": "Cilantro Lime Grilled Shrimp Taco",
-              "price": "$6"
+              "price": "$20",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "All Day Specials",
+          "title": "Taco Tuesday Tacos",
           "items": [
             {
-              "name": "Modelo Especial 24 oz Tall Can & Cutwater Blanco Tequila Shot",
+              "name": "Carne Molida",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Veggie",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Pollo",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Al Pastor",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Fresh Catch",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Baja Shrimp",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Asada",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Macha Angus Short Rib",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Coffee Rubbed Salmon",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Cilantro Lime Grilled Shrimp",
+              "price": "$6",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "All Day Every Day",
+          "items": [
+            {
+              "name": "Modelo Especial 24 oz Tall Can & a shot of Cutwater Blanco Tequila",
               "price": "$18"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.theblindburro.com/burro-specials",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "reservable": true,
@@ -25249,62 +25845,67 @@
     "galleryImages": [
       {
         "url": "/images/venues/149-dini-s-by-the-sea-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://dinisbythesea.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://dinisbythesea.com/carlsbad-carlsbad-village-dini-s-by-the-sea-happy-hours-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/149-dini-s-by-the-sea-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://dinisbythesea.com/carlsbad-carlsbad-village-dini-s-by-the-sea-happy-hours-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy hour includes drinks and appetizers. Late-night specials available in bar only for 21+.",
+      "note": "Happy Hour: Mon-Fri 3pm-6pm. Dini's After Dark: Everyday 9pm-Close in the Bar only (21+)",
       "sections": [
         {
-          "title": "Beers",
+          "title": "Drinks",
           "items": [
             {
               "name": "Drafts, Bottles, Cans",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Pitchers",
-              "price": "$4 off"
-            }
-          ]
-        },
-        {
-          "title": "Cocktails",
-          "items": [
+              "price": "$4 off",
+              "category": "beer"
+            },
             {
               "name": "Well Drinks",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "House Marg",
-              "price": "$8"
+              "price": "$8",
+              "category": "cocktail"
             },
             {
               "name": "Infused Marg",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
               "name": "Bloody Mary",
-              "price": "$8"
+              "price": "$8",
+              "category": "cocktail"
             },
             {
               "name": "Moscow Mule",
-              "price": "$9"
-            }
-          ]
-        },
-        {
-          "title": "Wine",
-          "items": [
-            {
-              "name": "By the glass",
-              "price": "$2 off"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
-              "name": "Bottles",
-              "price": "25% off"
+              "name": "Wine by the glass",
+              "price": "$2 off",
+              "category": "wine"
+            },
+            {
+              "name": "Wine bottles",
+              "price": "25% off",
+              "category": "wine"
             }
           ]
         },
@@ -25313,63 +25914,138 @@
           "items": [
             {
               "name": "Ahi Poke Tostadas (3)",
-              "price": "$18"
+              "price": "$18",
+              "category": "food"
             },
             {
               "name": "Calamari",
-              "price": "$15"
+              "price": "$15",
+              "category": "food"
             },
             {
-              "name": "Sweet Chili Buffalo Wings (GF)",
-              "price": "$14"
+              "name": "Sweet Chili Buffalo Wings",
+              "price": "$14",
+              "category": "food"
             },
             {
-              "name": "Nachos (GF)",
-              "price": "$14"
+              "name": "Nachos",
+              "price": "$14",
+              "category": "food"
             },
             {
               "name": "Dini Dog",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Flatbreads",
+          "items": [
+            {
+              "name": "Garlic Shrimp",
+              "price": "$19",
+              "category": "food"
             },
             {
-              "name": "Garlic Shrimp Flatbread",
-              "price": "$19"
+              "name": "BBQ Chicken",
+              "price": "$19",
+              "category": "food"
             },
             {
-              "name": "BBQ Chicken Flatbread",
-              "price": "$19"
-            },
+              "name": "Pear & Prosciutto",
+              "price": "$19",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Shellfish",
+          "items": [
             {
-              "name": "Pear & Prosciutto Flatbread",
-              "price": "$19"
-            },
-            {
-              "name": "Shrimp Ceviche (GF)",
-              "price": "$15"
+              "name": "Shrimp Ceviche",
+              "price": "$15",
+              "category": "food"
             },
             {
               "name": "Crab Cakes",
-              "price": "$15"
+              "price": "$15",
+              "category": "food"
             },
             {
-              "name": "Shrimp Cocktail (GF)",
-              "price": "$15"
+              "name": "Shrimp Cocktail",
+              "price": "$15",
+              "category": "food"
             },
             {
               "name": "Oysters on the Half Shell",
-              "price": "$15"
+              "price": "$15",
+              "category": "oysters"
             },
             {
-              "name": "Baked Oysters Rockefeller (GF)",
-              "price": "$17"
+              "name": "Baked Oysters Rockefeller",
+              "price": "$17",
+              "category": "oysters"
             },
             {
               "name": "Coconut Shrimp (5)",
-              "price": "$18"
+              "price": "$18",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Dini's After Dark Drinks",
+          "items": [
+            {
+              "name": "Drafts, Bottles, Cans",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Pitchers",
+              "price": "$4 off",
+              "category": "beer"
+            },
+            {
+              "name": "Well Drinks",
+              "price": "$7",
+              "category": "cocktail"
+            },
+            {
+              "name": "House Marg",
+              "price": "$8",
+              "category": "cocktail"
+            },
+            {
+              "name": "Infused Marg",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Moscow Mule",
+              "price": "$9",
+              "category": "cocktail"
+            },
+            {
+              "name": "Beer & Shot",
+              "price": "$10"
+            },
+            {
+              "name": "Wine by the glass",
+              "price": "$2 off",
+              "category": "wine"
+            },
+            {
+              "name": "Wine bottles",
+              "price": "25% off",
+              "category": "wine"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://dinisbythesea.com/carlsbad-carlsbad-village-dini-s-by-the-sea-happy-hours-specials",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": true,
@@ -27398,39 +28074,45 @@
       {
         "url": "/images/venues/165-insideout-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://insideoutsd.com/",
+        "sourceUrl": "http://insideoutsd.com/san-diego-hillcrest-insideout-drink-menu-46740",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour specials at insideOUT Hillcrest location",
+      "note": "18+ entries",
       "sections": [
         {
           "title": "Cocktails",
           "items": [
             {
               "name": "Hillcrest Basic",
-              "price": "$8.50"
+              "price": "$8.50",
+              "category": "cocktail"
             },
             {
               "name": "Ruby's Nectar",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
               "name": "Freaky Tiki",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Sangria",
-              "price": "$10"
+              "price": "$10",
+              "category": "wine"
             },
             {
               "name": "Desert Mule (Mocktail)",
-              "price": "$6"
+              "price": "$6",
+              "category": "na_beverage"
             },
             {
               "name": "Blueberry Faux-jito (Mocktail)",
-              "price": "$6"
+              "price": "",
+              "category": "na_beverage"
             }
           ]
         },
@@ -27438,32 +28120,44 @@
           "title": "Wine",
           "items": [
             {
+              "name": "Bianchi Pinot Grigio",
+              "price": "$7/Glass",
+              "category": "wine"
+            },
+            {
               "name": "Kim Crawford Sauvignon Blanc",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             },
             {
               "name": "Angeline Chardonnay",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             },
             {
               "name": "The Beach Rosé",
-              "price": "$7/Glass"
+              "price": "$7/glass",
+              "category": "wine"
             },
             {
               "name": "Angeline Pinot Noir",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             },
             {
               "name": "Angeline Cabernet",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             },
             {
               "name": "House Sparkling Wine",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             },
             {
               "name": "Wycliff Sparkling Rosé",
-              "price": "$7/Glass"
+              "price": "$7/Glass",
+              "category": "wine"
             }
           ]
         },
@@ -27472,27 +28166,33 @@
           "items": [
             {
               "name": "Locals Only Vodka",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             },
             {
               "name": "818 Blanco Tequila",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             },
             {
               "name": "Mezcal Verde Amarás",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             },
             {
               "name": "Bluecoat Gin",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             },
             {
               "name": "Four Roses Bourbon",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             },
             {
               "name": "Bacardi Rum",
-              "price": "$7"
+              "price": "$7",
+              "category": "spirit"
             }
           ]
         },
@@ -27500,28 +28200,35 @@
           "title": "Draft Beer",
           "items": [
             {
-              "name": "Thorn St Brewing Hopster Pot Hazy IPA",
-              "price": "$7"
+              "name": "Thorn St Brewing Hopster Pot Hazy IPA - 7% ABV",
+              "price": "$7",
+              "category": "beer"
             },
             {
-              "name": "Harland Japanese Rice Lager",
-              "price": "$7"
+              "name": "Harland Japanese Rice Lager - 5% ABV",
+              "price": "$7",
+              "category": "beer"
             },
             {
-              "name": "Embolden Baja Lager",
-              "price": "$7"
+              "name": "Embolden Baja Lager - 4.5% ABV",
+              "price": "$7",
+              "category": "beer"
             },
             {
-              "name": "Mate Maker Blood Orange Smash Hard Kombucha",
-              "price": "$7"
+              "name": "Mate Maker Blood Orange Smash Hard Kombucha - 4.0% ABV",
+              "price": "$7",
+              "category": "beer"
             },
             {
-              "name": "Smog City Citrus Blonde Ale",
-              "price": "$7"
+              "name": "Smog City Citrus Blonde Ale 5% ABV",
+              "price": "$7",
+              "category": "beer"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://insideoutsd.com/san-diego-hillcrest-insideout-drink-menu-46740",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -28253,7 +28960,7 @@
       {
         "url": "/images/venues/171-la-cocina-de-reyes-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.lacocinatemecula.com/",
+        "sourceUrl": "https://www.lacocinatemecula.com/la-cocina-de-reyes-happy-hour-menu",
         "generated": true
       }
     ],
@@ -28265,15 +28972,68 @@
           "items": [
             {
               "name": "Any 22 oz. Draft Beer",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Pacifico",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Dos Equis Lager",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Modelo Especial",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Modelo Negra",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Coors Light",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Blue Moon",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Firestone Walker 805",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Ballast Point Sculpin IPA",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Lagunitas IPA",
+              "price": "$7",
+              "category": "beer"
             },
             {
               "name": "House Margarita",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
-              "name": "Specialty Margaritas & Cocktails",
-              "price": "$3 off"
+              "name": "Signature Cocktails",
+              "price": "$3 off",
+              "category": "cocktail"
+            },
+            {
+              "name": "Signature Margaritas",
+              "price": "$3 off",
+              "category": "cocktail"
             }
           ]
         },
@@ -28282,19 +29042,23 @@
           "items": [
             {
               "name": "Bean Dip",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Queso Dip",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Guacamole Dip",
-              "price": "$6.50"
+              "price": "$6.50",
+              "category": "food"
             },
             {
               "name": "Chile Verde Dip",
-              "price": "$6.50"
+              "price": "$6.50",
+              "category": "food"
             }
           ]
         },
@@ -28303,15 +29067,18 @@
           "items": [
             {
               "name": "Birria Taco",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Battered Fish Taco",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Taco Flight",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             }
           ]
         },
@@ -28320,27 +29087,34 @@
           "items": [
             {
               "name": "Nachos",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
-              "name": "Mini Chimichangas",
-              "price": "$9"
+              "name": "Mini Chimis",
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Flautas",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Taquitos",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Magic Burritos",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.lacocinatemecula.com/la-cocina-de-reyes-happy-hour-menu",
+      "observedAt": "2026-08-31"
     },
     "unlistedReason": "outside_san_diego_county",
     "outdoorSeating": true,
@@ -34969,131 +35743,223 @@
     "galleryImages": [
       {
         "url": "/images/venues/211-caff-calabria-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://caffecalabria.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://caffecalabria.com/menu/cocktails",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/211-caff-calabria-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://caffecalabria.com/menu/cocktails",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "All cocktails listed are available during Happy Hour; prices shown are happy hour prices where applicable",
+      "note": "Bar area only. Happy hour Wednesday-Sunday 4pm-6pm.",
       "sections": [
         {
-          "title": "Caffe Calabria",
+          "title": "CAFFE CALABRIA",
           "items": [
             {
               "name": "Espresso Martini",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Hard Coffee",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Carajillo",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Gin Cafe",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Short Drinks",
+          "title": "SHORT DRINKS",
           "items": [
             {
               "name": "Daiquiri",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Old Fashioned",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Manhattan",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             },
             {
               "name": "Martini",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Aviation",
-              "price": "$12"
+              "price": "$12",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Campari",
+          "title": "CAMPARI",
           "items": [
             {
               "name": "Negroni",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Sbagliato",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Campari Soda",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Torino-Milano",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Americano",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Negroski",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Old Pal",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Negroni Royale",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Frizzante",
+          "title": "FRIZZANTE",
           "items": [
             {
               "name": "Kir Royale",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
               "name": "St. Germaine Royale",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
               "name": "Champagne Cocktail",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Mimosa",
-              "price": "$8"
+              "price": "$8",
+              "category": "cocktail"
             },
             {
               "name": "French 75",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Aperol Spritz",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
             },
             {
               "name": "Campari Spritz",
-              "price": "$11"
+              "price": "$11",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "LONG DRINKS",
+          "items": [
+            {
+              "name": "Calabrese",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Caffe Gin & Tonic",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Long Island Iced Tea",
+              "price": "$12",
+              "category": "cocktail"
+            },
+            {
+              "name": "Paloma",
+              "price": "$12",
+              "category": "cocktail"
+            },
+            {
+              "name": "Mai Tai",
+              "price": "$11",
+              "category": "cocktail"
+            },
+            {
+              "name": "Mojito",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Moscow Mule",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Pimm's Cup",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Greyhound",
+              "price": "$11",
+              "category": "cocktail"
+            },
+            {
+              "name": "Vermouth Cana",
+              "price": "$11",
+              "category": "cocktail"
+            },
+            {
+              "name": "Collins",
+              "price": "$11",
+              "category": "cocktail"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://caffecalabria.com/menu/cocktails",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": true,
@@ -39380,61 +40246,47 @@
     "galleryImages": [
       {
         "url": "/images/venues/236-bier-garden-encinitas-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.biergardensandiego.com/encinitas?utm_source=google-business-profile&utm_medium=gmb",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.biergardensandiego.com/encinitas-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/236-bier-garden-encinitas-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.biergardensandiego.com/encinitas-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour menu at Bier Garden Encinitas",
+      "note": "",
       "sections": [
         {
           "title": "BG Bites",
           "items": [
             {
               "name": "Bier Pretzels",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Loaded Potato Bites",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Roasted Buffalo Cauliflower",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Brussels Sprouts",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Shishito Peppers",
-              "price": "$10"
-            }
-          ]
-        },
-        {
-          "title": "Select Pints",
-          "items": [
-            {
-              "name": "Paulaner Hefe-Weizen",
-              "price": "$7"
-            },
-            {
-              "name": "Estrella Jalisco Mexican Lager",
-              "price": "$7"
-            },
-            {
-              "name": "Scrimshaw Pilsner",
-              "price": "$7"
-            },
-            {
-              "name": "Pizza Port Swami's IPA",
-              "price": "$7"
-            },
-            {
-              "name": "Hazy .394 Hazy Pale Ale",
-              "price": "$7"
+              "price": "$10",
+              "category": "food"
             }
           ]
         },
@@ -39443,28 +40295,168 @@
           "items": [
             {
               "name": "House Margarita",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
-              "name": "Camelot Cabernet Glass",
-              "price": "$10"
+              "name": "Camelot Cabernet",
+              "price": "$10",
+              "category": "wine"
             },
             {
-              "name": "Camelot Chardonnay Glass",
-              "price": "$10"
+              "name": "Camelot Chardonnay",
+              "price": "$10",
+              "category": "wine"
             }
           ]
         },
         {
-          "title": "All Day, Every Day",
+          "title": "$7 Select Pints",
           "items": [
             {
+              "name": "Paulaner Hefe-Weizen",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Estrella Jalisco Mexican Lager",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Scrimshaw Pilsner",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Pizza Port Swami's IPA",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Hazy .394 Hazy Pale Ale",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
               "name": "Biergarden Lager & IPA",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Monday – Friday Daily Specials",
+          "items": [
+            {
+              "name": "½ Sando & Side",
+              "price": "$16",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Monday – Industry Mondays & Wing Night",
+          "items": [
+            {
+              "name": "All items",
+              "price": "10% off"
+            },
+            {
+              "name": "Wings",
+              "price": "$2.50",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Tuesday – Street Tacos & All-Day Drink S",
+          "items": [
+            {
+              "name": "Quesabirria (beef)",
+              "price": "$4",
+              "category": "food"
+            },
+            {
+              "name": "Carne Asada (beef)",
+              "price": "$4",
+              "category": "food"
+            },
+            {
+              "name": "Al Pastor (pork)",
+              "price": "$4",
+              "category": "food"
+            },
+            {
+              "name": "Gobernador (shrimp)",
+              "price": "$4",
+              "category": "food"
+            },
+            {
+              "name": "Estrella Jalisco",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "House Margarita",
+              "price": "$10",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday – Trivia Night",
+          "items": [
+            {
+              "name": "Kona Big Wave",
+              "price": "$7",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Thursday – Sliders & Pints",
+          "items": [
+            {
+              "name": "Sliders",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Select pints",
+              "price": "$7",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Saturday & Sunday – Weekend Brunch Speci",
+          "items": [
+            {
+              "name": "Bottomless mimosas with purchase of entrée",
+              "price": "$20",
+              "category": "na_beverage"
+            },
+            {
+              "name": "All brunch food",
+              "price": "$2 off",
+              "category": "food"
+            },
+            {
+              "name": "All Bloody Marys",
+              "price": "$2 off",
+              "category": "cocktail"
+            },
+            {
+              "name": "Champagne bottles",
+              "price": "$15",
+              "category": "wine"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.biergardensandiego.com/encinitas-specials",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": true,
@@ -40241,8 +41233,20 @@
     "galleryImages": [
       {
         "url": "/images/venues/241-o-sullivan-s-irish-pub-escondido-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.osullivansescondido.com/",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://osullivansescondido.com/specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/241-o-sullivan-s-irish-pub-escondido-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://osullivansescondido.com/specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/241-o-sullivan-s-irish-pub-escondido-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
+        "sourceUrl": "https://osullivansescondido.com/specials",
         "generated": true
       }
     ],
@@ -40250,36 +41254,37 @@
       "note": "",
       "sections": [
         {
-          "title": "Food",
+          "title": "Monday Happy Hour",
           "items": [
             {
               "name": "1/2 Corned Beef Quesadilla",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "1/2 Chicken Tenders",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
               "name": "Curry Chips",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Corned Beef Egg Rolls",
-              "price": "$7"
-            }
-          ]
-        },
-        {
-          "title": "Drinks",
-          "items": [
+              "price": "$7",
+              "category": "food"
+            },
             {
               "name": "Well Drinks",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "All Beers",
-              "price": "$1 off"
+              "price": "$1 off",
+              "category": "beer"
             },
             {
               "name": "Tipsy Clover Shots",
@@ -40288,44 +41293,293 @@
           ]
         },
         {
-          "title": "Daily Specials",
+          "title": "Monday Early Bird Special",
           "items": [
             {
-              "name": "Early Bird Special - Fish & Chips, Guinness Beef Stew or Shepherd's Pie",
-              "price": "$18"
+              "name": "Fish & Chips",
+              "price": "$18",
+              "category": "food"
             },
             {
-              "name": "Taco Tuesday - Chicken, Corned Beef or Grilled/Fried Fish Taco",
-              "price": "$4.75"
+              "name": "Guinness Beef Stew",
+              "price": "$18",
+              "category": "food"
             },
             {
-              "name": "Mexican Candy Shots",
-              "price": "$6"
-            },
-            {
-              "name": "Pie & a Pint - Full order of Shepherd's Pie & 16oz draft beer",
-              "price": "$22"
-            },
-            {
-              "name": "Wing Night - Buffalo, BBQ or Jack Daniels Sauce (5 wing minimum)",
-              "price": "$1 per wing"
+              "name": "Shepherd's Pie",
+              "price": "$18",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Saturday & Sunday Brunch Specials",
+          "title": "Tuesday Early Bird Special",
           "items": [
             {
-              "name": "Mimosas",
-              "price": "$6"
+              "name": "Fish & Chips",
+              "price": "$18",
+              "category": "food"
             },
             {
-              "name": "Champagne",
-              "price": "$10"
+              "name": "Guinness Beef Stew",
+              "price": "$18",
+              "category": "food"
+            },
+            {
+              "name": "Shepherd's Pie",
+              "price": "$18",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Taco Tuesday",
+          "items": [
+            {
+              "name": "Chicken Taco",
+              "price": "$4.75",
+              "category": "food"
+            },
+            {
+              "name": "Corned Beef Taco",
+              "price": "$4.75",
+              "category": "food"
+            },
+            {
+              "name": "Grilled Fish Taco",
+              "price": "$4.75",
+              "category": "food"
+            },
+            {
+              "name": "Fried Fish Taco",
+              "price": "$4.75",
+              "category": "food"
+            },
+            {
+              "name": "Mexican Candy Shots",
+              "price": "$6"
+            }
+          ]
+        },
+        {
+          "title": "Tuesday Happy Hour",
+          "items": [
+            {
+              "name": "1/2 Corned Beef Quesadilla",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "1/2 Chicken Tenders",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Curry Chips",
+              "price": "$5",
+              "category": "food"
+            },
+            {
+              "name": "Corned Beef Egg Rolls",
+              "price": "$7",
+              "category": "food"
+            },
+            {
+              "name": "Well Drinks",
+              "price": "$5",
+              "category": "cocktail"
+            },
+            {
+              "name": "All Beers",
+              "price": "$1 off",
+              "category": "beer"
+            },
+            {
+              "name": "Tipsy Clover Shots",
+              "price": "$5"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday Pie & a Pint",
+          "items": [
+            {
+              "name": "Shepherd's Pie & 16oz draft beer",
+              "price": "$22",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday Happy Hour",
+          "items": [
+            {
+              "name": "1/2 Corned Beef Quesadilla",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "1/2 Chicken Tenders",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Curry Chips",
+              "price": "$5",
+              "category": "food"
+            },
+            {
+              "name": "Corned Beef Egg Rolls",
+              "price": "$7",
+              "category": "food"
+            },
+            {
+              "name": "Well Drinks",
+              "price": "$5",
+              "category": "cocktail"
+            },
+            {
+              "name": "All Beers",
+              "price": "$1 off",
+              "category": "beer"
+            },
+            {
+              "name": "Tipsy Clover Shots",
+              "price": "$5"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday Early Bird Special",
+          "items": [
+            {
+              "name": "Fish & Chips",
+              "price": "$18",
+              "category": "food"
+            },
+            {
+              "name": "Guinness Beef Stew",
+              "price": "$18",
+              "category": "food"
+            },
+            {
+              "name": "Shepherd's Pie",
+              "price": "$18",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Thursday Early Bird Special",
+          "items": [
+            {
+              "name": "Fish & Chips",
+              "price": "$18",
+              "category": "food"
+            },
+            {
+              "name": "Guinness Beef Stew",
+              "price": "$18",
+              "category": "food"
+            },
+            {
+              "name": "Shepherd's Pie",
+              "price": "$18",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Thursday Happy Hour",
+          "items": [
+            {
+              "name": "1/2 Corned Beef Quesadilla",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "1/2 Chicken Tenders",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Curry Chips",
+              "price": "$5",
+              "category": "food"
+            },
+            {
+              "name": "Corned Beef Egg Rolls",
+              "price": "$7",
+              "category": "food"
+            },
+            {
+              "name": "Well Drinks",
+              "price": "$5",
+              "category": "cocktail"
+            },
+            {
+              "name": "All Beers",
+              "price": "$1 off",
+              "category": "beer"
+            },
+            {
+              "name": "Tipsy Clover Shots",
+              "price": "$5"
+            }
+          ]
+        },
+        {
+          "title": "Thursday Wing Night",
+          "items": [
+            {
+              "name": "Wings (Buffalo, BBQ or Jack Daniels Sauce)",
+              "price": "$1",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Friday Happy Hour",
+          "items": [
+            {
+              "name": "1/2 Corned Beef Quesadilla",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "1/2 Chicken Tenders",
+              "price": "$8",
+              "category": "food"
+            },
+            {
+              "name": "Curry Chips",
+              "price": "$5",
+              "category": "food"
+            },
+            {
+              "name": "Corned Beef Egg Rolls",
+              "price": "$7",
+              "category": "food"
+            },
+            {
+              "name": "Well Drinks",
+              "price": "$5",
+              "category": "cocktail"
+            },
+            {
+              "name": "All Beers",
+              "price": "$1 off",
+              "category": "beer"
+            },
+            {
+              "name": "Tipsy Clover Shots",
+              "price": "$5"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://osullivansescondido.com/specials",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -42097,112 +43351,205 @@
       "note": "Dine in only",
       "sections": [
         {
-          "title": "JB's Happy Hour (Mon - Fri 3pm - 5pm)",
+          "title": "MON - FRI 3PM TO 5PM",
           "items": [
             {
               "name": "Guinness Drafts",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
             },
             {
               "name": "Craft Beer Drafts",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Drafts: Bud Light, Amberbock, Michelob Ultra & Coors Light",
-              "price": "$5"
+              "price": "$5",
+              "category": "beer"
             },
             {
-              "name": "All Bottled Beers",
-              "price": "$5"
+              "name": "Bottled Beers",
+              "price": "$5",
+              "category": "beer"
             },
             {
               "name": "House Wine",
-              "price": "$5"
+              "price": "$5",
+              "category": "wine"
             },
             {
-              "name": "White Claws & House Margaritas",
-              "price": "$5"
+              "name": "White Claws",
+              "price": "$5",
+              "category": "na_beverage"
+            },
+            {
+              "name": "House Margaritas",
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "All Cocktails (except Well) & Premium Wine by the Glass",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "cocktail"
             },
             {
               "name": "Jalapeno Poppers",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Onion Ring/Fry Combo",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Jalapeno Mozzarella Sticks",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Chicken Tenders",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Chili Relleno Spring Rolls",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Potato Skins",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Tuesday - All Day",
+          "title": "TUESDAY - ALL DAY",
           "items": [
             {
               "name": "Shots of Tequila",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "spirit"
             },
             {
               "name": "Bud Light/Coors Light/Amberbock",
-              "price": "$1 off"
+              "price": "$1 off",
+              "category": "beer"
             }
           ]
         },
         {
-          "title": "Wednesday - Wine, Wings & Whiskey",
+          "title": "WEDNESDAY - ALL DAY",
           "items": [
             {
               "name": "Bottles of Wine",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "wine"
             },
             {
               "name": "Wings (4)",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
               "name": "Shots of Whiskey",
-              "price": "50% off"
+              "price": "50% off",
+              "category": "spirit"
             },
             {
               "name": "Local, Micro & Import Drafts",
-              "price": "$1 off"
+              "price": "$1 off",
+              "category": "beer"
             }
           ]
         },
         {
-          "title": "Daily - All Day",
+          "title": "DAILY - ALL DAY",
           "items": [
             {
-              "name": "Open Bottle Special - Red wine glasses from any previously opened bottle",
-              "price": "$5"
+              "name": "Open Bottle Special - Red Wine Glasses",
+              "price": "$5",
+              "category": "wine"
+            }
+          ]
+        },
+        {
+          "title": "LUNCH SPECIAL MON - FRI 11AM - 3PM",
+          "items": [
+            {
+              "name": "Cheeseburger",
+              "price": "$15.50",
+              "category": "food"
+            },
+            {
+              "name": "Grilled Chicken Breast Sandwich",
+              "price": "$16.25",
+              "category": "food"
+            },
+            {
+              "name": "The Impossible Burger",
+              "price": "$16.95",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "MONDAY NIGHT 5PM - CLOSE",
+          "items": [
+            {
+              "name": "Cheeseburger & Fries",
+              "price": "$13.95",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "TUESDAY SLIDERS 11AM - CLOSE",
+          "items": [
+            {
+              "name": "Mix 'n Match Sliders (2)",
+              "price": "$9",
+              "category": "food"
+            },
+            {
+              "name": "Impossible Sliders",
+              "price": "$3",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "BURGER/SANDWICH & BREW OF THE MONTH",
+          "items": [
+            {
+              "name": "Burger or Sandwich of the Month",
+              "price": "$2 off",
+              "category": "food"
+            },
+            {
+              "name": "Beer of the Month",
+              "price": "$2 off",
+              "category": "beer"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.johnnybsburgersandbrew.com/menu-specials",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/250-johnny-b-s-burgers-brew-spirits-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.johnnybsburgersandbrew.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.johnnybsburgersandbrew.com/menu-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/250-johnny-b-s-burgers-brew-spirits-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.johnnybsburgersandbrew.com/menu-specials",
         "generated": true
       }
     ],
@@ -47322,104 +48669,139 @@
       "note": "",
       "sections": [
         {
-          "title": "Monday Specials",
+          "title": "Monday",
           "items": [
             {
               "name": "Rotating Beer Handle",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Build Your Own Burger",
-              "price": "$8"
-            },
-            {
-              "name": "Happy Hour",
-              "price": ""
+              "price": "$8",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Tuesday Specials",
+          "title": "Tuesday",
           "items": [
             {
               "name": "Margaritas",
-              "price": "$7"
+              "price": "$7",
+              "category": "cocktail"
             },
             {
               "name": "Modelo Pints",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Chicken or Ground Beef Street Tacos",
-              "price": "$2"
+              "price": "$2",
+              "category": "food"
             },
             {
               "name": "Corned Beef Tacos",
-              "price": "$2.50"
+              "price": "$2.50",
+              "category": "food"
             },
             {
               "name": "Beer Battered Fish",
-              "price": "$3"
+              "price": "$3",
+              "category": "food"
             },
             {
               "name": "Taco salad, mini tostadas, taco plates with rice and beans",
-              "price": ""
-            },
-            {
-              "name": "Happy Hour",
-              "price": ""
+              "price": "",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Wednesday Specials",
+          "title": "Wednesday",
           "items": [
             {
               "name": "House Wine",
-              "price": "$6"
+              "price": "$6",
+              "category": "wine"
             },
             {
               "name": "Prime Rib (7-8 ounces)",
-              "price": "$15.99"
+              "price": "$15.99",
+              "category": "food"
             },
             {
               "name": "Prime Rib (10 ounces)",
-              "price": "$19.99"
+              "price": "$19.99",
+              "category": "food"
             },
             {
               "name": "Prime Rib (13 ounces)",
-              "price": "$23.99"
-            },
-            {
-              "name": "Happy Hour",
-              "price": ""
+              "price": "$23.99",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Thursday Specials",
+          "title": "Thursday",
           "items": [
             {
-              "name": "Irish Whiskey Shot",
-              "price": "$2 off"
+              "name": "Irish Whiskey shot",
+              "price": "$2 off",
+              "category": "spirit"
             },
             {
               "name": "Irish Boxty",
-              "price": "$12.95"
+              "price": "$12.95",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Friday",
+          "items": [
+            {
+              "name": "Beer Battered North Atlantic Cod and fries (1 piece)",
+              "price": "$9.49",
+              "category": "food"
             },
             {
-              "name": "Happy Hour",
-              "price": ""
+              "name": "Beer Battered North Atlantic Cod and fries (2 piece)",
+              "price": "$13.99",
+              "category": "food"
+            },
+            {
+              "name": "Beer Battered North Atlantic Cod and fries (3 piece)",
+              "price": "$18.49",
+              "category": "food"
+            },
+            {
+              "name": "Family Deal - Beer Battered North Atlantic Cod and all you can eat fries (6 piec",
+              "price": "$32.99",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Sunday",
+          "items": [
+            {
+              "name": "Bloody Mary",
+              "price": "",
+              "category": "cocktail"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.killarneys.com/temecula-killarneys-irish-pub-happy-hours-specials",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/278-killarney-s-restaurant-irish-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://www.killarneys.com/",
+        "sourceUrl": "http://www.killarneys.com/temecula-killarneys-irish-pub-happy-hours-specials",
         "generated": true
       }
     ],
@@ -49100,77 +50482,99 @@
     "galleryImages": [
       {
         "url": "/images/venues/287-nobu-san-diego-hh-menu-board.png",
-        "caption": "Happy hour menu (page 1 of 3)",
-        "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
+        "caption": "Happy hour menu (page 1 of 4)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
         "generated": true
       },
       {
         "url": "/images/venues/287-nobu-san-diego-hh-menu-board-2.png",
-        "caption": "Happy hour menu (page 2 of 3)",
-        "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
+        "caption": "Happy hour menu (page 2 of 4)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
         "generated": true
       },
       {
         "url": "/images/venues/287-nobu-san-diego-hh-menu-board-3.png",
-        "caption": "Happy hour menu (page 3 of 3)",
-        "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
+        "caption": "Happy hour menu (page 3 of 4)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/287-nobu-san-diego-hh-menu-board-4.png",
+        "caption": "Happy hour menu (page 4 of 4)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Not available during special events and holidays",
+      "note": "Available Daily from 5:30 - 6:30 in the Bar & Lounge. Not Available during special events and holidays.",
       "sections": [
         {
-          "title": "BEER",
+          "title": "BEVERAGES - BEER",
           "items": [
             {
               "name": "Sapporo Light",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
             },
             {
               "name": "Sapporo",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
             },
             {
               "name": "Asahi 0.0%",
-              "price": "$7"
+              "price": "$7",
+              "category": "beer"
             },
             {
               "name": "Hitachino Dai Dai or White Ale",
-              "price": "$9"
+              "price": "$9",
+              "category": "beer"
             }
           ]
         },
         {
-          "title": "SAKE & WINE",
+          "title": "BEVERAGES - SAKE & WINE",
           "items": [
             {
               "name": "Syltbar \"Il Concerto\" Prosecco, Porcia, IT, nv",
-              "price": "$9"
+              "price": "$9",
+              "category": "wine"
             },
             {
               "name": "Mohua, Sauvignon Blanc, NZ '22",
-              "price": "$9"
+              "price": "$9",
+              "category": "wine"
             },
             {
               "name": "Jules Taylor, Chardonnay, New Zealand, '23",
-              "price": "$10"
+              "price": "$10",
+              "category": "wine"
+            },
+            {
+              "name": "Grgich Hills, Chardonnay, Napa Valley, '23",
+              "price": "$18",
+              "category": "wine"
             },
             {
               "name": "Trefethen Merlot, Napa Valley, CA '22",
-              "price": "$12"
+              "price": "$12",
+              "category": "wine"
             },
             {
               "name": "6oz Hokusetsu Junmai Sake (Hot or Cold)",
-              "price": "$14"
+              "price": "$14",
+              "category": "wine"
             },
             {
               "name": "6oz Fruit Sake (Pineapple or Guava)",
-              "price": "$10"
+              "price": "$10",
+              "category": "wine"
             },
             {
               "name": "Hokusetsu, Plum Wine, Japan NV",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             }
           ]
         },
@@ -49179,19 +50583,23 @@
           "items": [
             {
               "name": "Coco-Natsu",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Market Margarita",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Lychee Martini",
-              "price": "$14"
+              "price": "$14",
+              "category": "cocktail"
             },
             {
               "name": "Bento Azul",
-              "price": "$15"
+              "price": "$15",
+              "category": "cocktail"
             }
           ]
         },
@@ -49200,79 +50608,99 @@
           "items": [
             {
               "name": "Edamame Sea Salt",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             },
             {
               "name": "Shishito Pepper Sea Salt",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Edamame Chocolo",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Yellowtail Jalapeno (4pcs)",
-              "price": "$18"
+              "price": "$18",
+              "category": "food"
             },
             {
               "name": "Salmon Karashi Su Miso (4pcs)",
-              "price": "$18"
+              "price": "$18",
+              "category": "food"
             },
             {
               "name": "Whitefish Sashimi Dry Miso (4pcs)",
-              "price": "$20"
+              "price": "$20",
+              "category": "food"
             },
             {
               "name": "Yellowfin Tuna Aji Amarillo Ponzu (4pcs)",
-              "price": "$20"
+              "price": "$20",
+              "category": "food"
             },
             {
               "name": "Nobu Ceviche",
-              "price": "$20"
+              "price": "$20",
+              "category": "food"
             },
             {
               "name": "Lobster Ceviche Butter Lettuce (2pcs)",
-              "price": "$16"
+              "price": "$16",
+              "category": "food"
             },
             {
               "name": "Spicy Tuna Cut Roll",
-              "price": "$11"
+              "price": "$11",
+              "category": "food"
             },
             {
               "name": "Salmon Avocado Cut Roll",
-              "price": "$11"
+              "price": "$11",
+              "category": "food"
             },
             {
               "name": "Yellowtail Scallion Cut Roll",
-              "price": "$11"
+              "price": "$11",
+              "category": "food"
             },
             {
               "name": "Black Cod Butter Lettuce (2pcs)",
-              "price": "$13"
+              "price": "$13",
+              "category": "food"
             },
             {
               "name": "Crispy Rice Spicy Tuna (6pcs)",
-              "price": "$25"
+              "price": "$25",
+              "category": "food"
             },
             {
               "name": "Matsuhisa Yellowfin Tuna Tacos (2pcs)",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             },
             {
               "name": "Nobu Style Fish Tacos (2pcs)",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             },
             {
               "name": "Beef Tartar",
-              "price": "$26"
+              "price": "$26",
+              "category": "food"
             },
             {
               "name": "Wagyu Tacos (2pcs)",
-              "price": "$30"
+              "price": "$30",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.noburestaurants.com/sandiego/menus",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": false,
     "allowsDogs": false,
@@ -50667,116 +52095,305 @@
       "note": "",
       "sections": [
         {
-          "title": "Monday All Day Happy Hour",
+          "title": "Monday - All Day Happy Hour",
           "items": [
+            {
+              "name": "Draft beers, wines & well drinks",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Irish Mules",
+              "price": "",
+              "category": "cocktail"
+            },
             {
               "name": "Pub favorites",
-              "price": ""
-            },
-            {
-              "name": "Draft beers",
-              "price": ""
-            },
-            {
-              "name": "Wines",
-              "price": ""
-            },
-            {
-              "name": "Well drinks",
-              "price": ""
-            },
-            {
-              "name": "Irish Mules",
-              "price": ""
+              "price": "",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Tuesday Happy Hour",
-          "items": [
-            {
-              "name": "Chef-selected appetizers",
-              "price": ""
-            },
-            {
-              "name": "Draft beers",
-              "price": ""
-            },
-            {
-              "name": "Well drinks",
-              "price": ""
-            },
-            {
-              "name": "Wines",
-              "price": ""
-            },
-            {
-              "name": "Irish Mules",
-              "price": ""
-            }
-          ]
-        },
-        {
-          "title": "Tuesday Taco Tuesday",
+          "title": "Tuesday - Taco Tuesday",
           "items": [
             {
               "name": "Classic tacos",
-              "price": "$3.50"
+              "price": "$3.50",
+              "category": "food"
             },
             {
-              "name": "Weekly specialty tacos",
-              "price": ""
+              "name": "Weekly specialty taco",
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Southwest Rolls",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Poblano Dip & Chips",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
-              "name": "Margaritas",
-              "price": ""
+              "name": "Margarita",
+              "price": "",
+              "category": "cocktail"
             },
             {
               "name": "Weekly handcrafted margarita special",
-              "price": ""
+              "price": "",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Wednesday Happy Hour",
+          "title": "Tuesday - Happy Hour",
           "items": [
             {
               "name": "Chef-selected appetizers",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Draft beers",
-              "price": ""
+              "price": "",
+              "category": "beer"
             },
             {
               "name": "Well drinks",
-              "price": ""
+              "price": "",
+              "category": "cocktail"
             },
             {
               "name": "Wines",
-              "price": ""
+              "price": "",
+              "category": "wine"
             },
             {
               "name": "Irish Mules",
-              "price": ""
+              "price": "",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday - Whiskey, Wine & Wing Wednesd",
+          "items": [
+            {
+              "name": "Whiskey, bourbon, scotch & wine bottles",
+              "price": "½ off",
+              "category": "spirit"
+            },
+            {
+              "name": "Wings",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Wednesday - Happy Hour",
+          "items": [
+            {
+              "name": "Chef-selected appetizers",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Draft beers",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Well drinks",
+              "price": "",
+              "category": "cocktail"
+            },
+            {
+              "name": "Wines",
+              "price": "",
+              "category": "wine"
+            },
+            {
+              "name": "Irish Mules",
+              "price": "",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Thursday - All Irish Thursday",
+          "items": [
+            {
+              "name": "Harp Lager",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Smithwick's Irish Red",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Kilkenny Irish Red",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Guinness",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Fish & Chips",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Fish, Shrimp & Chips",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Shrimp & Chips",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Thursday - Kids Eat Free",
+          "items": [
+            {
+              "name": "Kids meal with purchase of adult entrée",
+              "price": "Free",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Thursday - Happy Hour",
+          "items": [
+            {
+              "name": "Chef-selected appetizers",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Draft beers",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Wines",
+              "price": "",
+              "category": "wine"
+            },
+            {
+              "name": "Well drinks",
+              "price": "",
+              "category": "cocktail"
+            },
+            {
+              "name": "Irish Mules",
+              "price": "",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Friday - Happy Hour",
+          "items": [
+            {
+              "name": "Chef-selected appetizers",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Draft beers",
+              "price": "",
+              "category": "beer"
+            },
+            {
+              "name": "Well drinks",
+              "price": "",
+              "category": "cocktail"
+            },
+            {
+              "name": "Wines",
+              "price": "",
+              "category": "wine"
+            },
+            {
+              "name": "Irish Mules",
+              "price": "",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Friday - Prime Rib Night",
+          "items": [
+            {
+              "name": "New England-style Clam Chowder",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Hand-cut Prime Rib",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Saturday - Brunch",
+          "items": [
+            {
+              "name": "Bloody Mary",
+              "price": "",
+              "category": "cocktail"
+            },
+            {
+              "name": "Champagne",
+              "price": "$12",
+              "category": "wine"
+            }
+          ]
+        },
+        {
+          "title": "Saturday - Prime Rib Night",
+          "items": [
+            {
+              "name": "New England-style Clam Chowder",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Hand-cut Prime Rib",
+              "price": "",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.hooleys.com/happy-hours-specials",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/294-hooleys-public-house-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.hooleys.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.hooleys.com/happy-hours-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/294-hooleys-public-house-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://www.hooleys.com/happy-hours-specials",
         "generated": true
       }
     ],
@@ -55026,20 +56643,27 @@
     "galleryImages": [
       {
         "url": "/images/venues/321-love-boat-sushi-oceanside-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://loveboatsushi.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://loveboatsushi.com/happy-hour-menu/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/321-love-boat-sushi-oceanside-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://loveboatsushi.com/happy-hour-menu/",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Not available on holidays or with other promotions",
+      "note": "Monday – Thursday, 3:00pm – 5:30pm, not available on holidays or with other promotions",
       "sections": [
         {
           "title": "Sake",
           "items": [
             {
               "name": "Hot Sake",
-              "price": ""
+              "price": "",
+              "category": "spirit"
             }
           ]
         },
@@ -55048,15 +56672,18 @@
           "items": [
             {
               "name": "Love Boat Chardonnay",
-              "price": ""
+              "price": "",
+              "category": "wine"
             },
             {
               "name": "Love Boat Cabernet Sauvignon",
-              "price": ""
+              "price": "",
+              "category": "wine"
             },
             {
               "name": "Love Boat Rosé",
-              "price": ""
+              "price": "",
+              "category": "wine"
             }
           ]
         },
@@ -55064,12 +56691,14 @@
           "title": "Beer",
           "items": [
             {
-              "name": "Asahi Super Dry (5% ABV, 11 OZ / 20 OZ)",
-              "price": ""
+              "name": "Asahi Super Dry",
+              "price": "",
+              "category": "beer"
             },
             {
-              "name": "Sapporo Premium (5% ABV)",
-              "price": ""
+              "name": "Sapporo Premium",
+              "price": "",
+              "category": "beer"
             }
           ]
         },
@@ -55078,35 +56707,144 @@
           "items": [
             {
               "name": "Edamame",
-              "price": ""
-            },
-            {
-              "name": "Mixed Tempura",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Garlic Chili Edamame",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Agedashi Tofu",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Crispy Gyoza",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Green Salad",
-              "price": ""
+              "price": "",
+              "category": "food"
             },
             {
               "name": "Takoyaki",
-              "price": ""
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Mixed Tempura",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "House Rolls",
+          "items": [
+            {
+              "name": "Avocado",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Asparagus",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Cucumber",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "California",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Vegetable",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Scallop",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Salmon Asparagus",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Spicy Shrimp",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Spicy Salmon",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Spicy Tuna",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Specialty Rolls",
+          "items": [
+            {
+              "name": "Philadelphia Roll",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Playboy Roll",
+              "price": "",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Tempura Rolls",
+          "items": [
+            {
+              "name": "Deep Fried California Roll",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Crunch Salmon Roll",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Crunch Shrimp Roll",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Geisha Roll",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Heart Attack Roll",
+              "price": "",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://loveboatsushi.com/happy-hour-menu/",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -55242,31 +56980,35 @@
       {
         "url": "/images/venues/322-barbarella-restaurant-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://barbarellarestaurant.com/?y_source=1_MjQzMTg2OTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+        "sourceUrl": "https://barbarellarestaurant.com/happy-hours-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy hour pricing on cocktails, wines, beer, and select food items",
+      "note": "",
       "sections": [
         {
           "title": "Cocktails",
           "items": [
             {
               "name": "Barbarita",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Garden Party",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Bella Fresca Mojito",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Espresso Martini",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             }
           ]
         },
@@ -55275,36 +57017,53 @@
           "items": [
             {
               "name": "House-Made Limoncello",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Aperol",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Elderflower",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             },
             {
               "name": "Campari",
-              "price": "$13"
+              "price": "$13",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Wines & Beer",
+          "title": "Wines",
           "items": [
             {
               "name": "House Red",
-              "price": "$10"
+              "price": "$10",
+              "category": "wine"
             },
             {
               "name": "House White",
-              "price": "$10"
-            },
+              "price": "$10",
+              "category": "wine"
+            }
+          ]
+        },
+        {
+          "title": "Beer",
+          "items": [
             {
               "name": "Draft Beer",
-              "price": "$5"
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Beer",
+              "price": "$1 off",
+              "category": "beer"
             }
           ]
         },
@@ -55313,19 +57072,24 @@
           "items": [
             {
               "name": "Oysters",
-              "price": "$1.25/each"
+              "price": "$1.25/each",
+              "category": "oysters"
             },
             {
               "name": "Wings",
-              "price": "$5/(5)"
+              "price": "$5/(5)",
+              "category": "food"
             },
             {
-              "name": "Pizza (Cheese | Pepperoni)",
-              "price": "$15"
+              "name": "Pizza",
+              "price": "$15",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://barbarellarestaurant.com/happy-hours-specials",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -56916,24 +58680,72 @@
     "galleryImages": [
       {
         "url": "/images/venues/332-sbicca-del-mar-restaurant-with-ocean-views-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.sbiccadelmar.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.sbiccadelmar.com/del-mar-del-mar-sbicca-del-mar-restaurant-with-ocean-views-happy-hours-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/332-sbicca-del-mar-restaurant-with-ocean-views-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://www.sbiccadelmar.com/del-mar-del-mar-sbicca-del-mar-restaurant-with-ocean-views-happy-hours-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Saturday and Sunday brunch 11am-3pm with $10 mimosas. Half off all bottles of wine Tuesday and Thursday 3pm-11:30pm.",
+      "note": "Bar area only 3pm-6pm; Restaurant 3pm-5pm. Not available on holidays or Del Mar Racetrack opening day.",
       "sections": [
+        {
+          "title": "Bites",
+          "items": [
+            {
+              "name": "Mussels with Grilled Bread",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Beef Slider Trio",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Short Rib Tacos (2)",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Beer-Battered Fish Taco",
+              "price": "$7",
+              "category": "food"
+            },
+            {
+              "name": "Salmon Crudo",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Veggie Flatbread",
+              "price": "",
+              "category": "food"
+            },
+            {
+              "name": "Shrimp Fettuccini",
+              "price": "$6",
+              "category": "food"
+            }
+          ]
+        },
         {
           "title": "Cocktails",
           "items": [
             {
               "name": "Espresso Martini",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             },
             {
               "name": "Margarita",
-              "price": "$9"
+              "price": "$9",
+              "category": "cocktail"
             }
           ]
         },
@@ -56942,27 +58754,33 @@
           "items": [
             {
               "name": "Chardonnay",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Sauvignon Blanc (NZ)",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Rosé",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Pinot Noir",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Cabernet Sauvignon",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Prosecco",
-              "price": "$8"
+              "price": "$8",
+              "category": "wine"
             }
           ]
         },
@@ -56971,56 +58789,54 @@
           "items": [
             {
               "name": "Corona Mexican Lager",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Pacifico Mexican Lager",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Coors Light",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Bitburger 0.0 (NA)",
-              "price": "$6"
+              "price": "$6",
+              "category": "na_beverage"
             }
           ]
         },
         {
-          "title": "Bites",
+          "title": "Seaside Raw Bar (Saturday & Sunday 11 AM",
           "items": [
             {
-              "name": "Mussels with Grilled Bread",
-              "price": ""
+              "name": "Sequim Bay Sapphire Oysters",
+              "price": "$16/half dozen, $32/doze",
+              "category": "oysters"
             },
             {
-              "name": "Beef Slider Trio",
-              "price": ""
+              "name": "Willapa Bay Fat Bastard Oysters",
+              "price": "$24/half dozen, $48/doze",
+              "category": "oysters"
             },
             {
-              "name": "Short Rib Tacos (2)",
-              "price": ""
+              "name": "Bluefin Poke",
+              "price": "$25",
+              "category": "food"
             },
             {
-              "name": "Beer-Battered Fish Taco",
-              "price": "$7"
-            },
-            {
-              "name": "Salmon Crudo",
-              "price": ""
-            },
-            {
-              "name": "Veggie Flatbread",
-              "price": ""
-            },
-            {
-              "name": "Shrimp Fettuccini",
-              "price": "$6"
+              "name": "Cajun Crab-Stuffed Oysters",
+              "price": "$24",
+              "category": "oysters"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.sbiccadelmar.com/del-mar-del-mar-sbicca-del-mar-restaurant-with-ocean-views-happy-hours-specials",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": true,
@@ -58583,132 +60399,167 @@
       {
         "url": "/images/venues/345-mariscos-el-pacifico-fallbrook-hh-menu-board.png",
         "caption": "Happy hour menu (page 1 of 2)",
-        "sourceUrl": "https://mariscoselpacificofb.com/",
+        "sourceUrl": "https://mariscoselpacificofb.com/fallbrook-mariscos-el-pacifico-fallbrook-happy-hours-specials",
         "generated": true
       },
       {
         "url": "/images/venues/345-mariscos-el-pacifico-fallbrook-hh-menu-board-2.png",
         "caption": "Happy hour menu (page 2 of 2)",
-        "sourceUrl": "https://mariscoselpacificofb.com/",
+        "sourceUrl": "https://mariscoselpacificofb.com/fallbrook-mariscos-el-pacifico-fallbrook-happy-hours-specials",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour prices. Taco Tuesday 2:00 PM–Close. Thursday Fish Taco Specials all day.",
+      "note": "",
       "sections": [
         {
-          "title": "Drinks",
+          "title": "TO DRINK",
           "items": [
             {
               "name": "Fallbrook Reds",
-              "price": "$7.25"
+              "price": "$7.25",
+              "category": "wine"
             },
             {
               "name": "Fallbrook Whites",
-              "price": "$7.50"
+              "price": "$7.50",
+              "category": "wine"
             },
             {
               "name": "Fetzer Pinot Grigio",
-              "price": "$6.50"
+              "price": "$6.50",
+              "category": "wine"
             },
             {
-              "name": "Light Beer 2 for 1",
-              "price": "bottles & draft (16 oz)"
+              "name": "Light Beer - 2 for 1 bottles and draft (16 oz only)",
+              "price": "2 for 1",
+              "category": "beer"
             },
             {
               "name": "22 oz Beer of the Month",
-              "price": "$6"
+              "price": "$6",
+              "category": "beer"
             },
             {
               "name": "Bottled Beer",
-              "price": "$1.50 off"
+              "price": "$1.50 off",
+              "category": "beer"
             },
             {
               "name": "House Lime Margarita",
-              "price": "$7.50"
+              "price": "$7.50",
+              "category": "cocktail"
             },
             {
-              "name": "Califino Rita",
-              "price": "$9.50"
+              "name": "Califino Rita (Monday)",
+              "price": "$9.50",
+              "category": "cocktail"
             },
             {
               "name": "Lola Mezcalita (Pineapple, Hibiscus, Tamarind)",
-              "price": "$10.50"
+              "price": "$10.50",
+              "category": "cocktail"
+            },
+            {
+              "name": "Lola Mezcalita Flight",
+              "price": "$25",
+              "category": "cocktail"
+            },
+            {
+              "name": "Califino Tequila Flight",
+              "price": "$29.50",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Food",
+          "title": "TO EAT",
           "items": [
             {
-              "name": "Ceviche (Shrimp or Fish)",
-              "price": "2 for 1"
+              "name": "Ceviche Shrimp or fish - 2 for 1",
+              "price": "2 for 1",
+              "category": "food"
             },
             {
               "name": "Fried Avocado",
-              "price": "$9.50"
+              "price": "$9.50",
+              "category": "food"
             },
             {
               "name": "Fish & Chips",
-              "price": "$13"
+              "price": "$13",
+              "category": "food"
             },
             {
               "name": "Taquitos",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             },
             {
               "name": "Mexican Pizza",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Cancun Wings",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Nachos",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Taco Tuesday",
+          "title": "TACO TUESDAY",
           "items": [
             {
-              "name": "Crispy Tacos (Shredded Beef, Chicken, Ground Beef, Potato, Guacamole)",
-              "price": "$4 each"
+              "name": "Crispy Tacos - Shredded Beef, Chicken, Ground Beef, Potato, or Guacamole",
+              "price": "$4",
+              "category": "food"
             },
             {
-              "name": "Soft Tacos (Al Pastor, Carnitas, Grilled Chicken, Carne Asada, Fried Avocado, Bu",
-              "price": "$4 each"
+              "name": "Soft Tacos - Al Pastor, Carnitas, Grilled Chicken, Carne Asada, Fried Avocado, o",
+              "price": "$4",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Thursday Fish Taco Specials",
+          "title": "THURSDAY FISH TACO SPECIALS",
           "items": [
             {
-              "name": "One Fish Taco (Mahi Mahi, Salmon, Sea Bass, Tilapia, Shrimp, Swai)",
-              "price": "$5.50"
+              "name": "One Taco - Mahi Mahi, Salmon, Sea Bass, Tilapia, Shrimp or Swai Fish",
+              "price": "$5.50",
+              "category": "food"
             },
             {
-              "name": "One Taco Combo (with 2 sides)",
-              "price": "$9.50"
+              "name": "Combo - One Taco",
+              "price": "$9.50",
+              "category": "food"
             },
             {
-              "name": "Two Tacos Combo (with 2 sides)",
-              "price": "$12.50"
+              "name": "Combo - Two Tacos",
+              "price": "$12.50",
+              "category": "food"
             },
             {
-              "name": "Coronita Beer",
-              "price": "$1.50"
+              "name": "Shorty - Coronita",
+              "price": "$1.50",
+              "category": "beer"
             },
             {
-              "name": "Dos Equis Lager Beer",
-              "price": "$1.50"
+              "name": "Shorty - Dos Equis Lager",
+              "price": "$1.50",
+              "category": "beer"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://mariscoselpacificofb.com/fallbrook-mariscos-el-pacifico-fallbrook-happy-hours-specials",
+      "observedAt": "2026-08-31"
     }
   },
   {
@@ -65307,84 +67158,195 @@
       "note": "",
       "sections": [
         {
-          "title": "Everyday Happy Hour (4pm-6pm Daily)",
+          "title": "Everyday Happy Hour",
           "items": [
             {
-              "name": "Island Tapas Menu",
-              "price": "$2 off"
-            },
-            {
               "name": "Draft beer & well cocktails",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Wine by the glass",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
+            },
+            {
+              "name": "Island Tapas Menu",
+              "price": "$2 off",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "Monday",
+          "title": "Monday - Burger & Brew Combo",
           "items": [
             {
               "name": "Burger & Brew Combo",
-              "price": "$20"
+              "price": "$20",
+              "category": "food"
             },
             {
               "name": "Soft Pretzel",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
               "name": "Draft beer",
-              "price": "all day happy hour"
+              "price": "",
+              "category": "beer"
             }
           ]
         },
         {
-          "title": "Tuesday",
+          "title": "Tuesday - Taco Tuesday",
           "items": [
             {
               "name": "Fixed taco flight (3) (carne asada, shrimp, pollo asado)",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             },
             {
               "name": "Street tacos",
-              "price": "$5"
+              "price": "$5",
+              "category": "food"
             },
             {
-              "name": "House margaritas",
-              "price": "$10"
+              "name": "House margarita",
+              "price": "$10",
+              "category": "cocktail"
             }
           ]
         },
         {
-          "title": "Wednesday",
+          "title": "Wednesday - Wine Down Wednesday",
           "items": [
             {
-              "name": "All day happy hour",
-              "price": ""
-            },
-            {
-              "name": "All desserts",
-              "price": "$2 off"
-            },
-            {
               "name": "Bottles of house wine",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "wine"
             },
             {
               "name": "Cheese and charcuterie plate",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "food"
+            },
+            {
+              "name": "All desserts",
+              "price": "$2 off",
+              "category": "food"
+            },
+            {
+              "name": "Draft beer & well cocktails",
+              "price": "",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Thursday - Tiki Thursday",
+          "items": [
+            {
+              "name": "House poke nachos",
+              "price": "$16",
+              "category": "food"
+            },
+            {
+              "name": "Pineapple upside down cake",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Pineapple dole whipped",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "House mai tai",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Pina colada slush",
+              "price": "$10",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Friday - Fish Fry Friday",
+          "items": [
+            {
+              "name": "Fish & chips",
+              "price": "$5 off",
+              "category": "food"
+            },
+            {
+              "name": "Fish tacos",
+              "price": "$2 off",
+              "category": "food"
+            },
+            {
+              "name": "House calamari",
+              "price": "½ off",
+              "category": "food"
+            },
+            {
+              "name": "Signature Cocktails",
+              "price": "$2 off",
+              "category": "cocktail"
+            },
+            {
+              "name": "Draft beer",
+              "price": "",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Saturday & Sunday - Wing Weekend",
+          "items": [
+            {
+              "name": "House buffalo wings",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "House boneless wings",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Tender & fry combo",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Bloody Mary",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Mimosas",
+              "price": "$5",
+              "category": "cocktail"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.islandpalms.com/shelter-island-restaurant/blue-wave-bar-grill/menus/#weekly-specials",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/386-blue-wave-bar-grill-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.islandpalms.com/dining",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.islandpalms.com/shelter-island-restaurant/blue-wave-bar-grill/menus/#weekly-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/386-blue-wave-bar-grill-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.islandpalms.com/shelter-island-restaurant/blue-wave-bar-grill/menus/#weekly-specials",
         "generated": true
       }
     ],
@@ -65561,111 +67523,189 @@
     "galleryImages": [
       {
         "url": "/images/venues/387-davanti-enoteca-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://davantienotecadelmar.com/",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "http://davantienotecadelmar.com/san-diego-del-mar-carmel-valley-davanti-enoteca-del-mar-food-menu",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/387-davanti-enoteca-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "http://davantienotecadelmar.com/san-diego-del-mar-carmel-valley-davanti-enoteca-del-mar-food-menu",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/387-davanti-enoteca-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
+        "sourceUrl": "http://davantienotecadelmar.com/san-diego-del-mar-carmel-valley-davanti-enoteca-del-mar-food-menu",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Cannot combine with any other promotion or use Synergy Card",
+      "note": "At The Bar | Holidays & Christmas Eve excepted",
       "sections": [
         {
-          "title": "Wine & Spirits",
+          "title": "Food",
+          "items": [
+            {
+              "name": "Bruschetta Tradizionale",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Caesar Salad",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Ricotta Vasi",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Parmesan Truffle Fries",
+              "price": "$6",
+              "category": "food"
+            },
+            {
+              "name": "Pâté Vasi",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Prosciutto - Veal Meatballs",
+              "price": "$11",
+              "category": "food"
+            },
+            {
+              "name": "Pizza of The Day",
+              "price": "$12",
+              "category": "food"
+            },
+            {
+              "name": "Cacio E Pepe",
+              "price": "$12",
+              "category": "food"
+            }
+          ]
+        },
+        {
+          "title": "Drinks",
           "items": [
             {
               "name": "Prosecco",
-              "price": "$7/Glass"
+              "price": "$7",
+              "category": "wine"
             },
             {
               "name": "House Rosso",
-              "price": "$7/Glass"
+              "price": "$7",
+              "category": "wine"
             },
             {
               "name": "Chianti",
-              "price": "$7/Glass"
+              "price": "$7",
+              "category": "wine"
             },
             {
               "name": "Pinot Grigio",
-              "price": "$7/Glass"
+              "price": "$7",
+              "category": "wine"
             },
             {
               "name": "Super Tuscan",
-              "price": "$8/Glass"
+              "price": "$8",
+              "category": "wine"
             },
             {
               "name": "Chardonnay",
-              "price": "$8/Glass"
+              "price": "$8",
+              "category": "wine"
             },
-            {
-              "name": "White or Red Sangria",
-              "price": "$8"
-            }
-          ]
-        },
-        {
-          "title": "Tap Beer",
-          "items": [
-            {
-              "name": "Peroni",
-              "price": "$6"
-            },
-            {
-              "name": "Stone Delicious IPA",
-              "price": "$6"
-            },
-            {
-              "name": "Stella Artois",
-              "price": "$6"
-            },
-            {
-              "name": "Ballast Points Sculpin IPA",
-              "price": "$6"
-            },
-            {
-              "name": "Seasonal Special",
-              "price": "$6"
-            }
-          ]
-        },
-        {
-          "title": "Bottled Beer",
-          "items": [
-            {
-              "name": "Coors Light",
-              "price": "$6"
-            },
-            {
-              "name": "Bud Light",
-              "price": "$6"
-            }
-          ]
-        },
-        {
-          "title": "Cocktails",
-          "items": [
             {
               "name": "Well Cocktails",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Davanti Spritz",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Margarita",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "San Diego Mule",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Lemon Drop",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "White or Red Sangria",
+              "price": "$8",
+              "category": "wine"
+            },
+            {
+              "name": "Peroni",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Stone Delicious IPA",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Stella Artois",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Ballast Points Sculpin IPA",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Seasonal Special",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Coors Light",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "Bud Light",
+              "price": "$6",
+              "category": "beer"
+            },
+            {
+              "name": "N/A Beer Selection",
+              "price": "$6",
+              "category": "na_beverage"
+            }
+          ]
+        },
+        {
+          "title": "Bottle & Board",
+          "items": [
+            {
+              "name": "Bottle & Board",
+              "price": "$32",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://davantienotecadelmar.com/san-diego-del-mar-carmel-valley-davanti-enoteca-del-mar-food-menu",
+      "observedAt": "2026-08-31"
     },
     "outdoorSeating": true,
     "allowsDogs": true,
@@ -68592,22 +70632,25 @@
       }
     ],
     "hhMenu": {
-      "note": "Happy Hour menu with drink and appetizer discounts",
+      "note": "Thursday thru Sunday, 2PM to 5PM",
       "sections": [
         {
           "title": "Appetizers",
           "items": [
             {
               "name": "Mac & Cheese Balls",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "food"
             },
             {
               "name": "Pork Belly Sliders",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "food"
             },
             {
               "name": "\"Dubba\" Fried Wings",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "food"
             }
           ]
         },
@@ -68616,23 +70659,48 @@
           "items": [
             {
               "name": "Coors Light",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Firestone Walker – 805 Blond Ale",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Stone Brewery - Buenaveza Salt & Lime Lager",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Societe Brewing – The Pupil IPA",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
-              "name": "All Drafts",
-              "price": "$5 off pitchers"
+              "name": "Burning Beard – Rotating",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Stone Brewery – Dayfall Belgian White",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Michelada - Chamoy and Tajin Rim!",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Stone - Hazy IPA",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Rotating Tap (Ask For Brewery)",
+              "price": "$2 off",
+              "category": "beer"
             }
           ]
         },
@@ -68641,70 +70709,110 @@
           "items": [
             {
               "name": "Milestone Red Blend",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "Milestone Cabernet",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "J. Lohr Pinot Noir",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "Mirassou Chardonnay",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "J Lohr Sauvignon Blanc",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "Maggio Pinot Grigio",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             },
             {
               "name": "Apothic Rose",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "wine"
             }
           ]
         },
         {
-          "title": "Cans & Seltzers",
+          "title": "Cans",
           "items": [
             {
               "name": "Bud Light",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Modelo Especial",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
-              "name": "Topo Chico Seltzers",
-              "price": "$2 off"
+              "name": "Topo Chico Seltzers - Ask For Flavors",
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Belching Beaver - Must Be the Honey",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Pizza Port - Chronic Amber Red Ale",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             },
             {
               "name": "Ale Smith - Speedway Stout",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Julian Hard Cider – Harvest Apple",
+              "price": "$2 off",
+              "category": "beer"
+            },
+            {
+              "name": "Athletic Brewing Company - Non Alcoholic",
+              "price": "$2 off",
+              "category": "na_beverage"
+            }
+          ]
+        },
+        {
+          "title": "Pitchers",
+          "items": [
+            {
+              "name": "Draft beer, wine & cocktails",
+              "price": "$5 off"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "http://www.buckboardsbbq.com/el-cajon-buckboard-s-barbecue-and-brew-happy-hours-specials",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/406-buckboard-s-bbq-brew-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "http://www.buckboardsbbq.com/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.buckboardsbbq.com/el-cajon-buckboard-s-barbecue-and-brew-happy-hours-specials",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/406-buckboard-s-bbq-brew-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "http://www.buckboardsbbq.com/el-cajon-buckboard-s-barbecue-and-brew-happy-hours-specials",
         "generated": true
       }
     ],
@@ -71763,26 +73871,30 @@
       "observedAt": "2026-08-29"
     },
     "hhMenu": {
-      "note": "Afternoon Delights happy hour menu",
+      "note": "Bar only",
       "sections": [
         {
-          "title": "Sushi",
+          "title": "Sushi Snacks",
           "items": [
             {
               "name": "California Roll",
-              "price": "$12"
+              "price": "$12",
+              "category": "oysters"
             },
             {
               "name": "Spicy Tuna Crispy Rice",
-              "price": "$13"
+              "price": "$13",
+              "category": "oysters"
             },
             {
               "name": "Shrimp Tempura Crunch",
-              "price": "$12"
+              "price": "$12",
+              "category": "oysters"
             },
             {
               "name": "Spicy Avocado Roll",
-              "price": "$10"
+              "price": "$10",
+              "category": "oysters"
             }
           ]
         },
@@ -71790,44 +73902,54 @@
           "title": "Snacks",
           "items": [
             {
-              "name": "Crunchy Chicken Tacos",
-              "price": "$5 each"
-            },
-            {
               "name": "Soft Pretzels & Provolone Fondue",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             },
             {
               "name": "Antipasti Plate",
-              "price": "$13"
+              "price": "$13",
+              "category": "food"
             },
             {
               "name": "Cheap House Salad",
-              "price": "$6"
+              "price": "$6",
+              "category": "food"
             },
             {
               "name": "Crispy Brussels Sprouts",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "House Potato Chips",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Meatloaf Sloppy Joe",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
             },
             {
               "name": "Nachos",
-              "price": "$12"
+              "price": "$12",
+              "category": "food"
             },
             {
               "name": "Wagyu Pigs in a Blanket",
-              "price": "$14"
+              "price": "$14",
+              "category": "food"
             },
             {
               "name": "Spicy Korean Pork Ribs",
-              "price": "$10"
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Crunchy Chicken Tacos",
+              "price": "$5",
+              "category": "food"
             }
           ]
         },
@@ -71836,19 +73958,23 @@
           "items": [
             {
               "name": "Mexican Candy",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "Dropout Whiskey",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "Fancy Green Tea",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             },
             {
               "name": "Sparkplug",
-              "price": "$5"
+              "price": "$5",
+              "category": "cocktail"
             }
           ]
         },
@@ -71857,29 +73983,86 @@
           "items": [
             {
               "name": "East of Manhattan",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Maui Wowie",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "Dublin Green",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
             },
             {
               "name": "El Bee Si",
-              "price": "$10"
+              "price": "$10",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "The Classics",
+          "items": [
+            {
+              "name": "Perfect Margarita",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Daiquiri",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Old Fashioned American Spirit",
+              "price": "$10",
+              "category": "cocktail"
+            },
+            {
+              "name": "Summer Tan Sangria",
+              "price": "$10",
+              "category": "cocktail"
+            }
+          ]
+        },
+        {
+          "title": "Or You Could Just Have Another Drink",
+          "items": [
+            {
+              "name": "Draught Beer 16oz",
+              "price": "$5",
+              "category": "beer"
+            },
+            {
+              "name": "Draught Beer 20oz",
+              "price": "$7",
+              "category": "beer"
+            },
+            {
+              "name": "Glass of White, Red, or Bubbles",
+              "price": "$6",
+              "category": "wine"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://www.culinarydropout.com/",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/427-culinary-dropout-hh-menu-board.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.culinarydropout.com/locations/culinary-dropout-del-mar-ca/",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.culinarydropout.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/427-culinary-dropout-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.culinarydropout.com/",
         "generated": true
       }
     ],
@@ -75353,11 +77536,28 @@
           "items": [
             {
               "name": "Kalua Pork Sliders",
-              "price": "$4 ea"
+              "price": "$4 ea",
+              "category": "food"
             },
             {
-              "name": "Modelo, Ultra, Coors & Miller Lite",
-              "price": "$3 ea"
+              "name": "Modelo",
+              "price": "$3 ea",
+              "category": "beer"
+            },
+            {
+              "name": "Ultra",
+              "price": "$3 ea",
+              "category": "beer"
+            },
+            {
+              "name": "Coors",
+              "price": "$3 ea",
+              "category": "beer"
+            },
+            {
+              "name": "Miller Lite",
+              "price": "$3 ea",
+              "category": "beer"
             }
           ]
         },
@@ -75366,11 +77566,13 @@
           "items": [
             {
               "name": "Village Tacos",
-              "price": "$4 ea"
+              "price": "$4 ea",
+              "category": "food"
             },
             {
               "name": "All Tequila Cocktails",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "cocktail"
             },
             {
               "name": "Industry Drafts or Wells",
@@ -75383,11 +77585,13 @@
           "items": [
             {
               "name": "Wings",
-              "price": "$6 off"
+              "price": "$6 off",
+              "category": "food"
             },
             {
               "name": "Well Cocktails",
-              "price": "$6 ea"
+              "price": "$6 ea",
+              "category": "cocktail"
             }
           ]
         },
@@ -75396,21 +77600,64 @@
           "items": [
             {
               "name": "All Burgers",
-              "price": "$5 off"
+              "price": "$5 off",
+              "category": "food"
             },
             {
-              "name": "House Drafts (Blonde, IPA, Amber, Lager)",
-              "price": "$5 ea"
+              "name": "House Drafts - Blonde",
+              "price": "$5 ea",
+              "category": "beer"
+            },
+            {
+              "name": "House Drafts - IPA",
+              "price": "$5 ea",
+              "category": "beer"
+            },
+            {
+              "name": "House Drafts - Amber",
+              "price": "$5 ea",
+              "category": "beer"
+            },
+            {
+              "name": "House Drafts - Lager",
+              "price": "$5 ea",
+              "category": "beer"
+            }
+          ]
+        },
+        {
+          "title": "Friday Funday (1–4 PM)",
+          "items": [
+            {
+              "name": "Drinks & Munchies",
+              "price": "$2 off"
+            }
+          ]
+        },
+        {
+          "title": "Weekend Breakfast (Friday–Sunday)",
+          "items": [
+            {
+              "name": "2 Breakfast Entrées",
+              "price": "$22",
+              "category": "food"
+            },
+            {
+              "name": "Bottomless Mimosas",
+              "price": "",
+              "category": "cocktail"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://americanheroesandbrew.com/happy-hour",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/450-american-heroes-brew-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://americanheroesandbrew.com/?utm_source=google&utm_medium=gbp&utm_campaign=local",
+        "sourceUrl": "https://americanheroesandbrew.com/happy-hour",
         "generated": true
       }
     ]
@@ -79168,7 +81415,8 @@
           "items": [
             {
               "name": "Drafts",
-              "price": "$2 off"
+              "price": "$2 off",
+              "category": "beer"
             }
           ]
         },
@@ -79186,7 +81434,8 @@
           "items": [
             {
               "name": "Pizza-Par-Tuesday: Whole Pizza & Beer",
-              "price": "$23"
+              "price": "$23",
+              "category": "food"
             }
           ]
         },
@@ -79195,17 +81444,30 @@
           "items": [
             {
               "name": "Wine-Down Wednesdays",
-              "price": "½ off"
+              "price": "½ off",
+              "category": "wine"
+            }
+          ]
+        },
+        {
+          "title": "Sunday",
+          "items": [
+            {
+              "name": "Smash-n-Glass Smashburger & a Glass of Beer",
+              "price": "$15",
+              "category": "food"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://mastiffkitchen.com/la-mesa-mastiff-kitchen-la-mesa-daily-deals",
+      "observedAt": "2026-08-31"
     },
     "galleryImages": [
       {
         "url": "/images/venues/474-mastiff-kitchen-la-mesa-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://mastiffkitchen.com/",
+        "sourceUrl": "https://mastiffkitchen.com/la-mesa-mastiff-kitchen-la-mesa-daily-deals",
         "generated": true
       }
     ],
@@ -90688,144 +92950,206 @@
       {
         "url": "/images/venues/552-sushi-roka-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu (page 1 of 2)",
-        "sourceUrl": "https://www.sushirokasd.com/",
+        "sourceUrl": "https://sushirokasd.com/poway-northeastern-san-diego-sushi-roka-happy-hour",
         "generated": true
       },
       {
         "url": "/images/venues/552-sushi-roka-bar-grill-hh-menu-board-2.png",
         "caption": "Happy hour menu (page 2 of 2)",
-        "sourceUrl": "https://www.sushirokasd.com/",
+        "sourceUrl": "https://sushirokasd.com/poway-northeastern-san-diego-sushi-roka-happy-hour",
         "generated": true
       }
     ],
     "hhMenu": {
-      "note": "Happy hour prices may not apply during holidays",
+      "note": "Monday - Wednesday all day & Thursday 11:30 am - 4:00 pm",
       "sections": [
         {
-          "title": "$7",
+          "title": "Food",
           "items": [
             {
               "name": "California Roll",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Spicy Cucumbers",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
             {
               "name": "Veggie Roll",
-              "price": "$7"
+              "price": "$7",
+              "category": "food"
             },
-            {
-              "name": "Draft Beer",
-              "price": "$7"
-            },
-            {
-              "name": "Hot Sake",
-              "price": "$7"
-            },
-            {
-              "name": "House Red Wine",
-              "price": "$7"
-            },
-            {
-              "name": "House White Wine",
-              "price": "$7"
-            }
-          ]
-        },
-        {
-          "title": "$8",
-          "items": [
             {
               "name": "Spicy Tuna Roll",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
               "name": "Asparagus Tempura Roll",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
               "name": "Pacific Oysters",
-              "price": "$8"
+              "price": "$8",
+              "category": "oysters"
             },
             {
               "name": "Pork Gyoza",
-              "price": "$8"
+              "price": "$8",
+              "category": "food"
             },
             {
-              "name": "Large Beer (Bottle)",
-              "price": "$8"
-            }
-          ]
-        },
-        {
-          "title": "$9",
-          "items": [
-            {
               "name": "Philly Roll",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Salmon Skin Roll",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
-              "name": "Jalapeño Garlic Wings",
-              "price": "$9"
+              "name": "Jalapeno Garlic Wings",
+              "price": "$9",
+              "category": "food"
             },
             {
               "name": "Fried Mixed Tempura",
-              "price": "$9"
+              "price": "$9",
+              "category": "food"
             },
             {
-              "name": "Martini (Cucumber, Lemon Drop, Cosmo)",
-              "price": "$9"
+              "name": "Cucumber Stuffed Jalapeno",
+              "price": "$10",
+              "category": "food"
             },
             {
-              "name": "Margarita (Mango, Strawberry, Jalapeño Cucumber)",
-              "price": "$9"
+              "name": "Mango Tango Roll",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Crispy Fried Green Beans",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Spicy Tuna Crispy Rice",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Shrimp Tempura Roll",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Butter Salmon Nigiri (3pc)",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Ahi Tuna Oysters",
+              "price": "$10",
+              "category": "oysters"
+            },
+            {
+              "name": "Crab Puffs",
+              "price": "$10",
+              "category": "food"
+            },
+            {
+              "name": "Crunchy Shrimp Roll",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Beach Boy Roll",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Drop It Like Its Hot Roll",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Firecracker Roll",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Pork Belly Bao Buns",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Fried Calamari",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Kama",
+              "price": "$13",
+              "category": "food"
+            },
+            {
+              "name": "Seared Blue Fin Tuna Nigiri (3 Pc)",
+              "price": "$13",
+              "category": "food"
             }
           ]
         },
         {
-          "title": "$10",
+          "title": "Drinks",
           "items": [
             {
-              "name": "Stuffed Jalapeño",
-              "price": "$10"
+              "name": "Draft Beer",
+              "price": "$7",
+              "category": "beer"
             },
             {
-              "name": "Mango Tango Roll",
-              "price": "$10"
+              "name": "Hot Sake",
+              "price": "$7",
+              "category": "spirit"
             },
             {
-              "name": "Crispy Fried Green Beans",
-              "price": "$10"
+              "name": "House Red Wine",
+              "price": "$7",
+              "category": "wine"
             },
             {
-              "name": "Spicy Tuna Crispy Rice",
-              "price": "$10"
+              "name": "House White Wine",
+              "price": "$7",
+              "category": "wine"
             },
             {
-              "name": "Shrimp Tempura Roll",
-              "price": "$10"
+              "name": "Large Beer",
+              "price": "$8/bottle",
+              "category": "beer"
             },
             {
-              "name": "Butter Salmon Nigiri (3pc)",
-              "price": "$10"
+              "name": "Martini",
+              "price": "$9",
+              "category": "cocktail"
             },
             {
-              "name": "Ahi Tuna Oysters",
-              "price": "$10"
+              "name": "Margarita",
+              "price": "$9",
+              "category": "cocktail"
             },
             {
-              "name": "Crab Puffs",
-              "price": "$10"
+              "name": "Large Beer & Hot Sake",
+              "price": "$13"
             }
           ]
         }
-      ]
+      ],
+      "sourceUrl": "https://sushirokasd.com/poway-northeastern-san-diego-sushi-roka-happy-hour",
+      "observedAt": "2026-08-31"
     },
     "imageCrop": {
       "x": 45,

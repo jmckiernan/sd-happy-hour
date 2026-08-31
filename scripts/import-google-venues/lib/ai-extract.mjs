@@ -78,7 +78,7 @@ Field rules:
 - windows: one entry per distinct schedule (afternoon HH, late-night HH, all-day Monday). Omit a window rather than guess. Max 4 windows. An allDay window's days are only the days the source calls all-day.
 - deals: directory chips. Maximum 6. Never pad. Same category or price band → one chip ("$6 house beers, wines & wells", "$8 wings, rings & green beans"). Distinct categories stay separate. If more than 6 categories, keep the 6 most useful and mix drinks and food. If there are only 2 or 3 categories, return only those. Include percent-off, half-off, and combo prices — a dollar sign is not required. Never copy marketing sentences, questions, or location constraints like "(in bar area only)" — those belong on the window, not as chips.
 - weeklySpecials: recurring specials that are not the main HH window
-- menuBoard: complete HH items grouped by section (Food / Drinks / Specials). Max 4 sections, 20 items each. Prices as printed ("$6") when present. This is for a gallery flyer, not chips.
+- menuBoard: complete HH items grouped by section (Food / Drinks / Specials). Use as many sections as the venue prints, up to 12, with up to 60 items each — these are ceilings, not targets, and a menu shorter than them must not be padded. Prices as printed ("$6") when present. This is for a gallery flyer, not chips.
 - menuBoard item category: one of beer, wine, cocktail, spirit, na_beverage, food, oysters, other — what the item is, judged from the section it sits under as much as its name, so a house name like "Del Sol" on a cocktail list is "cocktail". Use "other" only for things that are neither food nor drink.
 - evidence: at most 4 quotes, each 8–240 characters copied from the source
 - If no happy hour or specials exist for this location, found=false with a specific reason`;
@@ -110,7 +110,7 @@ Return ONLY valid JSON (no markdown fences):
   "sections": [{ "title": string, "items": [{ "name": string, "price": string, "category": string }] }]
 }
 
-Max 4 sections, 24 items each.`;
+Up to 12 sections, 60 items each. These are ceilings to stop a runaway response, not targets: use as many sections as the venue actually prints and never merge two of its headings to fit under them, but never pad a short menu to reach them either.`;
 
 function throwAnthropicHttpError(status, errText) {
   const message = `Anthropic API error (${status}): ${String(errText || '').slice(0, 400)}`;
@@ -650,8 +650,11 @@ export async function transcribeMenuBoardWithAi(inventory, venueContext = null) 
   ];
 
   const response = await postAnthropic(content, {
+    // A 12-section menu of long item names does not fit 4096 output tokens, and
+    // the failure mode is JSON cut off mid-item — the same silent truncation
+    // this pass exists to remove, just one layer further out.
     system: MENU_BOARD_SYSTEM_PROMPT,
-    maxTokens: 4096,
+    maxTokens: 8192,
     purpose: 'menu-board',
   });
   return normalizeMenuBoard(parseModelJson(response.text));
