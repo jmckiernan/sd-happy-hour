@@ -93,7 +93,9 @@ test('manager listing form distinguishes venue hours from happy-hour hours', () 
 });
 
 test('venue page keeps one default-list quick-save action without a list picker', async () => {
-  const venuePage = await readFile(path.join(ROOT, 'src', 'pages', 'venues', '[slug].astro'), 'utf8');
+  // [slug].astro is now just a router between the full listing and the claim
+  // stub; the save action lives in the listing component.
+  const venuePage = await readFile(path.join(ROOT, 'src', 'components', 'VenueHappyHourPage.astro'), 'utf8');
 
   assert.match(venuePage, /\.venue-actions\s*\{[^}]*display:\s*flex;/s);
   assert.match(venuePage, /<div class="venue-topbar">[\s\S]*?class="back-link"[\s\S]*?class="btn-admin-edit"[\s\S]*?<\/div>/);
