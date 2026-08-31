@@ -41,6 +41,24 @@ export function isPubliclyListed(
 }
 
 /**
+ * Should this venue's page be advertised in the sitemap?
+ *
+ * This is the exact complement of the `noindex` that VenueHappyHourPage puts on
+ * the page, and it lives here so the two cannot drift apart. They had: the
+ * sitemap filter excluded `unlisted` but not `seoHidden`, so 83 pages were
+ * submitted to Google carrying a tag telling it not to index them — which
+ * Search Console reports as an error, and which wastes crawl budget on listings
+ * we had already decided to keep out of search.
+ *
+ * Note the sitemap is built with no knowledge of runtime claims, the same as
+ * every other build-time caller, so it gets the static answer and catches up on
+ * the deploy that clearance triggers.
+ */
+export function isSitemapEligible(venue: VisibilityInput & { seoHidden?: boolean }): boolean {
+  return isPubliclyListed(venue) && !venue.seoHidden;
+}
+
+/**
  * Why a published venue is held back from browse.
  *
  * Each reason is a different situation wanting different handling and

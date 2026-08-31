@@ -17,7 +17,7 @@
 import assert from 'node:assert/strict';
 import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
 import { getPublicVenues, hasSchedule, getVenues } from '../src/lib/venues';
-import { isPubliclyListed } from '../src/lib/listingVisibility';
+import { isPubliclyListed, isSitemapEligible } from '../src/lib/listingVisibility';
 import { venueSearchText } from '../src/lib/venueSearchText';
 import { getNeighborhoodProfiles } from '../src/lib/neighborhoods';
 import { isVerifiedForIndexing } from '../scripts/import-google-venues/lib/seo-visibility.mjs';
@@ -142,7 +142,29 @@ function testABuildingFullOfTenantsIsNotAPublishedVenue() {
   );
 }
 
+/**
+ * A page is never both advertised to Google and told not to be indexed.
+ *
+ * The sitemap filter in astro.config.mjs excluded `unlisted` but not
+ * `seoHidden`, while VenueHappyHourPage renders `noindex` for both — so 83
+ * listings were submitted for crawling and then refused indexing on arrival.
+ * Both sides now read `isSitemapEligible`, and this holds them to it: the
+ * sitemap's answer must be exactly the negation of the page's noindex rule.
+ */
+function testTheSitemapAndTheNoindexTagAgree() {
+  // VenueHappyHourPage: noindex={venue.seoHidden || !isPubliclyListed(venue)}
+  const pageIsNoIndex = (venue) => Boolean(venue.seoHidden) || !isPubliclyListed(venue);
+  const disagreements = happyHours.filter(
+    (venue) => isSitemapEligible(venue) === pageIsNoIndex(venue)
+  );
+  assert.deepEqual(disagreements.map(label), []);
+
+  // And the flag has to still be doing something, or this passes vacuously.
+  assert.ok(happyHours.some((venue) => venue.seoHidden && isPubliclyListed(venue)));
+}
+
 tests.push(
+  testTheSitemapAndTheNoindexTagAgree,
   testEveryPublishedVenueIsOnTheHomepage,
   testEveryPublishedVenueCanBeFoundBySearchingItsOwnName,
   testEveryPublishedVenueSurvivesEveryFilterFacet,

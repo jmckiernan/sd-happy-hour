@@ -3,15 +3,21 @@ import netlify from '@astrojs/netlify';
 import sitemap from '@astrojs/sitemap';
 import venues from './public/data/happy-hours.json' with { type: 'json' };
 import { buildVenueSlugMap } from './src/lib/venueSlug.ts';
+import { isSitemapEligible } from './src/lib/listingVisibility.ts';
 
 // Venues we can't back with real happy-hour data still get a page so owners can
 // find and claim them, but they stay out of the sitemap. Slugs come from
 // venueSlug.ts (not venues.ts) so this config doesn't pull the JSON twice
 // through TypeScript.
+//
+// Which venues belong in the sitemap is decided by isSitemapEligible, so this
+// file and the `noindex` on the venue page cannot disagree about it again — they
+// did, and `seoHidden` pages were being advertised to Google while telling it
+// not to index them.
 const venueSlugs = buildVenueSlugMap(venues);
-const unlistedVenuePaths = new Set(
+const hiddenVenuePaths = new Set(
   venues
-    .filter((venue) => venue.listingStatus === 'unlisted')
+    .filter((venue) => !isSitemapEligible(venue))
     .map((venue) => `/venues/${venueSlugs.get(venue.id)}/`),
 );
 
@@ -30,7 +36,7 @@ export default defineConfig({
       const privatePrefixes = ['/account', '/admin', '/alerts', '/lists', '/restaurant', '/submit'];
       return !privatePrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
         && pathname !== '/venues/your-mother-s-house/'
-        && !unlistedVenuePaths.has(pathname);
+        && !hiddenVenuePaths.has(pathname);
     },
   })],
   vite: {
