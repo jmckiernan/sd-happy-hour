@@ -1241,6 +1241,59 @@ function testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu() {
   assert.ok(offenders.length <= 20, `menu-captioned photos without a stored menu: ${offenders.length}`);
 }
 
+/**
+ * Menu content and the board that displays it stay together.
+ *
+ * The board is the zoomable copy of the same text the page renders as HTML,
+ * and it is what someone reading on a phone actually opens. It is also the
+ * easiest thing in the pipeline to lose by accident: it lives in
+ * `galleryImages`, which two other steps rewrite wholesale, so a venue can end
+ * up with a full transcribed menu and no image of it without anything failing.
+ */
+function testEveryStoredMenuHasARenderedBoard() {
+  const offenders = happyHours
+    .filter((venue) => venue.hhMenu?.sections?.length)
+    .filter((venue) => !(venue.galleryImages || []).some((image) => image.generated))
+    .map((venue) => `${venue.name} (${venue.id})`);
+  assert.deepEqual(offenders, [], `stored menu with no rendered board: ${offenders.join(', ')}`);
+}
+
+/**
+ * A board is proof we drew it, so it must not be claimed for a scrape. The
+ * flag is the only thing distinguishing our render from a venue's own flyer —
+ * both are written as `<id>-<slug>-hh-menu*` — and a wrong one both hides a
+ * missing board from the check above and makes `menus:render` skip the venue
+ * forever.
+ */
+function testNoScrapedImageClaimsToBeOurBoard() {
+  const offenders = [];
+  for (const venue of happyHours) {
+    for (const image of venue.galleryImages || []) {
+      if (!image.generated) continue;
+      // Our renderer writes the file itself, so the source is either absent or
+      // the page the menu was read from — never a venue's media CDN.
+      if (/popmenucloud|cloudfront|wixstatic|squarespace|shopify/i.test(image.sourceUrl || '')) {
+        offenders.push(`${venue.name} (${venue.id}) ${image.caption}`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [], `scraped images flagged as our board: ${offenders.join(', ')}`);
+}
+
+/** Normalizing a menu for board layout must not discard its provenance. */
+function testMenuNormalizationKeepsProvenance() {
+  const normalized = normalizeMenuBoard({
+    note: 'Happy hour',
+    sections: [{ title: 'Beer', items: [{ name: 'Draft', price: '$6' }, { name: 'Bottles', price: '$5' }] }],
+    sourceUrl: 'https://example.com/happy-hour',
+    observedAt: '2026-08-31',
+    sourceImages: [{ url: '/images/venues/1-x-hh-menu.jpg', caption: 'Flyer' }],
+  });
+  assert.equal(normalized.sourceUrl, 'https://example.com/happy-hour');
+  assert.equal(normalized.observedAt, '2026-08-31');
+  assert.equal(normalized.sourceImages.length, 1);
+}
+
 function testDealChipsCapAtSix() {
   assert.equal(MAX_DEAL_CHIPS, 6);
   const chips = cleanDeals([
@@ -1742,6 +1795,9 @@ const tests = [
   testOvernightHappyHourIsActiveAfterMidnight,
   testMultiWindowScheduleUsesLateNightToo,
   testAllDayWindowIsLiveThatCalendarDay,
+  testEveryStoredMenuHasARenderedBoard,
+  testNoScrapedImageClaimsToBeOurBoard,
+  testMenuNormalizationKeepsProvenance,
   testDealChipsCapAtSix,
   testPageMatchesVenueListing,
   testVenueSearchTokensMatchGaslamplighter,

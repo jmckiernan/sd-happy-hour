@@ -268,6 +268,15 @@ export function normalizeMenuBoard(raw) {
   return {
     note: String(raw.note || '').replace(/\s+/g, ' ').trim().slice(0, 140),
     sections,
+    // Provenance survives normalization. Rebuilding the object from `note` and
+    // `sections` alone dropped `sourceUrl`, `observedAt` and the scraped
+    // original every time a board was re-rendered, which is why most menus in
+    // the catalog have no record of where they came from and no way to check a
+    // transcription against the image it was read off.
+    ...(raw.sourceUrl ? { sourceUrl: raw.sourceUrl } : {}),
+    ...(raw.observedAt ? { observedAt: raw.observedAt } : {}),
+    ...(raw.sourceImages?.length ? { sourceImages: raw.sourceImages } : {}),
+    ...(raw.fromDealChips ? { fromDealChips: raw.fromDealChips } : {}),
   };
 }
 

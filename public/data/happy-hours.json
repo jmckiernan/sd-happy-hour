@@ -58765,10 +58765,15 @@
     },
     "galleryImages": [
       {
+        "url": "/images/venues/347-san-diego-brewing-company-hh-menu-board.png",
+        "caption": "Happy hour menu",
+        "sourceUrl": "http://sandiegobrewing.com/happy-hour-specials",
+        "generated": true
+      },
+      {
         "url": "/images/venues/347-san-diego-brewing-company-hh-menu-2.jpg",
         "caption": "Brewhouse",
-        "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D1200%2Cheight%3D1200%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/2daf0dd3-74f4-4da0-87eb-de955ed67e56",
-        "generated": true
+        "sourceUrl": "https://popmenucloud.com/cdn-cgi/image/width%3D1200%2Cheight%3D1200%2Cfit%3Dscale-down%2Cformat%3Dauto%2Cquality%3D60/ghqraduj/2daf0dd3-74f4-4da0-87eb-de955ed67e56"
       }
     ],
     "hhMenu": {
@@ -58789,8 +58794,7 @@
             },
             {
               "name": "Wells",
-              "price": "$6",
-              "category": "cocktails"
+              "price": "$6"
             }
           ]
         },
@@ -66485,7 +66489,15 @@
       "startPrice": 10,
       "endPrice": 20,
       "currencyCode": "USD"
-    }
+    },
+    "galleryImages": [
+      {
+        "url": "/images/venues/395-the-amigo-cantina-hh-menu-board.png",
+        "caption": "Happy hour menu",
+        "sourceUrl": "https://amigospotsandiego.com/",
+        "generated": true
+      }
+    ]
   },
   {
     "id": 396,
@@ -82965,7 +82977,7 @@
     "dealTypes": [
       "food"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/500-maya-s-cookies.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -83061,7 +83073,15 @@
           "sourceUrl": "https://cdn.shopify.com/s/files/1/0002/1187/7945/files/mayas_cookies_chocolate_chip_cookie_happy_hour_website_480x480.png?v=1777059688"
         }
       ]
-    }
+    },
+    "galleryImages": [
+      {
+        "url": "/images/venues/500-maya-s-cookies-hh-menu-board.png",
+        "caption": "Happy hour menu",
+        "sourceUrl": "https://mayascookies.com/",
+        "generated": true
+      }
+    ]
   },
   {
     "id": 501,
@@ -95878,7 +95898,7 @@
       "beer",
       "wine"
     ],
-    "seoHidden": true,
+    "seoHidden": false,
     "image": "/images/venues/595-tour-de-tapas.jpg",
     "hasHappyHourData": true,
     "dealsUnknown": false,
@@ -96017,7 +96037,15 @@
           "sourceUrl": "https://tourdetapas.com/wp-content/uploads/2025/01/TourDeTapas-HappyHour-11x17-PRINT.jpg"
         }
       ]
-    }
+    },
+    "galleryImages": [
+      {
+        "url": "/images/venues/595-tour-de-tapas-hh-menu-board.png",
+        "caption": "Happy hour menu",
+        "sourceUrl": "https://tourdetapas.com/",
+        "generated": true
+      }
+    ]
   },
   {
     "id": 596,

@@ -14,7 +14,7 @@
 import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
 import { normalizeMenuBoard } from './lib/ai-extract.mjs';
 import { createMenuBoardRenderer } from './lib/menu-board-image.mjs';
-import { persistMenuFlyers } from './lib/menu-flyers.mjs';
+import { persistMenuBoard } from './lib/menu-flyers.mjs';
 import { parseArgs, readJson, writeJson } from './lib/io.mjs';
 
 function slugify(value) {
@@ -30,10 +30,16 @@ function parseRenderArgs(argv) {
   return options;
 }
 
+/** True when normalizing dropped a section or an item the listing had stored. */
+function losesContent(before, after) {
+  const count = (menu) => (menu?.sections || []).reduce((n, section) => n + (section.items?.length || 0), 0);
+  return (after.sections?.length || 0) < (before.sections?.length || 0) || count(after) < count(before);
+}
+
 function selectVenues(venues, options) {
-  // Any listing with a transcribed menu gets our board, including ones whose
-  // gallery still holds the flyer it was transcribed from — the board replaces
-  // it so every venue page looks the same.
+  // Any listing with a transcribed menu gets our board. The board is the
+  // zoomable copy of the same text the page renders as HTML, so a venue with
+  // menu content and no board has lost a feature rather than gained tidiness.
   let todo = venues.filter((venue) => venue.hhMenu?.sections?.length);
   if (options.venue) {
     const keys = String(options.venue).split(',').map((part) => part.trim()).filter(Boolean);
@@ -56,17 +62,24 @@ async function main() {
     for (const venue of todo) {
       try {
         // Re-normalizing lets copy rules added since the scrape (prefix
-        // stripping, item caps) reach boards without paying for a crawl.
-        venue.hhMenu = normalizeMenuBoard(venue.hhMenu) || venue.hhMenu;
-        const image = await renderer.render(venue.hhMenu, venue);
+        // stripping, item caps) reach boards without paying for a crawl. The
+        // board is drawn from the normalized copy, but the listing only keeps
+        // it when nothing was lost: normalization caps a board at four
+        // sections and 24 items per section for layout, which is a statement
+        // about what fits on an image and not about what the venue sells.
+        // Persisting the trimmed version deleted five of Amigo Cantina's
+        // transcribed items, including a whole tequila flight section.
+        const normalized = normalizeMenuBoard(venue.hhMenu);
+        const menu = normalized || venue.hhMenu;
+        if (normalized && !losesContent(venue.hhMenu, normalized)) venue.hhMenu = normalized;
+        const image = await renderer.render(menu, venue);
         if (!image?.bytes?.length) {
           failed += 1;
           console.warn(`  ! ${venue.name}: renderer returned no image`);
           continue;
         }
         if (options.apply) {
-          const saved = await persistMenuFlyers(venue, [image]);
-          if (saved.length) venue.galleryImages = saved;
+          venue.galleryImages = await persistMenuBoard(venue, image);
         }
         rendered += 1;
         const items = venue.hhMenu.sections.reduce((n, section) => n + section.items.length, 0);

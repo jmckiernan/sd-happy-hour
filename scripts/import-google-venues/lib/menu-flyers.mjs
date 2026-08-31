@@ -41,6 +41,42 @@ async function imagesFromPage(page) {
   return [];
 }
 
+/**
+ * Write the board we typeset from `hhMenu` into the venue gallery.
+ *
+ * Separate from `persistMenuFlyers` for two reasons that both caused bugs.
+ *
+ * The filename is its own `-hh-menu-board` slot. Flyers are numbered from
+ * `-hh-menu`, which is the same name the scraped original already occupies, so
+ * rendering a board for a venue whose flyer we had transcribed would overwrite
+ * the provenance image the transcription is checked against.
+ *
+ * And it merges rather than replaces. The gallery was once assumed to hold only
+ * the flyer the board supersedes, so the caller assigned over the whole array;
+ * now that it also holds genuine venue photographs, that silently deleted them.
+ */
+export async function persistMenuBoard(venue, image) {
+  if (!venue?.id || !image?.bytes?.length) return venue.galleryImages || [];
+  await fs.mkdir(VENUE_IMAGE_DIR, { recursive: true });
+
+  const sniffed = sniffMediaFromBytes(image.bytes);
+  const ext = extensionFor(sniffed?.mediaType || image.mediaType || 'image/png');
+  const filename = `${venue.id}-${slugify(venue.name)}-hh-menu-board.${ext}`;
+  await fs.writeFile(path.join(VENUE_IMAGE_DIR, filename), image.bytes);
+
+  const board = {
+    url: `/images/venues/${filename}`,
+    caption: 'Happy hour menu',
+    sourceUrl: image.sourceUrl || venue.hhMenu?.sourceUrl || null,
+    generated: true,
+  };
+
+  // The board leads, because it is the thing a reader zooms into to read the
+  // menu; the venue's own photographs follow it.
+  const photos = (venue.galleryImages || []).filter((existing) => !existing.generated);
+  return [board, ...photos];
+}
+
 /** Write happy-hour menu images (and rasterized PDF pages) into the venue gallery. */
 export async function persistMenuFlyers(venue, mediaPages = []) {
   if (!venue?.id || !mediaPages.length) return [];
