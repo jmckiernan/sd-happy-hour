@@ -3,6 +3,7 @@ export const prerender = false;
 import Layout from '../../../layouts/Layout.astro';
 import { getAdminUser } from '../../../lib/admins';
 import { getGitHubTarget, getOctokit, getBlogFile } from '../../../lib/blogDrafts';
+import { describeGitHubError } from '../../../lib/github';
 import { renderMarkdown } from '../../../lib/markdown';
 import { getPostImage } from '../../../lib/venues';
 
@@ -23,10 +24,14 @@ if (admin) {
       bodyHtml = renderMarkdown(draft.body);
       heroImage = getPostImage(draft.data.heroImage, draft.data.venues, 'hero');
     } else {
-      loadError = 'Draft not found — it may have already been published or discarded.';
+      // Reachable only for a genuine 404 now that getBlogFile() rethrows
+      // everything else, so this no longer misreports an auth failure as a
+      // missing post. Published posts live at the same path as drafts, so a
+      // live post reaches the editor below like any draft does.
+      loadError = 'No post with this slug exists in the repo — it may have been deleted.';
     }
   } catch (err: any) {
-    loadError = err.message;
+    loadError = describeGitHubError(err, 'load this post');
   }
 }
 

@@ -11,6 +11,7 @@ import {
   removeField,
   rebuildFile,
 } from '../../../../lib/blogDrafts';
+import { describeGitHubError } from '../../../../lib/github';
 import { renderMarkdown } from '../../../../lib/markdown';
 import { getPostImage } from '../../../../lib/venues';
 
@@ -44,7 +45,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
       bodyHtml: renderMarkdown(file.body),
     });
   } catch (err: any) {
-    return errorJson([`Could not load draft: ${err.message}`], 502);
+    return errorJson([describeGitHubError(err, 'load this post')], 502);
   }
 };
 
@@ -104,15 +105,18 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
       repo: target.repo,
       path: file.path,
       branch: target.branch,
-      message: `Edit draft: ${title.trim()}`,
+      // Same file either way, but the history should say which one it was —
+      // matching how DELETE distinguishes discarding a draft from deleting a
+      // live post. `draft` itself is untouched here, so editing a published
+      // post updates it in place and it stays published.
+      message: `${file.data.draft ? 'Edit draft' : 'Edit post'}: ${title.trim()}`,
       content: Buffer.from(content, 'utf-8').toString('base64'),
       sha: file.sha,
     });
 
     return json({ success: true, slug });
   } catch (err: any) {
-    const detail = err?.response?.data?.message || err?.message || String(err);
-    return errorJson([`Could not save edits: ${detail}`], 502);
+    return errorJson([describeGitHubError(err, 'save your edits')], 502);
   }
 };
 
@@ -167,7 +171,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 
     return json({ success: true, slug, action });
   } catch (err: any) {
-    return errorJson([`Could not ${action}: ${err.message}`], 502);
+    return errorJson([describeGitHubError(err, `${action} this post`)], 502);
   }
 };
 
@@ -203,6 +207,6 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
 
     return json({ success: true, slug });
   } catch (err: any) {
-    return errorJson([`Could not discard draft: ${err.message}`], 502);
+    return errorJson([describeGitHubError(err, 'delete this post')], 502);
   }
 };

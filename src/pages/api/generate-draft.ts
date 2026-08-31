@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { Octokit } from '@octokit/rest';
+import { describeGitHubError, getGitHubTarget, getOctokit } from '../../lib/github';
 import happyHours from '../../../public/data/happy-hours.json';
 import { getAdminUser } from '../../lib/admins';
 import { venueSlug } from '../../lib/venues';
@@ -183,18 +183,19 @@ Write the blog post now, following all rules in your instructions. Respond in th
   const fileContent = frontmatter + parsed.body + '\n';
   const filePath = `src/content/blog/${slug}.md`;
 
-  const owner = import.meta.env.GITHUB_OWNER;
-  const repo = import.meta.env.GITHUB_REPO;
-  const branch = import.meta.env.GITHUB_BRANCH || 'main';
-
-  if (!owner || !repo || !import.meta.env.GITHUB_TOKEN) {
-    return new Response(
-      JSON.stringify({ error: 'Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.' }),
-      { status: 500 }
-    );
+  let owner: string;
+  let repo: string;
+  let branch: string;
+  let octokit: ReturnType<typeof getOctokit>;
+  try {
+    const target = getGitHubTarget();
+    ({ owner, repo, branch } = target);
+    octokit = getOctokit(target);
+  } catch (err: any) {
+    // Only ever a GitHubConfigError: this deployment has no credentials set,
+    // which is ours to fix, not the caller's.
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
-
-  const octokit = new Octokit({ auth: import.meta.env.GITHUB_TOKEN });
 
   // Everything from here on talks to the GitHub API and can fail for
   // reasons worth actually seeing (bad/expired token, wrong owner/repo,
@@ -225,11 +226,10 @@ Write the blog post now, following all rules in your instructions. Respond in th
       sha,
     });
   } catch (err: any) {
-    const detail = err?.response?.data?.message || err?.message || String(err);
     return new Response(
       JSON.stringify({
         error: `Could not commit to ${owner}/${repo} (branch: ${branch})`,
-        detail,
+        detail: describeGitHubError(err, 'commit the draft'),
       }),
       { status: 502 }
     );

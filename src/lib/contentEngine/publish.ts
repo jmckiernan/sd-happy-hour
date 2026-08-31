@@ -1,5 +1,4 @@
-import { Octokit } from '@octokit/rest';
-import { getEnv } from '../env';
+import { getGitHubTarget, getOctokit } from '../github';
 import { slugifyContent } from './normalize';
 import type { EditorialCluster, GeneratedDraft } from './types';
 
@@ -51,22 +50,13 @@ export function buildPublishedMarkdown(input: {
   return lines.join('\n');
 }
 
-function githubTarget() {
-  const owner = getEnv('GITHUB_OWNER');
-  const repo = getEnv('GITHUB_REPO');
-  const token = getEnv('GITHUB_TOKEN');
-  const branch = getEnv('GITHUB_BRANCH') || 'main';
-  if (!owner || !repo || !token) throw new Error('Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.');
-  return { owner, repo, token, branch };
-}
-
 export async function publishContentDraft(input: {
   draft: GeneratedDraft;
   cluster: EditorialCluster;
 }): Promise<{ slug: string; path: string }> {
   if (input.draft.contentType !== 'blog') throw new Error('Only blog drafts publish to the site.');
-  const target = githubTarget();
-  const octokit = new Octokit({ auth: target.token });
+  const target = getGitHubTarget();
+  const octokit = getOctokit(target);
   let slug = slugifyContent(input.draft.slug || input.draft.title) || `story-${Date.now()}`;
   let path = `src/content/blog/${slug}.md`;
   let sha: string | undefined;

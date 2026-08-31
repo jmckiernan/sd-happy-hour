@@ -3,6 +3,7 @@ import { validateListing } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 import { fetchVenues, updateVenue, type VenueFileSnapshot } from '../../../../lib/venueRepo';
+import { describeGitHubError, describeRepoError } from '../../../../lib/github';
 import type { Venue } from '../../../../lib/venues';
 import { getVenueOverride, mergeVenueOverride, type VenueOverride } from '../../../../lib/store';
 import { mergeVenue, OWNER_EDITABLE_FIELDS } from '../../../../lib/venueContent';
@@ -58,7 +59,7 @@ export const GET: APIRoute = async ({ params, cookies }) => {
     const override = await getVenueOverride(id);
     return json({ venue: mergeVenue(venue, override), hasLiveOverride: Boolean(override) });
   } catch (err: any) {
-    return errorJson([`Could not load venue: ${err.message}`], 502);
+    return errorJson([describeGitHubError(err, 'load this venue')], 502);
   }
 };
 
@@ -103,7 +104,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     repositoryVenue = foundVenue;
     currentOverride = override;
   } catch (err: any) {
-    return errorJson([`Could not load the current live venue: ${err.message}`], 502);
+    return errorJson([describeRepoError(err, 'load the current live venue')], 502);
   }
 
   // Apply only fields the admin actually changed from the form they loaded.
@@ -204,7 +205,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     updated = await updateVenue(id, repositoryListing, snapshot);
   } catch (err: any) {
     const missing = /^No venue with id/.test(err.message);
-    return errorJson([missing ? err.message : `Could not save venue: ${err.message}`], missing ? 404 : 502);
+    return errorJson([missing ? err.message : describeGitHubError(err, 'save this venue')], missing ? 404 : 502);
   }
 
   let effectiveOverride = currentOverride;

@@ -3,32 +3,15 @@
 // used everywhere else (see api/generate-draft.ts, api/admin/submissions).
 // This lets the admin UI preview and publish a draft without anyone
 // opening GitHub's own editor.
-import { Octokit } from '@octokit/rest';
-import { getEnv } from './env';
+import type { Octokit } from '@octokit/rest';
+import { isGitHubNotFound, type GitHubTarget } from './github';
 
 const BLOG_DIR = 'src/content/blog';
 
-export interface GitHubTarget {
-  owner: string;
-  repo: string;
-  branch: string;
-  token: string;
-}
-
-export function getGitHubTarget(): GitHubTarget {
-  const owner = getEnv('GITHUB_OWNER');
-  const repo = getEnv('GITHUB_REPO');
-  const branch = getEnv('GITHUB_BRANCH') || 'main';
-  const token = getEnv('GITHUB_TOKEN');
-  if (!owner || !repo || !token) {
-    throw new Error('Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.');
-  }
-  return { owner, repo, branch, token };
-}
-
-export function getOctokit(target: GitHubTarget): Octokit {
-  return new Octokit({ auth: target.token });
-}
+// Credential resolution lives in github.ts now, shared with venueRepo.ts and
+// the content engine. Re-exported so the several routes and pages that import
+// them from here keep working.
+export { getGitHubTarget, getOctokit, describeGitHubError, type GitHubTarget } from './github';
 
 export interface ParsedFrontmatter {
   title: string;
@@ -163,6 +146,12 @@ export async function listBlogFiles(
     .map((item) => ({ slug: item.name.replace(/\.md$/, ''), path: item.path }));
 }
 
+// Returns null only when the repo genuinely has no file at that slug. It used
+// to swallow every error into null, which is how an expired token turned into
+// "Draft not found — it may have already been published or discarded" on
+// /admin/drafts/[slug]: the post was right there, GitHub had simply answered
+// 401. Rethrowing anything that isn't a 404 mirrors what contentEngine/
+// publish.ts already does, and lets callers say which failure it was.
 export async function getBlogFile(
   octokit: Octokit,
   target: GitHubTarget,
@@ -172,8 +161,9 @@ export async function getBlogFile(
   let res;
   try {
     res = await octokit.repos.getContent({ owner: target.owner, repo: target.repo, path, ref: target.branch });
-  } catch {
-    return null;
+  } catch (err: any) {
+    if (isGitHubNotFound(err)) return null;
+    throw err;
   }
   if (Array.isArray(res.data) || res.data.type !== 'file' || !('content' in res.data)) return null;
   const raw = Buffer.from(res.data.content, 'base64').toString('utf-8');

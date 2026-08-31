@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson } from '../../../../lib/api';
 import { getGitHubTarget, getOctokit, listBlogFiles, getBlogFile } from '../../../../lib/blogDrafts';
+import { describeGitHubError } from '../../../../lib/github';
 
 export const prerender = false;
 
@@ -39,6 +40,6 @@ export const GET: APIRoute = async ({ cookies }) => {
 
     return json({ posts });
   } catch (err: any) {
-    return errorJson([`Could not list posts: ${err.message}`], 502);
+    return errorJson([describeGitHubError(err, 'list posts')], 502);
   }
 };

@@ -1,4 +1,4 @@
-import { Octokit } from '@octokit/rest';
+import { getGitHubTarget, getOctokit } from './github';
 import type { Listing } from './store';
 import type { Venue } from './venues';
 
@@ -34,15 +34,8 @@ function withoutEmptyImage<T extends { image?: string }>(row: T): T {
 }
 
 function repoConfig() {
-  const owner = import.meta.env.GITHUB_OWNER;
-  const repo = import.meta.env.GITHUB_REPO;
-  const branch = import.meta.env.GITHUB_BRANCH || 'main';
-
-  if (!owner || !repo || !import.meta.env.GITHUB_TOKEN) {
-    throw new Error('Missing GITHUB_OWNER, GITHUB_REPO, or GITHUB_TOKEN env vars.');
-  }
-
-  return { owner, repo, branch, octokit: new Octokit({ auth: import.meta.env.GITHUB_TOKEN }) };
+  const target = getGitHubTarget();
+  return { ...target, octokit: getOctokit(target) };
 }
 
 /** Current contents of the venue file plus the blob sha, which
