@@ -218,7 +218,10 @@ async function main() {
   console.log(`\nProposed offers for ${recovered.length} of ${batch.length} listings.`);
 
   // The full proposal, with the happy-hour section each line was read out of,
-  // so a reviewer can check a chip against its page without re-crawling.
+  // so a reviewer can check a chip against its page without re-crawling. A run
+  // that found nothing leaves the last real proposal in place: a reviewed
+  // proposal is worth forty minutes of fetching and an empty one is worth none.
+  if (!recovered.length) return;
   writeJson(PROPOSALS_PATH, recovered.map((row) => ({
     id: row.venue.id,
     name: row.venue.name,

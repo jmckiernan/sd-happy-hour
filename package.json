@@ -34,6 +34,8 @@
     "menus:render": "node scripts/import-google-venues/render-menu-boards.mjs",
     "audit:deals-menus": "node scripts/import-google-venues/audit-deal-menu-quality.mjs",
     "audit:empty-listings": "node scripts/import-google-venues/audit-empty-listings.mjs",
+    "recover:empty-listings": "node scripts/import-google-venues/recover-empty-listings.mjs",
+    "transcribe:empty-listings": "node scripts/import-google-venues/transcribe-window-only-offers.mjs",
     "menus:audit": "node scripts/import-google-venues/audit-menu-coverage.mjs",
     "menus:sync": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/sync-happy-hour-menus.mjs",
     "pull:images": "node scripts/pull-images.js",
