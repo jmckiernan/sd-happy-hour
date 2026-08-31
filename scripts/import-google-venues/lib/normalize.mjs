@@ -3,6 +3,19 @@ import { finalizeDeals } from './deals.mjs';
 import { assignNeighborhood } from './neighborhood-assign.mjs';
 import { isUsableVenueWebsite } from './website-ownership.mjs';
 import { unverifiedWindowHold } from './seo-visibility.mjs';
+import { deriveVenueKind } from './venue-kind.mjs';
+
+/**
+ * `{ vibe }` when the venue's kind can be read off its name or Google's primary
+ * type, and `{}` when it cannot. Spread rather than assigned so an unknown kind
+ * leaves the key off the record entirely: a listing with no `vibe` is a listing
+ * nobody has established the kind of, and that has to be distinguishable from
+ * one we looked at and could describe.
+ */
+function venueKindPatch(record, name) {
+  const kind = deriveVenueKind({ name, primaryType: record.primaryType });
+  return kind ? { vibe: kind } : {};
+}
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -15,18 +28,6 @@ function inCounty(lat, lng) {
 
 export function guessNeighborhood(lat, lng, formattedAddress = '') {
   return assignNeighborhood(lat, lng, formattedAddress);
-}
-
-function inferVibe(primaryType, types = []) {
-  const joined = [primaryType, ...types].join(' ').toLowerCase();
-  if (/wine_bar|winery/.test(joined)) return 'Wine bar';
-  if (/brewery|brewpub/.test(joined)) return 'Brewery';
-  if (/night_club/.test(joined)) return 'Nightlife spot';
-  if (/seafood|oyster/.test(joined)) return 'Seafood spot';
-  if (/cocktail|bar/.test(joined)) return 'Cocktail bar';
-  if (/cafe|coffee/.test(joined)) return 'Cafe';
-  if (/pizza/.test(joined)) return 'Pizza spot';
-  return 'Restaurant';
 }
 
 /**
@@ -325,7 +326,10 @@ export function normalizeVenue(record, nextId) {
     endTime: hh.endTime,
     deals,
     dealsUnknown,
-    vibe: inferVibe(record.primaryType, record.types),
+    // Absent whenever neither the name nor Google's primary type says what
+    // kind of place this is. The key is omitted rather than set to a filler
+    // value — see lib/venue-kind.mjs.
+    ...venueKindPatch(record, name),
     website,
     phone: record.nationalPhoneNumber || record.phone || undefined,
     verified: false,
@@ -378,8 +382,6 @@ export function normalizeStubVenue(record, nextId) {
   const sourceUrl = record.googleMapsUri || website;
   if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
 
-  const vibe = inferVibe(record.primaryType, record.types);
-
   return {
     id: nextId,
     name,
@@ -388,7 +390,7 @@ export function normalizeStubVenue(record, nextId) {
     lat,
     lng,
     deals: [],
-    vibe,
+    ...venueKindPatch(record, name),
     website,
     phone: record.nationalPhoneNumber || record.phone || undefined,
     verified: false,

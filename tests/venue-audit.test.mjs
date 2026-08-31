@@ -28,6 +28,7 @@ import {
   isFallbackDeals,
   looksLikeShoppingMall,
 } from '../scripts/import-google-venues/lib/venue-quality.mjs';
+import { deriveVenueKind, VENUE_KINDS } from '../scripts/import-google-venues/lib/venue-kind.mjs';
 import { scoreHappyHourPage, preferSpecialsSlice } from '../scripts/import-google-venues/lib/website-crawl.mjs';
 import {
   discoverHappyHourLinksFromHtml,
@@ -2485,6 +2486,112 @@ function testNoListingCarriesTheRemovedFeaturesField() {
 }
 
 /**
+ * The eight labels `inferVibe()` could produce. Each was matched off Google's
+ * whole `types` array by an unanchored regex, so `barbecue_restaurant` scored
+ * `Cocktail bar` and everything the chain failed to match scored `Restaurant`.
+ * Measured against the primary type Google itself commits to, `Cocktail bar`
+ * was right on 17 of 506 rows and `Nightlife spot` on 10 of 112
+ * (docs/vibe-field-audit.md).
+ *
+ * Four of the spellings survive into the vocabulary in
+ * scripts/import-google-venues/lib/venue-kind.mjs, so this list is not a ban on
+ * the words. It is here to name what the derivation used to be.
+ */
+const RETIRED_VIBE_LABELS = [
+  'Restaurant',
+  'Nightlife spot',
+  'Seafood spot',
+  'Pizza spot',
+];
+
+/**
+ * The blanket labels are gone and must not come back. `Restaurant` on a third
+ * of the catalog was the absence of a finding wearing a label, which is the
+ * defect `features` was deleted for — with the difference that this one was
+ * printed on the venue page and in its meta description.
+ */
+function testNoListingCarriesARetiredVibeLabel() {
+  const carriers = happyHours.filter((venue) => RETIRED_VIBE_LABELS.includes(venue.vibe));
+  assert.deepEqual(carriers.map((venue) => venue.name), []);
+}
+
+/**
+ * Absence is the answer for most venues, so it has to be storable. An empty
+ * string is a third state nobody wants: it renders as nothing while still
+ * asserting the field was filled in.
+ */
+function testAVenueWithNoKnownKindCarriesNoVibeAtAll() {
+  const empty = happyHours.filter(
+    (venue) => 'vibe' in venue && (typeof venue.vibe !== 'string' || !venue.vibe.trim())
+  );
+  assert.deepEqual(empty.map((venue) => venue.name), []);
+  // And the field really is optional in practice, not merely in the type.
+  assert.ok(happyHours.some((venue) => !('vibe' in venue)));
+}
+
+/**
+ * The derivation reads the primary type and the venue's own name, and nothing
+ * else. Google's `types` array is a bag of everything a place might be — every
+ * 7-Eleven in the enrichment cache carries `restaurant`, `cafe`, `coffee_shop`
+ * and `pizza_restaurant` — so a kind read off it is not a finding about the
+ * venue.
+ */
+function testTheVenueKindIsReadFromThePrimaryTypeNotTheTypesArray() {
+  const sevenEleven = { name: '7-Eleven', primaryType: 'convenience_store' };
+  assert.equal(deriveVenueKind(sevenEleven), undefined);
+  assert.equal(deriveVenueKind({ name: 'Gen Korean BBQ House', primaryType: 'korean_barbecue_restaurant' }), undefined);
+  assert.equal(deriveVenueKind({ name: 'Casa Guadalajara', primaryType: 'mexican_restaurant' }), undefined);
+  assert.equal(deriveVenueKind({ name: 'Rookies Sports Bar', primaryType: 'sports_bar' }), 'Sports bar');
+  assert.equal(deriveVenueKind({ name: 'Kilowatt Brewing Ocean Beach', primaryType: 'bar' }), 'Brewery');
+}
+
+/** Nothing the deriver returns is outside the closed vocabulary. */
+function testTheVenueKindIsAlwaysOneOfTheKnownKinds() {
+  const kinds = new Set(VENUE_KINDS);
+  for (const venue of happyHours) {
+    const derived = deriveVenueKind({ name: venue.name });
+    if (derived) assert.ok(kinds.has(derived), `${venue.name} derived an unknown kind: ${derived}`);
+  }
+}
+
+/**
+ * A more specific kind outranks a vaguer one that also matches, so a place
+ * named for two of them gets the one a customer would call it.
+ */
+function testTheMoreSpecificKindWins() {
+  assert.equal(deriveVenueKind({ name: "Rosati's Pizza Pub and Sports Bar" }), 'Sports bar');
+  assert.equal(deriveVenueKind({ name: 'Belching Beaver Brewery Tavern and Grill' }), 'Brewery');
+  assert.equal(deriveVenueKind({ name: 'FLOAT Rooftop Lounge', primaryType: 'bar' }), 'Rooftop bar');
+}
+
+/**
+ * `lounge` was in the name vocabulary until the matches were read: "Sushi
+ * Lounge", "Vincenzo Cucina and Lounge" and "Firehouse American Eatery &
+ * Lounge" are restaurants. A word that appears in restaurant names is not
+ * evidence of a bar.
+ */
+function testAWordThatOnlyDecoratesARestaurantNameIsNotAKind() {
+  assert.equal(deriveVenueKind({ name: 'Sushi Lounge Encinitas' }), undefined);
+  assert.equal(deriveVenueKind({ name: 'Vincenzo Cucina and Lounge' }), undefined);
+}
+
+/**
+ * The 19 seed listings carry kinds a person typed — "Vegan metal bar",
+ * "Arcade bar", "Dog-friendly patio" — and the derivation cannot reproduce any
+ * of them. A re-derivation that flattened them would be §2.5 again: a
+ * pipeline's convenience destroying something read off the real world.
+ */
+function testHandWrittenVenueKindsSurviveTheDerivation() {
+  const written = ['Vegan metal bar', 'Arcade bar', 'Dog-friendly patio', 'Chef-driven', 'Speakeasy'];
+  for (const kind of written) {
+    assert.ok(
+      happyHours.some((venue) => venue.vibe === kind),
+      `the hand-written kind "${kind}" is no longer on any listing`
+    );
+  }
+}
+
+/**
  * The amenities that replaced it are Google's, not ours, and they have three
  * states rather than two: true, false, and nobody asked. Absent has to stay
  * absent — writing `false` for an unanswered venue is the defect that made
@@ -2598,6 +2705,13 @@ function testAmenitiesAreWrittenOnlyWhenGoogleAnswered() {
 
 tests.push(
   testNoListingCarriesTheRemovedFeaturesField,
+  testNoListingCarriesARetiredVibeLabel,
+  testAVenueWithNoKnownKindCarriesNoVibeAtAll,
+  testTheVenueKindIsReadFromThePrimaryTypeNotTheTypesArray,
+  testTheVenueKindIsAlwaysOneOfTheKnownKinds,
+  testTheMoreSpecificKindWins,
+  testAWordThatOnlyDecoratesARestaurantNameIsNotAKind,
+  testHandWrittenVenueKindsSurviveTheDerivation,
   testAmenitiesAreBooleanOrAbsentButNeverGuessed,
   testGroupedAmenitiesAreNeverPublishedEmpty,
   testFieldsGoogleNeverAnswersAreNotPublished,

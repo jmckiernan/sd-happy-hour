@@ -75,7 +75,7 @@ are sourced differently from what an earlier document claimed, and they are call
 | `neighborhood` | 3,006 | **Ours.** `lib/neighborhood-assign.mjs`: boxes, then city, then ZIP, then street regexes, over Google's coordinates and address | A polygon dataset (census places, curated GeoJSON) | Ours. Never Google — it has no field for this and the classifier encodes local knowledge |
 | `website` | 3,006 | Google `websiteUri`, filtered by `isUsableVenueWebsite` | OpenStreetMap `website` tag (1,670 in-county, free), owner claim | **Owner, then Google.** 64 rows carry a `wrong_website` scrape outcome, so Google is wrong here often enough to matter |
 | `phone` | 2,851 | Google `nationalPhoneNumber` | The venue's contact page — trivially scrapable and we already fetch it | Owner, then website, then Google |
-| `vibe` | 3,006 | **Google.** `inferVibe(primaryType, types)`. 998 rows are the fallback `Restaurant`, 653 `Cocktail bar`, 640 `Cafe`; two rows carry hand-typed values (`Trendy gastropub`, `Speakeasy`) | Owner claim, admin edit, our own menu text | **Should be ours or curated.** A third of the catalog carries a value that means "Google had nothing more specific" |
+| `vibe` | 1,034 | **Google's `primaryType` and the venue's own name**, through `deriveVenueKind()`. Absent on the other 1,972 rows, and on 519 of 686 published ones; 19 seed rows carry hand-typed kinds | Owner claim, admin edit | **Re-derived 31 Aug 2026** (`docs/vibe-field-audit.md`). The owner claim form is still the best source and is now optional rather than required |
 
 ### 2.2 The happy hour itself — the fields the site exists for
 
@@ -132,9 +132,11 @@ Worth naming individually, because each was found by reading the code rather tha
 - **`image` is Google photo bytes on 597 of 599 rows.** `fetch-photos.mjs` downloads them. Several
   documents describe photos as "scraped and rendered, ours"; that is true of the *menu boards* in
   `galleryImages` and false of the featured photo.
-- **`vibe` is entirely Google's type taxonomy**, and one third of the catalog sits on the fallback
-  `Restaurant`. `reducing-google-dependency.md` §6 listed this as a should-be-ours item; it is still
-  Google's, unchanged.
+- **`vibe` was entirely Google's type taxonomy**, and one third of the catalog sat on the fallback
+  `Restaurant`. Audited and re-derived on 31 August 2026: the old derivation read Google's whole
+  `types` array, which made `Cocktail bar` right on 17 of 506 rows. It now reads the committed
+  `primaryType` and the venue's own name, and is absent on 1,972 of 3,006 rows rather than guessed.
+  See `docs/vibe-field-audit.md`.
 - **`address` comes from the discovery mask, not from Place Details**, for most stubs. That saving
   is real and already banked, and it means a stub costs nothing beyond the Nearby Search call.
 - **Happy-hour provenance is missing on 227 of 800 scheduled rows.** The 198/375 split above is the
@@ -439,7 +441,7 @@ questions.
 | Google field | Replacement | Quality cost |
 |---|---|---|
 | `nationalPhoneNumber` | Schema.org markup or the contact page | Near zero. Some coverage loss on sites with no markup and no contact page |
-| `vibe` inputs (`primaryType`, `types`) | Owner claim, admin, menu text | Positive — a third of the catalog currently reads `Restaurant`, which means nothing |
+| `vibe` input (`primaryType`) | Owner claim, admin | Small. The `types` half is already gone and the venue's own name already answers where it can; `primaryType` supplies the rest, and a venue nobody has claimed simply carries no kind |
 | `regularOpeningHours` | Schema.org `openingHoursSpecification` | Small loss in coverage, and it is free at the tier we already pay, so there is no reason to hurry |
 | `HAPPY_HOUR` secondary hours | Website scrape | Real loss. 198 catalog rows have their window from Google and nowhere else, and a chunk of those venues publish nothing online. Keep it — it rides free on a Details call we make anyway |
 | Photo bytes | Owner uploads, then venue site hero images | Coverage collapses from 597 to ~2 overnight. This is the field where the terms argument and the quality argument point in opposite directions, and it needs an owner decision rather than a default |

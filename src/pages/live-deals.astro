@@ -378,7 +378,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
             return venue
               ? [
                   venue.address,
-                  venue.vibe,
+                  ...(venue.vibe ? [venue.vibe] : []),
                   ...(venue.deals || []),
                   ...(venue.dealTypes || []),
                 ]

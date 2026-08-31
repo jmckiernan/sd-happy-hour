@@ -54,7 +54,18 @@ export interface Venue {
   deals: string[];
   /** Day-by-day specials that don't fit a single happy-hour window (named nights, exchanges, game day). */
   weeklySpecials?: WeeklySpecial[];
-  vibe: string;
+  /**
+   * What kind of place this is — brewery, sports bar, rooftop bar, pub — from
+   * the closed vocabulary in scripts/import-google-venues/lib/venue-kind.mjs,
+   * or whatever an owner typed into the claim form.
+   *
+   * Absent on most listings, and that is the point. It used to be required, so
+   * every row carried one of eight labels derived from Google's whole `types`
+   * array: `Restaurant` on a third of the catalog, and `Cocktail bar` on 506
+   * rows of which 17 were cocktail bars. Surfaces show it where it exists and
+   * show nothing where it does not, rather than printing a guess.
+   */
+  vibe?: string;
   website: string;
   verified: boolean;
   /**
@@ -403,7 +414,7 @@ function throughImageCdn(src: string, size: keyof typeof IMAGE_SIZES): string {
  * 'card'  -> small homepage thumbnail (800px wide)
  * 'hero'  -> large venue-page banner (1600px wide, higher quality)
  */
-export function getVenueImage(vibe: string, size: 'card' | 'hero' = 'card'): string {
+export function getVenueImage(vibe: string | undefined, size: 'card' | 'hero' = 'card'): string {
   return throughImageCdn(vibeImageFor(vibe), size);
 }
 

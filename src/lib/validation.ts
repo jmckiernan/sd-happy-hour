@@ -273,6 +273,10 @@ export function validateListing(
   // empty keys during an unrelated admin save.
   if (!listing.openTime) delete listing.openTime;
   if (!listing.closeTime) delete listing.closeTime;
+  // Same shape as the catalog: an unknown kind leaves the key off entirely.
+  // An empty string would fail scripts/validate-data.js, which rejects the
+  // third state between "has a kind" and "key is absent".
+  if (!listing.vibe) delete listing.vibe;
 
   // The featured photo's framing, one crop per frame. Out-of-range or centered
   // values normalize away rather than failing the save: these are frames an
@@ -316,7 +320,9 @@ export function validateListing(
   if (!listing.deals.length && listing.dealTypes.length) {
     errors.push('Remove the deal types, or add the deals they describe.');
   }
-  if (!listing.vibe) errors.push('Vibe is required.');
+  // Nothing requires a vibe. An owner who leaves it blank gets a page that
+  // says nothing about the kind of room, which is better than the label the
+  // importer used to invent for them.
   if (requireCoordinates && (!Number.isFinite(listing.lat) || !Number.isFinite(listing.lng))) {
     errors.push('Latitude and longitude are required before approval.');
   }

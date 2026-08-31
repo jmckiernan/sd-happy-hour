@@ -122,6 +122,7 @@ export function validateOwnerPatch(
     address: cleanString(input.address),
     image: cleanString(input.image),
   };
+  if (!patch.vibe) delete patch.vibe;
 
   if (!days.length || days.some((day) => !VALID_DAYS.has(day))) errors.push('Choose at least one valid day.');
   const openTime = patch.openTime as string;
@@ -139,7 +140,9 @@ export function validateOwnerPatch(
   if (!deals.length && (patch.dealTypes as string[]).length) {
     errors.push('Remove the deal types, or add the deals they describe.');
   }
-  if (!patch.vibe) errors.push('Vibe is required.');
+  // `vibe` is optional here for the same reason it is optional in the catalog:
+  // an owner with nothing to say about the kind of room should leave the page
+  // silent rather than pick a word to satisfy a form.
   if (!patch.address) errors.push('Address is required.');
   if (!/^https?:\/\//i.test(patch.website as string)) errors.push('Website must start with http:// or https://.');
   if (patch.phone && !/^\+?[0-9()\-.\s]{7,20}$/.test(patch.phone as string)) {

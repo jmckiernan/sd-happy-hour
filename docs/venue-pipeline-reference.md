@@ -336,7 +336,9 @@ an empty deal list.
 - `seoHidden: confidence !== 'high'`, and the same condition writes
   `browseHold: { reason: 'unverified_window', since }`.
 - `verified: false`, `lastVerifiedAt: null`.
-- `neighborhood` from coordinates (§6), `vibe` inferred from Google place types, `dealTypes` from
+- `neighborhood` from coordinates (§6), `vibe` from `deriveVenueKind()` — Google's committed
+  `primaryType` and the venue's own name, absent when neither says what kind of place it is
+  (`docs/vibe-field-audit.md`) — `dealTypes` from
   the venue's own deal text (§5.6), and `outdoorSeating` / `allowsDogs` copied from Google's
   Atmosphere fields when the run bought them (§5.8).
 
@@ -592,8 +594,12 @@ Enforced by `scripts/validate-data.js` on every write. Merge, stub import and pu
 
 ### 11.1 Required of every listing
 
-`id` (unique integer), `name`, `neighborhood`, `address`, `lat`/`lng` (in range), `vibe`,
+`id` (unique integer), `name`, `neighborhood`, `address`, `lat`/`lng` (in range),
 `verified` (boolean), a `lastVerifiedAt` key even when null, and an `http(s)` `sourceUrl`.
+
+`vibe` used to be on that list and is not any more. Requiring it is what kept `Restaurant` on 998
+rows and `Cocktail bar` on 506 rows of which 17 were cocktail bars; it is now optional, and the
+validator rejects an empty string rather than a missing key (`docs/vibe-field-audit.md`).
 
 Nothing else is required of every listing. A non-empty `features` array used to be, which is the
 only reason `casual` sat on 3,193 rows; the field is gone (§5.8).

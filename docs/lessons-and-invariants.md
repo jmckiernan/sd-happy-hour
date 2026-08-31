@@ -46,6 +46,11 @@ every consumer reads it as a finding.
   unconditionally; `scripts/validate-data.js` required the array to be non-empty, which is the only
   reason the filler existed. `patio` appeared on 5 rows and a dog-friendly value on 2, both typed by
   a person. The field is gone in full — see §2.2.
+- **`vibe` was `Restaurant` on 998 of 3,006 rows and `Cocktail bar` on 653**, of which 17 were
+  cocktail bars when measured against Google's own `primaryType`. It looked healthier than
+  `features` — eight values, a real-looking spread — and it was worse, because the wrong answers
+  were specific and printed on every published page. Re-derived from the primary type and the
+  venue's own name; absent on 1,972 rows rather than guessed (`docs/vibe-field-audit.md`).
 - **`dealTypes` claimed `food` on 767 of 800 scheduled venues**, and `['food']` alone on 525. Deal
   text and Google's `types` array went into one lowercased blob with a `food` default, and Google
   tags essentially every eating establishment with the literal type `food` (4,876 of 5,361 places in
@@ -78,6 +83,9 @@ visible to nobody.
 Enforced by `testVenuesWithNoDealTextClaimNoFoodDiscount`,
 `testCatalogDealTypesAreEmptyOnlyWhereTheOffersAreUnknown`,
 `testNoListingCarriesTheRemovedFeaturesField`,
+`testNoListingCarriesARetiredVibeLabel`,
+`testAVenueWithNoKnownKindCarriesNoVibeAtAll`,
+`testTheVenueKindIsReadFromThePrimaryTypeNotTheTypesArray`,
 `testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu`, `testNoScrapedImageClaimsToBeOurBoard`,
 `testAWindowOnlyVenuePageOffersNoChipsToShow`, `testEveryWindowOnlyListingSaysItsOffersAreUnknown` and
 `testTheHonestEmptyStateNamesNoOfferAndNoPrice`, all in `tests/venue-audit.test.mjs`.
@@ -396,6 +404,8 @@ invariants), `tests/homepage-reachability.test.mjs`, `tests/neighborhood-assign.
 | Every catalog venue agrees with the assignment rule and sits near its neighborhood | `testEveryCatalogedVenueAgreesWithTheAssignmentRule`, `testNoVenueSitsAbsurdlyFarFromTheNeighborhoodItIsFiledUnder` |
 | No venue with a window and no deal text claims a food discount | `testVenuesWithNoDealTextClaimNoFoodDiscount`, `testCatalogDealTypesAreEmptyOnlyWhereTheOffersAreUnknown` |
 | The removed `features` field never comes back | `testNoListingCarriesTheRemovedFeaturesField` |
+| The retired vibe labels never come back, and an unknown kind is absent rather than empty | `testNoListingCarriesARetiredVibeLabel`, `testAVenueWithNoKnownKindCarriesNoVibeAtAll` |
+| A venue's kind is read off the primary type and the name, never the `types` array | `testTheVenueKindIsReadFromThePrimaryTypeNotTheTypesArray`, `testTheVenueKindIsAlwaysOneOfTheKnownKinds`, `testTheMoreSpecificKindWins`, `testAWordThatOnlyDecoratesARestaurantNameIsNotAKind`, `testHandWrittenVenueKindsSurviveTheDerivation` |
 | Amenities are true, false or absent, never guessed or published empty | `testAmenitiesAreBooleanOrAbsentButNeverGuessed`, `testGroupedAmenitiesAreNeverPublishedEmpty`, `testAmenitiesAreWrittenOnlyWhenGoogleAnswered`, `testFieldsGoogleNeverAnswersAreNotPublished` |
 | No image claims to be a menu without a transcription behind it | `testNoGalleryPhotoClaimsToBeTheMenuOfAVenueWithNoStoredMenu`, `testNoScrapedImageClaimsToBeOurBoard` |
 | Menu normalization keeps provenance, and every stored menu has a board | `testMenuNormalizationKeepsProvenance`, `testEveryStoredMenuHasARenderedBoard` |
@@ -425,8 +435,8 @@ failing.
   seven files. Adding a new filter to the staging path without adding it to that list restores the
   exact bug the guard exists to prevent, and no test notices.
 - **Nothing asserts that a re-derivation has been run after its inputs changed.** `rederive:deal-types`
-  is a command someone has to remember. A check that recomputes `dealTypes` for a sample and compares
-  against the stored value would turn §2.8 into an invariant.
+  and `rederive:venue-kind` are commands someone has to remember. A check that recomputes either for
+  a sample and compares against the stored value would turn §2.8 into an invariant.
 - **The wider amenity fields are unvalidated.** `scripts/validate-data.js` type-checks
   `outdoorSeating` and `allowsDogs` only. The eleven other Google-sourced amenity fields now on the
   catalog — `reservable`, `liveMusic`, `restroom`, `goodForGroups`, `goodForWatchingSports`,
@@ -468,6 +478,7 @@ says what a document is for, not whether it is current.
 | `docs/homepage-reachability.md` | The unreachable-venue investigation and the `seoHidden` / `browseHold` split |
 | `docs/venue-category-audit.md` | Which kinds of place belong in the catalog; the brand and category axes |
 | `docs/features-field-experiment.md` | Closed evidence for deleting `features`. Kept for the method, not as a live proposal |
+| `docs/vibe-field-audit.md` | Closed evidence for keeping `vibe` and re-deriving it. Same method as the features experiment, opposite answer |
 | `docs/places-api-cost-analysis.md` | Field tiers, caching terms, and the derivation of the budget |
 | `docs/reducing-google-dependency.md` | The Google pricing questions and the Atmosphere decision. Its plan, alternatives and refresh sections are superseded |
 | `docs/data-sourcing-plan.md` | Where every field comes from, what each source costs, and how often each is re-checked |

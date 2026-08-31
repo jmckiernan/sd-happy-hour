@@ -156,7 +156,15 @@ function validateListing(listing, label) {
       if (!hasString(scrape.observedAt)) errors.push(`${label}: lastScrape.observedAt is required.`);
     }
   }
-  if (!hasString(listing.vibe)) errors.push(`${label}: vibe is required.`);
+  // `vibe` is optional and must stay that way. Requiring it is what kept a
+  // fallback `Restaurant` on 998 rows and a `Cocktail bar` on 506, of which 17
+  // were cocktail bars; the field now answers for the venues whose kind we can
+  // actually read and is absent for the rest. An empty string is rejected
+  // because it is a third state nobody wants — either the key is there with a
+  // kind in it, or it is not there at all.
+  if ('vibe' in listing && !hasString(listing.vibe)) {
+    errors.push(`${label}: vibe must be a non-empty string when present, or absent entirely.`);
+  }
   // A stub may have no website at all — plenty of small restaurants only have a
   // Google listing, and we still want their owner to be able to claim the page.
   if (isStub ? listing.website && !isUrl(listing.website) : !isUrl(listing.website)) {

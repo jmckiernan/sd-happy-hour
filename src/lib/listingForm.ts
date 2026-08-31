@@ -262,7 +262,7 @@ export function listingFormHTML(listing: ListingFormValues, options: ListingForm
       ${textField('website', 'Website', listing.website, { type: 'url', placeholder: 'https://...' })}
       ${owner ? '' : textField('sourceUrl', 'Source URL (menu, press, etc.)', listing.sourceUrl, { type: 'url', placeholder: 'https://...' })}
       ${textField('phone', 'Phone (optional)', listing.phone, { type: 'tel', placeholder: '(619) 555-0100' })}
-      ${textField('vibe', 'Vibe', listing.vibe, { placeholder: 'Rooftop, wine bar, patio...' })}
+      ${textField('vibe', 'Vibe (optional)', listing.vibe, { placeholder: 'Rooftop, wine bar, patio...' })}
       ${textField('openTime', 'Open Time', listing.openTime, { type: 'time' })}
       ${textField('closeTime', 'Close Time', listing.closeTime, { type: 'time' })}
       ${textField('startTime', 'Happy Hour Start Time', listing.startTime, { type: 'time' })}

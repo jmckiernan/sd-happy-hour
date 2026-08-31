@@ -747,7 +747,7 @@ function formatWindowLine(window: {
     >
       <img
         src={heroImage}
-        alt={venue.image
+        alt={venue.image || !venue.vibe
           ? `${venue.name} in ${venue.neighborhood}`
           : `${venue.name}, a ${venue.vibe.toLowerCase()} in ${venue.neighborhood}`}
         width="1600"
@@ -767,7 +767,9 @@ function formatWindowLine(window: {
       </span>
       <div class="hero-text">
         <h1>{venue.name}</h1>
-        <p class="vibe" id="venue-vibe">{venue.vibe}</p>
+        {/* Hidden rather than absent so the client-side listing refresh below
+            can fill it in when an owner saves one. */}
+        <p class="vibe" id="venue-vibe" hidden={!venue.vibe}>{venue.vibe}</p>
       </div>
     </div>
   </div>
@@ -1904,10 +1906,12 @@ function formatWindowLine(window: {
         addressLink.href = mapsHref;
         (document.getElementById('venue-directions') as HTMLAnchorElement).href = mapsHref;
       }
-      if (listing.vibe) {
-        activeHeroVibe = listing.vibe;
-        document.getElementById('venue-vibe')!.textContent = listing.vibe;
-      }
+      // An owner who clears the vibe gets the line back off the page, rather
+      // than keeping whatever was rendered at build time.
+      const vibeEl = document.getElementById('venue-vibe')!;
+      activeHeroVibe = listing.vibe || '';
+      vibeEl.textContent = listing.vibe || '';
+      vibeEl.hidden = !listing.vibe;
 
       if (listing.website) {
         (document.getElementById('venue-website') as HTMLAnchorElement).href = listing.website;

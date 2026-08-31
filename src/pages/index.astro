@@ -954,7 +954,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
           .bindPopup(`
             <div class="map-popup">
               <h3>${escapeHTML(h.name)}</h3>
-              <div class="vibe">${escapeHTML(h.vibe)} · ${h.verified ? 'Verified' : 'Needs verification'}</div>
+              <div class="vibe">${h.vibe ? `${escapeHTML(h.vibe)} · ` : ''}${h.verified ? 'Verified' : 'Needs verification'}</div>
               ${renderMapStatus(state)}
               <div class="time">Regular happy hour: ${escapeHTML(cardTimeLabel(h) || `${formatTime(h.startTime)} – ${formatTime(h.endTime)}`)}</div>
               <div class="deals">${cardSpecials(h).slice(0, 2).map(escapeHTML).join(' • ')}</div>
@@ -1457,7 +1457,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
               <div class="card-body">
                 <div class="card-meta">
-                  <span class="card-vibe">${escapeHTML(h.vibe)}</span>
+                  ${h.vibe ? `<span class="card-vibe">${escapeHTML(h.vibe)}</span>` : ''}
                   <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
                   ${h.phone ? `<a class="card-phone" href="tel:${h.phone.replace(/[^0-9+]/g, '')}">${escapeHTML(h.phone)}</a>` : ''}
                   ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}

@@ -689,7 +689,8 @@ export interface Listing {
   // list is one whose offers nobody published, and the catalog says so with
   // this flag instead of a placeholder deal line. See validateListing().
   dealsUnknown: boolean;
-  vibe: string;
+  /** Absent unless the venue's kind is known — see the `vibe` note on Venue. */
+  vibe?: string;
   website: string;
   verified: boolean;
   lastVerifiedAt: string | null;
