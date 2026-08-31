@@ -124,7 +124,31 @@ export interface Venue {
       title: string;
       items: {
         name: string;
+        /** Exactly as the venue printed it. The string we display. */
         price?: string;
+        /**
+         * What `price` means. A happy hour is published either as a figure the
+         * item costs or as a reduction off the regular price, and both are
+         * complete offers — so the discount is recorded as a discount instead
+         * of "$2 off" sitting in a field that reads as $2.
+         *
+         * Absent when the printed text fits no kind cleanly. Never infer
+         * across kinds: the regular price is unknown, so a discount yields no
+         * absolute figure and an absolute figure yields no saving.
+         */
+        offer?:
+          | { kind: 'absolute'; amount?: number }
+          | { kind: 'amount_off'; amountOff?: number }
+          | { kind: 'percent_off'; percentOff?: number }
+          | { kind: 'range'; min?: number; max?: number }
+          | { kind: 'multi'; amounts?: number[] }
+          | {
+              kind: 'bundle';
+              quantity?: number;
+              amount?: number;
+              forQuantity?: number;
+              freeQuantity?: number;
+            };
         /**
          * Coarse kind of offer, supplied by the transcription pass because it
          * can read the whole menu. Only used to categorize the item in the

@@ -41,6 +41,8 @@ function toFetchResponse(entry) {
     cached: Boolean(entry.cached),
     kind: entry.kind || 'html',
     blocked: Boolean(entry.blocked),
+    /** The page needed a browser we did not have: its emptiness proves nothing. */
+    needsBrowser: Boolean(entry.needsBrowser),
     reason: entry.reason || null,
     headers: headersFrom({ headers: { get: () => entry.contentType || 'text/html' } }),
     text: async () => entry.html || entry.text || '',
@@ -186,6 +188,27 @@ function needsBrowser(entry) {
   return stripHtml(entry.text || entry.html || '').length < 500 && !/<\?xml|<urlset/i.test(entry.html || '');
 }
 
+/**
+ * Would this URL need the browser, judged by a plain fetch alone?
+ *
+ * The same predicate the fetcher uses, exposed so an audit can count the sites
+ * the cheap path cannot read without having to reimplement the rule and drift
+ * from it. Returns why, because "an SPA host" and "served 40 characters of
+ * text" are different problems.
+ */
+export async function pageNeedsBrowser(url) {
+  const entry = await plainFetch(url);
+  const textLength = stripHtml(entry.text || entry.html || '').length;
+  let reason = null;
+  if (entry.kind && entry.kind !== 'html') reason = null;
+  else if (isSpaRestaurantHost(entry.url)) reason = 'spa_menu_host';
+  else if (looksLikeJsMenuShell(entry)) reason = 'js_menu_shell';
+  else if (entry.blocked) reason = 'blocked';
+  else if (!entry.ok) reason = entry.reason || `http_${entry.status}`;
+  else if (textLength < 500 && !/<\?xml|<urlset/i.test(entry.html || '')) reason = 'empty_shell';
+  return { needsBrowser: needsBrowser(entry), reason, textLength, status: entry.status };
+}
+
 function shouldCache(entry) {
   if (entry.method !== 'browser' && (entry.status === 429 || entry.blocked)) return false;
   if (entry.bytes && entry.bytes.length > MAX_CACHEABLE_BYTES) return false;
@@ -220,24 +243,51 @@ function limitCalls(fn, max) {
  */
 export function createCachedFetch({ browserFetch = null, refresh = false, browserConcurrency = 3 } = {}) {
   const gatedBrowser = limitCalls(browserFetch, browserConcurrency);
-  return async function cachedFetch(url, requestInit = {}) {
+  /**
+   * URLs the cheap path could not read while no browser was configured. Read
+   * this after a run via `cachedFetch.unreadable` to report the pages whose
+   * emptiness proves nothing, instead of filing them as venues with nothing.
+   */
+  const unreadable = new Set();
+  const cachedFetch = async function cachedFetch(url, requestInit = {}) {
     if (!refresh) {
       const hit = readPageCache(url);
       if (hit) return toFetchResponse({ ...hit, cached: true });
     }
 
     let entry = await plainFetch(url, requestInit);
-    if (needsBrowser(entry) && gatedBrowser) {
-      try {
-        entry = await browserToEntry(url, gatedBrowser, requestInit);
-      } catch (error) {
-        entry = { ...entry, reason: entry.reason || error.message, method: 'browser' };
+    if (needsBrowser(entry)) {
+      if (gatedBrowser) {
+        try {
+          entry = await browserToEntry(url, gatedBrowser, requestInit);
+        } catch (error) {
+          entry = { ...entry, reason: entry.reason || error.message, method: 'browser' };
+        }
+      } else {
+        /**
+         * We know this response cannot be trusted and have no browser to do
+         * better. Saying so is the whole point: a JavaScript-only site answers
+         * 200 with a valid, empty page, so without this flag an unread site is
+         * indistinguishable from a venue that genuinely publishes no happy
+         * hour, and every downstream step treats the blank as the truth. That
+         * is how 16 listings were recorded as "could not be re-read" while the
+         * tool that could read them sat unwired one argument away.
+         */
+        entry = {
+          ...entry,
+          ok: false,
+          needsBrowser: true,
+          reason: entry.reason || 'needs_browser',
+        };
+        unreadable.add(url);
       }
     }
 
     if (shouldCache(entry)) writePageCache(url, entry);
     return toFetchResponse({ ...entry, cached: false });
   };
+  cachedFetch.unreadable = unreadable;
+  return cachedFetch;
 }
 
 export async function mapPool(items, concurrency, fn) {

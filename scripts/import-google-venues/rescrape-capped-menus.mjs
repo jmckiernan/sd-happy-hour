@@ -32,6 +32,7 @@
 import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
 import { createCachedFetch } from './lib/fetch-page.mjs';
+import { createBrowserFetch, hasBrowserState } from './lib/playwright-browser.mjs';
 import { inventoryWebsite } from './lib/website-crawl.mjs';
 import { hasAiExtraction, transcribeMenuBoardWithAi } from './lib/ai-extract.mjs';
 import { conflictsWithVenue } from './lib/location-page.mjs';
@@ -216,7 +217,24 @@ if (!hasAiExtraction()) {
 
 console.log(`Re-reading ${cohort.length} listing(s) sitting on the old ${OLD_SECTION_CAP}-section cap, ${readCount} read(s) each.\n`);
 
-const fetchImpl = createCachedFetch({ refresh: true });
+/**
+ * Menu platforms — Popmenu, Toast, Square — render the menu in the browser, so
+ * a plain fetch of one returns a valid page with no menu on it. `createCachedFetch`
+ * already detects that and retries through Playwright, but only if handed a
+ * `browserFetch`; without one it detects the problem and can do nothing about
+ * it. Omitting it here is what made 16 of these listings look unreadable.
+ */
+const browserSession = hasBrowserState() ? await createBrowserFetch({}) : null;
+if (!browserSession) {
+  console.warn('No warmed browser profile — JavaScript-only menus will be unreadable.');
+  console.warn('Run: npm run browser:warm -- --auto\n');
+}
+
+const fetchImpl = createCachedFetch({
+  browserFetch: browserSession?.fetch || null,
+  refresh: true,
+  browserConcurrency: 3,
+});
 const results = { grew: [], fuller: [], confirmed: [], ambiguous: [], unreadable: [] };
 
 for (const venue of cohort) {
@@ -366,6 +384,8 @@ if (!apply) {
 // ago. This run takes long enough that another pass can commit to the catalog
 // while it is working, and writing the whole in-memory array back silently
 // reverted 85 listings' browse flags the first time.
+await browserSession?.close();
+
 const latest = readJson(HAPPY_HOURS_PATH, []);
 const freshMenus = new Map(changed.map((r) => [r.venue.id, r.venue.hhMenu]));
 for (const venue of latest) {

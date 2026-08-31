@@ -135,12 +135,16 @@ export function venueSchema(venue: Venue, image: string, description: string): J
         '@type': 'MenuSection',
         name: section.title,
         hasMenuItem: section.items.map((item) => {
-          const amount = /^\$\s*(\d+(?:\.\d{1,2})?)$/.exec(String(item.price || '').trim());
+          // Only an absolute figure can be published as an Offer price. A
+          // discount states a saving off a regular price we never recorded, so
+          // there is no number to put here — emitting the discount's figure
+          // would tell Google the item costs $2 when it costs $2 less.
+          const amount = item.offer?.kind === 'absolute' ? item.offer.amount : null;
           return {
             '@type': 'MenuItem',
             name: item.name,
-            ...(amount
-              ? { offers: { '@type': 'Offer', price: amount[1], priceCurrency: 'USD' } }
+            ...(typeof amount === 'number'
+              ? { offers: { '@type': 'Offer', price: String(amount), priceCurrency: 'USD' } }
               : {}),
           };
         }),

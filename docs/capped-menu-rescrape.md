@@ -98,9 +98,20 @@ Oyster Bar & Grill, Hapa J's, Amalfi Cucina Italiana San Marcos, Pal Joey's
 Cocktail Lounge, Waverly, California English, Nick & G's Restaurant, Red Tail
 Bar & Grill.
 
-Almost all are "no menu came back" rather than a dead link: the site is a
-JavaScript shell whose happy-hour content never appears in fetched text. These
-need the browser-mode crawl, not a plain fetch.
+All are "no menu came back" rather than a dead link.
+
+**Correction, after re-reading these with the browser crawl.** This section
+originally claimed almost all were JavaScript shells needing browser-mode
+fetching. That was wrong, and the re-scrape script's failure to pass
+`browserFetch` was only part of the story. Read both ways, five of the sixteen
+were genuinely unreadable by a plain fetch — Hapa J's, Nick & G's, Meze Greek
+Fusion and both Eddie V's listings, four of which served a 16-character body.
+Hapa J's yielded 30 prices through the browser and was re-transcribed.
+
+The other eleven fetched fine: STK Steakhouse returned 20,654 characters with ten
+prices in it. Their failure was downstream of the fetch — the page ranker picking
+the wrong page, or the transcription finding nothing it would call a happy-hour
+menu. See `docs/browser-fetch-coverage.md`.
 
 ## Needs a human look (15)
 

@@ -12,6 +12,7 @@
  * and no AI spend. See docs/venue-data-pipeline.md.
  */
 
+import sharp from 'sharp';
 import { formatWindows } from './menu-board-format.mjs';
 
 /** Matches the site's design tokens in src/layouts/Layout.astro. */
@@ -55,10 +56,16 @@ function sectionHtml(section) {
   const items = (section.items || [])
     .map((item) => {
       const price = String(item.price || '').trim();
+      // A saving is not a cost, so it must not read as one. Both sit in the
+      // same right-hand column a printed menu uses, but a discount is set in
+      // the lighter weight and cooler colour reserved for it, so a glance down
+      // the column tells "this costs $8" from "this is $2 cheaper than usual".
+      const discount = item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off';
+      const priceClass = discount ? 'item-price item-discount' : 'item-price';
       return `
         <li class="item">
           <span class="item-name">${escapeHtml(item.name)}</span>
-          ${price ? `<span class="leader"></span><span class="item-price">${escapeHtml(price)}</span>` : ''}
+          ${price ? `<span class="leader"></span><span class="${priceClass}">${escapeHtml(price)}</span>` : ''}
         </li>`;
     })
     .join('');
@@ -189,7 +196,10 @@ export function buildBoardHtml(board, venue = {}, options = {}) {
     margin-bottom: 7px;
     border-bottom: 1px dotted rgba(255, 251, 245, 0.28);
   }
-  .item-price { flex: 0 0 auto; font-weight: 600; color: ${THEME.sunsetEnd}; }
+  .item-price { flex: 0 0 auto; font-weight: 600; color: ${THEME.sunsetEnd}; white-space: nowrap; }
+  /* A discount is a phrase, not a figure: lighter and cooler so it cannot be
+     misread as the price, but still bright enough to read zoomed on a phone. */
+  .item-discount { font-weight: 500; color: rgba(255, 251, 245, 0.86); font-style: italic; }
 
   footer {
     margin-top: 34px;
@@ -410,10 +420,21 @@ export async function renderMenuBoardImage(board, venue = {}, options = {}) {
     await page.setContent(html, { waitUntil: 'load', timeout: timeoutMs });
     // Webfonts arrive after load; screenshotting early bakes in fallback type.
     await page.evaluate(() => document.fonts.ready);
-    const bytes = await page.locator('body').screenshot({ type: 'png' });
+    // Playwright only writes PNG or JPEG, and PNG of a 2160px board runs to
+    // about 1.2MB — 352 boards came to 373MB, over half of everything committed
+    // under public/images. WebP takes the same board to roughly 180KB.
+    //
+    // q82 was chosen by measurement, not by feel. On the densest boards the
+    // error against the PNG barely moves between q82 and q92 (RMSE 2.71 vs 2.51
+    // on Hooleys' twelve-section board) because what is left is ringing on
+    // glyph edges, which more quality does not buy back — while the file grows
+    // 40%. At 1:1, which is the most a reader can zoom to, q82 is
+    // indistinguishable from the original down to the dotted leader lines.
+    const png = await page.locator('body').screenshot({ type: 'png' });
+    const bytes = await sharp(png).webp({ quality: 82, effort: 6 }).toBuffer();
     return {
       bytes: Buffer.from(bytes),
-      mediaType: 'image/png',
+      mediaType: 'image/webp',
       kind: 'image',
       url: venue.website || null,
       sourceUrl: board.sourceUrl || venue.website || null,

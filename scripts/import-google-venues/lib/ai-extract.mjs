@@ -5,6 +5,7 @@ import { anthropicMediaType, sniffMediaFromBytes } from './media.mjs';
 import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from './pdf-raster.mjs';
 import { recordAiUsage } from './ai-usage.mjs';
 import { MENU_CATEGORIES } from './menu-item-classify.mjs';
+import { classifyOffer } from './menu-price.mjs';
 import {
   normalizeWindows,
   applyPrimaryFromWindows,
@@ -64,7 +65,7 @@ Return ONLY valid JSON (no markdown fences):
   "menuBoard": {
     "hours": string,
     "note": string,
-    "sections": [{ "title": string, "items": [{ "name": string, "price": string, "category": string }] }]
+    "sections": [{ "title": string, "items": [{ "name": string, "price": string, "priceKind": string, "category": string }] }]
   },
   "confidence": "high" | "medium" | "low",
   "evidence": [{ "url": string, "quote": string, "field": "times" | "deals" | "specials" }],
@@ -100,14 +101,21 @@ Rules:
 4. Keep the item name as printed, minus the long ingredient description. Strip a leading "HH" / "HH-" marker that only exists to tag the item internally. Keep parenthetical counts like "(2)" or "(4)".
 5. Prices exactly as printed, with a dollar sign ("$21", "$5.50", "½ off", "$2 off"). A bare number on a menu line is a price: "CRISPY CHICKEN WINGS ... 18" is price "$18". Leave price empty only when the source shows none.
 6. Category discounts are items too: name "Draft beer, wine & cocktails", price "$2 off".
-7. Never invent an item, a price, or a section. Transcribe only what the source shows.
-8. note: a short constraint that applies to the whole menu (bar area only, dine-in only, excludes special events). Empty when there is none. Never put hours in note — hours are added from the listing.
-9. category: what kind of thing the item is, so offers can be compared across venues. One of: beer, wine, cocktail, spirit, na_beverage, food, oysters, other. You can see the whole menu, so use it: a house name like "Del Sol" under a cocktail list is "cocktail", and an invented dish name under "Bites" is "food". Use "other" only when the item is genuinely neither food nor drink (arcade credits, games) or the source gives you nothing to judge by. Never guess from the name alone against the evidence of the section it sits in.
+7. priceKind says what the price string means, because a discount and a cost are different offers and are typeset differently:
+   - "absolute" — the item costs that during happy hour ("$8")
+   - "amount_off" — that much off the regular price ("$2 off")
+   - "percent_off" — that share off the regular price ("20% off", "½ off", "half price")
+   - "range" — the venue printed a span ("$5-$7")
+   - "bundle" — a quantity deal ("2 for $10", "2 for 1")
+   Never convert between them. You do not know the regular price, so a discount can never be reported as an absolute price, and an absolute price is never a discount. If the printed text does not clearly fit one of these, copy it into price and omit priceKind rather than choosing the nearest.
+8. Never invent an item, a price, or a section. Transcribe only what the source shows.
+9. note: a short constraint that applies to the whole menu (bar area only, dine-in only, excludes special events). Empty when there is none. Never put hours in note — hours are added from the listing.
+10. category: what kind of thing the item is, so offers can be compared across venues. One of: beer, wine, cocktail, spirit, na_beverage, food, oysters, other. You can see the whole menu, so use it: a house name like "Del Sol" under a cocktail list is "cocktail", and an invented dish name under "Bites" is "food". Use "other" only when the item is genuinely neither food nor drink (arcade credits, games) or the source gives you nothing to judge by. Never guess from the name alone against the evidence of the section it sits in.
 
 Return ONLY valid JSON (no markdown fences):
 {
   "note": string,
-  "sections": [{ "title": string, "items": [{ "name": string, "price": string, "category": string }] }]
+  "sections": [{ "title": string, "items": [{ "name": string, "price": string, "priceKind": string, "category": string }] }]
 }
 
 Up to 12 sections, 60 items each. These are ceilings to stop a runaway response, not targets: use as many sections as the venue actually prints and never merge two of its headings to fit under them, but never pad a short menu to reach them either.`;
@@ -265,7 +273,18 @@ export function normalizeMenuBoard(raw) {
       const category = MENU_CATEGORIES.includes(modelCategory) && modelCategory !== 'other'
         ? modelCategory
         : null;
-      items.push({ name, price, ...(category ? { category } : {}) });
+      // `price` keeps the venue's own wording; `offer` says what it means, so
+      // "$2 off" is stored as the discount it is rather than passing for $2.
+      // Unrecognized text gets no `offer` at all — better unclassified than
+      // confidently wrong, since the board typesets the two differently.
+      //
+      // The parse of the printed text decides, not the model. The model's own
+      // `priceKind` is only a second opinion: where the two disagree, the text
+      // is genuinely unclear and neither reading is stored.
+      const parsed = classifyOffer(price);
+      const claimed = String(item?.priceKind || '').trim().toLowerCase();
+      const offer = parsed && claimed && claimed !== parsed.kind ? null : parsed;
+      items.push({ name, price, ...(category ? { category } : {}), ...(offer ? { offer } : {}) });
       if (items.length >= MAX_SECTION_ITEMS) break;
     }
     if (!items.length) continue;

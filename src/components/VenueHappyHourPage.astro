@@ -628,6 +628,14 @@ function formatWindowLine(window: {
       transform: translateY(-4px);
     }
     .hh-menu-price { flex: 0 0 auto; font-weight: 700; white-space: nowrap; }
+    /* "$2 off" is a saving off a price we never learned, not a price. Setting
+       it apart from the absolute figures stops the column reading as if the
+       item costs $2. */
+    .hh-menu-price--discount {
+      font-weight: 600;
+      font-style: italic;
+      color: var(--night-soft);
+    }
     .hh-menu-source {
       margin-top: 20px;
       font-size: 0.85rem;
@@ -925,7 +933,17 @@ function formatWindowLine(window: {
               <li>
                 <span class="hh-menu-item">{item.name}</span>
                 {item.price && <span class="hh-menu-leader" aria-hidden="true"></span>}
-                {item.price && <span class="hh-menu-price">{item.price}</span>}
+                {item.price && (
+                  <span
+                    class:list={[
+                      'hh-menu-price',
+                      // A saving reads differently from a cost, so it is set
+                      // differently — matching how the menu board typesets it.
+                      (item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off')
+                        && 'hh-menu-price--discount',
+                    ]}
+                  >{item.price}</span>
+                )}
               </li>
             ))}
           </ul>
