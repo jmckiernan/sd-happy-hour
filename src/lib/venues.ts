@@ -123,6 +123,13 @@ export interface Venue {
   };
   /** Photos of the venue, shown in the photo gallery. */
   galleryImages?: GalleryImage[];
+  /**
+   * Images that ranked as a happy-hour menu but that no transcription pass has
+   * confirmed, so we cannot say they are menus. Held for a later attempt and
+   * never displayed: ranking a URL is not evidence, and one of these turned out
+   * to be a photograph of brewery tanks.
+   */
+  menuCandidateImages?: GalleryImage[];
   /** Last pipeline pass: found vs not-published vs blocked vs no candidates, with evidence. */
   lastScrape?: {
     outcome: string;

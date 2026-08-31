@@ -192,9 +192,23 @@ async function main() {
             if (flyers.length) {
               const saved = await persistMenuFlyers(venue, flyers);
               if (saved.length) {
-                venue.galleryImages = saved;
+                // Only a transcription proves an image was a menu. Ranking a
+                // URL does not: this venue's second "happy hour menu" was a
+                // photograph of its brewhouse tanks, published as the menu
+                // because it sat on the happy-hour page. So untranscribed
+                // images are kept as provenance for a later attempt and never
+                // presented as the menu.
+                if (transcribed) {
+                  venue.hhMenu = { ...venue.hhMenu, sourceImages: saved };
+                  apply.changes = [...(apply.changes || []), `hh menu source photo (${saved.length})`];
+                } else {
+                  venue.menuCandidateImages = saved.map((image) => ({
+                    ...image,
+                    caption: 'Unconfirmed happy hour menu candidate',
+                  }));
+                  apply.changes = [...(apply.changes || []), `hh menu candidate photo (${saved.length})`];
+                }
                 apply.changed = true;
-                apply.changes = [...(apply.changes || []), `hh menu photo (${saved.length})`];
               }
             }
           } catch (error) {
