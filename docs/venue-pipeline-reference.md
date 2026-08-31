@@ -330,7 +330,7 @@ Order matters — the first method to produce an answer wins.
 
 - Mexican addresses short-circuit to `Tijuana`.
 - **44 bounding boxes**, checked in array order, most specific first.
-- Address regex list (34 entries), including aliases like `PB` → Pacific Beach, `Convoy` →
+- Address regex list (37 entries), including aliases like `PB` → Pacific Beach, `Convoy` →
   Kearny Mesa, `Liberty Station` → Point Loma.
 - City parsed from the address, then a ZIP lookup table, then `San Diego`.
 
