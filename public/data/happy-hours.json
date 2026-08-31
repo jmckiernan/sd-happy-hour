@@ -344,7 +344,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/4-the-waterfront-bar-grill-hh-menu.png",
+        "url": "/images/venues/4-the-waterfront-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://waterfrontbarandgrill.com",
         "generated": true
@@ -374,13 +374,16 @@
           "title": "Food",
           "items": [
             {
-              "name": "Wings"
+              "name": "Wings",
+              "price": ""
             },
             {
-              "name": "Tots"
+              "name": "Tots",
+              "price": ""
             },
             {
-              "name": "Sliders"
+              "name": "Sliders",
+              "price": ""
             }
           ]
         }
@@ -1008,7 +1011,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/10-herb-wood-hh-menu.png",
+        "url": "/images/venues/10-herb-wood-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://herbandwood.com",
         "generated": true
@@ -1864,7 +1867,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/20-pacific-beach-alehouse-hh-menu.png",
+        "url": "/images/venues/20-pacific-beach-alehouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://pbalehouse.com",
         "generated": true
@@ -2399,7 +2402,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/26-phil-s-bbq-hh-menu.png",
+        "url": "/images/venues/26-phil-s-bbq-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.philsbbq.com/",
         "generated": true
@@ -2700,7 +2703,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/27-steamy-piggy-hh-menu.png",
+        "url": "/images/venues/27-steamy-piggy-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://steamypiggy.com/",
         "generated": true
@@ -3097,7 +3100,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/30-fogo-de-ch-o-brazilian-steakhouse-hh-menu.png",
+        "url": "/images/venues/30-fogo-de-ch-o-brazilian-steakhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://fogodechao.com/location/san-diego/",
         "generated": true
@@ -3399,8 +3402,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/32-dave-buster-s-san-diego-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/32-dave-buster-s-san-diego-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.daveandbusters.com/us/en/about/locations/san-diego",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/32-dave-buster-s-san-diego-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.daveandbusters.com/us/en/about/locations/san-diego",
         "generated": true
       }
@@ -3940,8 +3949,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/36-rockin-baja-lobster-old-town-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/36-rockin-baja-lobster-old-town-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://rockinbaja.com/old-town/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/36-rockin-baja-lobster-old-town-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "http://rockinbaja.com/old-town/",
         "generated": true
       }
@@ -4309,7 +4324,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/38-fisherman-s-restaurant-bar-hh-menu.png",
+        "url": "/images/venues/38-fisherman-s-restaurant-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thefishermansrestaurantsanclemente.com/",
         "generated": true
@@ -4565,7 +4580,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/39-la-puerta-hh-menu.png",
+        "url": "/images/venues/39-la-puerta-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://lapuertasd.com/?utm_source=Business-Listings",
         "generated": true
@@ -4779,7 +4794,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/40-coasterra-hh-menu.png",
+        "url": "/images/venues/40-coasterra-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.coasterra.com/",
         "generated": true
@@ -5156,7 +5171,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/43-puesto-la-jolla-hh-menu.png",
+        "url": "/images/venues/43-puesto-la-jolla-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.eatpuesto.com/",
         "generated": true
@@ -5594,7 +5609,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/46-world-famous-hh-menu.png",
+        "url": "/images/venues/46-world-famous-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://worldfamouspb.com/",
         "generated": true
@@ -5758,7 +5773,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/47-tom-ham-s-lighthouse-hh-menu.png",
+        "url": "/images/venues/47-tom-ham-s-lighthouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.tomhamslighthouse.com/",
         "generated": true
@@ -6267,7 +6282,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/51-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/51-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/la-mesa?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
         "generated": true
@@ -6491,7 +6506,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/52-american-comedy-co-san-diego-hh-menu.png",
+        "url": "/images/venues/52-american-comedy-co-san-diego-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://americancomedyco.com/",
         "generated": true
@@ -6639,7 +6654,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/53-south-beach-bar-grille-hh-menu.png",
+        "url": "/images/venues/53-south-beach-bar-grille-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://southbeachob.com/",
         "generated": true
@@ -7162,8 +7177,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/55-karl-strauss-brewing-company-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/55-karl-strauss-brewing-company-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.karlstrauss.com/location/sorrento-mesa/menu/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/55-karl-strauss-brewing-company-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.karlstrauss.com/location/sorrento-mesa/menu/",
         "generated": true
       }
@@ -7373,7 +7394,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/56-phil-s-bbq-hh-menu.png",
+        "url": "/images/venues/56-phil-s-bbq-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.philsbbq.com/",
         "generated": true
@@ -7556,8 +7577,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/57-yard-house-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/57-yard-house-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.yardhouse.com/locations/ca/san-diego/san-diego-mission-valley-mall/8363?cmpid=br:yh_ag:ie_ch:loc_ca:YHGMB_sn:gmb_gt:san-diego-ca-8363_pl:locurl_rd:1059",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/57-yard-house-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.yardhouse.com/locations/ca/san-diego/san-diego-mission-valley-mall/8363?cmpid=br:yh_ag:ie_ch:loc_ca:YHGMB_sn:gmb_gt:san-diego-ca-8363_pl:locurl_rd:1059",
         "generated": true
       }
@@ -8014,8 +8041,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/58-benihana-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/58-benihana-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.benihana.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/58-benihana-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.benihana.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/58-benihana-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.benihana.com/",
         "generated": true
       }
@@ -8296,7 +8335,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/60-bali-hai-restaurant-hh-menu.png",
+        "url": "/images/venues/60-bali-hai-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.balihairestaurant.com/",
         "generated": true
@@ -8546,7 +8585,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/61-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/61-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/chula-vista?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
         "generated": true
@@ -8812,7 +8851,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/62-kings-inn-san-diego-hh-menu.png",
+        "url": "/images/venues/62-kings-inn-san-diego-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://kingsinnsandiego.com/",
         "generated": true
@@ -9267,7 +9306,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/66-the-prado-at-balboa-park-hh-menu.png",
+        "url": "/images/venues/66-the-prado-at-balboa-park-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.pradobalboa.com/",
         "generated": true
@@ -9471,13 +9510,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/67-c-level-lounge-hh-menu.png",
+        "url": "/images/venues/67-c-level-lounge-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.clevelsd.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Bites",
@@ -9702,13 +9742,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/68-anthony-s-fish-grotto-hh-menu.png",
+        "url": "/images/venues/68-anthony-s-fish-grotto-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.anthonysfishgrotto.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Food",
@@ -9975,7 +10016,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/69-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/69-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/carlsbad?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
         "generated": true
@@ -10319,7 +10360,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/71-la-bella-pizza-hh-menu.png",
+        "url": "/images/venues/71-la-bella-pizza-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.labellas.com/",
         "generated": true
@@ -10678,8 +10719,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/73-rockin-baja-lobster-oceanside-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/73-rockin-baja-lobster-oceanside-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://rockinbaja.com/oceanside/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/73-rockin-baja-lobster-oceanside-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://rockinbaja.com/oceanside/",
         "generated": true
       }
@@ -11170,13 +11217,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/76-bluewater-boathouse-seafood-restaurant-coronado-hh-menu.png",
+        "url": "/images/venues/76-bluewater-boathouse-seafood-restaurant-coronado-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bluewatergrill.com/location/coronado/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Drinks",
@@ -11426,7 +11474,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/77-werewolf-hh-menu.png",
+        "url": "/images/venues/77-werewolf-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://thewerewolf.net/",
         "generated": true
@@ -11811,7 +11859,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/80-sushi-deli-3-hh-menu.png",
+        "url": "/images/venues/80-sushi-deli-3-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.sushideliusa.com/",
         "generated": true
@@ -12123,7 +12171,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/82-belching-beaver-brewery-tavern-and-grill-hh-menu.png",
+        "url": "/images/venues/82-belching-beaver-brewery-tavern-and-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://tavern.belchingbeaver.com/",
         "generated": true
@@ -12412,7 +12460,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/83-union-kitchen-and-tap-gaslamp-hh-menu.png",
+        "url": "/images/venues/83-union-kitchen-and-tap-gaslamp-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://gaslampunion.com/",
         "generated": true
@@ -12567,7 +12615,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/84-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/84-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/escondido?utm_source=gmb&utm_medium=organic&utm_campaign=trabon-menus&utm_term=escondido&utm_content=location-page-link",
         "generated": true
@@ -12918,7 +12966,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/86-jimmy-s-famous-american-tavern-point-loma-hh-menu.png",
+        "url": "/images/venues/86-jimmy-s-famous-american-tavern-point-loma-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.jfamous.com/",
         "generated": true
@@ -13286,7 +13334,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/88-poseidon-on-the-beach-hh-menu.png",
+        "url": "/images/venues/88-poseidon-on-the-beach-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.poseidonrestaurant.com/",
         "generated": true
@@ -13686,7 +13734,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/91-waterfront-bar-grill-hh-menu.png",
+        "url": "/images/venues/91-waterfront-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://waterfrontbarandgrill.com/",
         "generated": true
@@ -13711,14 +13759,16 @@
               "price": "$5"
             },
             {
-              "name": "Discounted craft drafts & domestic beer"
+              "name": "Discounted craft drafts & domestic beer",
+              "price": ""
             },
             {
               "name": "Well drinks & house cocktails",
               "price": "priced fair"
             },
             {
-              "name": "House red and white wine by the glass"
+              "name": "House red and white wine by the glass",
+              "price": ""
             }
           ]
         },
@@ -13726,13 +13776,16 @@
           "title": "Food",
           "items": [
             {
-              "name": "Wings"
+              "name": "Wings",
+              "price": ""
             },
             {
-              "name": "Tots"
+              "name": "Tots",
+              "price": ""
             },
             {
-              "name": "Sliders"
+              "name": "Sliders",
+              "price": ""
             },
             {
               "name": "Bar food specials",
@@ -14171,7 +14224,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/95-hacienda-casa-blanca-mexican-restaurant-cantina-hh-menu.png",
+        "url": "/images/venues/95-hacienda-casa-blanca-mexican-restaurant-cantina-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://haciendacasablanca.net/",
         "generated": true
@@ -14483,7 +14536,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/97-wonderland-ocean-pub-hh-menu.png",
+        "url": "/images/venues/97-wonderland-ocean-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://wonderlandob.com/",
         "generated": true
@@ -14684,7 +14737,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/98-herb-wood-hh-menu.png",
+        "url": "/images/venues/98-herb-wood-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.herbandwood.com/",
         "generated": true
@@ -14887,7 +14940,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/99-the-henry-hh-menu.png",
+        "url": "/images/venues/99-the-henry-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thehenryrestaurant.com/locations/the-henry-coronado/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
         "generated": true
@@ -15222,8 +15275,20 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/101-waterbar-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/101-waterbar-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.waterbarsd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/101-waterbar-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.waterbarsd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/101-waterbar-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.waterbarsd.com/",
         "generated": true
       }
@@ -15560,7 +15625,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/102-stk-steakhouse-hh-menu.png",
+        "url": "/images/venues/102-stk-steakhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://stksteakhouse.com/venues/san-diego/",
         "generated": true
@@ -15911,7 +15976,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/103-meze-greek-fusion-hh-menu.png",
+        "url": "/images/venues/103-meze-greek-fusion-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://gaslampmeze.com/?utm_source=google",
         "generated": true
@@ -16089,7 +16154,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/104-dave-buster-s-carlsbad-hh-menu.png",
+        "url": "/images/venues/104-dave-buster-s-carlsbad-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.daveandbusters.com/us/en/about/locations/carlsbad",
         "generated": true
@@ -16311,7 +16376,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/105-chili-s-grill-bar-hh-menu.png",
+        "url": "/images/venues/105-chili-s-grill-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.chilis.com/locations/us/california/chula-vista/rancho-del-rey?utm_source=google&utm_medium=local&utm_campaign=Chilis",
         "generated": true
@@ -16749,7 +16814,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/108-the-galley-hh-menu.png",
+        "url": "/images/venues/108-the-galley-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://thegalleyatthemarina.com/",
         "generated": true
@@ -17044,7 +17109,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/110-el-pueblo-mexican-food-bar-del-mar-hh-menu.png",
+        "url": "/images/venues/110-el-pueblo-mexican-food-bar-del-mar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://elpueblomex.com/",
         "generated": true
@@ -17578,7 +17643,7 @@
     "listingStatus": "published",
     "galleryImages": [
       {
-        "url": "/images/venues/111-the-tipsy-crow-hh-menu.png",
+        "url": "/images/venues/111-the-tipsy-crow-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://thetipsycrow.com/",
         "generated": true
@@ -17872,7 +17937,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/113-bencotto-italian-kitchen-hh-menu.png",
+        "url": "/images/venues/113-bencotto-italian-kitchen-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://lovebencotto.com/",
         "generated": true
@@ -18112,7 +18177,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/114-bub-s-at-the-ballpark-hh-menu.png",
+        "url": "/images/venues/114-bub-s-at-the-ballpark-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://bubssandiego.com/",
         "generated": true
@@ -18442,7 +18507,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/115-shakespeare-pub-hh-menu.png",
+        "url": "/images/venues/115-shakespeare-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.shakespearepub.com/",
         "generated": true
@@ -18698,9 +18763,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/116-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/116-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/temecula?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
+        "sourceUrl": "https://www.bjsrestaurants.com/marketing-pages/deals-and-offers/happyhour",
         "generated": true
       }
     ],
@@ -19129,7 +19194,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/119-eddie-v-s-prime-seafood-hh-menu.png",
+        "url": "/images/venues/119-eddie-v-s-prime-seafood-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.eddiev.com/locations/ca/la-jolla/la-jolla/8511?cmpid=br:ev_ag:ie_ch:loc_ca:EVGMB_sn:gmb_gt:la-jolla-ca-8511_pl:locurl_rd:1010",
         "generated": true
@@ -19402,7 +19467,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/120-mi-guadalajara-restaurant-hh-menu.png",
+        "url": "/images/venues/120-mi-guadalajara-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.miguadalajararestaurant.com/",
         "generated": true
@@ -19593,7 +19658,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/121-pizza-nova-hh-menu.png",
+        "url": "/images/venues/121-pizza-nova-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.pizzanova.net/",
         "generated": true
@@ -19812,7 +19877,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/122-kettner-exchange-hh-menu.png",
+        "url": "/images/venues/122-kettner-exchange-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.kettnerexchange.com/",
         "generated": true
@@ -20066,7 +20131,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/123-local-tap-house-hh-menu.png",
+        "url": "/images/venues/123-local-tap-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://localtaphouse.com/",
         "generated": true
@@ -20389,7 +20454,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/124-baja-betty-s-hh-menu.png",
+        "url": "/images/venues/124-baja-betty-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.bajabettyssd.com/",
         "generated": true
@@ -20527,7 +20592,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/125-punch-bowl-social-hh-menu.png",
+        "url": "/images/venues/125-punch-bowl-social-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://punchbowlsocial.com/location/san-diego/",
         "generated": true
@@ -20767,7 +20832,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/126-chili-s-grill-bar-hh-menu.png",
+        "url": "/images/venues/126-chili-s-grill-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.chilis.com/locations/us/california/san-diego/mission-valley?utm_source=google&utm_medium=local&utm_campaign=Chilis",
         "generated": true
@@ -21275,8 +21340,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/129-oceanside-broiler-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/129-oceanside-broiler-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.oceanside-broiler.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/129-oceanside-broiler-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "http://www.oceanside-broiler.com/",
         "generated": true
       }
@@ -21849,7 +21920,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/132-se-or-grubby-s-hh-menu.png",
+        "url": "/images/venues/132-se-or-grubby-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://eatgrubbys.com/carlsbad-location/?utm_source=GoogleMyBusiness&utm_medium=Info&utm_campaign=GMBG",
         "generated": true
@@ -22064,7 +22135,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/133-red-robin-gourmet-burgers-and-brews-hh-menu.png",
+        "url": "/images/venues/133-red-robin-gourmet-burgers-and-brews-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.redrobin.com/locations/ca/nationalcity/plaza-bonita-676",
         "generated": true
@@ -22491,7 +22562,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/136-louisiana-purchase-hh-menu.png",
+        "url": "/images/venues/136-louisiana-purchase-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.louisianapurchasesd.com/",
         "generated": true
@@ -22705,7 +22776,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/137-seasons-52-hh-menu.png",
+        "url": "/images/venues/137-seasons-52-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.seasons52.com/locations/ca/san-diego/san-diego-utc/4529?cmpid=br:s52_ag:ie_ch:loc_ca:S52GMB_sn:gmb_gt:san-diego-ca-4529_pl:locurl_rd:1026",
         "generated": true
@@ -22992,7 +23063,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/138-las-olas-hh-menu.png",
+        "url": "/images/venues/138-las-olas-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.lasolasrestaurant.com/",
         "generated": true
@@ -23234,7 +23305,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/139-bj-s-restaurant-brewhouse-hh-menu.png",
+        "url": "/images/venues/139-bj-s-restaurant-brewhouse-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bjsrestaurants.com/locations/ca/la-jolla",
         "generated": true
@@ -23579,7 +23650,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/141-the-blind-burro-hh-menu.png",
+        "url": "/images/venues/141-the-blind-burro-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.theblindburro.com/",
         "generated": true
@@ -23887,7 +23958,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/142-gossip-grill-hh-menu.png",
+        "url": "/images/venues/142-gossip-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://gossipgrill.com/",
         "generated": true
@@ -23909,19 +23980,24 @@
           "title": "Drinks – Buy One, Get One Token for Next",
           "items": [
             {
-              "name": "Bottled & Canned Beers"
+              "name": "Bottled & Canned Beers",
+              "price": ""
             },
             {
-              "name": "House Wines & Bubbles"
+              "name": "House Wines & Bubbles",
+              "price": ""
             },
             {
-              "name": "Seltzers & Ciders"
+              "name": "Seltzers & Ciders",
+              "price": ""
             },
             {
-              "name": "Well Spirits"
+              "name": "Well Spirits",
+              "price": ""
             },
             {
-              "name": "Draft Beers"
+              "name": "Draft Beers",
+              "price": ""
             }
           ]
         },
@@ -24407,7 +24483,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/145-sandbar-sports-grill-hh-menu.png",
+        "url": "/images/venues/145-sandbar-sports-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.sandbarsportsgrill.com/",
         "generated": true
@@ -24606,7 +24682,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/146-the-hills-pub-hh-menu.png",
+        "url": "/images/venues/146-the-hills-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.thehillspub.com/",
         "generated": true
@@ -24912,7 +24988,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/148-red-robin-gourmet-burgers-and-brews-hh-menu.png",
+        "url": "/images/venues/148-red-robin-gourmet-burgers-and-brews-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.redrobin.com/locations/ca/escondido/escondido-33?store_id=33&store_type=corporate&utm_campaign=local-business-listing&utm_content=website-link&utm_medium=organic-seach&utm_source=google-business-profile",
         "generated": true
@@ -25160,7 +25236,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/149-dini-s-by-the-sea-hh-menu.png",
+        "url": "/images/venues/149-dini-s-by-the-sea-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://dinisbythesea.com/",
         "generated": true
@@ -25534,8 +25610,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/151-zama-san-diego-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/151-zama-san-diego-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.zamasandiego.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/151-zama-san-diego-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.zamasandiego.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/151-zama-san-diego-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.zamasandiego.com/",
         "generated": true
       }
@@ -26631,7 +26719,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/159-the-lion-s-share-hh-menu.png",
+        "url": "/images/venues/159-the-lion-s-share-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.lionssharesd.com/",
         "generated": true
@@ -27267,7 +27355,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/165-insideout-hh-menu.png",
+        "url": "/images/venues/165-insideout-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://insideoutsd.com/",
         "generated": true
@@ -27644,7 +27732,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/167-common-theory-hh-menu.png",
+        "url": "/images/venues/167-common-theory-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://commontheorysd.com/",
         "generated": true
@@ -28122,7 +28210,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/171-la-cocina-de-reyes-hh-menu.png",
+        "url": "/images/venues/171-la-cocina-de-reyes-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.lacocinatemecula.com/",
         "generated": true
@@ -28388,7 +28476,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/172-bay-park-fish-company-hh-menu.png",
+        "url": "/images/venues/172-bay-park-fish-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.bayparkfishcompany.com/",
         "generated": true
@@ -29120,7 +29208,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/178-on-the-border-mexican-grill-cantina-hh-menu.png",
+        "url": "/images/venues/178-on-the-border-mexican-grill-cantina-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://otbsd.com/",
         "generated": true
@@ -29336,7 +29424,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/179-casa-machado-restaurant-hh-menu.png",
+        "url": "/images/venues/179-casa-machado-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://casamachadomex.com/",
         "generated": true
@@ -29636,9 +29724,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/181-abbey-s-real-texas-bbq-hh-menu.png",
+        "url": "/images/venues/181-abbey-s-real-texas-bbq-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://abbeystexasbbq.com/",
+        "sourceUrl": "https://abbeystexasbbq.com/bbq-menu/",
         "generated": true
       }
     ],
@@ -29821,7 +29909,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/182-coin-op-game-room-hh-menu.png",
+        "url": "/images/venues/182-coin-op-game-room-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://coinopgameroom.com/",
         "generated": true
@@ -30063,7 +30151,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/183-p-f-chang-s-hh-menu.png",
+        "url": "/images/venues/183-p-f-chang-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://locations.pfchangs.com/ca/carlsbad/5621-paseo-del-norte.html?utm_source=google_gbp&utm_medium=organic",
         "generated": true
@@ -30299,8 +30387,20 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/185-dirty-birds-college-area-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/185-dirty-birds-college-area-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "http://www.dirtybirdsbarandgrill.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/185-dirty-birds-college-area-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "http://www.dirtybirdsbarandgrill.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/185-dirty-birds-college-area-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "http://www.dirtybirdsbarandgrill.com/",
         "generated": true
       }
@@ -30644,7 +30744,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/186-mission-ave-bar-and-grill-hh-menu.png",
+        "url": "/images/venues/186-mission-ave-bar-and-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://missionavebarandgrill.com/",
         "generated": true
@@ -30874,7 +30974,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/187-del-s-hideout-hh-menu.png",
+        "url": "/images/venues/187-del-s-hideout-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.delshideout.com/",
         "generated": true
@@ -31400,9 +31500,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/190-el-pueblo-mexican-food-carlsbad-hh-menu.png",
+        "url": "/images/venues/190-el-pueblo-mexican-food-carlsbad-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://elpueblomex.com/",
+        "sourceUrl": "https://elpueblomex.com/bars/",
         "generated": true
       }
     ]
@@ -31609,43 +31709,53 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/192-casa-gabriela-hh-menu.png",
+        "url": "/images/venues/192-casa-gabriela-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.casagabrielalamesa.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Food",
           "items": [
             {
-              "name": "Caesar Salad"
+              "name": "Caesar Salad",
+              "price": ""
             },
             {
-              "name": "Chicken Barbacoa Nachos"
+              "name": "Chicken Barbacoa Nachos",
+              "price": ""
             },
             {
-              "name": "Esquites"
+              "name": "Esquites",
+              "price": ""
             },
             {
-              "name": "Queso Fundido"
+              "name": "Queso Fundido",
+              "price": ""
             },
             {
-              "name": "TJ Dogs"
+              "name": "TJ Dogs",
+              "price": ""
             },
             {
-              "name": "Campechana"
+              "name": "Campechana",
+              "price": ""
             },
             {
-              "name": "Jalapeno-Cilantro Tempura Cauliflower"
+              "name": "Jalapeno-Cilantro Tempura Cauliflower",
+              "price": ""
             },
             {
-              "name": "Rolled Taquitos"
+              "name": "Rolled Taquitos",
+              "price": ""
             },
             {
-              "name": "Ceviche Verde"
+              "name": "Ceviche Verde",
+              "price": ""
             }
           ]
         },
@@ -31653,34 +31763,44 @@
           "title": "Drinks",
           "items": [
             {
-              "name": "Casa Gabriela's Margarita"
+              "name": "Casa Gabriela's Margarita",
+              "price": ""
             },
             {
-              "name": "Cantarito"
+              "name": "Cantarito",
+              "price": ""
             },
             {
-              "name": "Los Javis CRG Mezcal shot"
+              "name": "Los Javis CRG Mezcal shot",
+              "price": ""
             },
             {
-              "name": "Real Del Valle Blanco Tequila \"The Mummy\" shot"
+              "name": "Real Del Valle Blanco Tequila \"The Mummy\" shot",
+              "price": ""
             },
             {
-              "name": "Gaby's Handcrafted Michelada"
+              "name": "Gaby's Handcrafted Michelada",
+              "price": ""
             },
             {
-              "name": "Gaby's Blonde Ale"
+              "name": "Gaby's Blonde Ale",
+              "price": ""
             },
             {
-              "name": "Sangria de la Casa"
+              "name": "Sangria de la Casa",
+              "price": ""
             },
             {
-              "name": "Vino de la Casa Red & White"
+              "name": "Vino de la Casa Red & White",
+              "price": ""
             },
             {
-              "name": "Suero"
+              "name": "Suero",
+              "price": ""
             },
             {
-              "name": "Seasonal Fresca"
+              "name": "Seasonal Fresca",
+              "price": ""
             }
           ]
         }
@@ -31915,7 +32035,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/194-harbor-town-pub-hh-menu.png",
+        "url": "/images/venues/194-harbor-town-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.harbortownpub.com/",
         "generated": true
@@ -31945,19 +32065,24 @@
           "title": "Food",
           "items": [
             {
-              "name": "Burgers"
+              "name": "Burgers",
+              "price": ""
             },
             {
-              "name": "Tacos"
+              "name": "Tacos",
+              "price": ""
             },
             {
-              "name": "Wings"
+              "name": "Wings",
+              "price": ""
             },
             {
-              "name": "Sliders"
+              "name": "Sliders",
+              "price": ""
             },
             {
-              "name": "Shareables"
+              "name": "Shareables",
+              "price": ""
             }
           ]
         }
@@ -32140,7 +32265,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/196-islands-restaurant-mira-mesa-hh-menu.png",
+        "url": "/images/venues/196-islands-restaurant-mira-mesa-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandsrestaurants.com/locations/mira-mesa",
         "generated": true
@@ -32382,7 +32507,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/197-islands-restaurant-mission-valley-hh-menu.png",
+        "url": "/images/venues/197-islands-restaurant-mission-valley-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandsrestaurants.com/locations/mission-valley",
         "generated": true
@@ -32728,9 +32853,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/199-baily-s-old-town-temecula-hh-menu.png",
+        "url": "/images/venues/199-baily-s-old-town-temecula-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://baily.com/",
+        "sourceUrl": "https://baily.com/happy-hour/",
         "generated": true
       }
     ],
@@ -32949,7 +33074,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/201-red-robin-gourmet-burgers-and-brews-hh-menu.png",
+        "url": "/images/venues/201-red-robin-gourmet-burgers-and-brews-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.redrobin.com/locations/ca/temecula/temecula-158",
         "generated": true
@@ -33170,8 +33295,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/202-el-pueblo-mexican-food-bar-carmel-valley-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/202-el-pueblo-mexican-food-bar-carmel-valley-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://elpueblomex.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/202-el-pueblo-mexican-food-bar-carmel-valley-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://elpueblomex.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/202-el-pueblo-mexican-food-bar-carmel-valley-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://elpueblomex.com/",
         "generated": true
       }
@@ -33447,7 +33584,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/203-trust-hh-menu.png",
+        "url": "/images/venues/203-trust-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.trustrestaurantsd.com/",
         "generated": true
@@ -33750,7 +33887,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/205-nolita-hall-hh-menu.png",
+        "url": "/images/venues/205-nolita-hall-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.nolitahall.com/",
         "generated": true
@@ -34060,8 +34197,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/207-dirty-birds-pacific-beach-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/207-dirty-birds-pacific-beach-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.dirtybirdsbarandgrill.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/207-dirty-birds-pacific-beach-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.dirtybirdsbarandgrill.com/",
         "generated": true
       }
@@ -34115,7 +34258,8 @@
               "price": "$31"
             },
             {
-              "name": "Tuesday: All Day Happy Hour"
+              "name": "Tuesday: All Day Happy Hour",
+              "price": ""
             },
             {
               "name": "Wednesday: Boneless Wings All Day",
@@ -34618,7 +34762,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/210-mcgregor-s-bar-and-grill-hh-menu.png",
+        "url": "/images/venues/210-mcgregor-s-bar-and-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://mcgregorssandiego.com/",
         "generated": true
@@ -34783,7 +34927,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/211-caff-calabria-hh-menu.png",
+        "url": "/images/venues/211-caff-calabria-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://caffecalabria.com/",
         "generated": true
@@ -35229,7 +35373,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/213-the-rabbit-hole-hh-menu.png",
+        "url": "/images/venues/213-the-rabbit-hole-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://rabbitholesd.com/",
         "generated": true
@@ -35815,7 +35959,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/217-en-fuego-cantina-grill-hh-menu.png",
+        "url": "/images/venues/217-en-fuego-cantina-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://enfuegocantina.com/",
         "generated": true
@@ -36202,8 +36346,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/218-corkfire-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/218-corkfire-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.corkfirekitchen.com/?utm_source=google&utm_medium=organic&utm_campaign=business-listing",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/218-corkfire-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.corkfirekitchen.com/?utm_source=google&utm_medium=organic&utm_campaign=business-listing",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/218-corkfire-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.corkfirekitchen.com/?utm_source=google&utm_medium=organic&utm_campaign=business-listing",
         "generated": true
       }
@@ -36344,7 +36500,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/219-carvers-steaks-chops-hh-menu.png",
+        "url": "/images/venues/219-carvers-steaks-chops-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://carverssteak.com/",
         "generated": true
@@ -36623,7 +36779,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/220-tony-s-jacal-hh-menu.png",
+        "url": "/images/venues/220-tony-s-jacal-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://tonysjacalsd.com/",
         "generated": true
@@ -36763,7 +36919,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/221-blue-ocean-robata-sushi-bar-hh-menu.png",
+        "url": "/images/venues/221-blue-ocean-robata-sushi-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://blueoceansushibar.com/",
         "generated": true
@@ -37732,8 +37888,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/229-benihana-temecula-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/229-benihana-temecula-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.benihana.com/locations/temecula/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/229-benihana-temecula-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.benihana.com/locations/temecula/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
         "generated": true
       }
@@ -38054,7 +38216,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/230-eureka-hh-menu.png",
+        "url": "/images/venues/230-eureka-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://eurekarestaurantgroup.com/locations/carlsbad/",
         "generated": true
@@ -38223,7 +38385,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/231-islands-restaurant-temecula-hh-menu.png",
+        "url": "/images/venues/231-islands-restaurant-temecula-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandsrestaurants.com/locations/temecula",
         "generated": true
@@ -38236,46 +38398,60 @@
           "title": "Drinks",
           "items": [
             {
-              "name": "Mai Tai"
+              "name": "Mai Tai",
+              "price": ""
             },
             {
-              "name": "Deep Blue Sea"
+              "name": "Deep Blue Sea",
+              "price": ""
             },
             {
-              "name": "Big Island Iced Tea"
+              "name": "Big Island Iced Tea",
+              "price": ""
             },
             {
-              "name": "Moscow Mule"
+              "name": "Moscow Mule",
+              "price": ""
             },
             {
-              "name": "Well Rocks & Mixed Drinks"
+              "name": "Well Rocks & Mixed Drinks",
+              "price": ""
             },
             {
-              "name": "Margaritas (Rocks or Frozen)"
+              "name": "Margaritas (Rocks or Frozen)",
+              "price": ""
             },
             {
-              "name": "Mangorita®"
+              "name": "Mangorita®",
+              "price": ""
             },
             {
-              "name": "Frozen Strawberry"
+              "name": "Frozen Strawberry",
+              "price": ""
             },
             {
-              "name": "Coors Light Draft 16 oz"
+              "name": "Coors Light Draft 16 oz",
+              "price": ""
             },
             {
-              "name": "Coors Light Draft 22 oz"
+              "name": "Coors Light Draft 22 oz",
+              "price": ""
             },
             {
-              "name": "Domestic Bottled Beer"
+              "name": "Domestic Bottled Beer",
+              "price": ""
             },
             {
-              "name": "Islands House Beer"
+              "name": "Islands House Beer",
+              "price": ""
             },
             {
-              "name": "Copper Ridge Cabernet"
+              "name": "Copper Ridge Cabernet",
+              "price": ""
             },
             {
-              "name": "Copper Ridge Chardonnay"
+              "name": "Copper Ridge Chardonnay",
+              "price": ""
             }
           ]
         },
@@ -38283,37 +38459,48 @@
           "title": "Eats",
           "items": [
             {
-              "name": "Chips & Salsa"
+              "name": "Chips & Salsa",
+              "price": ""
             },
             {
-              "name": "Cheddar Fries"
+              "name": "Cheddar Fries",
+              "price": ""
             },
             {
-              "name": "Onion Rings"
+              "name": "Onion Rings",
+              "price": ""
             },
             {
-              "name": "Beachside Sliders™"
+              "name": "Beachside Sliders™",
+              "price": ""
             },
             {
-              "name": "Street Tacos"
+              "name": "Street Tacos",
+              "price": ""
             },
             {
-              "name": "Spinach Artichoke Dip"
+              "name": "Spinach Artichoke Dip",
+              "price": ""
             },
             {
-              "name": "Boneless Wings & Fries"
+              "name": "Boneless Wings & Fries",
+              "price": ""
             },
             {
-              "name": "Quesadilla"
+              "name": "Quesadilla",
+              "price": ""
             },
             {
-              "name": "Tempura Green Beans"
+              "name": "Tempura Green Beans",
+              "price": ""
             },
             {
-              "name": "Tiki Tenders & Fries"
+              "name": "Tiki Tenders & Fries",
+              "price": ""
             },
             {
-              "name": "Islands Nachitos"
+              "name": "Islands Nachitos",
+              "price": ""
             }
           ]
         }
@@ -38551,7 +38738,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/233-green-dragon-tavern-museum-hh-menu.png",
+        "url": "/images/venues/233-green-dragon-tavern-museum-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.greendragontavernca.com/?utm_source=gmb&utm_medium=localsearch&utm_campaign=greendragontavernca",
         "generated": true
@@ -38758,7 +38945,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/234-lighthouse-oyster-bar-grill-hh-menu.png",
+        "url": "/images/venues/234-lighthouse-oyster-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://lighthouseoceanside.com/",
         "generated": true
@@ -39147,7 +39334,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/236-bier-garden-encinitas-hh-menu.png",
+        "url": "/images/venues/236-bier-garden-encinitas-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.biergardensandiego.com/encinitas?utm_source=google-business-profile&utm_medium=gmb",
         "generated": true
@@ -39670,9 +39857,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/239-aero-club-bar-hh-menu.png",
+        "url": "/images/venues/239-aero-club-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://aeroclubbar.com/",
+        "sourceUrl": "https://aeroclubbar.com/happenings",
         "generated": true
       }
     ],
@@ -40008,7 +40195,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/241-o-sullivan-s-irish-pub-escondido-hh-menu.png",
+        "url": "/images/venues/241-o-sullivan-s-irish-pub-escondido-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.osullivansescondido.com/",
         "generated": true
@@ -40235,7 +40422,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/242-sd-taproom-hh-menu.png",
+        "url": "/images/venues/242-sd-taproom-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://sdtaproom.com/?utm_source=google&utm_medium=business-profile&utm_campaign=google-business-profile",
         "generated": true
@@ -40534,7 +40721,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/244-gravity-heights-hh-menu.png",
+        "url": "/images/venues/244-gravity-heights-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.gravityheights.com/",
         "generated": true
@@ -40781,7 +40968,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/245-the-cork-and-craft-hh-menu.png",
+        "url": "/images/venues/245-the-cork-and-craft-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.corkandcraft.net/",
         "generated": true
@@ -41063,7 +41250,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/247-islands-restaurant-chula-vista-hh-menu.png",
+        "url": "/images/venues/247-islands-restaurant-chula-vista-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandsrestaurants.com/locations/chula-vista",
         "generated": true
@@ -41311,7 +41498,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/248-public-house-temecula-hh-menu.png",
+        "url": "/images/venues/248-public-house-temecula-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.publichousetemecula.com/",
         "generated": true
@@ -41600,7 +41787,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/249-woodstock-s-pizza-sdsu-hh-menu.png",
+        "url": "/images/venues/249-woodstock-s-pizza-sdsu-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://woodstockssd.com/?utm_source=gmb&utm_medium=organic",
         "generated": true
@@ -41944,7 +42131,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/250-johnny-b-s-burgers-brew-spirits-hh-menu.png",
+        "url": "/images/venues/250-johnny-b-s-burgers-brew-spirits-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.johnnybsburgersandbrew.com/",
         "generated": true
@@ -42129,7 +42316,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/251-710-beach-club-hh-menu.png",
+        "url": "/images/venues/251-710-beach-club-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.710bc.com/",
         "generated": true
@@ -42343,7 +42530,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/252-downtown-cafe-bar-grill-hh-menu.png",
+        "url": "/images/venues/252-downtown-cafe-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.downtowncafe-ec.com/",
         "generated": true
@@ -42559,7 +42746,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/254-the-holding-company-hh-menu.png",
+        "url": "/images/venues/254-the-holding-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://theholdingcompanyob.com/?utm_source=google-business-profile&utm_medium=organic&utm_campaign=profile-link",
         "generated": true
@@ -42769,7 +42956,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/255-the-sandbox-hh-menu.png",
+        "url": "/images/venues/255-the-sandbox-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://thesandboxpizza.com/",
         "generated": true
@@ -43084,7 +43271,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/256-hapa-j-s-hh-menu.png",
+        "url": "/images/venues/256-hapa-j-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.hapajs.com/",
         "generated": true
@@ -43372,7 +43559,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/258-cove-house-hh-menu.png",
+        "url": "/images/venues/258-cove-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.covehouselajolla.com/",
         "generated": true
@@ -43573,7 +43760,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/259-the-draft-restaurant-and-sports-bar-hh-menu.png",
+        "url": "/images/venues/259-the-draft-restaurant-and-sports-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.thedraftoceanside.com/",
         "generated": true
@@ -43753,7 +43940,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/260-savoie-italian-eatery-hh-menu.png",
+        "url": "/images/venues/260-savoie-italian-eatery-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.savoieeatery.com/",
         "generated": true
@@ -44152,7 +44339,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/263-islands-restaurant-carmel-mountain-hh-menu.png",
+        "url": "/images/venues/263-islands-restaurant-carmel-mountain-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandsrestaurants.com/locations/carmel-mountain",
         "generated": true
@@ -44439,7 +44626,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/264-pacifica-del-mar-hh-menu.png",
+        "url": "/images/venues/264-pacifica-del-mar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.pacificadelmar.com/",
         "generated": true
@@ -44606,7 +44793,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/265-aka-san-diego-hh-menu.png",
+        "url": "/images/venues/265-aka-san-diego-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.akagaslamp.com/",
         "generated": true
@@ -44815,7 +45002,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/266-amalfi-cucina-italiana-san-marcos-hh-menu.png",
+        "url": "/images/venues/266-amalfi-cucina-italiana-san-marcos-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.amalficucinaitaliana.com/",
         "generated": true
@@ -45054,15 +45241,15 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "https://www.birdseyerooftop.com/happy-hour/",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/267-birdseye-rooftop-bar-hh-menu.png",
+        "url": "/images/venues/267-birdseye-rooftop-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://birdseyerooftop.com/",
+        "sourceUrl": "https://www.birdseyerooftop.com/happy-hour/",
         "generated": true
       }
     ],
@@ -45375,7 +45562,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/269-the-crossings-at-carlsbad-hh-menu.png",
+        "url": "/images/venues/269-the-crossings-at-carlsbad-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thecrossingsatcarlsbad.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp_listing",
         "generated": true
@@ -45517,7 +45704,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/270-la-do-a-hh-menu.png",
+        "url": "/images/venues/270-la-do-a-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://ladonaob.com/",
         "generated": true
@@ -45735,8 +45922,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/271-ki-s-restaurant-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/271-ki-s-restaurant-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://kisrestaurant.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/271-ki-s-restaurant-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "http://kisrestaurant.com/",
         "generated": true
       }
@@ -46006,7 +46199,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/272-asada-cantina-kitchen-hh-menu.png",
+        "url": "/images/venues/272-asada-cantina-kitchen-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.asadacantina.com/",
         "generated": true
@@ -46400,7 +46593,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/275-texas-de-brazil-carlsbad-hh-menu.png",
+        "url": "/images/venues/275-texas-de-brazil-carlsbad-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://texasdebrazil.com/locations/carlsbad/?utm_source=gmb&utm_medium=yext&y_source=1_NDg4MzA3MjgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
         "generated": true
@@ -46593,7 +46786,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/276-hennessey-s-tavern-hh-menu.png",
+        "url": "/images/venues/276-hennessey-s-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://hennesseystavern.com/",
         "generated": true
@@ -46840,7 +47033,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/277-winstons-beach-club-hh-menu.png",
+        "url": "/images/venues/277-winstons-beach-club-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.winstonsob.com/",
         "generated": true
@@ -47151,7 +47344,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/278-killarney-s-restaurant-irish-pub-hh-menu.png",
+        "url": "/images/venues/278-killarney-s-restaurant-irish-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.killarneys.com/",
         "generated": true
@@ -47300,7 +47493,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/279-the-nolen-rooftop-hh-menu.png",
+        "url": "/images/venues/279-the-nolen-rooftop-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://thenolenrooftop.com/",
         "generated": true
@@ -47471,7 +47664,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/280-hennessey-s-tavern-hh-menu.png",
+        "url": "/images/venues/280-hennessey-s-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://hennesseystavern.com/",
         "generated": true
@@ -47738,9 +47931,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/281-mainstream-bar-grill-hh-menu.png",
+        "url": "/images/venues/281-mainstream-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://www.mainstreampoway.net/",
+        "sourceUrl": "http://www.mainstreampoway.net/poway-mainstream-bar-and-grill-happy-hours-specials",
         "generated": true
       }
     ],
@@ -48138,7 +48331,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/284-smokey-and-the-brisket-bbq-hh-menu.png",
+        "url": "/images/venues/284-smokey-and-the-brisket-bbq-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.smokeyandthebrisketsd.com/",
         "generated": true
@@ -48405,7 +48598,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/285-por-favor-el-cajon-hh-menu.png",
+        "url": "/images/venues/285-por-favor-el-cajon-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.porfavorrestaurants.com/",
         "generated": true
@@ -48648,7 +48841,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/286-havana-1920-hh-menu.png",
+        "url": "/images/venues/286-havana-1920-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://havana1920.com/",
         "generated": true
@@ -48833,8 +49026,20 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/287-nobu-san-diego-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/287-nobu-san-diego-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/287-nobu-san-diego-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/287-nobu-san-diego-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.noburestaurants.com/sandiego/home/?utm_source=google&utm_medium=Yext",
         "generated": true
       }
@@ -49165,7 +49370,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/288-khan-s-cave-grill-tavern-hh-menu.png",
+        "url": "/images/venues/288-khan-s-cave-grill-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://khanscave.com/",
         "generated": true
@@ -49360,7 +49565,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/289-point-break-bar-and-grill-hh-menu.png",
+        "url": "/images/venues/289-point-break-bar-and-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.pointbreakbargrill.com/",
         "generated": true
@@ -49656,7 +49861,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/290-the-privateer-coal-fire-pizza-hh-menu.png",
+        "url": "/images/venues/290-the-privateer-coal-fire-pizza-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.theprivateercoalfirepizza.com/?utm_source=googlemybusiness",
         "generated": true
@@ -49818,7 +50023,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/291-north-italia-hh-menu.png",
+        "url": "/images/venues/291-north-italia-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.northitalia.com/locations/san-diego-ca-one-paseo/",
         "generated": true
@@ -50174,7 +50379,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/293-riviera-supper-club-and-turquoise-room-hh-menu.png",
+        "url": "/images/venues/293-riviera-supper-club-and-turquoise-room-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://rivierasupperclub.com/",
         "generated": true
@@ -50496,7 +50701,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/294-hooleys-public-house-hh-menu.png",
+        "url": "/images/venues/294-hooleys-public-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.hooleys.com/",
         "generated": true
@@ -50678,7 +50883,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/295-the-mining-company-hh-menu.png",
+        "url": "/images/venues/295-the-mining-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://ocminingco.com/",
         "generated": true
@@ -50913,9 +51118,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/296-offshore-tavern-grill-hh-menu.png",
+        "url": "/images/venues/296-offshore-tavern-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://www.offshoretavern.com/",
+        "sourceUrl": "http://www.offshoretavern.com/san-diego-bay-park-offshore-tavern-and-grill-happy-hours-specials",
         "generated": true
       }
     ],
@@ -51057,7 +51262,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/297-toasted-gastrobrunch-hh-menu.png",
+        "url": "/images/venues/297-toasted-gastrobrunch-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://toasted.net/Location-Details/Detail/Oceanside",
         "generated": true
@@ -51282,7 +51487,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/298-beachfire-bar-grill-hh-menu.png",
+        "url": "/images/venues/298-beachfire-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.beachfire.com/",
         "generated": true
@@ -51500,8 +51705,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/299-working-class-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/299-working-class-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "http://www.workingclasssd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/299-working-class-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "http://www.workingclasssd.com/",
         "generated": true
       }
@@ -51801,7 +52012,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/300-cicciotti-s-trattoria-italiana-hh-menu.png",
+        "url": "/images/venues/300-cicciotti-s-trattoria-italiana-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.cicciottis.com/",
         "generated": true
@@ -52296,15 +52507,15 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "https://www.chicagobrospizzeria.com/specials",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/304-chicago-bros-pizzeria-hh-menu.png",
+        "url": "/images/venues/304-chicago-bros-pizzeria-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.chicagobrospizzeria.com/",
+        "sourceUrl": "https://www.chicagobrospizzeria.com/specials",
         "generated": true
       }
     ],
@@ -52504,7 +52715,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/305-the-roxy-encinitas-hh-menu.png",
+        "url": "/images/venues/305-the-roxy-encinitas-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.roxyencinitas.com/?utm_source=Directories&utm_medium=Business-Listings",
         "generated": true
@@ -52868,7 +53079,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/307-pizza-nova-hh-menu.png",
+        "url": "/images/venues/307-pizza-nova-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.pizzanova.net/",
         "generated": true
@@ -53118,7 +53329,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/309-oggi-s-hh-menu.png",
+        "url": "/images/venues/309-oggi-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.oggis.com/location/oggis-sports-brewhouse-pizza-santee/",
         "generated": true
@@ -53572,7 +53783,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/312-blade-1936-hh-menu.png",
+        "url": "/images/venues/312-blade-1936-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://blade1936.com/?utm_source=google",
         "generated": true
@@ -53797,7 +54008,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/313-oscar-s-brewing-company-hh-menu.png",
+        "url": "/images/venues/313-oscar-s-brewing-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.oscarsbrewingcompany.com/",
         "generated": true
@@ -54090,7 +54301,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/315-monarch-ocean-pub-hh-menu.png",
+        "url": "/images/venues/315-monarch-ocean-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://monarchdelmar.com/?utm_source=local-directories",
         "generated": true
@@ -54741,7 +54952,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/321-love-boat-sushi-oceanside-hh-menu.png",
+        "url": "/images/venues/321-love-boat-sushi-oceanside-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://loveboatsushi.com/",
         "generated": true
@@ -54956,7 +55167,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/322-barbarella-restaurant-bar-hh-menu.png",
+        "url": "/images/venues/322-barbarella-restaurant-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://barbarellarestaurant.com/?y_source=1_MjQzMTg2OTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
         "generated": true
@@ -55291,7 +55502,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/324-the-3rd-corner-wine-shop-bistro-hh-menu.png",
+        "url": "/images/venues/324-the-3rd-corner-wine-shop-bistro-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.the3rdcorner.com/",
         "generated": true
@@ -55574,7 +55785,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/326-aqua-mare-cucina-italiana-hh-menu.png",
+        "url": "/images/venues/326-aqua-mare-cucina-italiana-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://aquamaredelmar.com/",
         "generated": true
@@ -55862,9 +56073,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/328-zen-curry-and-grill-hh-menu.png",
+        "url": "/images/venues/328-zen-curry-and-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.zencurryandgrill.com/?utm_source=GBP&utm_medium=organic&utm_campaign=office",
+        "sourceUrl": "https://www.zencurryandgrill.com/",
         "generated": true
       }
     ],
@@ -56025,9 +56236,15 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/329-oggi-s-sports-brewhouse-pizza-hh-menu.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://www.oggis.com/location/oggis-sports-brewhouse-pizza-mission-valley/",
+        "url": "/images/venues/329-oggi-s-sports-brewhouse-pizza-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.oggis.com/event/mission-valley-happy-hour/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/329-oggi-s-sports-brewhouse-pizza-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://www.oggis.com/event/mission-valley-happy-hour/",
         "generated": true
       }
     ],
@@ -56446,9 +56663,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/331-taproom-beer-company-hh-menu.png",
+        "url": "/images/venues/331-taproom-beer-company-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://www.taproombeerco.com/",
+        "sourceUrl": "https://www.taproombeerco.com/happy-hour-north-park-san-diego",
         "generated": true
       }
     ],
@@ -56625,7 +56842,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/332-sbicca-del-mar-restaurant-with-ocean-views-hh-menu.png",
+        "url": "/images/venues/332-sbicca-del-mar-restaurant-with-ocean-views-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.sbiccadelmar.com/",
         "generated": true
@@ -57057,7 +57274,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/335-bushfire-kitchen-la-costa-hh-menu.png",
+        "url": "/images/venues/335-bushfire-kitchen-la-costa-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bushfirekitchen.com/our-locations/la-costa",
         "generated": true
@@ -57410,8 +57627,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/336-pacific-catch-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/336-pacific-catch-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://pacificcatch.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/336-pacific-catch-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://pacificcatch.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/336-pacific-catch-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://pacificcatch.com/",
         "generated": true
       }
@@ -58265,8 +58494,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/345-mariscos-el-pacifico-fallbrook-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/345-mariscos-el-pacifico-fallbrook-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://mariscoselpacificofb.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/345-mariscos-el-pacifico-fallbrook-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://mariscoselpacificofb.com/",
         "generated": true
       }
@@ -58516,13 +58751,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/346-northside-tavern-hh-menu.png",
+        "url": "/images/venues/346-northside-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://northsidetavernob.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Food",
@@ -58618,7 +58854,8 @@
               "price": "$12"
             },
             {
-              "name": "Milagro Silver Tequila"
+              "name": "Milagro Silver Tequila",
+              "price": ""
             }
           ]
         }
@@ -59021,7 +59258,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/348-herb-sea-hh-menu.png",
+        "url": "/images/venues/348-herb-sea-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.herbandsea.com/",
         "generated": true
@@ -59230,7 +59467,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/349-gibroni-s-pizza-hh-menu.png",
+        "url": "/images/venues/349-gibroni-s-pizza-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://gibronispizza.com/",
         "generated": true
@@ -59396,7 +59633,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/350-cardiff-beach-bar-tower-13-hh-menu.png",
+        "url": "/images/venues/350-cardiff-beach-bar-tower-13-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.tower13.com/",
         "generated": true
@@ -59923,7 +60160,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/354-the-shack-bar-grill-hh-menu.png",
+        "url": "/images/venues/354-the-shack-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.theshackbarandgrill.co/",
         "generated": true
@@ -60677,7 +60914,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/361-pillbox-tavern-hh-menu.png",
+        "url": "/images/venues/361-pillbox-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.pillboxtavern.com/",
         "generated": true
@@ -60914,7 +61151,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/362-the-cellar-hh-menu.png",
+        "url": "/images/venues/362-the-cellar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.thecellarsite.com/",
         "generated": true
@@ -61393,7 +61630,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/365-wu-lan-ramen-tap-house-hh-menu.png",
+        "url": "/images/venues/365-wu-lan-ramen-tap-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://wulanramentaphouse.com/",
         "generated": true
@@ -61716,9 +61953,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/367-the-regal-seagull-hh-menu.png",
+        "url": "/images/venues/367-the-regal-seagull-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://www.regalseagull.com/",
+        "sourceUrl": "http://www.regalseagull.com/encinitas-leucadia-the-regal-seagull-happy-hours-specials",
         "generated": true
       }
     ],
@@ -61966,7 +62203,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/369-tommy-v-s-cucina-italiana-hh-menu.png",
+        "url": "/images/venues/369-tommy-v-s-cucina-italiana-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.tommyvsurbankitchencarlsbad.com/",
         "generated": true
@@ -62238,7 +62475,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/370-knb-bistro-hh-menu.png",
+        "url": "/images/venues/370-knb-bistro-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://knbbistro.com/",
         "generated": true
@@ -62755,7 +62992,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/374-bellamy-s-restaurant-hh-menu.png",
+        "url": "/images/venues/374-bellamy-s-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.bellamysdining.com/",
         "generated": true
@@ -63169,7 +63406,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/376-ocean-beach-brewery-hh-menu.png",
+        "url": "/images/venues/376-ocean-beach-brewery-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://obbrewingco.com/",
         "generated": true
@@ -63454,7 +63691,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/378-bayside-landing-hh-menu.png",
+        "url": "/images/venues/378-bayside-landing-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.baysidelanding.com/",
         "generated": true
@@ -63751,7 +63988,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/379-press-box-sports-lounge-hh-menu.png",
+        "url": "/images/venues/379-press-box-sports-lounge-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://pressboxsportslounge.com/",
         "generated": true
@@ -63925,7 +64162,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/380-huntress-hh-menu.png",
+        "url": "/images/venues/380-huntress-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://huntresssteak.com/",
         "generated": true
@@ -64479,13 +64716,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/384-uncle-bob-s-hh-menu.png",
+        "url": "/images/venues/384-uncle-bob-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.unclebobstemecula.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Shakeables",
@@ -64721,7 +64959,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/385-tamarindo-del-mar-hh-menu.png",
+        "url": "/images/venues/385-tamarindo-del-mar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.tamarindodelmar.com/",
         "generated": true
@@ -65057,7 +65295,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/386-blue-wave-bar-grill-hh-menu.png",
+        "url": "/images/venues/386-blue-wave-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.islandpalms.com/dining",
         "generated": true
@@ -65235,7 +65473,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/387-davanti-enoteca-hh-menu.png",
+        "url": "/images/venues/387-davanti-enoteca-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://davantienotecadelmar.com/",
         "generated": true
@@ -65586,7 +65824,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/389-pal-joey-s-cocktail-lounge-hh-menu.png",
+        "url": "/images/venues/389-pal-joey-s-cocktail-lounge-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.paljoeys.net/",
         "generated": true
@@ -66359,33 +66597,27 @@
           "items": [
             {
               "name": "House margarita 16oz (add strawberry, mango or piña colada +$1.50)",
-              "price": "$8",
-              "category": "cocktails"
+              "price": "$8"
             },
             {
               "name": "Specialty margaritas",
-              "price": "$12",
-              "category": "cocktails"
+              "price": "$12"
             },
             {
               "name": "Paloma",
-              "price": "$8",
-              "category": "cocktails"
+              "price": "$8"
             },
             {
               "name": "Mango paloma",
-              "price": "$9",
-              "category": "cocktails"
+              "price": "$9"
             },
             {
               "name": "Bloody Mary or Maria",
-              "price": "$8.50",
-              "category": "cocktails"
+              "price": "$8.50"
             },
             {
               "name": "Tequila sherbet",
-              "price": "$10",
-              "category": "cocktails"
+              "price": "$10"
             }
           ]
         },
@@ -66429,18 +66661,15 @@
           "items": [
             {
               "name": "Blanco (Cuervo Tradicional, Casamigos, Hornitos)",
-              "price": "$15",
-              "category": "cocktails"
+              "price": "$15"
             },
             {
               "name": "Reposado (Casamigos, Corralejo, Tres Generaciones)",
-              "price": "$17",
-              "category": "cocktails"
+              "price": "$17"
             },
             {
               "name": "Añejo (Suavecito, Padrino, Tres Generaciones)",
-              "price": "$20",
-              "category": "cocktails"
+              "price": "$20"
             }
           ]
         }
@@ -66628,7 +66857,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/396-buona-forchetta-san-marcos-hh-menu.png",
+        "url": "/images/venues/396-buona-forchetta-san-marcos-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://buonaforchettasd.com/san-marcos/",
         "generated": true
@@ -66838,7 +67067,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/397-wheat-water-hh-menu.png",
+        "url": "/images/venues/397-wheat-water-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://wheatandwater.com/",
         "generated": true
@@ -67094,7 +67323,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/398-kingfisher-hh-menu.png",
+        "url": "/images/venues/398-kingfisher-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://kingfishersd.com/",
         "generated": true
@@ -67806,9 +68035,15 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/402-sushi-lounge-encinitas-hh-menu.png",
-        "caption": "Happy hour menu",
-        "sourceUrl": "https://sushiloungesd.com/",
+        "url": "/images/venues/402-sushi-lounge-encinitas-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/402-sushi-lounge-encinitas-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
+        "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
         "generated": true
       }
     ]
@@ -68376,7 +68611,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/406-buckboard-s-bbq-brew-hh-menu.png",
+        "url": "/images/venues/406-buckboard-s-bbq-brew-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.buckboardsbbq.com/",
         "generated": true
@@ -68723,7 +68958,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/408-mangia-e-bevi-hh-menu.png",
+        "url": "/images/venues/408-mangia-e-bevi-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://mangiaoceanside.com/",
         "generated": true
@@ -68844,7 +69079,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/409-covewood-restaurant-hh-menu.png",
+        "url": "/images/venues/409-covewood-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.missionbayresort.com/covewood-restaurant/?utm_source=gmb-restaurant&utm_medium=organic&utm_campaign=gmb",
         "generated": true
@@ -69181,7 +69416,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/411-vittorio-s-italian-trattoria-hh-menu.png",
+        "url": "/images/venues/411-vittorio-s-italian-trattoria-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.vittoriossandiego.com/",
         "generated": true
@@ -69411,7 +69646,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/413-cafe-luna-hh-menu.png",
+        "url": "/images/venues/413-cafe-luna-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://cafelunasd.com/",
         "generated": true
@@ -69602,9 +69837,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/414-curbside-eatery-drinkery-hh-menu.png",
+        "url": "/images/venues/414-curbside-eatery-drinkery-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://curbsidelamesa.com/",
+        "sourceUrl": "http://curbsidelamesa.com/drink-menu",
         "generated": true
       }
     ],
@@ -69633,9 +69868,9 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "http://curbsidelamesa.com/drink-menu",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     }
   },
   {
@@ -69861,7 +70096,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/416-chef-jun-bay-ho-hh-menu.png",
+        "url": "/images/venues/416-chef-jun-bay-ho-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://chefjun.com/",
         "generated": true
@@ -70183,7 +70418,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/418-canyons-restaurant-at-the-crossings-hh-menu.png",
+        "url": "/images/venues/418-canyons-restaurant-at-the-crossings-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thecrossingsatcarlsbad.com/dining",
         "generated": true
@@ -70311,7 +70546,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/419-modern-times-flavordome-hh-menu.png",
+        "url": "/images/venues/419-modern-times-flavordome-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://moderntimes.pub/northpark/",
         "generated": true
@@ -70654,9 +70889,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/422-we-be-ob-hh-menu.png",
+        "url": "/images/venues/422-we-be-ob-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://webeob.com/",
+        "sourceUrl": "http://webeob.com/san-diego-ocean-beach-we-be-ob-happy-hours-specials",
         "generated": true
       }
     ],
@@ -70835,7 +71070,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/423-fast-times-hh-menu.png",
+        "url": "/images/venues/423-fast-times-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://fasttimessd.com/",
         "generated": true
@@ -71060,8 +71295,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/425-waverly-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/425-waverly-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://thewaverly.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/425-waverly-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://thewaverly.com/",
         "generated": true
       }
@@ -71545,7 +71786,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/427-culinary-dropout-hh-menu.png",
+        "url": "/images/venues/427-culinary-dropout-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.culinarydropout.com/locations/culinary-dropout-del-mar-ca/",
         "generated": true
@@ -71712,7 +71953,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/428-fresco-grill-hh-menu.png",
+        "url": "/images/venues/428-fresco-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://frescorestaurants.com/",
         "generated": true
@@ -72246,7 +72487,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/433-mediterraneo-hh-menu.png",
+        "url": "/images/venues/433-mediterraneo-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://mediterraneobistro.com/",
         "generated": true
@@ -72775,7 +73016,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/439-active-culture-hh-menu.png",
+        "url": "/images/venues/439-active-culture-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://activeculturecafe.com/",
         "generated": true
@@ -72947,7 +73188,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/440-the-haven-pizzeria-hh-menu.png",
+        "url": "/images/venues/440-the-haven-pizzeria-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thehavenpizzeria.com/",
         "generated": true
@@ -73199,7 +73440,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/441-shores-bar-kitchen-hh-menu.png",
+        "url": "/images/venues/441-shores-bar-kitchen-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.shoresbar.com/",
         "generated": true
@@ -73366,7 +73607,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/442-counterpoint-hh-menu.png",
+        "url": "/images/venues/442-counterpoint-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.counterpointsd.com/",
         "generated": true
@@ -73643,7 +73884,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/443-til-two-club-hh-menu.png",
+        "url": "/images/venues/443-til-two-club-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.tiltwoclub.com/",
         "generated": true
@@ -73813,7 +74054,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/444-hideaway-pacific-beach-hh-menu.png",
+        "url": "/images/venues/444-hideaway-pacific-beach-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.hideawaypb.com/",
         "generated": true
@@ -74083,7 +74324,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/445-boujiemana-hh-menu.png",
+        "url": "/images/venues/445-boujiemana-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.boujiemana.com/",
         "generated": true
@@ -74324,13 +74565,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/446-black-rail-kitchen-bar-hh-menu.png",
+        "url": "/images/venues/446-black-rail-kitchen-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://blackrailkitchen.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Drinks",
@@ -74760,7 +75002,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/449-limoncello-modern-italian-hh-menu.png",
+        "url": "/images/venues/449-limoncello-modern-italian-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.limoncellolamesa.com/",
         "generated": true
@@ -75075,7 +75317,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/450-american-heroes-brew-hh-menu.png",
+        "url": "/images/venues/450-american-heroes-brew-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://americanheroesandbrew.com/?utm_source=google&utm_medium=gbp&utm_campaign=local",
         "generated": true
@@ -75241,7 +75483,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/451-park-social-hh-menu.png",
+        "url": "/images/venues/451-park-social-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://parksocialsd.com/",
         "generated": true
@@ -75387,7 +75629,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/452-casa-nori-sushi-bar-grill-hh-menu.png",
+        "url": "/images/venues/452-casa-nori-sushi-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.casanorisushi.com/",
         "generated": true
@@ -75730,7 +75972,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/454-dirty-birds-ocean-beach-hh-menu.png",
+        "url": "/images/venues/454-dirty-birds-ocean-beach-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.dirtybirdsbarandgrill.com/",
         "generated": true
@@ -75785,7 +76027,8 @@
               "price": "$31"
             },
             {
-              "name": "Tuesday: All Day Happy Hour"
+              "name": "Tuesday: All Day Happy Hour",
+              "price": ""
             },
             {
               "name": "Wednesday: ½ Off Boneless Wings All Day",
@@ -75804,7 +76047,8 @@
               "price": "$5"
             },
             {
-              "name": "Friday: Happy Hour 3pm–6pm"
+              "name": "Friday: Happy Hour 3pm–6pm",
+              "price": ""
             },
             {
               "name": "Saturday & Sunday: Mimosa",
@@ -76281,7 +76525,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/459-aromi-italian-cuisine-hh-menu.png",
+        "url": "/images/venues/459-aromi-italian-cuisine-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.aromisd.com/",
         "generated": true
@@ -76597,8 +76841,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/461-indya-restaurant-bar-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/461-indya-restaurant-bar-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://eatindya.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/461-indya-restaurant-bar-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://eatindya.com/",
         "generated": true
       }
@@ -76922,15 +77172,15 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "http://harrysfallbrook.com/event-details-registration/happy-hour-food-specials",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/462-harry-s-sports-bar-grill-hh-menu.png",
+        "url": "/images/venues/462-harry-s-sports-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://harrysfallbrook.com/",
+        "sourceUrl": "http://harrysfallbrook.com/event-details-registration/happy-hour-food-specials",
         "generated": true
       }
     ],
@@ -77202,7 +77452,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/464-sakura-sushi-hh-menu.png",
+        "url": "/images/venues/464-sakura-sushi-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.sakuraomakase.com/",
         "generated": true
@@ -77383,7 +77633,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/465-hopnonymous-brewing-company-hh-menu.png",
+        "url": "/images/venues/465-hopnonymous-brewing-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://hopnonymousbrewing.com/",
         "generated": true
@@ -77570,9 +77820,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/467-san-vicente-resort-hh-menu.png",
+        "url": "/images/venues/467-san-vicente-resort-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://sanvicenteresort.com/",
+        "sourceUrl": "http://sanvicenteresort.com/menu",
         "generated": true
       }
     ]
@@ -77733,7 +77983,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/468-1st-street-bar-hh-menu.png",
+        "url": "/images/venues/468-1st-street-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.1ststreetbar.com/",
         "generated": true
@@ -77918,7 +78168,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/469-papagayos-grill-and-cantina-hh-menu.png",
+        "url": "/images/venues/469-papagayos-grill-and-cantina-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://papagayoseastlake.com/home/2562441",
         "generated": true
@@ -78123,9 +78373,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/470-hearth-house-hh-menu.png",
+        "url": "/images/venues/470-hearth-house-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://hearthhousebar.com/",
+        "sourceUrl": "https://hearthhousebar.com/happy-hour",
         "generated": true
       }
     ],
@@ -78287,7 +78537,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/471-sea-sky-hh-menu.png",
+        "url": "/images/venues/471-sea-sky-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://seaandskylajolla.com/",
         "generated": true
@@ -78620,7 +78870,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/473-rosati-s-pizza-pub-and-sports-bar-hh-menu.png",
+        "url": "/images/venues/473-rosati-s-pizza-pub-and-sports-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://myrosatis.com/sandiego",
         "generated": true
@@ -78847,7 +79097,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/474-mastiff-kitchen-la-mesa-hh-menu.png",
+        "url": "/images/venues/474-mastiff-kitchen-la-mesa-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://mastiffkitchen.com/",
         "generated": true
@@ -79251,9 +79501,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/477-the-pizza-taproom-hh-menu.png",
+        "url": "/images/venues/477-the-pizza-taproom-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://thepizzataproom.com/",
+        "sourceUrl": "http://thepizzataproom.com/la-jolla-san-diego-the-pizza-taproom-happy-hours-specials",
         "generated": true
       }
     ],
@@ -79664,9 +79914,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/481-the-craft-creamery-hh-menu.png",
+        "url": "/images/venues/481-the-craft-creamery-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.craftcreamerysd.com/",
+        "sourceUrl": "https://www.craftcreamerysd.com/menu",
         "generated": true
       }
     ]
@@ -79812,7 +80062,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/482-the-flower-pot-cafe-and-bakery-hh-menu.png",
+        "url": "/images/venues/482-the-flower-pot-cafe-and-bakery-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.flowerpotcafe.org/",
         "generated": true
@@ -80077,8 +80327,20 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/483-fresco-pizzeria-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/483-fresco-pizzeria-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "http://www.frescosd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/483-fresco-pizzeria-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "http://www.frescosd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/483-fresco-pizzeria-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "http://www.frescosd.com/",
         "generated": true
       }
@@ -80243,7 +80505,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/484-hendo-s-barrel-house-hh-menu.png",
+        "url": "/images/venues/484-hendo-s-barrel-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.hendosbarrelhouse.com/?utm_source=google&utm_medium=gbp",
         "generated": true
@@ -80493,7 +80755,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/485-crust-pizzeria-carlsbad-hh-menu.png",
+        "url": "/images/venues/485-crust-pizzeria-carlsbad-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://crustpizzeria.com/",
         "generated": true
@@ -80713,7 +80975,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/486-shanes-pizza-and-pints-hh-menu.png",
+        "url": "/images/venues/486-shanes-pizza-and-pints-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://shanespizza.com/",
         "generated": true
@@ -80897,7 +81159,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/487-primos-mexican-food-cantina-hh-menu.png",
+        "url": "/images/venues/487-primos-mexican-food-cantina-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://primosmex.com/",
         "generated": true
@@ -81056,7 +81318,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/488-happy-does-bar-hh-menu.png",
+        "url": "/images/venues/488-happy-does-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.happydoesbar.com/",
         "generated": true
@@ -81352,7 +81614,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/490-rare-society-hh-menu.png",
+        "url": "/images/venues/490-rare-society-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://raresociety.com/san-clemente",
         "generated": true
@@ -81717,8 +81979,20 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/492-sky-deck-at-del-mar-highlands-town-center-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/492-sky-deck-at-del-mar-highlands-town-center-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "https://www.delmarhighlandstowncenter.com/skydeck/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/492-sky-deck-at-del-mar-highlands-town-center-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "https://www.delmarhighlandstowncenter.com/skydeck/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/492-sky-deck-at-del-mar-highlands-town-center-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "https://www.delmarhighlandstowncenter.com/skydeck/",
         "generated": true
       }
@@ -82178,8 +82452,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/495-california-english-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/495-california-english-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.californiaenglishsd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/495-california-english-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.californiaenglishsd.com/",
         "generated": true
       }
@@ -82552,7 +82832,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/497-trattoria-da-sofia-hh-menu.png",
+        "url": "/images/venues/497-trattoria-da-sofia-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://trattoriadasofia.com/",
         "generated": true
@@ -82925,9 +83205,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/499-kilowatt-brewing-ocean-beach-hh-menu.png",
+        "url": "/images/venues/499-kilowatt-brewing-ocean-beach-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://kilowatt.beer/",
+        "sourceUrl": "https://kilowatt.beer/happy-hour/",
         "generated": true
       }
     ],
@@ -83356,7 +83636,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/502-backdraft-bar-grill-hh-menu.png",
+        "url": "/images/venues/502-backdraft-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://backdraftbargrill.org/",
         "generated": true
@@ -83639,7 +83919,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/505-nick-g-s-restaurant-hh-menu.png",
+        "url": "/images/venues/505-nick-g-s-restaurant-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.nickandgs.com/",
         "generated": true
@@ -84084,7 +84364,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/508-the-regal-bar-hh-menu.png",
+        "url": "/images/venues/508-the-regal-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.theregalbar.com/",
         "generated": true
@@ -84377,7 +84657,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/510-solterra-winery-kitchen-hh-menu.png",
+        "url": "/images/venues/510-solterra-winery-kitchen-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.solterrawinery.com/",
         "generated": true
@@ -84568,7 +84848,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/511-l-dica-cervecer-a-hh-menu.png",
+        "url": "/images/venues/511-l-dica-cervecer-a-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.ludica.mx/",
         "generated": true
@@ -84874,9 +85154,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/514-kilowatt-brewing-kearny-mesa-hh-menu.png",
+        "url": "/images/venues/514-kilowatt-brewing-kearny-mesa-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "http://kilowatt.beer/",
+        "sourceUrl": "https://kilowatt.beer/happy-hour/",
         "generated": true
       }
     ],
@@ -85186,7 +85466,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/516-misadventure-co-hh-menu.png",
+        "url": "/images/venues/516-misadventure-co-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://misadventure.co/",
         "generated": true
@@ -85704,7 +85984,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/521-firenze-trattoria-hh-menu.png",
+        "url": "/images/venues/521-firenze-trattoria-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.firenzetrattoria.com/",
         "generated": true
@@ -85963,9 +86243,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/523-the-oaks-grille-hh-menu.png",
+        "url": "/images/venues/523-the-oaks-grille-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.sanvicenteresort.com/",
+        "sourceUrl": "http://sanvicenteresort.com/menu",
         "generated": true
       }
     ]
@@ -86106,7 +86386,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/524-surfside-fish-house-hh-menu.png",
+        "url": "/images/venues/524-surfside-fish-house-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.surfsidefishhouse.com/",
         "generated": true
@@ -86339,7 +86619,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/525-sets-kitchen-bar-hh-menu.png",
+        "url": "/images/venues/525-sets-kitchen-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.setskitchenandbar.com/",
         "generated": true
@@ -86481,7 +86761,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/526-bolero-at-europa-village-hh-menu.png",
+        "url": "/images/venues/526-bolero-at-europa-village-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://europavillage.com/temecula-wineries/bolero/",
         "generated": true
@@ -86703,7 +86983,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/528-shooters-cocktails-hh-menu.png",
+        "url": "/images/venues/528-shooters-cocktails-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.shooterscocktailsbar.com/",
         "generated": true
@@ -86874,7 +87154,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/529-the-henry-hh-menu.png",
+        "url": "/images/venues/529-the-henry-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thehenryrestaurant.com/locations/carlsbad-ca/",
         "generated": true
@@ -87112,7 +87392,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/530-pronto-cucina-italiana-hh-menu.png",
+        "url": "/images/venues/530-pronto-cucina-italiana-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://prontocucinaitaliana.com/",
         "generated": true
@@ -87267,9 +87547,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/531-air-conditioned-lounge-hh-menu.png",
+        "url": "/images/venues/531-air-conditioned-lounge-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://airconditionedlounge.com/",
+        "sourceUrl": "https://airconditionedlounge.com/happy-hour-san-diego/",
         "generated": true
       }
     ],
@@ -87435,7 +87715,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/532-rock-on-pizza-east-coast-style-thin-crust-hh-menu.png",
+        "url": "/images/venues/532-rock-on-pizza-east-coast-style-thin-crust-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://rockonpizza.com/?utm_source=google",
         "generated": true
@@ -87584,7 +87864,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/533-postino-del-mar-hh-menu.png",
+        "url": "/images/venues/533-postino-del-mar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.postino.com/locations/postino-del-mar",
         "generated": true
@@ -87752,7 +88032,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/534-gravity-heights-mission-valley-hh-menu.png",
+        "url": "/images/venues/534-gravity-heights-mission-valley-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.gravityheights.com/",
         "generated": true
@@ -88063,7 +88343,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/535-san-elijo-vine-tap-hh-menu.png",
+        "url": "/images/venues/535-san-elijo-vine-tap-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.sevineandtap.com/",
         "generated": true
@@ -88414,13 +88694,14 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/539-craft-house-sky-deck-hh-menu.png",
+        "url": "/images/venues/539-craft-house-sky-deck-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://crafthouseskydeck.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Drinks",
@@ -88898,7 +89179,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/542-firangi-restaurant-bar-hh-menu.png",
+        "url": "/images/venues/542-firangi-restaurant-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://firangisd.com/",
         "generated": true
@@ -89229,9 +89510,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/544-deli-stop-sports-pub-hh-menu.png",
+        "url": "/images/venues/544-deli-stop-sports-pub-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://thedelistop.com/",
+        "sourceUrl": "https://thedelistop.com/specials/",
         "generated": true
       }
     ]
@@ -89602,13 +89883,13 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "https://www.pontevineyardinn.com/dining-bar/the-cellar/",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/547-the-cellar-hh-menu.png",
+        "url": "/images/venues/547-the-cellar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.pontevineyardinn.com/dining-bar/the-cellar/",
         "generated": true
@@ -89819,7 +90100,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/549-the-bowl-ramen-izakaya-hh-menu.png",
+        "url": "/images/venues/549-the-bowl-ramen-izakaya-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thebowlob.com/",
         "generated": true
@@ -90114,15 +90395,15 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "https://www.bayclubhotel.com/specials/commodore-club",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/551-bay-club-bar-grill-hh-menu.png",
+        "url": "/images/venues/551-bay-club-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://www.bayclubhotel.com/bayclubbarandgrill",
+        "sourceUrl": "https://www.bayclubhotel.com/specials/commodore-club",
         "generated": true
       }
     ],
@@ -90295,8 +90576,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/552-sushi-roka-bar-grill-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/552-sushi-roka-bar-grill-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 2)",
+        "sourceUrl": "https://www.sushirokasd.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/552-sushi-roka-bar-grill-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 2)",
         "sourceUrl": "https://www.sushirokasd.com/",
         "generated": true
       }
@@ -90574,7 +90861,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/553-inka-mama-s-san-clemente-hh-menu.png",
+        "url": "/images/venues/553-inka-mama-s-san-clemente-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://inkamamas.com/",
         "generated": true
@@ -90812,7 +91099,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/554-ballpark-pizza-sc-hh-menu.png",
+        "url": "/images/venues/554-ballpark-pizza-sc-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.ballparksc.com/",
         "generated": true
@@ -91281,7 +91568,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/558-la-barrita-bar-hh-menu.png",
+        "url": "/images/venues/558-la-barrita-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.labarritabar.com/",
         "generated": true
@@ -91571,7 +91858,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/561-red-tail-bar-grill-hh-menu.png",
+        "url": "/images/venues/561-red-tail-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.singinghillsgolfresort.com/dining/red-tail-grill/",
         "generated": true
@@ -91955,7 +92242,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/564-carruth-cellars-urban-winery-tasting-room-hh-menu.png",
+        "url": "/images/venues/564-carruth-cellars-urban-winery-tasting-room-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://carruthcellars.com/",
         "generated": true
@@ -92099,7 +92386,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/565-understory-bar-hh-menu.png",
+        "url": "/images/venues/565-understory-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://understorybar.com/",
         "generated": true
@@ -92370,7 +92657,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/567-outrigger-tavern-hh-menu.png",
+        "url": "/images/venues/567-outrigger-tavern-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.outrigger-tavern.com/",
         "generated": true
@@ -92838,19 +93125,24 @@
           "title": "Cocktails (Happy Hour)",
           "items": [
             {
-              "name": "Whaling Vesper"
+              "name": "Whaling Vesper",
+              "price": ""
             },
             {
-              "name": "Dirty Martini"
+              "name": "Dirty Martini",
+              "price": ""
             },
             {
-              "name": "Perfect Manhattan"
+              "name": "Perfect Manhattan",
+              "price": ""
             },
             {
-              "name": "Afternoon Aperitivo"
+              "name": "Afternoon Aperitivo",
+              "price": ""
             },
             {
-              "name": "Prospect \"Margarita\""
+              "name": "Prospect \"Margarita\"",
+              "price": ""
             }
           ]
         },
@@ -92858,22 +93150,28 @@
           "title": "Bites",
           "items": [
             {
-              "name": "Caesar \"Twinkies\""
+              "name": "Caesar \"Twinkies\"",
+              "price": ""
             },
             {
-              "name": "Celery Salad"
+              "name": "Celery Salad",
+              "price": ""
             },
             {
-              "name": "French Fries"
+              "name": "French Fries",
+              "price": ""
             },
             {
-              "name": "Fried Chicken"
+              "name": "Fried Chicken",
+              "price": ""
             },
             {
-              "name": "\"Single Single\" Burger"
+              "name": "\"Single Single\" Burger",
+              "price": ""
             },
             {
-              "name": "Duck Meatball and Polenta"
+              "name": "Duck Meatball and Polenta",
+              "price": ""
             }
           ]
         }
@@ -92881,7 +93179,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/572-the-whaling-bar-hh-menu.png",
+        "url": "/images/venues/572-the-whaling-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.lavalencia.com/dining/the-whaling-bar",
         "generated": true
@@ -93052,7 +93350,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/573-gaslamplighter-karaoke-cocktail-bar-hh-menu.png",
+        "url": "/images/venues/573-gaslamplighter-karaoke-cocktail-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.thegaslamplighter.com/",
         "generated": true
@@ -93259,13 +93557,14 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/574-the-lobby-tiki-bar-hh-menu.png",
+        "url": "/images/venues/574-the-lobby-tiki-bar-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://lobbytikibar.com/",
         "generated": true
       }
     ],
     "hhMenu": {
+      "note": "",
       "sections": [
         {
           "title": "Drinks",
@@ -93447,7 +93746,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/575-barnoa-wine-company-hh-menu.png",
+        "url": "/images/venues/575-barnoa-wine-company-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://barnoa.com/",
         "generated": true
@@ -93692,9 +93991,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/576-kilowatt-craft-beer-cocktails-oceanside-hh-menu.png",
+        "url": "/images/venues/576-kilowatt-craft-beer-cocktails-oceanside-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://kilowatt.beer/",
+        "sourceUrl": "https://kilowatt.beer/happy-hour/",
         "generated": true
       }
     ],
@@ -94441,8 +94740,20 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu.png",
-        "caption": "Happy hour menu",
+        "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board.png",
+        "caption": "Happy hour menu (page 1 of 3)",
+        "sourceUrl": "http://chaunceyspizza.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board-2.png",
+        "caption": "Happy hour menu (page 2 of 3)",
+        "sourceUrl": "http://chaunceyspizza.com/",
+        "generated": true
+      },
+      {
+        "url": "/images/venues/584-chauncey-s-pizza-bar-hh-menu-board-3.png",
+        "caption": "Happy hour menu (page 3 of 3)",
         "sourceUrl": "http://chaunceyspizza.com/",
         "generated": true
       }
@@ -95021,7 +95332,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/587-knotty-brewing-co-hh-menu.png",
+        "url": "/images/venues/587-knotty-brewing-co-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://ev.knottybarrel.com/",
         "generated": true
@@ -95593,7 +95904,7 @@
     ],
     "galleryImages": [
       {
-        "url": "/images/venues/592-mia-s-hh-menu.png",
+        "url": "/images/venues/592-mia-s-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.mias101.com/",
         "generated": true
@@ -96178,7 +96489,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/596-207-at-hard-rock-hotel-san-diego-hh-menu.png",
+        "url": "/images/venues/596-207-at-hard-rock-hotel-san-diego-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://www.hardrockhotels.com/san-diego/207-bar.aspx",
         "generated": true
@@ -96810,7 +97121,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/604-the-mesa-bar-grill-hh-menu.png",
+        "url": "/images/venues/604-the-mesa-bar-grill-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "http://www.mesabargrill.com/",
         "generated": true
@@ -96960,9 +97271,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/605-kilowatt-brewing-ob-tasting-room-hh-menu.png",
+        "url": "/images/venues/605-kilowatt-brewing-ob-tasting-room-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://kilowatt.beer/",
+        "sourceUrl": "https://kilowatt.beer/happy-hour/",
         "generated": true
       }
     ],
@@ -97140,7 +97451,7 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/606-hopnonymous-brewing-normal-heights-hh-menu.png",
+        "url": "/images/venues/606-hopnonymous-brewing-normal-heights-hh-menu-board.png",
         "caption": "Happy hour menu",
         "sourceUrl": "https://hopnonymousbrewing.com/locations/adams-ave/",
         "generated": true
@@ -97512,15 +97823,15 @@
           ]
         }
       ],
-      "fromDealChips": true,
       "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
-      "observedAt": "2026-08-29"
+      "observedAt": "2026-08-29",
+      "fromDealChips": true
     },
     "galleryImages": [
       {
-        "url": "/images/venues/610-sushi-lounge-point-loma-hh-menu.png",
+        "url": "/images/venues/610-sushi-lounge-point-loma-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://sushiloungesd.com/",
+        "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
         "generated": true
       }
     ]
@@ -97733,9 +98044,9 @@
     },
     "galleryImages": [
       {
-        "url": "/images/venues/611-sushi-lounge-poway-hh-menu.png",
+        "url": "/images/venues/611-sushi-lounge-poway-hh-menu-board.png",
         "caption": "Happy hour menu",
-        "sourceUrl": "https://sushiloungesd.com/",
+        "sourceUrl": "https://sushiloungesd.com/specials--happy-hour",
         "generated": true
       }
     ]

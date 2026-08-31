@@ -55,26 +55,32 @@ async function imagesFromPage(page) {
  * the flyer the board supersedes, so the caller assigned over the whole array;
  * now that it also holds genuine venue photographs, that silently deleted them.
  */
-export async function persistMenuBoard(venue, image) {
-  if (!venue?.id || !image?.bytes?.length) return venue.galleryImages || [];
+export async function persistMenuBoard(venue, images) {
+  const pages = (Array.isArray(images) ? images : [images]).filter((image) => image?.bytes?.length);
+  if (!venue?.id || !pages.length) return venue.galleryImages || [];
   await fs.mkdir(VENUE_IMAGE_DIR, { recursive: true });
 
-  const sniffed = sniffMediaFromBytes(image.bytes);
-  const ext = extensionFor(sniffed?.mediaType || image.mediaType || 'image/png');
-  const filename = `${venue.id}-${slugify(venue.name)}-hh-menu-board.${ext}`;
-  await fs.writeFile(path.join(VENUE_IMAGE_DIR, filename), image.bytes);
+  const boards = [];
+  for (const [index, image] of pages.entries()) {
+    const sniffed = sniffMediaFromBytes(image.bytes);
+    const ext = extensionFor(sniffed?.mediaType || image.mediaType || 'image/png');
+    // Page one keeps the unsuffixed name so a menu that grows a second page
+    // does not orphan the file every other record already points at.
+    const suffix = index === 0 ? 'hh-menu-board' : `hh-menu-board-${index + 1}`;
+    const filename = `${venue.id}-${slugify(venue.name)}-${suffix}.${ext}`;
+    await fs.writeFile(path.join(VENUE_IMAGE_DIR, filename), image.bytes);
+    boards.push({
+      url: `/images/venues/${filename}`,
+      caption: pages.length > 1 ? `Happy hour menu (page ${index + 1} of ${pages.length})` : 'Happy hour menu',
+      sourceUrl: image.sourceUrl || venue.hhMenu?.sourceUrl || null,
+      generated: true,
+    });
+  }
 
-  const board = {
-    url: `/images/venues/${filename}`,
-    caption: 'Happy hour menu',
-    sourceUrl: image.sourceUrl || venue.hhMenu?.sourceUrl || null,
-    generated: true,
-  };
-
-  // The board leads, because it is the thing a reader zooms into to read the
-  // menu; the venue's own photographs follow it.
+  // The boards lead, in page order, because they are what a reader zooms into
+  // to read the menu; the venue's own photographs follow them.
   const photos = (venue.galleryImages || []).filter((existing) => !existing.generated);
-  return [board, ...photos];
+  return [...boards, ...photos];
 }
 
 /** Write happy-hour menu images (and rasterized PDF pages) into the venue gallery. */

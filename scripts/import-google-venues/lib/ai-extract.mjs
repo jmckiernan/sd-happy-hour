@@ -230,6 +230,18 @@ export function isSiteChrome(name) {
     .test(text);
 }
 
+/**
+ * Bounds on a transcribed menu, generous because they are guards against a
+ * model returning a whole dinner menu, not layout limits.
+ *
+ * They used to be 4 and 24, which was a statement about what fits on one board
+ * image, and content past them was silently discarded — Amigo Cantina lost a
+ * tequila flight section that way. Boards now paginate, so length is no longer
+ * a reason to drop anything a venue actually published.
+ */
+const MAX_SECTIONS = 12;
+const MAX_SECTION_ITEMS = 60;
+
 export function normalizeMenuBoard(raw) {
   if (!raw || typeof raw !== 'object') return null;
   const sections = [];
@@ -254,12 +266,12 @@ export function normalizeMenuBoard(raw) {
         ? modelCategory
         : null;
       items.push({ name, price, ...(category ? { category } : {}) });
-      if (items.length >= 24) break;
+      if (items.length >= MAX_SECTION_ITEMS) break;
     }
     if (!items.length) continue;
     sections.push({ title: title || 'Happy Hour', items });
-    if (sections.length >= 4) break;
-  }
+    if (sections.length >= MAX_SECTIONS) break;
+    }
   const itemCount = sections.reduce((n, section) => n + section.items.length, 0);
   if (itemCount < 2) return null;
   // No `hours`: the board's hours line is formatted from the listing's own

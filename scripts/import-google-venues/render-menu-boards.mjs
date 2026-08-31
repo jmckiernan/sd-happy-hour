@@ -57,6 +57,7 @@ async function main() {
   const renderer = createMenuBoardRenderer();
   let rendered = 0;
   let failed = 0;
+  const trimmed = [];
 
   try {
     for (const venue of todo) {
@@ -72,18 +73,25 @@ async function main() {
         const normalized = normalizeMenuBoard(venue.hhMenu);
         const menu = normalized || venue.hhMenu;
         if (normalized && !losesContent(venue.hhMenu, normalized)) venue.hhMenu = normalized;
-        const image = await renderer.render(menu, venue);
-        if (!image?.bytes?.length) {
+        else if (normalized) {
+          // Pagination means length is no longer a reason to drop anything, so
+          // this is now only reachable when normalization rejected content on
+          // its merits — site chrome, a nameless item. Worth seeing.
+          trimmed.push(venue.name);
+        }
+        const pages = await renderer.renderPages(menu, venue);
+        if (!pages.length) {
           failed += 1;
           console.warn(`  ! ${venue.name}: renderer returned no image`);
           continue;
         }
         if (options.apply) {
-          venue.galleryImages = await persistMenuBoard(venue, image);
+          venue.galleryImages = await persistMenuBoard(venue, pages);
         }
         rendered += 1;
         const items = venue.hhMenu.sections.reduce((n, section) => n + section.items.length, 0);
-        console.log(`  → ${venue.name}: ${venue.hhMenu.sections.length} section(s), ${items} item(s)`);
+        const pageNote = pages.length > 1 ? `, ${pages.length} pages` : '';
+        console.log(`  → ${venue.name}: ${venue.hhMenu.sections.length} section(s), ${items} item(s)${pageNote}`);
       } catch (error) {
         failed += 1;
         console.warn(`  ! ${venue.name}: ${error.message}`);
@@ -93,6 +101,9 @@ async function main() {
     await renderer.close();
   }
 
+  if (trimmed.length) {
+    console.log(`\nNormalization still dropped content for ${trimmed.length} listing(s): ${trimmed.join(', ')}`);
+  }
   if (options.apply) {
     writeJson(HAPPY_HOURS_PATH, venues);
     console.log(`\nRendered ${rendered}, failed ${failed}. Wrote ${HAPPY_HOURS_PATH}`);

@@ -18,7 +18,7 @@ import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
 import { extractFromInventory, hasAiExtraction, inventoryWebsite } from './lib/happy-hour.mjs';
 import { compressDealsWithAi } from './lib/ai-extract.mjs';
 import { venueDealsNeedRewrite } from './lib/deals.mjs';
-import { persistMenuFlyers } from './lib/menu-flyers.mjs';
+import { persistMenuBoard, persistMenuFlyers } from './lib/menu-flyers.mjs';
 import { createMenuBoardRenderer } from './lib/menu-board-image.mjs';
 import { menuBoardFromDealLines } from './lib/menu-board-format.mjs';
 import { flagVenue, getRegistrableDomain } from './lib/venue-quality.mjs';
@@ -185,10 +185,6 @@ async function main() {
             // resolution, and can be restyled without a re-crawl. The scraped
             // flyer is only shown when we could not transcribe one.
             const transcribed = Boolean(scraped.menuBoard);
-            if (board && (transcribed || !flyers.length)) {
-              const rendered = await boardRenderer.render(venue.hhMenu, venue);
-              if (rendered?.bytes?.length) flyers = [rendered];
-            }
             if (flyers.length) {
               const saved = await persistMenuFlyers(venue, flyers);
               if (saved.length) {
@@ -208,6 +204,18 @@ async function main() {
                   }));
                   apply.changes = [...(apply.changes || []), `hh menu candidate photo (${saved.length})`];
                 }
+                apply.changed = true;
+              }
+            }
+            // Our own board is what the gallery shows, and it is rendered from
+            // the transcription rather than standing in for the scrape, so the
+            // venue's image stays provenance instead of being replaced by our
+            // drawing of it. Long menus come back as several pages.
+            if (board) {
+              const pages = await boardRenderer.renderPages(venue.hhMenu, venue);
+              if (pages.length) {
+                venue.galleryImages = await persistMenuBoard(venue, pages);
+                apply.changes = [...(apply.changes || []), `hh menu board (${pages.length} page${pages.length > 1 ? 's' : ''})`];
                 apply.changed = true;
               }
             }

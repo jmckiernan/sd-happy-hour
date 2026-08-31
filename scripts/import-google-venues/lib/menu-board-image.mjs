@@ -62,17 +62,31 @@ function sectionHtml(section) {
         </li>`;
     })
     .join('');
+  // A section too long for one page carries on overleaf under its own name, so
+  // the second half of a drinks list is not read as a new category.
+  const title = `${escapeHtml(section.title || 'Happy Hour')}${section.continued ? ' <span class="continued">continued</span>' : ''}`;
   return `
     <section class="menu-section">
-      <h2 class="section-title">${escapeHtml(section.title || 'Happy Hour')}</h2>
+      <h2 class="section-title">${title}</h2>
       <ul class="items">${items}</ul>
     </section>`;
 }
 
-export function buildBoardHtml(board, venue = {}) {
+/**
+ * @param {object} options
+ * @param {number} [options.page] 1-based page number.
+ * @param {number} [options.pageCount] Total pages; a marker is drawn only when
+ *   this is above one.
+ * @param {boolean} [options.twoColumn] Force the column count. Pagination sets
+ *   this per page, because whether two columns are wanted depends on whether
+ *   the page fits without them, not on an item count alone: a menu of four
+ *   short sections has few items and still needs the second column.
+ */
+export function buildBoardHtml(board, venue = {}, options = {}) {
   const venueName = String(venue.name || 'Happy Hour').replace(/\s+/g, ' ').trim();
   const hoursLines = boardHoursLines(board, venue);
-  const twoColumn = countItems(board) >= TWO_COLUMN_ITEM_COUNT;
+  const { page = 1, pageCount = 1 } = options;
+  const twoColumn = options.twoColumn ?? countItems(board) >= TWO_COLUMN_ITEM_COUNT;
 
   return `<!doctype html>
 <html lang="en">
@@ -188,6 +202,13 @@ export function buildBoardHtml(board, venue = {}) {
     color: rgba(255, 251, 245, 0.55);
   }
   .brand { color: ${THEME.sunsetEnd}; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+  .page-marker { color: ${THEME.sunsetEnd}; font-weight: 600; letter-spacing: 0.1em; }
+  .continued {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgba(255, 251, 245, 0.5);
+  }
 </style>
 </head>
 <body>
@@ -206,6 +227,7 @@ export function buildBoardHtml(board, venue = {}) {
     </div>
     <footer>
       <span class="brand">Happy Hour SD</span>
+      ${pageCount > 1 ? `<span class="page-marker">Page ${page} of ${pageCount}</span>` : ''}
       <span>Prices and offers subject to change</span>
     </footer>
   </div>
@@ -213,16 +235,179 @@ export function buildBoardHtml(board, venue = {}) {
 </html>`;
 }
 
+/**
+ * How tall a page may get, in CSS pixels, at the board's 1080px width.
+ *
+ * This is a readability limit, not a technical one — the renderer screenshots
+ * the whole body, so a board will happily grow to any height. Past roughly this
+ * ratio a board stops looking like a menu page and becomes a strip that is
+ * unreadable as a gallery thumbnail and tedious to pan on a phone.
+ */
+const MAX_PAGE_HEIGHT = 1500;
+
+/**
+ * A generous sanity bound, not a design limit. The longest happy-hour menu in
+ * the catalog is a page and a half; six pages is far past anything a venue has
+ * published, and hitting it means the menu is not a menu.
+ */
+export const MAX_BOARD_PAGES = 6;
+
+async function measureBoardHeight(html, context, timeoutMs) {
+  const page = await context.newPage();
+  try {
+    await page.setContent(html, { waitUntil: 'load', timeout: timeoutMs });
+    await page.evaluate(() => document.fonts.ready);
+    return page.evaluate(() => document.body.getBoundingClientRect().height);
+  } finally {
+    await page.close();
+  }
+}
+
+/** Split one oversized section into `parts` slices of near-equal length. */
+function sliceSection(section, parts) {
+  const items = section.items || [];
+  const per = Math.ceil(items.length / parts);
+  const slices = [];
+  for (let start = 0; start < items.length; start += per) {
+    slices.push({
+      ...section,
+      items: items.slice(start, start + per),
+      ...(start > 0 ? { continued: true } : {}),
+    });
+  }
+  return slices;
+}
+
+/**
+ * Break a menu into pages that each fit `MAX_PAGE_HEIGHT`.
+ *
+ * Page breaks are decided by measuring, not by counting. The old four-section
+ * cap threw away whatever did not fit an assumed layout, which is how Amigo
+ * Cantina lost a tequila flight section; what actually fits depends on how many
+ * items each section holds and how long their names are, so the only honest
+ * test is to lay the page out and read its height.
+ *
+ * Sections are packed greedily and a section is kept whole wherever it can be,
+ * because a category starting on a fresh page reads better than one broken
+ * mid-list. A single section too long for any page is the exception, and it is
+ * split into near-equal slices rather than filling one page and leaving a
+ * remainder of two items on the next.
+ */
+export async function packMenuSections(sections, fits, maxPages = MAX_BOARD_PAGES) {
+  if (!sections?.length) return [];
+  // The common case, and the only measurement most venues need.
+  if (await fits(sections, 1)) return [sections];
+
+  const queue = [...sections];
+  const pages = [];
+  while (queue.length && pages.length < maxPages) {
+    // On the final allowed page, take everything left rather than drop it.
+    // Overflowing one board is a cosmetic failure; losing a venue's food menu
+    // because its drinks list was long is a data one.
+    if (pages.length === maxPages - 1) {
+      pages.push(queue.splice(0));
+      break;
+    }
+
+    let taken = 0;
+    for (let count = 1; count <= queue.length; count += 1) {
+      // Probe as though there are two pages: the marker is one line and does
+      // not change which sections fit.
+      if (!(await fits(queue.slice(0, count), 2))) break;
+      taken = count;
+    }
+
+    if (taken === 0) {
+      // Not even the first section fits, so it has to be divided. Slices are
+      // near-equal rather than max-filled, so a long list does not leave a
+      // final page holding two items.
+      const section = queue.shift();
+      let slices = [section];
+      for (let parts = 2; parts <= maxPages; parts += 1) {
+        slices = sliceSection(section, parts);
+        if (await fits([slices[0]], 2)) break;
+      }
+      pages.push([slices[0]]);
+      queue.unshift(...slices.slice(1));
+      continue;
+    }
+
+    pages.push(queue.splice(0, taken));
+  }
+
+  // Anything still queued would be silently dropped, which is the bug this
+  // whole change exists to remove.
+  if (queue.length) pages[pages.length - 1].push(...queue.splice(0));
+  return pages;
+}
+
+export async function paginateMenuBoard(board, venue = {}, options = {}) {
+  const { context, timeoutMs = 15_000 } = options;
+  if (!board?.sections?.length) return [];
+  if (!context) throw new Error('paginateMenuBoard requires a Playwright context');
+
+  const pageBoard = (sections) => ({ ...board, sections });
+
+  /**
+   * The narrowest layout this page fits in, or null if it fits in neither.
+   *
+   * One column is preferred because a full-width list with the price at the
+   * right margin is how a menu reads; the second column is a way of fitting
+   * more on the page, so it is only reached for when one column overflows.
+   * Deciding by item count instead left a menu of four three-item sections in
+   * one tall column and split it needlessly across two pages.
+   */
+  const layoutFor = async (sections, pageCount) => {
+    for (const twoColumn of [false, true]) {
+      const html = buildBoardHtml(pageBoard(sections), venue, { page: 1, pageCount, twoColumn });
+      if ((await measureBoardHeight(html, context, timeoutMs)) <= MAX_PAGE_HEIGHT) return { twoColumn };
+    }
+    return null;
+  };
+
+  const pages = await packMenuSections(
+    board.sections,
+    async (sections, pageCount) => Boolean(await layoutFor(sections, pageCount)),
+  );
+
+  const out = [];
+  for (const sections of pages) {
+    // The last page of an over-long menu is taken whole and may not fit
+    // either way; two columns is the better failure.
+    const layout = (await layoutFor(sections, pages.length)) || { twoColumn: true };
+    out.push({ ...pageBoard(sections), twoColumn: layout.twoColumn });
+  }
+  return out;
+}
+
+/** Rasterize every page of a board. */
+export async function renderMenuBoardPages(board, venue = {}, options = {}) {
+  const pages = await paginateMenuBoard(board, venue, options);
+  if (!pages.length) return [];
+  const images = [];
+  for (const [index, pageBoard] of pages.entries()) {
+    const image = await renderMenuBoardImage(pageBoard, venue, {
+      ...options,
+      page: index + 1,
+      pageCount: pages.length,
+      twoColumn: pageBoard.twoColumn,
+    });
+    if (image?.bytes?.length) images.push(image);
+  }
+  return images;
+}
+
 /** Rasterize one board in an already-open Playwright context. */
 export async function renderMenuBoardImage(board, venue = {}, options = {}) {
   if (!board?.sections?.length) return null;
 
-  const { context, timeoutMs = 15_000 } = options;
+  const { context, timeoutMs = 15_000, page: pageNumber = 1, pageCount = 1, twoColumn } = options;
   if (!context) throw new Error('renderMenuBoardImage requires a Playwright context');
 
   const page = await context.newPage();
   try {
-    await page.setContent(buildBoardHtml(board, venue), { waitUntil: 'load', timeout: timeoutMs });
+    const html = buildBoardHtml(board, venue, { page: pageNumber, pageCount, twoColumn });
+    await page.setContent(html, { waitUntil: 'load', timeout: timeoutMs });
     // Webfonts arrive after load; screenshotting early bakes in fallback type.
     await page.evaluate(() => document.fonts.ready);
     const bytes = await page.locator('body').screenshot({ type: 'png' });
@@ -249,21 +434,30 @@ export function createMenuBoardRenderer(options = {}) {
   let browser = null;
   let context = null;
 
+  async function ensureContext() {
+    if (context) return;
+    const { chromium } = await import('playwright');
+    browser = await chromium.launch({
+      headless: true,
+      channel: useChrome ? 'chrome' : undefined,
+    });
+    context = await browser.newContext({
+      viewport: { width: WIDTH, height: 1200 },
+      deviceScaleFactor: DEVICE_SCALE,
+    });
+  }
+
   return {
     async render(board, venue) {
       if (!board?.sections?.length) return null;
-      if (!context) {
-        const { chromium } = await import('playwright');
-        browser = await chromium.launch({
-          headless: true,
-          channel: useChrome ? 'chrome' : undefined,
-        });
-        context = await browser.newContext({
-          viewport: { width: WIDTH, height: 1200 },
-          deviceScaleFactor: DEVICE_SCALE,
-        });
-      }
+      await ensureContext();
       return renderMenuBoardImage(board, venue, { context });
+    },
+    /** Every page of the menu, in order. */
+    async renderPages(board, venue) {
+      if (!board?.sections?.length) return [];
+      await ensureContext();
+      return renderMenuBoardPages(board, venue, { context });
     },
     async close() {
       await context?.close();

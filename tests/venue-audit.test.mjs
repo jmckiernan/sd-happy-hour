@@ -63,7 +63,7 @@ import { classifyUrl, scoreMediaUrl, discoverSocialLinks, discoverSpecialsImages
 import { pageMatchesVenueListing, isUsableVenueWebsite, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from '../scripts/import-google-venues/lib/website-ownership.mjs';
 import { venueMatchesQuery, venueSearchScore } from '../src/lib/venueSearch.ts';
 import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-google-venues/lib/pdf-raster.mjs';
-import { buildBoardHtml } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
+import { MAX_BOARD_PAGES, buildBoardHtml, packMenuSections } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
 import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
 import { conflictsWithVenue, pickLocationPage, cityFromAddress } from '../scripts/import-google-venues/lib/location-page.mjs';
@@ -1280,6 +1280,79 @@ function testNoScrapedImageClaimsToBeOurBoard() {
   assert.deepEqual(offenders, [], `scraped images flagged as our board: ${offenders.join(', ')}`);
 }
 
+/**
+ * Pagination never loses an item, whatever fits on a page.
+ *
+ * This is the property the four-section cap violated: it decided what to show
+ * and threw the rest away. Asserted against adversarial fit functions —
+ * including one where nothing ever fits and a single section of 300 items —
+ * because those are the cases where a packing loop quietly drops a remainder.
+ */
+async function testMenuPaginationNeverDropsContent() {
+  const menus = [
+    [{ title: 'Beer', items: [{ name: 'Draft' }, { name: 'Bottles' }] }],
+    Array.from({ length: 9 }, (_, s) => ({
+      title: `Section ${s}`,
+      items: Array.from({ length: 7 }, (_, i) => ({ name: `s${s} item${i}` })),
+    })),
+    [{ title: 'Everything', items: Array.from({ length: 300 }, (_, i) => ({ name: `item${i}` })) }],
+    [
+      { title: 'Snacks', items: [{ name: 'Olives' }] },
+      { title: 'Tequila', items: Array.from({ length: 40 }, (_, i) => ({ name: `pour${i}` })) },
+    ],
+  ];
+  const fitters = [
+    async () => true,
+    async () => false,
+    ...[1, 3, 10].map((cap) => async (sections) =>
+      sections.reduce((n, s) => n + s.items.length, 0) <= cap),
+  ];
+
+  for (const menu of menus) {
+    const expected = menu.flatMap((s) => s.items.map((i) => `${s.title}|${i.name}`)).sort();
+    for (const fits of fitters) {
+      const pages = await packMenuSections(menu, fits);
+      const got = pages.flat().flatMap((s) => s.items.map((i) => `${s.title}|${i.name}`)).sort();
+      assert.deepEqual(got, expected, 'pagination dropped menu content');
+      assert.ok(pages.length <= MAX_BOARD_PAGES, `pagination exceeded ${MAX_BOARD_PAGES} pages`);
+      assert.ok(pages.every((page) => page.some((s) => s.items.length)), 'pagination produced an empty page');
+    }
+  }
+}
+
+/**
+ * A venue's boards must together be a whole menu, not a first page.
+ *
+ * "A board exists" was too weak: a menu that paginates to three pages and
+ * saves one is indistinguishable from a short menu unless the pages are
+ * counted. The captions carry the count, so they have to agree with how many
+ * images are actually stored.
+ */
+function testBoardPagesFormACompleteSequence() {
+  const offenders = [];
+  for (const venue of happyHours) {
+    const boards = (venue.galleryImages || []).filter((image) => image.generated);
+    if (boards.length <= 1) continue;
+    const seen = boards
+      .map((image) => /page (\d+) of (\d+)/i.exec(image.caption || ''))
+      .map((match) => (match ? { page: Number(match[1]), total: Number(match[2]) } : null));
+    if (seen.some((entry) => entry === null)) {
+      offenders.push(`${venue.name} (${venue.id}): multi-page board without a page marker`);
+      continue;
+    }
+    const total = seen[0].total;
+    if (total !== boards.length || seen.some((entry) => entry.total !== total)) {
+      offenders.push(`${venue.name} (${venue.id}): ${boards.length} board(s) claiming ${total} pages`);
+      continue;
+    }
+    const pages = seen.map((entry) => entry.page).sort((a, b) => a - b);
+    if (pages.some((page, index) => page !== index + 1)) {
+      offenders.push(`${venue.name} (${venue.id}): pages ${pages.join(',')}`);
+    }
+  }
+  assert.deepEqual(offenders, [], `incomplete board sequences: ${offenders.join('; ')}`);
+}
+
 /** Normalizing a menu for board layout must not discard its provenance. */
 function testMenuNormalizationKeepsProvenance() {
   const normalized = normalizeMenuBoard({
@@ -1796,6 +1869,8 @@ const tests = [
   testMultiWindowScheduleUsesLateNightToo,
   testAllDayWindowIsLiveThatCalendarDay,
   testEveryStoredMenuHasARenderedBoard,
+  testMenuPaginationNeverDropsContent,
+  testBoardPagesFormACompleteSequence,
   testNoScrapedImageClaimsToBeOurBoard,
   testMenuNormalizationKeepsProvenance,
   testDealChipsCapAtSix,
