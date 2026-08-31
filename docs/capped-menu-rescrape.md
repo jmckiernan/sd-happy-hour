@@ -26,24 +26,24 @@ JSON cut off mid-item.
 
 ## The split
 
-Of the 72, six were re-read and applied in a first pass; the remaining 67 were
-re-read three times each with a consensus rule (below). Combined:
+Six were re-read and applied in a first pass; the rest were re-read three times
+each under the consensus rule below. Counted against the original 72:
 
 | Outcome | Count |
 | --- | --- |
-| Gained sections past the cap — genuinely truncated | 16 |
-| Same or fewer sections, more items — fuller read | 7 |
-| Confirmed at four sections | 14 |
+| Stored a fuller menu — **19 of them past the old cap**, so demonstrably truncated | 29 |
+| Confirmed genuinely four sections | 12 |
 | Needs a human look | 15 |
 | Could not be re-read at all | 16 |
 
-29 menus were improved and stored, recovering **+57 sections and +267 items**.
-The largest gains: O'Sullivan's Irish Pub Escondido 4→12 sections (+40 items),
-Puesto La Jolla 4→11 (+31), Hooleys Public House 4→12 (+24), La Puerta 4→12,
-Bier Garden Encinitas 4→9.
+The 29 recover **+57 sections and +267 items**.
+The largest gains: O'Sullivan's Irish Pub Escondido and La Puerta both 4→12
+sections, Hooleys Public House 4→12, Puesto La Jolla 4→11, Bier Garden
+Encinitas 4→9.
 
-So roughly a quarter of the cohort was demonstrably truncated, a fifth was
-genuinely four sections, and the rest could not be settled by re-reading.
+So about a quarter of the cohort was demonstrably truncated, a sixth was
+genuinely four sections, and the remaining 43% could not be settled by
+re-reading — a JavaScript-only site or two reads that disagreed.
 
 ## One read is not a verdict
 
@@ -104,7 +104,8 @@ need the browser-mode crawl, not a plain fetch.
 
 ## Needs a human look (15)
 
-Reads disagreed too widely to trust, or came back shorter than what is stored:
+Fifteen listings. Reads disagreed too widely to trust, came back shorter than
+what is stored, or produced prices that were not happy-hour prices:
 Rockin' Baja Lobster Oceanside, Jimmy's Famous American Tavern Point Loma,
 Gossip Grill, El Pueblo Mexican Food Carlsbad, The Rabbit Hole, Pacific Catch,
 Bellamy's Restaurant, Bayside Landing, Sushi Lounge Encinitas, Mangia e Bevi,
