@@ -210,6 +210,11 @@ function formatWindowLine(window: {
       gap: 24px;
     }
     @media (max-width: 640px) { .venue-details { grid-template-columns: 1fr; } }
+    /* Both cards in the row are stretched to the taller one's height, so the
+       address needs somewhere to be pushed to: a column with free space at the
+       end of it. Without this the address follows the day chips and floats in
+       the middle of a card whose height came from the deals beside it. */
+    .venue-details .venue-card { display: flex; flex-direction: column; }
 
     .venue-card {
       background: white;
@@ -231,7 +236,13 @@ function formatWindowLine(window: {
        city off the end of it would be worse than a second line. */
     .hh-address {
       display: block;
-      margin-top: 16px;
+      /* Bottom edge of the card, level with the bottom of the Deals card
+         beside it. The padding rather than a margin keeps a gap above the
+         address when the card's own content already fills the height, and on
+         mobile — where the cards stack and each is only as tall as its
+         content — the auto margin is zero and the padding is all that shows. */
+      margin-top: auto;
+      padding-top: 16px;
       font-size: 0.85rem;
       color: var(--night-soft);
       text-decoration: none;
