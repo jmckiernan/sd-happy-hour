@@ -382,7 +382,8 @@ A match is an **upgrade**, not a duplicate, when the existing row is a stub
 - Must have `hasHappyHour` and a `happyHour` object.
 - Must pass the county check again. The enriched cache predates that filter and still marks Orange
   and Riverside places as qualified, so staging would re-add venues `audit:county` just unlisted.
-- Must not be corporate fast food. A "happy hour" on one of those is always a misread.
+- Must not be corporate fast food. A "happy hour" on one of those is always a misread. Upgrades are
+  checked twice: on the Google display name and again on the existing stub's catalog name.
 - Sorted by review count descending, then capped at `MAX_IMPORT` (default 1,000).
   - The cap applies to new venues only. **Upgrades are never capped.**
 
@@ -548,9 +549,6 @@ Honest list. None are currently breaking anything, but all are traps.
 - **Google multi-window is lossy.** Only the window covering the most days survives, so a venue
   with a separate late-night happy hour loses it. `lib/google-happy-hour.mjs` implements the full
   multi-window logic but nothing in this path calls it.
-- **`upgrade-stubs.mjs` duplicates the merge upgrade path.** Two ways to do the same thing; the
-  merge one should win, because it runs as part of the pipeline rather than as a step someone has
-  to remember.
 - **The stub import hardcodes 4.0 / 10** instead of reading `MIN_RATING` / `MIN_REVIEWS`, so
   changing the env vars moves the happy-hour bar but not the stub bar.
 - **Normalize checks the rectangle, not the county.** It calls the bounds box, while staging calls

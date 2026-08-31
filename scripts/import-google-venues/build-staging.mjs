@@ -44,6 +44,12 @@ async function main() {
   // the happy-hour fields move across; the venue keeps its id, so anything
   // already pointing at that page — including a pending claim — still resolves.
   for (const { record, venue } of upgrades) {
+    // The candidate filter above tests the Google display name; a stub carrying
+    // the brand under a different catalog name would otherwise be published.
+    if (isCorporateFastFood(venue.name)) {
+      rejected.push({ name: venue.name, reason: 'corporate-fast-food' });
+      continue;
+    }
     const normalized = normalizeVenue(record, venue.id);
     if (!normalized) {
       rejected.push({ name: displayName(record), reason: 'normalization-failed' });
