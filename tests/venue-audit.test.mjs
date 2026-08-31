@@ -41,7 +41,6 @@ import {
   parseSitemapLocs,
   scoreSitemapUrl,
   rankSitemapUrls,
-  discoverFromSitemap,
 } from '../scripts/import-google-venues/lib/sitemap-discover.mjs';
 import {
   windowsFromPeriods,
@@ -364,12 +363,6 @@ function testBuildCandidateUrlsSitemapOnly() {
   // A strong sitemap lists the whole site, so anything absent from it is not
   // a page we should be probing for.
   assert.deepEqual(urls, ['https://example.com/specials/']);
-}
-
-async function testDiscoverFromSitemapLive() {
-  const { candidates, sitemapFound } = await discoverFromSitemap('https://lapuertasd.com/');
-  assert.equal(sitemapFound, true);
-  assert.ok(candidates.some((c) => /happy-hours/i.test(c.url)));
 }
 
 function testNormalizeAiHappyHourResult() {
@@ -1695,7 +1688,6 @@ const tests = [
   testParseSitemapLocs,
   testRankSitemapUrls,
   testBuildCandidateUrlsSitemapOnly,
-  testDiscoverFromSitemapLive,
   testNormalizeAiHappyHourResult,
   testWindowsFromPeriods,
   testPickPrimaryWindow,
