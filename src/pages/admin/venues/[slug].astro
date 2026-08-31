@@ -135,8 +135,10 @@ const { venue } = Astro.props;
       <p class="sub">{venue.neighborhood} · venue #{venue.id}</p>
 
       <p class="ve-note">
-        Featured images, hours, deals, vibe and contact details go live as soon as Save succeeds.
-        Name, neighborhood, map coordinates, featured image framing, verification fields and social previews are also saved to
+        Featured images and their framing, hours, deals, vibe and contact details go live as soon
+        as Save succeeds — on the venue page, the homepage and Live Deals. Neighborhood pages are
+        built ahead of time, so framing reaches those with the next deploy. Name, neighborhood, map
+        coordinates, verification fields and social previews are saved to
         <code>public/data/happy-hours.json</code> and appear with the next deploy.
       </p>
 
@@ -375,7 +377,8 @@ const { venue } = Astro.props;
         setStatus(
           data.imageFallbackApplied
             ? 'Saved and live now — the previous image was missing, so the venue is using its stock fallback.'
-            : 'Saved — the featured image and other public listing details are live now.',
+            : 'Saved — the featured image, its framing and the other public listing details are live now. '
+              + 'Neighborhood pages are prerendered, so they pick the framing up on the next deploy.',
           'ok'
         );
       } catch (err: any) {

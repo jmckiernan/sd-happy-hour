@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getVenueOverrides, listPublishedVenueIds } from '../../lib/store';
-import { OWNER_EDITABLE_FIELDS } from '../../lib/venueContent';
+import { LIVE_LISTING_FIELDS } from '../../lib/venueContent';
 
 export const prerender = false;
 
@@ -18,11 +18,12 @@ export const prerender = false;
 // site by a verified claim, and so should be visible right now rather than
 // after the next deploy. See lib/listingVisibility.ts.
 //
-// Filtered to OWNER_EDITABLE_FIELDS on the way out rather than trusting the
-// stored patch. The patch is written through validateOwnerPatch() and so should
-// only ever contain those keys, but this response gets spread straight over a
-// venue object in the browser — a stray key from an older patch shape would
-// silently overwrite something it shouldn't.
+// Filtered to LIVE_LISTING_FIELDS on the way out rather than trusting the
+// stored patch. The patch is written through validateOwnerPatch(), or as an
+// admin's field-level delta, and so should only ever contain those keys, but
+// this response gets spread straight over a venue object in the browser — a
+// stray key from an older patch shape would silently overwrite something it
+// shouldn't.
 export const GET: APIRoute = async () => {
   const [overrides, publishedVenueIds] = await Promise.all([
     getVenueOverrides(),
@@ -32,7 +33,7 @@ export const GET: APIRoute = async () => {
   const payload: Record<string, Record<string, unknown>> = {};
   for (const [venueId, override] of Object.entries(overrides)) {
     const patch: Record<string, unknown> = {};
-    for (const field of OWNER_EDITABLE_FIELDS) {
+    for (const field of LIVE_LISTING_FIELDS) {
       if (field in override.patch) patch[field] = override.patch[field];
     }
     payload[venueId] = patch;

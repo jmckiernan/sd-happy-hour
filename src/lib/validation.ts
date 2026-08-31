@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { User, SavedSpot, Alert, AlertFilters, AlertChannels, Listing } from './store';
 import type { UnifiedSavedState } from './savedLists';
 import { PROMOTION_TYPES, type PromotionType } from './promotionState';
-import { normalizeImageCrop } from './imageCrop';
+import { normalizeImageFraming } from './imageCrop';
 import { parseInstant, type InstantInput } from './sanDiegoTime';
 
 // ---------------------------------------------------------------------------
@@ -275,10 +275,10 @@ export function validateListing(
   if (!listing.openTime) delete listing.openTime;
   if (!listing.closeTime) delete listing.closeTime;
 
-  // The featured photo's framing. Out-of-range or centered values normalize
-  // away rather than failing the save: this is a slider an admin dragged, not
-  // a typed field. Cleared along with the photo, since framing a stock vibe
-  // image means nothing.
+  // The featured photo's framing, one crop per frame. Out-of-range or centered
+  // values normalize away rather than failing the save: these are frames an
+  // admin dragged, not typed fields. Cleared along with the photo, since
+  // framing a stock vibe image means nothing.
   //
   // Explicitly null rather than absent when there is no framing, for the same
   // reason `image` is kept as an empty string: the venue editor diffs this
@@ -286,7 +286,7 @@ export function validateListing(
   // row, so "put it back to centered" has to be a value it can see. The key
   // stops existing at the point of the commit — see withoutEmptyImage() in
   // lib/venueRepo.ts.
-  listing.imageCrop = listing.image ? normalizeImageCrop(input.imageCrop) : null;
+  listing.imageCrop = listing.image ? normalizeImageFraming(input.imageCrop) : null;
 
   const errors: string[] = [];
   const validDays = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);

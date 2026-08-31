@@ -492,9 +492,14 @@ merely exempt stubs — it **forbids** the fields they should not have:
 - Every `galleryImages` entry needs a stored path or `http(s)` `url`. These are menus, so they are
   never cropped — shown whole, and read by zooming the full-resolution original.
 - `imageCrop` is optional, and only meaningful alongside an `image`: the admin venue editor's
-  framing choice for the featured photo, `{x, y}` percentages with an optional `scale` between 1
-  and 4. Absent means centered and unmagnified. The file is never re-cropped, so the choice stays
-  re-editable and each surface applies it at its own aspect ratio.
+  framing choices for the featured photo, keyed by the frame they apply to — `hero` (venue page),
+  `card` (homepage, Live Deals, neighborhood pages) and `tile` (neighborhood index). Each holds
+  `{x, y}` percentages with an optional `scale` between 1 and 4, and each frame is set
+  independently, since a crop that suits the 5:2 hero often loses the subject at 1:1. An absent
+  frame means centered and unmagnified. The file is never re-cropped, so the choices stay
+  re-editable. Framing also travels through `venue_overrides` so an admin's save is visible before
+  the next deploy; the frame keys are the contract, not the aspect ratios, so restyling a surface
+  does not orphan what an admin already set.
 
 ---
 

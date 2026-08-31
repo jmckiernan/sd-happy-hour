@@ -6,7 +6,7 @@ import { fetchVenues, updateVenue, type VenueFileSnapshot } from '../../../../li
 import { describeGitHubError, describeRepoError } from '../../../../lib/github';
 import type { Venue } from '../../../../lib/venues';
 import { getVenueOverride, mergeVenueOverride, type VenueOverride } from '../../../../lib/store';
-import { mergeVenue, OWNER_EDITABLE_FIELDS } from '../../../../lib/venueContent';
+import { mergeVenue, LIVE_LISTING_FIELDS } from '../../../../lib/venueContent';
 import {
   isLocalImageStorageAvailable,
   isNetlifyBlobsAvailable,
@@ -16,10 +16,11 @@ import {
 export const prerender = false;
 
 // Edits an already-published venue. The repository remains the durable source
-// used by the next build, while the public-editable portion is also written to
-// venue_overrides so hours, deals, contact details and the featured image are
-// visible immediately. Admin-only identity/map/trust fields still arrive with
-// the next deploy because they are intentionally excluded from that override.
+// used by the next build, while the live-editable portion is also written to
+// venue_overrides so hours, deals, contact details, the featured image and its
+// framing are visible immediately. Admin-only identity/map/trust fields still
+// arrive with the next deploy because they are intentionally excluded from
+// that override.
 //
 // Coordinates are required here for the same reason they are on approval:
 // a live venue without them can't be placed on the homepage map.
@@ -35,7 +36,7 @@ function storedImageKey(image: string): string | null {
   return match?.[1] || '';
 }
 
-const OWNER_EDITABLE_FIELD_SET = new Set<string>(OWNER_EDITABLE_FIELDS);
+const LIVE_LISTING_FIELD_SET = new Set<string>(LIVE_LISTING_FIELDS);
 
 function sameListingValue(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
@@ -124,7 +125,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 
   const liveDelta: Record<string, unknown> = {};
   for (const field of changedFields) {
-    if (OWNER_EDITABLE_FIELD_SET.has(field)) liveDelta[field] = listingRecord[field];
+    if (LIVE_LISTING_FIELD_SET.has(field)) liveDelta[field] = listingRecord[field];
   }
 
   const currentListing = mergeVenue(repositoryVenue, currentOverride);

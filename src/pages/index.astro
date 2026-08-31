@@ -1228,7 +1228,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         // The admin's framing for this card's fixed 200px-tall frame. Empty
         // for a venue nobody has framed, and for the stock fallback, so those
         // cards render exactly as they always have.
-        framing: listingImageStyle(venue),
+        framing: listingImageStyle(venue, 'card'),
       };
     }
 

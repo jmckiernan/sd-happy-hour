@@ -57,6 +57,26 @@ export const OWNER_EDITABLE_FIELDS = [
 
 export type OwnerEditableField = (typeof OWNER_EDITABLE_FIELDS)[number];
 
+/**
+ * Admin-only fields that still have to be live before the next deploy.
+ *
+ * `imageCrop` is not an owner's to set — it is framing an admin dragged in the
+ * venue editor — but it shares every rendering surface with `image`, which is
+ * owner-editable and therefore live immediately. Leaving framing out of the
+ * override channel is what made a saved crop look like it had done nothing:
+ * the repository is only read at build time, so it sat there until the next
+ * deploy while the photo it belonged to had already changed.
+ */
+export const ADMIN_LIVE_FIELDS = ['imageCrop'] as const;
+
+/** Everything the live override layer may carry, from either author. The
+ * public reader (api/venue-overrides.ts) and the venue page's overlay
+ * (api/venue-content/[id].ts) both filter against this, so a field is live
+ * exactly when it appears here. */
+export const LIVE_LISTING_FIELDS = [...OWNER_EDITABLE_FIELDS, ...ADMIN_LIVE_FIELDS] as const;
+
+export type LiveListingField = (typeof LIVE_LISTING_FIELDS)[number];
+
 /** Copies the live-editable portion of a complete venue/listing record.
  *
  * Admin saves use the same override channel as owner saves so these fields

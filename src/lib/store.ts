@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { sql, withTransaction, type QueryExecutor } from './db';
 import type { AlertKind } from './validation';
-import type { ImageCrop } from './imageCrop';
+import type { ImageFraming } from './imageCrop';
 
 // ---------------------------------------------------------------------------
 // Granular Postgres accessors (README-NEON-MIGRATION.md §6 step 6), replacing
@@ -702,11 +702,10 @@ export interface Listing {
   // (lib/imageStore.ts). Absent/empty means the public pages fall back to the
   // vibe stock photo, which is what every venue did before this existed.
   image?: string;
-  // Which part of that photo the fixed frames on cards and the venue hero
-  // show — see Venue.imageCrop in lib/venues.ts. Null when the admin has left
-  // it centered, which is distinct from absent: it is what clears framing that
-  // was set earlier.
-  imageCrop?: ImageCrop | null;
+  // Which part of that photo each fixed frame shows, keyed by frame — see
+  // Venue.imageCrop in lib/venues.ts. Null when nothing is framed, which is
+  // distinct from absent: it is what clears framing that was set earlier.
+  imageCrop?: ImageFraming | null;
 }
 
 export interface Submission {

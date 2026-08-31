@@ -7,7 +7,12 @@ import {
   publishVenuePhotosAwaitingReview,
 } from '../../../../../lib/store';
 import { getVenueManager, NOT_A_MANAGER_MESSAGE } from '../../../../../lib/venueManager';
-import { mergeVenue, validateOwnerPatch, OWNER_EDITABLE_FIELDS } from '../../../../../lib/venueContent';
+import {
+  ADMIN_LIVE_FIELDS,
+  mergeVenue,
+  validateOwnerPatch,
+  OWNER_EDITABLE_FIELDS,
+} from '../../../../../lib/venueContent';
 import { json, errorJson, readJsonBody } from '../../../../../lib/api';
 
 export const prerender = false;
@@ -101,6 +106,16 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
         422
       );
     }
+  }
+
+  // setVenueOverride replaces the stored patch wholesale, which is right for
+  // the owner's own fields — the dashboard always submits all of them, so a
+  // merge would make clearing one impossible. The admin-only live fields are
+  // not in that submission at all, so they have to be carried across by hand
+  // or an owner saving their hours would quietly drop the framing an admin set
+  // on the featured photo.
+  for (const field of ADMIN_LIVE_FIELDS) {
+    if (currentOverride && field in currentOverride.patch) patch[field] = currentOverride.patch[field];
   }
 
   const override = await setVenueOverride(venueId, patch, manager.user.id);

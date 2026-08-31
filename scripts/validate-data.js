@@ -36,12 +36,16 @@ function isPercent(value) {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
 }
 
-// The featured photo's optional framing metadata: where in the image a fixed
-// frame should be centered, and how far in. Absent on every listing that
-// predates the venue editor's crop control, which is why it is only checked
-// when the key is there. Same rule as isImageCrop() in src/lib/imageCrop.ts,
-// which this script can't import — it is plain node, and that module is
-// TypeScript.
+// The featured photo's optional framing metadata: where in the image each
+// fixed frame should be centered, and how far in, keyed by the surface the
+// frame belongs to. Absent on every listing that predates the venue editor's
+// crop control, which is why it is only checked when the key is there. Same
+// rules as isImageCrop()/isImageFraming() in src/lib/imageCrop.ts, which this
+// script can't import — it is plain node, and that module is TypeScript. The
+// frame names are duplicated here for the same reason; a name added there and
+// not here fails validation rather than slipping through.
+const IMAGE_FRAME_KEYS = ['hero', 'card', 'tile'];
+
 function isImageCrop(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   if (!isPercent(value.x) || !isPercent(value.y)) return false;
@@ -51,6 +55,13 @@ function isImageCrop(value) {
     if (!scaleOk) return false;
   }
   return true;
+}
+
+function isImageFraming(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entries = Object.entries(value);
+  if (!entries.length) return false;
+  return entries.every(([frame, crop]) => IMAGE_FRAME_KEYS.includes(frame) && isImageCrop(crop));
 }
 
 function validateListing(listing, label) {
@@ -166,8 +177,11 @@ function validateListing(listing, label) {
   // Framing for that photo, and only for that photo: a crop with nothing to
   // crop would be applied to the vibe stock image, which no admin ever framed.
   if ('imageCrop' in listing) {
-    if (!isImageCrop(listing.imageCrop)) {
-      errors.push(`${label}: imageCrop must be {x, y} percentages with an optional scale of 1–4 when present.`);
+    if (!isImageFraming(listing.imageCrop)) {
+      errors.push(
+        `${label}: imageCrop must map frame names (${IMAGE_FRAME_KEYS.join(', ')}) to ` +
+          '{x, y} percentages with an optional scale of 1–4.'
+      );
     } else if (!hasString(listing.image)) {
       errors.push(`${label}: imageCrop cannot be set without an image.`);
     }

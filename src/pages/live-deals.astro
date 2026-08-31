@@ -432,7 +432,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
         primary: getListingImage(venue, 'card'),
         original: typeof venue.image === 'string' ? venue.image : '',
         stock: getListingImage({ vibe: venue.vibe }, 'card'),
-        framing: listingImageStyle(venue),
+        framing: listingImageStyle(venue, 'card'),
       };
     }
 

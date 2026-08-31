@@ -169,11 +169,26 @@
 
   /* Featured-image framing. The photo is shown in every shape the site
      renders it at, so the admin is dragging against the real output rather
-     than a stand-in box. */
+     than a stand-in box. Each frame is a separate control, so each is drawn
+     as its own bordered card and lights up while it has focus or is being
+     dragged — with three draggable photos side by side, which one is being
+     edited has to be unmistakable. */
   .lf-crop { display: grid; gap: 10px; }
   .lf-crop[hidden] { display: none; }
   .lf-crop-frames { display: flex; flex-wrap: wrap; gap: 12px; }
-  .lf-crop-frame { flex: 1 1 200px; margin: 0; min-width: 0; }
+  .lf-crop-frame {
+    border: 2px solid var(--sand-warm);
+    border-radius: var(--radius-sm);
+    display: grid;
+    flex: 1 1 220px;
+    gap: 8px;
+    margin: 0;
+    min-width: 0;
+    padding: 10px;
+    transition: border-color 0.15s ease;
+  }
+  .lf-crop-frame:focus-within,
+  .lf-crop-frame:hover { border-color: var(--sunset-start); }
   .lf-crop-window {
     background: var(--sand-warm);
     border-radius: var(--radius-sm);
@@ -193,20 +208,24 @@
     user-select: none;
     width: 100%;
   }
-  .lf-crop-frame figcaption {
-    color: var(--night-soft);
-    font-size: 0.7rem;
-    font-weight: 700;
+  /* Above the frame rather than below it: it names the thing the admin is
+     about to grab, and reads as that frame's heading instead of a caption
+     that could belong to either neighbour. */
+  .lf-crop-frame figcaption { display: grid; gap: 2px; }
+  .lf-crop-frame figcaption strong {
+    color: var(--night);
+    font-size: 0.72rem;
+    font-weight: 800;
     letter-spacing: 0.04em;
-    margin-top: 5px;
     text-transform: uppercase;
   }
-  .lf-crop-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
+  .lf-crop-frame figcaption span { color: var(--night-soft); font-size: 0.7rem; }
+  .lf-crop-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
   .lf-crop-controls label {
     align-items: center;
     color: var(--night-soft);
     display: flex;
-    flex: 1 1 200px;
+    flex: 1 1 100%;
     font-size: 0.72rem;
     font-weight: 800;
     gap: 8px;

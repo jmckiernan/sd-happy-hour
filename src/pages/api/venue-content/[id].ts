@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getVenues } from '../../../lib/venues';
 import { getVenueOverride } from '../../../lib/store';
-import { getVenueContent, mergeVenue, OWNER_EDITABLE_FIELDS } from '../../../lib/venueContent';
+import { getVenueContent, mergeVenue, LIVE_LISTING_FIELDS } from '../../../lib/venueContent';
 import { json, errorJson } from '../../../lib/api';
 
 export const prerender = false;
@@ -27,12 +27,12 @@ export const GET: APIRoute = async ({ params }) => {
   const [override, content] = await Promise.all([getVenueOverride(venueId), getVenueContent(venueId)]);
   const merged = mergeVenue(venue, override);
 
-  // Only the owner-editable fields go back, not the whole venue: the page
+  // Only the live-editable fields go back, not the whole venue: the page
   // already has the rest in its HTML, and this keeps the response about what
   // can actually have changed since the build.
   const listing: Record<string, unknown> = {};
   const mergedFields = merged as unknown as Record<string, unknown>;
-  for (const field of OWNER_EDITABLE_FIELDS) listing[field] = mergedFields[field];
+  for (const field of LIVE_LISTING_FIELDS) listing[field] = mergedFields[field];
 
   return new Response(
     JSON.stringify({

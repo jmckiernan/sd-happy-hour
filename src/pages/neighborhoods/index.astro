@@ -41,7 +41,7 @@ const breadcrumbs = [
             height="534"
             loading="lazy"
             data-fallback-src={getVenueImage(area.venues[0].vibe, 'card')}
-            style={listingImageStyle(area.venues[0]) || undefined}
+            style={listingImageStyle(area.venues[0], 'tile') || undefined}
           />
           <div>
             <p class="count">{area.venues.length} {area.venues.length === 1 ? 'venue' : 'venues'}</p>

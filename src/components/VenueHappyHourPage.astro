@@ -580,7 +580,7 @@ function formatWindowLine(window: {
         height="1000"
         fetchpriority="high"
         decoding="async"
-        style={listingImageStyle(venue) || undefined}
+        style={listingImageStyle(venue, 'hero') || undefined}
       />
       <div class="scrim"></div>
       <div class="hero-primary-badge" id="hero-primary-badge" aria-live="polite" hidden>
@@ -815,6 +815,7 @@ function formatWindowLine(window: {
     import { createLivePromotionFeed } from '../lib/livePromotionFeed';
     import { formatCountdown, formatSanDiegoDateTime } from '../lib/promotionClientTime';
     import { vibeImageFor } from '../lib/vibeImages';
+    import { imageFramingStyle } from '../lib/imageCrop';
     import { venueDealLines } from '../lib/listingCopy';
     import {
       getHappyHourOccurrenceForDate,
@@ -1204,12 +1205,22 @@ function formatWindowLine(window: {
     // with. If an owner has since swapped that photo, or it fell back to the
     // vibe stock image, the framing goes with it rather than being imposed on
     // a picture nobody framed.
+    //
+    // The live overlay wins when it answers, because this page is prerendered:
+    // framing saved since the last deploy is in venue_overrides, not in the
+    // HTML. Null until then, which is the difference between "no live answer
+    // yet" and "the live answer is no framing".
     const builtHeroSrc = heroImg.getAttribute('src') || '';
     const builtHeroFraming = heroImg.getAttribute('style') || '';
+    let liveHeroFraming: string | null = null;
 
     function applyHeroFraming() {
-      const matches = (heroImg.getAttribute('src') || '') === builtHeroSrc;
-      if (matches && builtHeroFraming) heroImg.setAttribute('style', builtHeroFraming);
+      const src = heroImg.getAttribute('src') || '';
+      const showingStock = src === stockHeroFor(activeHeroVibe);
+      const framing = showingStock
+        ? ''
+        : liveHeroFraming ?? (src === builtHeroSrc ? builtHeroFraming : '');
+      if (framing) heroImg.setAttribute('style', framing);
       else heroImg.removeAttribute('style');
     }
 
@@ -1652,6 +1663,10 @@ function formatWindowLine(window: {
         const stock = stockHeroFor(activeHeroVibe);
         const requested = listing.image ? sized(String(listing.image), 1600) : stock;
         heroImg.src = (await canLoadImage(requested)) ? requested : stock;
+        // Framing an admin saved after the last deploy arrives here rather
+        // than in the static HTML, so this is what makes a fresh crop visible
+        // without a rebuild.
+        liveHeroFraming = listing.image ? imageFramingStyle(listing.imageCrop, 'hero') : '';
         applyHeroFraming();
       }
 
