@@ -5,6 +5,9 @@
 // read literally and reported happy hour as live at 3am. All day describes the
 // venue's service day, so the window has to say when that day starts and ends:
 // the venue's own hours when we have them, otherwise a conservative default.
+// A stored start before 8am is treated the same way, because no venue here
+// opens for happy hour that early and the ones that claimed to were all bad
+// extractions.
 //
 // Usage:
 //   npm run fix:all-day-windows              # dry run, reports what would change
@@ -13,27 +16,15 @@
 import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
 import { readJson, writeJson } from './lib/io.mjs';
 
-const DEFAULT_SERVICE_DAY = { startTime: '11:00', endTime: '22:00' };
+import { isUnboundedAllDayWindow, boundAllDayWindow } from '../../src/lib/sanDiegoTime.ts';
+
 const CLOCK = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 function clock(value) {
   return CLOCK.test(String(value || '')) ? String(value) : null;
 }
 
-/** True when a window claims to be all day but stores the calendar day. */
-export function isUnboundedAllDayWindow(window) {
-  if (!window?.allDay) return false;
-  return window.startTime === '00:00' && (window.endTime === '23:59' || window.endTime === '00:00');
-}
-
-export function boundAllDayWindow(window, hours = {}) {
-  if (!isUnboundedAllDayWindow(window)) return window;
-  return {
-    ...window,
-    startTime: clock(hours.openTime) || DEFAULT_SERVICE_DAY.startTime,
-    endTime: clock(hours.closeTime) || DEFAULT_SERVICE_DAY.endTime,
-  };
-}
+export { isUnboundedAllDayWindow, boundAllDayWindow };
 
 function main() {
   const apply = process.argv.includes('--apply');

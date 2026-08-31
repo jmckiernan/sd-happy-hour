@@ -50,7 +50,21 @@ async function main() {
   const catalog = readJson(HAPPY_HOURS_PATH, []);
   // Left over from before the alcohol booleans were dropped from the Details
   // field mask, so it covers the venues enriched to date and no new ones.
-  const places = readJson(ENRICHED_PATH, {})?.places || {};
+  const enriched = readJson(ENRICHED_PATH, null);
+  // Refuse to run without it. 158 listings carry drink types derived from these
+  // booleans and hold no deal text of their own, so the "keep what it has"
+  // guard below — which only protects venues that have deal text — would not
+  // save them. Treating a missing cache as "Google said nothing" silently
+  // strips all 158 and makes them unfilterable, which looks like a successful
+  // run.
+  if (!enriched) {
+    console.error(`Missing ${ENRICHED_PATH}.`);
+    console.error('Refusing to run: without it, listings whose drink types came from');
+    console.error("Google's alcohol booleans would be silently stripped. Restore the");
+    console.error('enrichment cache, or pass --allow-missing-enrichment to accept that.');
+    if (!process.argv.includes('--allow-missing-enrichment')) process.exit(1);
+  }
+  const places = enriched?.places || {};
 
   let changed = 0;
   let noDealText = 0;

@@ -44417,7 +44417,7 @@
         "days": [
           "Monday"
         ],
-        "startTime": "04:00",
+        "startTime": "11:00",
         "endTime": "21:00",
         "kind": "happy_hour",
         "allDay": true,
@@ -82623,7 +82623,7 @@
         "days": [
           "Monday"
         ],
-        "startTime": "03:00",
+        "startTime": "11:00",
         "endTime": "21:00",
         "kind": "happy_hour",
         "allDay": true,

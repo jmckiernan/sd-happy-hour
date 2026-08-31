@@ -377,13 +377,23 @@ export function isHappyHourActive(schedule: HappyHourSchedule, now: InstantInput
 export const DEFAULT_SERVICE_DAY = { startTime: '11:00', endTime: '22:00' } as const;
 
 /**
- * True when a window claims to be all day but stores the calendar day rather
- * than the venue's service hours. These are the records that report happy
- * hour as live overnight.
+ * The earliest a service day is credible. No venue in this catalog opens for
+ * happy hour before this, so an all-day window starting earlier is a bad
+ * extraction rather than an unusual venue.
+ */
+const EARLIEST_CREDIBLE_SERVICE_START = 8 * 60;
+
+/**
+ * True when a window claims to be all day but does not describe a service day:
+ * either it stores the calendar day (00:00–23:59), or it starts so early that
+ * it would report happy hour as live in the middle of the night. Both are the
+ * records that claim happy hour overnight.
  */
 export function isUnboundedAllDayWindow(window: Pick<HappyHourWindow, 'allDay' | 'startTime' | 'endTime'>): boolean {
   if (!window.allDay) return false;
-  return window.startTime === '00:00' && (window.endTime === '23:59' || window.endTime === '00:00');
+  if (window.startTime === '00:00' && (window.endTime === '23:59' || window.endTime === '00:00')) return true;
+  const start = clockMinutes(window.startTime);
+  return start != null && start < EARLIEST_CREDIBLE_SERVICE_START;
 }
 
 /**
@@ -396,11 +406,16 @@ export function boundAllDayWindow<T extends HappyHourWindow>(
   hours: { openTime?: string | null; closeTime?: string | null } = {}
 ): T {
   if (!isUnboundedAllDayWindow(window)) return window;
-  const open = clockMinutes(String(hours.openTime || '')) != null ? String(hours.openTime) : null;
+  const openMinutes = clockMinutes(String(hours.openTime || ''));
+  const open = openMinutes != null && openMinutes >= EARLIEST_CREDIBLE_SERVICE_START ? String(hours.openTime) : null;
   const close = clockMinutes(String(hours.closeTime || '')) != null ? String(hours.closeTime) : null;
+  // A stored end time is kept when it is credible; only the start is the part
+  // these records get wrong.
+  const endMinutes = clockMinutes(window.endTime);
+  const keptEnd = endMinutes != null && window.endTime !== '23:59' && window.endTime !== '00:00' ? window.endTime : null;
   return {
     ...window,
     startTime: open || DEFAULT_SERVICE_DAY.startTime,
-    endTime: close || DEFAULT_SERVICE_DAY.endTime,
+    endTime: keptEnd || close || DEFAULT_SERVICE_DAY.endTime,
   };
 }

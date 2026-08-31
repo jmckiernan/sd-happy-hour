@@ -4,7 +4,7 @@ export const MAX_DEAL_CHIPS = 6;
 
 const PLACEHOLDER_RE = /confirm current offers|happy hour specials\s*[—–-]/i;
 const JUNK_RE = /instagram|facebook|twitter|tiktok|photos and videos|follow us|subscribe|cookie|privacy policy|javascript|all rights reserved|@\w{2,}|click here|order online|reservations?|gift cards?|private parties?|corporate events?|social events?|opening hours|sustainable development|map of the|explore our|event tags?|watch party|about history|birthdays and promotions|tags:/i;
-const MENU_HEADER_RE = /^(?:appetizers|entrees|desserts|drinks|cocktails|wine|beer|margaritas|tacos|burritos|menus?|brunch|lunch|dinner|specials?|buckets|platters|bowls|buns)(?:\s+menu)?\.?$/i;
+const MENU_HEADER_RE = /^(?:appetizers|entrees|desserts|drinks|beverages|libations|bites|sides|starters|snacks|shareables|small\s*plates|apps|cocktails|wine|beer|margaritas|tacos|burritos|menus?|brunch|lunch|dinner|specials?|buckets|platters|bowls|buns)(?:\s+menu)?\.?$/i;
 const CLOCK_RANGE_RE = /\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*[-–—to]+\s*\d{1,2}(?::\d{2})?\s*(?:am|pm)\b/gi;
 const LEADING_HH_RE = /^happy hour[!.,:\s-]*/i;
 

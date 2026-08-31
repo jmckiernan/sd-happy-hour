@@ -183,6 +183,12 @@ const NOT_AN_OFFER = [
   // An unfinished storefront, read verbatim off the page.
   /you have no products/i,
   /\[empty page content\]/i,
+  // The extractor's own note about what it could not find, which is a
+  // description of our failure and never an offer. A venue publishing its menu
+  // as an image leaves the section headings in the page text and no items, and
+  // "Beverages [no items listed]" reached a live deal chip that way.
+  /\[[^\]]*\]/,
+  /\b(?:no|none)\s+items?\b|\bnot\s+listed\b|\bnone\s+listed\b/i,
   // "Mon-Thu &", "Fri &" — a day range the extractor cut mid-sentence.
   /^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*(?:\s*[-–]\s*(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*)?\s*[&,:]?\s*$/i,
 ];
