@@ -2653,6 +2653,11 @@ function testARecoveredOfferHasToQuoteAPrice() {
   assert.deepEqual(acceptableOffers(['Free wifi'], venue), []);
   assert.deepEqual(acceptableOffers(['Free parking in the lot'], venue), []);
   assert.deepEqual(acceptableOffers(['Craft cocktails and a full bar'], venue), []);
+  // A price the customer pays extra reads exactly like an offer. The first
+  // crawl over the catalog proposed all three of these.
+  assert.deepEqual(acceptableOffers(['$20 corkage fee per bottle for wines brought in.'], venue), []);
+  assert.deepEqual(acceptableOffers(['There will be a $2 per person dessert fee for outside desserts.'], venue), []);
+  assert.deepEqual(acceptableOffers(['$50.00 USD'], venue), []);
 }
 
 function testTheReasonAListingIsEmptyIsReadOffItsOwnProvenance() {

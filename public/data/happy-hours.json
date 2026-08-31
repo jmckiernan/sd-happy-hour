@@ -26943,7 +26943,11 @@
     ],
     "startTime": "14:00",
     "endTime": "17:00",
-    "deals": [],
+    "deals": [
+      "$4.50 Drafts",
+      "$4 House Wines",
+      "$3.50 Domestic Bottles"
+    ],
     "vibe": "Cocktail bar",
     "website": "http://eastboundbarandgrill.com/",
     "phone": "(619) 334-2566",
@@ -26952,19 +26956,40 @@
     "sourceUrl": "https://maps.google.com/?cid=11953853405299306905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "cocktails",
       "wine"
     ],
     "seoHidden": false,
     "image": "/images/venues/161-eastbound-bar-grill.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJL_I2cnHi24ARmXH1f1ae5KU",
-    "dealsUnknown": true,
+    "dealsUnknown": false,
     "hhSources": {
       "times": {
         "source": "google_places",
         "url": "https://maps.google.com/?cid=11953853405299306905&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
         "observedAt": "2026-08-28"
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://eastboundbarandgrill.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://eastboundbarandgrill.com/",
+            "quote": "$4.50 Drafts",
+            "field": "deals"
+          },
+          {
+            "url": "http://eastboundbarandgrill.com/",
+            "quote": "$4 House Wines",
+            "field": "deals"
+          },
+          {
+            "url": "http://eastboundbarandgrill.com/",
+            "quote": "$3.50 Domestic Bottles",
+            "field": "deals"
+          }
+        ]
       }
     },
     "listingStatus": "published",
@@ -40476,7 +40501,11 @@
     ],
     "startTime": "12:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "Monday $5 Local Drafts All Day",
+      "Tuesday $5 Local IPA Drafts All Day",
+      "Wednesday $5 OB Farmers Market Rotating Draft Selection"
+    ],
     "vibe": "Wine bar",
     "website": "http://www.thejointob.com/",
     "phone": "(619) 222-8272",
@@ -40484,15 +40513,13 @@
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "http://www.thejointob.com/menu",
     "dealTypes": [
-      "beer",
-      "cocktails",
-      "wine"
+      "beer"
     ],
     "seoHidden": false,
     "image": "/images/venues/243-the-joint-sushi-tapas.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJBWTtUDeq3oAR9qCdpu5szcI",
-    "dealsUnknown": true,
+    "dealsUnknown": false,
     "hhSources": {
       "times": {
         "source": "website_hh_page",
@@ -40508,6 +40535,28 @@
             "url": "http://www.thejointob.com/menu",
             "quote": "The Joint OB Sushi & Tapas in Ocean Beach Since 2011 Address 4902 Newport Avenue San Diego 92107",
             "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://www.thejointob.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://www.thejointob.com/",
+            "quote": "Monday $5 Local Drafts All Day",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.thejointob.com/",
+            "quote": "Tuesday $5 Local IPA Drafts All Day",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.thejointob.com/",
+            "quote": "Wednesday $5 OB Farmers Market Rotating Draft Selection",
+            "field": "deals"
           }
         ]
       }
@@ -57834,7 +57883,9 @@
     ],
     "startTime": "14:30",
     "endTime": "16:30",
-    "deals": [],
+    "deals": [
+      "$6 Wines, $6 Domestic Beers, $7 IPAS & Imported Beers. 10% Off Appetizers & Pizzas!"
+    ],
     "vibe": "Restaurant",
     "website": "https://www.momspizzasd.com/",
     "phone": "(858) 201-3225",
@@ -57843,19 +57894,31 @@
     "sourceUrl": "https://maps.google.com/?cid=15766616208226523012&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
     "dealTypes": [
       "beer",
-      "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "seoHidden": false,
     "image": "/images/venues/338-mom-s-pizza-pasta.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJO6gTWLEH3IARhBdCAehFzto",
-    "dealsUnknown": true,
+    "dealsUnknown": false,
     "hhSources": {
       "times": {
         "source": "google_places",
         "url": "https://maps.google.com/?cid=15766616208226523012&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
         "observedAt": "2026-08-28"
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.momspizzasd.com/food-drink/drink-menu/#happy-hour",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.momspizzasd.com/food-drink/drink-menu/#happy-hour",
+            "quote": "$6 Wines, $6 Domestic Beers, $7 IPAS & Imported Beers. 10% Off Appetizers & Pizzas!",
+            "field": "deals"
+          }
+        ]
       }
     },
     "listingStatus": "published",
@@ -76599,7 +76662,9 @@
     ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "Monday – Friday 2 - 5 pm $1 Off Select Beers, House Wines, and “Well” Drinks Plus, $2 Off Small Plates"
+    ],
     "vibe": "Cocktail bar",
     "website": "https://www.sanvicenteresort.com/",
     "phone": "(760) 789-8290",
@@ -76609,18 +76674,31 @@
     "dealTypes": [
       "beer",
       "cocktails",
-      "wine"
+      "wine",
+      "food"
     ],
     "seoHidden": false,
     "image": "/images/venues/460-the-par-lounge-and-deck.jpg",
     "hasHappyHourData": true,
     "placeId": "ChIJbz3FhaLo24ARCs-5gDnVf6U",
-    "dealsUnknown": true,
+    "dealsUnknown": false,
     "hhSources": {
       "times": {
         "source": "google_places",
         "url": "https://maps.google.com/?cid=11925484781249875722&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
         "observedAt": "2026-08-28"
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.sanvicenteresort.com/menu",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.sanvicenteresort.com/menu",
+            "quote": "Monday – Friday 2 - 5 pm $1 Off Select Beers, House Wines, and “Well” Drinks Plus, $2 Off Small Plates",
+            "field": "deals"
+          }
+        ]
       }
     },
     "listingStatus": "published",
@@ -180951,17 +181029,55 @@
     ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "All Bottles $6",
+      "ADULT HAPP Y MEAL $30",
+      "COLOSSAL BAJA SHRIMP COCKTAIL $14",
+      "BAJA OYSTERS ON THE HALF SHELL $12"
+    ],
     "vibe": "Wine bar",
     "website": "https://www.greystonesteakhouse.com/",
     "phone": "(619) 232-0225",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=5607939352686011690&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "cocktails",
+      "food",
+      "oysters"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.greystonesteakhouse.com/menus/happy-hour/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.greystonesteakhouse.com/menus/happy-hour/",
+            "quote": "All Bottles $6",
+            "field": "deals"
+          },
+          {
+            "url": "https://www.greystonesteakhouse.com/menus/happy-hour/",
+            "quote": "ADULT HAPP Y MEAL $30",
+            "field": "deals"
+          },
+          {
+            "url": "https://www.greystonesteakhouse.com/menus/happy-hour/",
+            "quote": "COLOSSAL BAJA SHRIMP COCKTAIL $14",
+            "field": "deals"
+          },
+          {
+            "url": "https://www.greystonesteakhouse.com/menus/happy-hour/",
+            "quote": "BAJA OYSTERS ON THE HALF SHELL $12",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 2940,
@@ -181009,17 +181125,36 @@
     ],
     "startTime": "15:00",
     "endTime": "17:30",
-    "deals": [],
+    "deals": [
+      "Enjoy the good taste of our Spicy Tuna Roll for $9 and a glass of wine starting at $7."
+    ],
     "vibe": "Restaurant",
     "website": "https://www.peohes.com/",
     "phone": "(619) 437-4474",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=14372992759049941844&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "wine",
+      "food"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.peohes.com/event/happy-hour/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.peohes.com/event/happy-hour/",
+            "quote": "Enjoy the good taste of our Spicy Tuna Roll for $9 and a glass of wine starting at $7.",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 2942,
@@ -181653,17 +181788,48 @@
     ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "$20 Bottomless Mimosas",
+      "$3 Off Apps 4-6pm",
+      "51% Off All Drinks"
+    ],
     "vibe": "Cocktail bar",
     "website": "http://garagekitchenbar.com/",
     "phone": "(619) 231-6700",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1717745463548785285&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "cocktails",
+      "food"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://garagekitchenbar.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://garagekitchenbar.com/",
+            "quote": "$20 Bottomless Mimosas",
+            "field": "deals"
+          },
+          {
+            "url": "http://garagekitchenbar.com/",
+            "quote": "$3 Off Apps 4-6pm",
+            "field": "deals"
+          },
+          {
+            "url": "http://garagekitchenbar.com/",
+            "quote": "51% Off All Drinks",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 2964,
@@ -182777,17 +182943,49 @@
     ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "$2 off Drafts",
+      "$2 off Appetizers",
+      "$2 off Select Wines"
+    ],
     "vibe": "Cocktail bar",
     "website": "http://www.newyorkwestbar.com/",
     "phone": "(619) 819-7091",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=2656423638329385302&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "wine",
+      "food"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://www.newyorkwestbar.com/san-diego-downtown-san-diego-new-york-west-happy-hours-specials",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://www.newyorkwestbar.com/san-diego-downtown-san-diego-new-york-west-happy-hours-specials",
+            "quote": "$2 off Drafts",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.newyorkwestbar.com/san-diego-downtown-san-diego-new-york-west-happy-hours-specials",
+            "quote": "$2 off Appetizers",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.newyorkwestbar.com/san-diego-downtown-san-diego-new-york-west-happy-hours-specials",
+            "quote": "$2 off Select Wines",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 3002,
@@ -182926,17 +183124,55 @@
     ],
     "startTime": "16:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "$6 Domestic Beer",
+      "$6 Ouzo or Tequilla Shots",
+      "$9 All Well Drinks",
+      "$9 Red, White and Rose Wine"
+    ],
     "vibe": "Cocktail bar",
     "website": "http://www.athensmarkettaverna.com/",
     "phone": "(619) 234-1955",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=1114621992690385623&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "http://www.athensmarkettaverna.com/happy-hour-menu/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "http://www.athensmarkettaverna.com/happy-hour-menu/",
+            "quote": "$6 Domestic Beer",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.athensmarkettaverna.com/happy-hour-menu/",
+            "quote": "$6 Ouzo or Tequilla Shots",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.athensmarkettaverna.com/happy-hour-menu/",
+            "quote": "$9 All Well Drinks",
+            "field": "deals"
+          },
+          {
+            "url": "http://www.athensmarkettaverna.com/happy-hour-menu/",
+            "quote": "$9 Red, White and Rose Wine",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 3007,
@@ -183179,17 +183415,48 @@
     ],
     "startTime": "16:00",
     "endTime": "18:30",
-    "deals": [],
+    "deals": [
+      "OYSTER $1.50 EACH. (MIN 3 PER ORDER)",
+      "4 OYSTER ROCKEFELLER $12",
+      "EMPANADA TRIO $15"
+    ],
     "vibe": "Restaurant",
     "website": "https://piedrasantasd.com/",
     "phone": "(619) 310-6207",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=16519420385599313943&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "food",
+      "oysters"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://piedrasantasd.com/happy-hour-menu/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://piedrasantasd.com/happy-hour-menu/",
+            "quote": "OYSTER $1.50 EACH. (MIN 3 PER ORDER)",
+            "field": "deals"
+          },
+          {
+            "url": "https://piedrasantasd.com/happy-hour-menu/",
+            "quote": "4 OYSTER ROCKEFELLER $12",
+            "field": "deals"
+          },
+          {
+            "url": "https://piedrasantasd.com/happy-hour-menu/",
+            "quote": "EMPANADA TRIO $15",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 3016,
@@ -183394,17 +183661,49 @@
     ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "DRAFT BEER + WELL COCKTAILS $7",
+      "WINE $8",
+      "HOUSE, FROZEN + SPICY MARGARITA $8"
+    ],
     "vibe": "Restaurant",
     "website": "https://hastamananacantina.com/",
     "phone": "(858) 321-5515",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=8914412623542440517&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://hastamananacantina.com/happy-hour/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://hastamananacantina.com/happy-hour/",
+            "quote": "DRAFT BEER + WELL COCKTAILS $7",
+            "field": "deals"
+          },
+          {
+            "url": "https://hastamananacantina.com/happy-hour/",
+            "quote": "WINE $8",
+            "field": "deals"
+          },
+          {
+            "url": "https://hastamananacantina.com/happy-hour/",
+            "quote": "HOUSE, FROZEN + SPICY MARGARITA $8",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 3023,
@@ -183654,17 +183953,37 @@
     ],
     "startTime": "15:00",
     "endTime": "18:00",
-    "deals": [],
+    "deals": [
+      "$5 Bottled Beer, $6 Draft Beer, $9 Classic Margaritas, all tacos $1 off."
+    ],
     "vibe": "Cocktail bar",
     "website": "http://tacolocosd.com/",
     "phone": "(619) 228-9450",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://maps.google.com/?cid=10705626585154768469&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "food"
+    ],
     "seoHidden": false,
     "listingStatus": "published",
-    "dealsUnknown": true
+    "dealsUnknown": false,
+    "hhSources": {
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://tacolocosd.com/specials",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://tacolocosd.com/specials",
+            "quote": "$5 Bottled Beer, $6 Draft Beer, $9 Classic Margaritas, all tacos $1 off.",
+            "field": "deals"
+          }
+        ]
+      }
+    }
   },
   {
     "id": 3032,

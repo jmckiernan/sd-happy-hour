@@ -24,6 +24,7 @@
 
 import { HAPPY_HOURS_PATH } from './lib/constants.mjs';
 import { readJson } from './lib/io.mjs';
+import { stripNonOffers } from './lib/normalize.mjs';
 import {
   CAUSE_NOTES,
   PRICED_QUOTE,
@@ -89,6 +90,31 @@ for (const [name, list] of Object.entries(recoverable)) {
     console.log(`        ${venue.name} (${venue.id}) ${detail}`);
   }
 }
+
+// Are the offer filters the reason these listings are empty? `NOT_AN_OFFER` and
+// `OFFER_SIGNAL` have been tightened repeatedly, so the obvious suspicion is
+// that they now strip real offers. Run them over every offer-field quote these
+// listings hold and count what they drop, and how much of that named a price.
+let quotesSeen = 0;
+let quotesDropped = 0;
+const droppedWithAPrice = [];
+for (const venue of empty) {
+  const lines = allEvidence(venue)
+    .filter((row) => row.field === 'deals' || row.field === 'specials')
+    .map((row) => String(row.quote || '').trim())
+    .filter(Boolean);
+  quotesSeen += lines.length;
+  const kept = new Set(stripNonOffers(lines, venue.name));
+  for (const line of lines) {
+    if (kept.has(line)) continue;
+    quotesDropped += 1;
+    if (PRICED_QUOTE.test(line)) droppedWithAPrice.push(`${venue.name} (${venue.id}): ${line.slice(0, 100)}`);
+  }
+}
+
+console.log(`\nOffer filters over these listings: ${quotesSeen} offer-field quote(s) read, `
+  + `${quotesDropped} dropped, ${droppedWithAPrice.length} of the dropped named a price or discount.`);
+for (const example of droppedWithAPrice.slice(0, 10)) console.log(`        ${example}`);
 
 const noEvidence = empty.filter((venue) => !allEvidence(venue).length);
 console.log(`\n${noEvidence.length} of the ${empty.length} hold no evidence quote of any kind, `
