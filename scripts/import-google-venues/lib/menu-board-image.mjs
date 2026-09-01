@@ -28,6 +28,9 @@ const THEME = {
 
 const WIDTH = 1080;
 const DEVICE_SCALE = 2;
+/** El Pueblo's board is the reference minimum requested for every generated
+ * menu. At the 2x screenshot scale this produces a 2160x2496 WebP. */
+export const MIN_BOARD_HEIGHT = 1248;
 /** Past this many items a single column gets uncomfortably tall and thin. */
 const TWO_COLUMN_ITEM_COUNT = 14;
 
@@ -107,6 +110,8 @@ export function buildBoardHtml(board, venue = {}, options = {}) {
 
   body {
     width: ${WIDTH}px;
+    min-height: ${MIN_BOARD_HEIGHT}px;
+    display: flex;
     font-family: 'Outfit', -apple-system, sans-serif;
     /* Night navy into ocean deep: the same dusk the site backdrop sits in. */
     background:
@@ -117,6 +122,10 @@ export function buildBoardHtml(board, venue = {}, options = {}) {
   }
 
   .board {
+    width: 100%;
+    min-height: ${MIN_BOARD_HEIGHT - 112}px;
+    display: flex;
+    flex-direction: column;
     border: 1px solid rgba(255, 210, 63, 0.35);
     border-radius: 24px;
     padding: 48px 44px 36px;
@@ -159,7 +168,13 @@ export function buildBoardHtml(board, venue = {}, options = {}) {
     color: rgba(255, 251, 245, 0.72);
   }
 
-  .sections { columns: ${twoColumn ? 2 : 1}; column-gap: 48px; }
+  .sections {
+    columns: ${twoColumn ? 2 : 1};
+    column-gap: 48px;
+    /* This is the normal menu-to-footer breathing room. Any height added to
+       meet the minimum joins it here because the footer is bottom-anchored. */
+    padding-bottom: 34px;
+  }
 
   .menu-section {
     break-inside: avoid-column;
@@ -202,7 +217,7 @@ export function buildBoardHtml(board, venue = {}, options = {}) {
   .item-discount { font-weight: 500; color: rgba(255, 251, 245, 0.86); font-style: italic; }
 
   footer {
-    margin-top: 34px;
+    margin-top: auto;
     padding-top: 18px;
     border-top: 1px solid rgba(255, 251, 245, 0.14);
     display: flex;

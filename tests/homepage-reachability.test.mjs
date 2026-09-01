@@ -143,7 +143,7 @@ async function testHeroLiveCounterActivatesOnlyRecurringHappyHoursNow() {
   // The hero count stays in an explicit loading state until canonical server
   // time arrives; a false zero is never painted during startup.
   assert.match(homepage, /<button class="live-counter" id="live-counter-button" type="button" disabled aria-busy="true"/);
-  assert.match(homepage, /id="live-count-big"><span class="live-count-loader"/);
+  assert.match(homepage, /id="live-count-big"><img class="drink-loader drink-loader--sm live-count-loader" src="\/cocktail-loader\.svg"/);
   assert.match(homepage, /if \(!feedSnapshot\.data\) \{/);
   assert.match(homepage, /feedSnapshot\.error[\s\S]*?Count temporarily unavailable/);
   assert.match(homepage, /liveCounterButton\.disabled = happyHoursNow === 0/);
@@ -167,6 +167,21 @@ async function testHeroLiveCounterActivatesOnlyRecurringHappyHoursNow() {
   assert.match(homepage, /matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches/);
   assert.match(homepage, /scrollIntoView\(\{ behavior: reduceMotion \? 'auto' : 'smooth', block: 'start' \}\)/);
   assert.match(homepage, /Near Me and list\/map are retained/);
+}
+
+async function testHomepageGridShowsLoadingBeforeItsTrueEmptyState() {
+  const homepage = await readFile(path.join(process.cwd(), 'src', 'pages', 'index.astro'), 'utf8');
+
+  // The directory fetch can finish after the live-promotion feed's first
+  // render. Until it does, the permanent loading state must win over the
+  // zero-length filtered array and its genuine post-load empty message.
+  assert.match(
+    homepage,
+    /<div class="directory-loading" id="directory-loading" role="status" aria-live="polite" aria-label="Loading happy hour venues">[\s\S]*?drink-loader drink-loader--lg[\s\S]*?\/cocktail-loader\.svg/,
+  );
+  assert.doesNotMatch(homepage, /live-count-spin|save-list-spin|directory-cocktail-fill/);
+  assert.match(homepage, /if \(!venueDirectoryLoaded\) \{[\s\S]*?directoryLoading\.hidden = false;[\s\S]*?empty as HTMLElement\)\.style\.display = 'none';[\s\S]*?return;/);
+  assert.match(homepage, /directoryLoading\.hidden = true;[\s\S]*?if \(filtered\.length === 0\) \{[\s\S]*?empty as HTMLElement\)\.style\.display = 'block';/);
 }
 
 async function testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent() {
@@ -263,6 +278,7 @@ tests.push(
   testEveryPublishedVenueSurvivesEveryFilterFacet,
   testVenuesWithNoDealTypesAreReachableThroughTheDealFilter,
   testHeroLiveCounterActivatesOnlyRecurringHappyHoursNow,
+  testHomepageGridShowsLoadingBeforeItsTrueEmptyState,
   testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent,
   testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage,
   testABuildingFullOfTenantsIsNotAPublishedVenue,

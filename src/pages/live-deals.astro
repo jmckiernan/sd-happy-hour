@@ -181,20 +181,8 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       opacity: 0.65;
     }
 
-    .live-deals-loading-dot {
-      animation: live-deals-loading-pulse 1.2s ease-in-out infinite;
-      background: var(--violet);
-      border-radius: 50%;
-      display: inline-block;
-      height: 9px;
-      margin-right: 8px;
-      width: 9px;
-    }
-
-    @keyframes live-deals-loading-pulse {
-      0%, 100% { opacity: 0.35; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.15); }
-    }
+    .live-deals-loading-row { align-items: center; display: inline-flex; gap: 9px; }
+    .live-deals-retry .drink-loader { margin-right: 5px; }
 
     @media (max-width: 768px) {
       .live-deals-main { padding-left: 18px; padding-right: 18px; }
@@ -206,9 +194,6 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       .live-deal-discovery-image { min-height: 180px; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .live-deals-loading-dot { animation: none; }
-    }
   </style>
 
   <header class="page-header live-deals-page-header">
@@ -235,7 +220,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     <div class="live-deals-notice" id="live-deals-notice" role="status" aria-live="polite" hidden></div>
     <div class="live-deals-grid" id="live-deals-grid"></div>
     <section class="live-deals-state" id="live-deals-state" role="status" aria-live="polite">
-      <p><span class="live-deals-loading-dot" aria-hidden="true"></span>Loading Live Deals...</p>
+      <p class="live-deals-loading-row"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true" />Loading Live Deals...</p>
     </section>
   </main>
 
@@ -498,7 +483,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       state.innerHTML = `
         <h2>${escapeHTML(title)}</h2>
         <p>${escapeHTML(message)}</p>
-        ${retry ? `<button class="live-deals-retry" id="live-deals-retry" type="button"${retrying ? ' disabled' : ''}>${retrying ? 'Retrying…' : 'Try again'}</button>` : ''}
+        ${retry ? `<button class="live-deals-retry" id="live-deals-retry" type="button"${retrying ? ' disabled' : ''}>${retrying ? '<img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">Retrying…' : 'Try again'}</button>` : ''}
       `;
       state.hidden = false;
       if (retry && !retrying) {
@@ -552,7 +537,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
             feedSnapshot.refreshing
           );
         } else {
-          state.innerHTML = '<p><span class="live-deals-loading-dot" aria-hidden="true"></span>Loading Live Deals...</p>';
+          state.innerHTML = '<p class="live-deals-loading-row"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">Loading Live Deals...</p>';
           state.hidden = false;
         }
         return;

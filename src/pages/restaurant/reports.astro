@@ -46,8 +46,6 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
     .reports-page .export-button:hover { transform: translateY(-1px); }
     .reports-page .report-status { align-items: center; background: white; border-radius: 16px; color: var(--night-soft); display: flex; font-weight: 650; gap: 10px; justify-content: center; min-height: 120px; padding: 30px; text-align: center; }
     .reports-page .report-status[hidden] { display: none; }
-    .reports-page .spinner { animation: reports-spin .8s linear infinite; border: 3px solid var(--sand-warm); border-top-color: var(--sunset-start); border-radius: 50%; height: 22px; width: 22px; }
-    @keyframes reports-spin { to { transform: rotate(360deg); } }
     .reports-page .report-content[hidden] { display: none; }
     .reports-page .summary-grid { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0,1fr)); margin-bottom: 22px; }
     .reports-page .metric-card { background: white; border: 1px solid rgba(32,18,56,.07); border-radius: 16px; min-height: 92px; overflow: hidden; padding: 15px 17px 14px 20px; position: relative; }
@@ -193,7 +191,7 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
         </section>
 
         <section class="report-status" id="report-status">
-          <span class="spinner" aria-hidden="true"></span><span>Building your report...</span>
+          <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true"><span>Building your report...</span>
         </section>
 
         <div class="report-content" id="report-content" hidden>
@@ -325,7 +323,7 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
       }
 
       function status(message:string, loading=false) {
-        reportStatus.innerHTML = `${loading ? '<span class="spinner" aria-hidden="true"></span>' : ''}<span>${escapeHTML(message)}</span>`;
+        reportStatus.innerHTML = `${loading ? '<img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">' : ''}<span>${escapeHTML(message)}</span>`;
         reportStatus.hidden = false;
         reportContent.hidden = true;
       }

@@ -19,14 +19,16 @@ import Layout from '../../layouts/Layout.astro';
     button:hover { background: var(--sunset-start); }
     button:disabled { opacity: 0.6; cursor: default; }
     .status { color: var(--night-soft); font-weight: 600; min-height: 1.3em; font-size: 0.88rem; }
+    .status.is-loading { align-items: center; display: flex; gap: 8px; }
     .status.error { color: #B91C1C; }
+    .shared-alert-loading { align-items: center; display: inline-flex; gap: 8px; }
     .cta-link { display: inline-block; background: var(--night); color: white; text-decoration: none; font-weight: 700; padding: 11px 18px; border-radius: 100px; }
     .cta-link:hover { background: var(--sunset-start); }
   </style>
 
   <header class="page-header">
     <h1 id="title">Shared Alert</h1>
-    <p id="subtitle">Loading...</p>
+    <p id="subtitle" class="shared-alert-loading"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true" />Loading...</p>
   </header>
 
   <main class="shared-alert-main">
@@ -105,7 +107,8 @@ import Layout from '../../layouts/Layout.astro';
         const status = document.getElementById('clone-status')!;
         button.disabled = true;
         status.classList.remove('error');
-        status.textContent = 'Adding...';
+        status.classList.add('is-loading');
+        status.innerHTML = '<img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">Adding...';
         try {
           const res = await fetch('/api/account/alerts/clone', {
             method: 'POST',
@@ -114,9 +117,11 @@ import Layout from '../../layouts/Layout.astro';
           });
           const json = await res.json();
           if (!res.ok) throw new Error((json.errors || ['Could not add alert.']).join(' '));
+          status.classList.remove('is-loading');
           status.textContent = 'Added to your alerts.';
           cta.innerHTML += ' <a class="cta-link" href="/account/#section-alerts">View in My Stuff</a>';
         } catch (err: any) {
+          status.classList.remove('is-loading');
           status.classList.add('error');
           status.textContent = err.message;
           button.disabled = false;

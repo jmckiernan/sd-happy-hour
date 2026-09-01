@@ -81,16 +81,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       box-shadow: 0 0 12px #4ADE80;
     }
 
-    .live-count-loader {
-      animation: live-count-spin .8s linear infinite;
-      border: 3px solid rgba(255, 255, 255, .3);
-      border-radius: 50%;
-      border-top-color: white;
-      display: inline-block;
-      height: 28px;
-      width: 28px;
-    }
-    @keyframes live-count-spin { to { transform: rotate(360deg); } }
+    .live-count-loader { filter: drop-shadow(0 4px 6px rgba(15, 23, 42, .25)); }
 
     @keyframes pulse {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -389,15 +380,14 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.78rem; font-weight: 700; gap: 4px; }
     .save-confirm.is-loading { color: var(--night-soft); }
     .save-confirm.is-loading::before {
-      animation: save-list-spin .75s linear infinite;
-      border: 2px solid rgba(15, 23, 42, 0.16);
-      border-radius: 50%;
-      border-top-color: var(--sunset-start);
+      background-image: var(--drink-loader-image, url('/cocktail-loader.svg'));
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
       content: '';
-      height: 11px;
-      width: 11px;
+      height: 18px;
+      width: 15px;
     }
-    @keyframes save-list-spin { to { transform: rotate(360deg); } }
     .save-list-chips { display: flex; gap: 5px; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
     .save-list-chip { background: white; border-radius: 100px; color: var(--night-soft); display: block; flex: 0 0 auto; font-size: .7rem; font-weight: 750; padding: 5px 8px; white-space: nowrap; }
     .save-list-chip:last-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -429,7 +419,15 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     /* Blog teaser card on homepage venue links back to /venues */
     .venue-page-link { font-size: 0.7rem; opacity: 0.75; text-decoration: underline; }
 
-    /* ===== EMPTY STATE ===== */
+    /* ===== LOADING / EMPTY STATES ===== */
+    .directory-loading {
+      align-items: center;
+      color: var(--night-soft);
+      display: flex;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+    .directory-loading[hidden] { display: none; }
     .empty-state { text-align: center; padding: 80px 24px; }
     .empty-state h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 12px; }
     .empty-state p { color: var(--night-soft); font-size: 1.125rem; }
@@ -496,7 +494,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       <p class="hero-tagline">The best deals happening right now, from Little Italy to PB</p>
 
       <button class="live-counter" id="live-counter-button" type="button" disabled aria-busy="true" aria-label="Loading happy hours happening now">
-        <span class="number" id="live-count-big"><span class="live-count-loader" aria-hidden="true"></span></span>
+        <span class="number" id="live-count-big"><img class="drink-loader drink-loader--sm live-count-loader" src="/cocktail-loader.svg" alt="" aria-hidden="true" /></span>
         <span class="label">
           <strong>happy hours happening now</strong>
           <span id="live-counter-hint">Checking current happy hours</span>
@@ -575,7 +573,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       </div>
 
       <div class="results-info">
-        <span><strong id="result-count">0</strong> spots</span>
+        <span><strong id="result-count">—</strong> spots</span>
         <span class="distance-info" id="distance-info" style="display: none;"></span>
         <span class="excluded-note" id="excluded-note" hidden aria-live="polite"></span>
       </div>
@@ -598,6 +596,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     </div>
 
     <div class="grid" id="grid"></div>
+
+    <div class="directory-loading" id="directory-loading" role="status" aria-live="polite" aria-label="Loading happy hour venues">
+      <img class="drink-loader drink-loader--lg" src="/cocktail-loader.svg" alt="" aria-hidden="true" />
+    </div>
 
     <div class="empty-state" id="empty-state" style="display: none;">
       <h2>No spots found</h2>
@@ -1451,6 +1453,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const filtered = getFilteredData(now, venueStates);
 
       const grid = document.getElementById('grid')!;
+      const directoryLoading = document.getElementById('directory-loading')!;
       const empty = document.getElementById('empty-state')!;
       const countEl = document.getElementById('result-count')!;
       const liveCountBig = document.getElementById('live-count-big')!;
@@ -1458,7 +1461,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const liveCounterHint = document.getElementById('live-counter-hint')!;
 
       const happyHoursNow = getHappyHoursNowCount(venueStates);
-      countEl.textContent = String(filtered.length);
       if (!feedSnapshot.data) {
         liveCounterButton.disabled = true;
         liveCounterButton.setAttribute('aria-busy', 'true');
@@ -1467,7 +1469,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
           : 'Loading happy hours happening now');
         liveCountBig.innerHTML = feedSnapshot.error
           ? '<span aria-hidden="true">—</span>'
-          : '<span class="live-count-loader" aria-hidden="true"></span>';
+          : '<img class="drink-loader drink-loader--sm live-count-loader" src="/cocktail-loader.svg" alt="" aria-hidden="true">';
         liveCounterHint.textContent = feedSnapshot.error ? 'Count temporarily unavailable' : 'Checking current happy hours';
       } else {
         liveCountBig.textContent = String(happyHoursNow);
@@ -1481,6 +1483,20 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         );
         liveCounterHint.textContent = happyHoursNow === 0 ? 'Check back soon' : 'Select to show only these spots';
       }
+
+      if (!venueDirectoryLoaded) {
+        countEl.textContent = '—';
+        countEl.parentElement?.setAttribute('aria-busy', 'true');
+        grid.innerHTML = '';
+        (grid as HTMLElement).style.display = 'none';
+        directoryLoading.hidden = false;
+        (empty as HTMLElement).style.display = 'none';
+        return;
+      }
+
+      countEl.textContent = String(filtered.length);
+      countEl.parentElement?.setAttribute('aria-busy', 'false');
+      directoryLoading.hidden = true;
       paintExcludedNote(now, venueStates, filtered.length);
 
       if (filtered.length === 0) {

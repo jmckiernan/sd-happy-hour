@@ -64,7 +64,7 @@ import { classifyUrl, scoreMediaUrl, discoverSocialLinks, discoverSpecialsImages
 import { pageMatchesVenueListing, isUsableVenueWebsite, hostnameCorroboratesVenue, listingUrlCorroboratesVenue, listedHostMatchesVenueName } from '../scripts/import-google-venues/lib/website-ownership.mjs';
 import { venueMatchesQuery, venueSearchScore } from '../src/lib/venueSearch.ts';
 import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-google-venues/lib/pdf-raster.mjs';
-import { MAX_BOARD_PAGES, buildBoardHtml, packMenuSections } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
+import { MAX_BOARD_PAGES, MIN_BOARD_HEIGHT, buildBoardHtml, packMenuSections } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
 import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
 import { conflictsWithVenue, pickLocationPage, cityFromAddress } from '../scripts/import-google-venues/lib/location-page.mjs';
@@ -891,6 +891,18 @@ function testBuildBoardHtmlUsesEveryItemAndTwelveHourTimes() {
   assert.ok(html.includes('Tue–Fri 3–6 PM'));
   // A generated board must never show a 24-hour clock.
   assert.ok(!/\b(?:15|18):00\b/.test(html));
+}
+
+function testGeneratedBoardsPutMinimumHeightBeforeTheFooter() {
+  const html = buildBoardHtml(
+    { sections: [{ title: 'Drinks', items: [{ name: 'Draft Beer', price: '$7' }] }] },
+    { name: 'Short Menu', windows: [{ days: ['Monday'], startTime: '15:00', endTime: '17:00' }] },
+  );
+  assert.equal(MIN_BOARD_HEIGHT, 1248);
+  assert.ok(html.includes(`min-height: ${MIN_BOARD_HEIGHT}px;`));
+  assert.match(html, /\.board\s*\{[\s\S]*?display:\s*flex;[\s\S]*?flex-direction:\s*column;/);
+  assert.match(html, /\.sections\s*\{[\s\S]*?padding-bottom:\s*34px;/);
+  assert.match(html, /footer\s*\{[\s\S]*?margin-top:\s*auto;/);
 }
 
 function testBoardHoursNeverPrintAFabricatedStart() {
@@ -1906,6 +1918,7 @@ const tests = [
   testRepairOpenStartKeepsAPlausiblePublishedStart,
   testMenuRichnessPrefersTheFullerMenuPage,
   testBuildBoardHtmlUsesEveryItemAndTwelveHourTimes,
+  testGeneratedBoardsPutMinimumHeightBeforeTheFooter,
   testBoardHoursNeverPrintAFabricatedStart,
   testMenuBoardFormatHelpers,
   testApplyScrapeRequiresEvidence,

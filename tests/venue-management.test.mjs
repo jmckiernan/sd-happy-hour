@@ -255,11 +255,14 @@ test('venue page exposes verification, report, measured WebP menus, and a custom
   assert.match(venuePage, /venueVerificationType\(venue\)/);
   assert.match(venuePage, /✓ Web verified/);
   assert.match(venuePage, /✓ Owner verified/);
+  assert.doesNotMatch(venuePage, /hero-verification-badge/);
   assert.match(venuePage, /href=\{`\/submit\/\?venue=\$\{venue\.id\}`\}>Report an update<\/a>/);
-  assert.match(venuePage, /\.menu-board-tile--stylized img\s*\{\s*min-height:\s*365px;\s*object-fit:\s*contain;/);
-  assert.match(venuePage, /\.menu-card\.has-stylized-webp-menu\s*\{\s*min-height:\s*469px;/);
+  assert.doesNotMatch(venuePage, /menu-board-tile--stylized|has-stylized-webp-menu/);
 
   assert.match(venuePage, /id="share-menu" role="dialog"/);
+  assert.match(venuePage, /id="share-menu-title">Share this happy hour<\/strong>/);
+  assert.match(venuePage, /\.hero-share\s*\{[^}]*linear-gradient\(135deg, rgba\(16, 42, 86, \.52\)[^}]*rgba\(107, 33, 168, \.52\)/s);
+  assert.match(venuePage, /\.hero-share:hover,[\s\S]*?linear-gradient\(135deg, rgba\(234, 88, 12, \.68\)[\s\S]*?rgba\(250, 204, 21, \.68\)/);
   assert.match(venuePage, /aria-haspopup', 'dialog'/);
   assert.match(venuePage, /data-share-action="copy"/);
   assert.match(venuePage, /navigator\.clipboard\.writeText\(shareUrl\(\)\)/);

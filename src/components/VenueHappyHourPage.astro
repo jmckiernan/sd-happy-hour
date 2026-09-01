@@ -70,7 +70,6 @@ const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(venue.address +
 // in the same full-resolution lightbox.
 const galleryImages = venue.galleryImages || [];
 const menuBoardImages = galleryImages.filter((image) => image.generated);
-const hasStylizedWebpMenu = menuBoardImages.some((image) => /\.webp(?:$|\?)/i.test(image.url));
 const photoGalleryImages = galleryImages.filter((image) => !image.generated);
 // The structured transcription powers homepage search and structured data.
 // On this page it is available in a native dialog opened from the card heading,
@@ -161,7 +160,7 @@ function formatWindowLine(window: {
     .hero-share {
       align-items: center;
       appearance: none;
-      background: var(--ocean-deep);
+      background: linear-gradient(135deg, rgba(16, 42, 86, .52) 0%, rgba(49, 46, 129, .52) 52%, rgba(107, 33, 168, .52) 100%);
       border: 2px solid rgba(255, 255, 255, 0.88);
       border-radius: 50%;
       bottom: 16px;
@@ -174,11 +173,18 @@ function formatWindowLine(window: {
       padding: 0;
       position: absolute;
       right: 40px;
+      transition: background .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
       width: 44px;
       z-index: 3;
     }
     .hero-share svg { height: 18px; width: 18px; }
-    .hero-share:hover { background: var(--sunset-start); }
+    .hero-share:hover,
+    .hero-share:focus-visible {
+      background: linear-gradient(135deg, rgba(234, 88, 12, .68) 0%, rgba(249, 115, 22, .68) 48%, rgba(250, 204, 21, .68) 100%);
+      box-shadow: 0 8px 22px rgba(234, 88, 12, .38);
+      color: #35134B;
+      transform: translateY(-1px);
+    }
     .hero-share:focus-visible {
       outline: 3px solid white;
       outline-offset: 3px;
@@ -227,6 +233,9 @@ function formatWindowLine(window: {
     }
     @media (prefers-reduced-motion: reduce) {
       .venue-hero .hero-frame.is-live-deal { animation: none; }
+      .hero-share { transition: none; }
+      .hero-share:hover,
+      .hero-share:focus-visible { transform: none; }
     }
     .venue-hero img {
       width: 100%;
@@ -443,8 +452,6 @@ function formatWindowLine(window: {
       padding: 0;
       width: 100%;
     }
-    .menu-card.has-stylized-webp-menu { min-height: 469px; }
-    .menu-board-tile--stylized { min-height: 365px; }
     .menu-board-tile:focus-visible,
     .hh-menu-text-open:focus-visible {
       outline: 3px solid var(--violet);
@@ -455,7 +462,6 @@ function formatWindowLine(window: {
       height: auto;
       width: 100%;
     }
-    .menu-board-tile--stylized img { min-height: 365px; object-fit: contain; }
     .hh-menu-text-dialog {
       background: var(--sand);
       border: 0;
@@ -750,7 +756,6 @@ function formatWindowLine(window: {
     .btn-admin-edit { align-items: center; background: rgba(8, 145, 178, 0.14); border-radius: 100px; color: var(--ocean-deep); display: inline-flex; font-size: .78rem; font-weight: 700; padding: 8px 14px; text-decoration: none; }
     .btn-admin-edit:hover { background: rgba(8, 145, 178, 0.26); }
 
-    .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
 
     .live-deal-wrap {
       max-width: 800px;
@@ -1032,11 +1037,6 @@ function formatWindowLine(window: {
         <span id="hero-primary-label"></span>
       </div>
       <span class="tag">{venue.neighborhood}</span>
-      <span
-        class="tag trust-badge"
-        id="hero-verification-badge"
-        style={`top: 52px;${initialVerificationType === 'web' ? '' : 'display:none;'}`}
-      >Web verified</span>
       <div class="hero-text">
         <h1>{venue.name}</h1>
         {/* Hidden rather than absent so the client-side listing refresh below
@@ -1054,7 +1054,7 @@ function formatWindowLine(window: {
       </svg>
     </button>
     <div class="share-menu" id="share-menu" role="dialog" aria-labelledby="share-menu-title" hidden>
-      <strong class="share-menu-title" id="share-menu-title">Share {venue.name}</strong>
+      <strong class="share-menu-title" id="share-menu-title">Share this happy hour</strong>
       <button type="button" data-share-action="copy">🔗 Copy link</button>
       <a data-share-action="email" href="#">✉️ Email</a>
       <a data-share-action="text" href="#">💬 Text message</a>
@@ -1179,7 +1179,7 @@ function formatWindowLine(window: {
       </div>
 
       {hasHappyHourMenu && (
-        <article class:list={['venue-card', 'menu-card', hasStylizedWebpMenu && 'has-stylized-webp-menu']} aria-labelledby="happy-hour-menu-card-heading">
+        <article class="venue-card menu-card" aria-labelledby="happy-hour-menu-card-heading">
           <div class="menu-card-heading">
             <h3 id="happy-hour-menu-card-heading">Happy Hour Menu</h3>
             {hhMenuSections.length > 0 && (
@@ -1197,7 +1197,7 @@ function formatWindowLine(window: {
               {menuBoardImages.map((image) => (
                 <button
                   type="button"
-                  class:list={['menu-board-tile', /\.webp(?:$|\?)/i.test(image.url) && 'menu-board-tile--stylized']}
+                  class="menu-board-tile"
                   data-gallery-url={image.url}
                   aria-label={`Open ${venue.name} happy hour menu full screen`}
                 >
@@ -2462,12 +2462,9 @@ function formatWindowLine(window: {
 
     function paintVerification(ownerVerified: boolean) {
       const type = document.getElementById('venue-verification-type')!;
-      const heroBadge = document.getElementById('hero-verification-badge') as HTMLElement;
       if (ownerVerified) {
         type.textContent = '✓ Owner verified';
         type.classList.remove('unverified');
-        heroBadge.textContent = 'Owner verified';
-        heroBadge.style.display = '';
       }
     }
 

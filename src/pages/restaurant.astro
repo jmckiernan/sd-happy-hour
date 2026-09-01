@@ -104,14 +104,6 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
 
     .loading-row { align-items: center; display: flex; gap: 12px; }
     .loading-row .status { margin: 0; }
-    .spinner {
-      animation: spin 0.7s linear infinite; border: 2px solid var(--sand-warm);
-      border-radius: 50%; border-top-color: var(--sunset-start); flex: 0 0 auto;
-      height: 18px; width: 18px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
     @media (max-width: 600px) {
       .restaurant-main { padding-left: 14px; padding-right: 14px; }
       .panel { padding: 16px; }
@@ -129,7 +121,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
   <main class="restaurant-main">
     <section class="panel" id="loading-panel">
       <div class="loading-row" role="status" aria-live="polite">
-        <span class="spinner" aria-hidden="true"></span>
+        <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">
         <p class="status">Loading your listings…</p>
       </div>
     </section>

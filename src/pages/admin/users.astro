@@ -77,6 +77,7 @@ import Layout from '../../layouts/Layout.astro';
     .confirm-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .inline-status { color:var(--night-soft); font-size:.78rem; font-weight:650; }
     .inline-status.error { color:#B42318; }
+    .loading-with-drink { align-items:center; display:inline-flex; gap:8px; }
     @media (max-width:960px) {
       .summary-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .filters { grid-template-columns:1fr 1fr; }
@@ -139,11 +140,11 @@ import Layout from '../../layouts/Layout.astro';
         <div class="market-head">
           <div><h2>Market activity</h2><p>Consented approximate areas only. Merchant reporting will require at least 20 active users.</p></div>
         </div>
-        <div class="area-list" id="area-list"><span class="muted">Loading market activity…</span></div>
+        <div class="area-list" id="area-list"><span class="muted loading-with-drink"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true" />Loading market activity…</span></div>
       </section>
 
       <section class="table-shell">
-        <div class="table-status" id="table-status" aria-live="polite">Checking super-admin access…</div>
+        <div class="table-status" id="table-status" aria-live="polite"><span class="loading-with-drink"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true" />Checking super-admin access…</span></div>
         <table class="user-table">
           <thead><tr>
             <th>User</th><th>Status &amp; roles</th><th>Last activity</th><th>Sessions</th>
@@ -159,7 +160,7 @@ import Layout from '../../layouts/Layout.astro';
   <div class="modal-backdrop" id="user-modal" hidden>
     <section class="user-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <header class="modal-head"><div><h2 id="modal-title">User details</h2><div class="muted" id="modal-subtitle"></div></div><button class="modal-close" id="modal-close" type="button" aria-label="Close">×</button></header>
-      <div class="modal-body" id="modal-body"><div class="muted">Loading…</div></div>
+      <div class="modal-body" id="modal-body"><div class="muted loading-with-drink"><img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true" />Loading…</div></div>
     </section>
   </div>
 
@@ -172,6 +173,7 @@ import Layout from '../../layouts/Layout.astro';
     const modalBody = document.getElementById('modal-body')!;
     const modalTitle = document.getElementById('modal-title')!;
     const modalSubtitle = document.getElementById('modal-subtitle')!;
+    const drinkLoaderHTML = '<img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">';
     let users: any[] = [];
     let nextCursor: string | null = null;
     let selectedUserId: string | null = null;
@@ -237,7 +239,7 @@ import Layout from '../../layouts/Layout.astro';
       if (loading || (append && !nextCursor)) return;
       loading = true;
       loadMoreButton.disabled = true;
-      statusEl.textContent = append ? 'Loading more users…' : 'Loading users…';
+      statusEl.innerHTML = `<span class="loading-with-drink">${drinkLoaderHTML}${append ? 'Loading more users…' : 'Loading users…'}</span>`;
       try {
         const data = await api(`/api/admin/users?${query(append ? nextCursor : null)}`);
         users = append ? [...users,...data.users] : data.users;
@@ -255,6 +257,7 @@ import Layout from '../../layouts/Layout.astro';
     }
     async function loadAreas(days:number) {
       const areaList = document.getElementById('area-list')!;
+      areaList.innerHTML = `<span class="muted loading-with-drink">${drinkLoaderHTML}Loading market activity…</span>`;
       try {
         const data = await api(`/api/admin/users/areas?days=${days}`);
         areaList.innerHTML = data.areas.length ? data.areas.map((area:any) => `
@@ -296,7 +299,7 @@ import Layout from '../../layouts/Layout.astro';
     }
     async function openUser(userId:string) {
       selectedUserId = userId; selectedDetail = null; modal.hidden = false; document.body.style.overflow='hidden';
-      modalTitle.textContent='User details'; modalSubtitle.textContent=''; modalBody.innerHTML='<div class="muted">Loading…</div>';
+      modalTitle.textContent='User details'; modalSubtitle.textContent=''; modalBody.innerHTML=`<div class="muted loading-with-drink">${drinkLoaderHTML}Loading…</div>`;
       try { renderDetail(await api(`/api/admin/users/${encodeURIComponent(userId)}`)); }
       catch (error:any) { modalBody.innerHTML=`<div class="inline-status error">${escapeHTML(error.message)}</div>`; }
     }
