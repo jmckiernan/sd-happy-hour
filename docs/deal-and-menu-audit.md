@@ -170,6 +170,18 @@ See `fix-overnight-windows.mjs` and `tests/no-overnight-windows.test.mjs`. Note
 differ by a minute; an explicit `endsAtClose` flag, mirroring the existing `startsAtOpen`,
 would retire the sentinel.
 
+**Manual re-check of the 26 overnight stubs (31 Aug 2026).** After `d13286a` stubbed every
+listing whose only remaining window was overnight/end-before-start, each of those 26 sites
+was opened again (live pages / published PDFs / menu images — not the cached scrape alone).
+
+| Disposition | Count | Notes |
+|---|---|---|
+| Restored with same-day window + provenance | **6** | Burgers & Beer (daily 3–6; Temecula stays **unlisted** — out of county), P.F. Chang's Chula Vista (Mon–Fri 3–6), Applebee's Escondido (3–6 and 9–midnight bar), Amalfi Marina Bar (Mon–Fri 3–6 PDF), Silver Fox (weekend 6am–3pm only; overnight college night left out), Happy Medium (Mon–Wed 4–6 / Thu–Fri 3–6 menu images) |
+| Kept stubbed — verified no usable same-day HH | **19** | Instagram-only / wrong-brand shells, explicit “Happy Hour No”, marketing copy without clocks, Societe (both branches), Z South HH page with no times, Acropolis “sometime in 2019”, etc. |
+| Needs owner — ambiguous published copy | **1** | Goody's Tavern: “Happy Hour Everyday Until 7PM” with no start time |
+
+Overnight remains invalid: a site that only publishes 9pm–2am stays stubbed.
+
 **Timezone handling is correct.** `sanDiegoTime.ts` resolves every wall clock
 through `America/Los_Angeles`, refuses offsetless strings rather than letting
 `new Date` apply the machine zone, and handles both DST transitions. The 3am bug

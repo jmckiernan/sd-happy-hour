@@ -457,7 +457,10 @@ failing.
   no overnight happy hours. `12:00–08:00` is cleared rather than guessed as a transposition;
   `21:00–02:00` is refused rather than published as late night. `endTime: "00:00"` remains the
   until-midnight sentinel. Guarded by `isPlausibleHappyHourWindow`, `validate:data`, and
-  `tests/no-overnight-windows.test.mjs`.
+  `tests/no-overnight-windows.test.mjs`. The 26 listings stubbed when their only window was
+  overnight were re-checked on the venue sites the same day: **6 restored** with same-day
+  evidence, **19 confirmed no usable HH**, **1 needs owner** (Goody's “until 7PM” with no
+  start). Scoreboard in `docs/deal-and-menu-audit.md`.
 - **`endTime: "23:59"` and `endTime: "00:00"` are two encodings** (close vs midnight) differing by a
   minute. An explicit `endsAtClose` flag, mirroring the existing `startsAtOpen`, would retire the
   sentinel.

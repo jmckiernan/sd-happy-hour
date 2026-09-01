@@ -33466,53 +33466,130 @@
     "address": "41577 Margarita Rd #101, Temecula, CA 92591, USA",
     "lat": 33.5223599,
     "lng": -117.15278739999998,
-    "deals": [],
+    "deals": [
+      "$2 off foot draft beer",
+      "$5.99 well drinks",
+      "$5.99 lime margarita",
+      "$5.99 wine by the glass",
+      "$5.99 select shots",
+      "$2 off wings & RV nachos"
+    ],
     "website": "https://burgersandbeer.com/",
     "phone": "(951) 296-9716",
     "verified": false,
     "lastVerifiedAt": "2026-08-29",
     "sourceUrl": "https://burgersandbeer.com/happy-hour",
-    "dealTypes": [],
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
     "seoHidden": true,
     "image": "/images/venues/170-burgers-beer.jpg",
-    "hasHappyHourData": false,
+    "hasHappyHourData": true,
     "listingStatus": "unlisted",
     "hhSources": {
       "deals": {
         "source": "website_hh_page",
         "url": "https://burgersandbeer.com/happy-hour",
-        "observedAt": "2026-08-29",
+        "observedAt": "2026-08-31",
         "evidence": [
           {
             "url": "https://burgersandbeer.com/happy-hour",
-            "quote": "BURGERS & BEER Serving The Best Burgers In Town Since 1985 Proud Sponsor of Local Sports.",
+            "quote": "$2 OFF FOOT DRAFT BEER",
             "field": "deals"
+          },
+          {
+            "url": "https://burgersandbeer.com/happy-hour",
+            "quote": "WELL DRINKS - 5.99",
+            "field": "deals"
+          },
+          {
+            "url": "https://burgersandbeer.com/happy-hour",
+            "quote": "LIME MARGARITA - 5.99",
+            "field": "deals"
+          }
+        ]
+      },
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://burgersandbeer.com/happy-hour",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://burgersandbeer.com/happy-hour",
+            "quote": "HAPPY HOUR EVERY DAY 3PM - 6PM ALL LOCATIONS",
+            "field": "times"
           }
         ]
       }
     },
     "lastScrape": {
-      "outcome": "not_published",
-      "found": false,
-      "reason": "The happy-hour page (https://burgersandbeer.com/happy-hour) loads but contains no actual happy-hour offer details, times, or prices. It is a shell page with navigation and site structure only. The menu page and homepage also contain no happy-hour information. No recurring drink specials, food discounts, or time windows could be extracted for the Temecula location.",
+      "outcome": "found",
+      "found": true,
+      "reason": "Happy-hour page banner publishes everyday 3–6pm for all locations, with priced drink and food specials on the same page images.",
       "sourceUrl": "https://burgersandbeer.com/happy-hour",
       "candidateUrls": [
         "https://burgersandbeer.com/happy-hour",
-        "https://burgersandbeer.com/menu",
         "https://burgersandbeer.com/"
       ],
       "evidence": [
         {
           "url": "https://burgersandbeer.com/happy-hour",
-          "quote": "Happy Hour | Burgersandbeer... [page contains only navigation and footer, no happy hour details]",
+          "quote": "HAPPY HOUR EVERY DAY 3PM - 6PM ALL LOCATIONS",
           "field": "times"
+        },
+        {
+          "url": "https://burgersandbeer.com/happy-hour",
+          "quote": "$2 OFF FOOT DRAFT BEER",
+          "field": "deals"
+        },
+        {
+          "url": "https://burgersandbeer.com/happy-hour",
+          "quote": "WELL DRINKS - 5.99",
+          "field": "deals"
+        },
+        {
+          "url": "https://burgersandbeer.com/happy-hour",
+          "quote": "LIME MARGARITA - 5.99",
+          "field": "deals"
         }
       ],
       "locationApplicability": "this_location",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "confidence": "high",
+      "observedAt": "2026-08-31"
     },
-    "unlistedReason": "outside_san_diego_county"
+    "unlistedReason": "outside_san_diego_county",
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      }
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "dealsUnknown": false
   },
   {
     "id": 171,
@@ -38253,40 +38330,102 @@
     "address": "2015 Birch Rd #1401, Chula Vista, CA 91915, USA",
     "lat": 32.6218196,
     "lng": -116.96550180000001,
-    "deals": [],
+    "deals": [
+      "$5.99 select beer",
+      "$6.99 select wine",
+      "$8.99 select cocktails",
+      "Half-priced half apps"
+    ],
     "website": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html?utm_source=google_gbp&utm_medium=organic",
     "phone": "(619) 421-2080",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html?utm_source=google_gbp&utm_medium=organic",
-    "dealTypes": [],
-    "seoHidden": true,
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "seoHidden": false,
     "image": "/images/venues/195-p-f-chang-s.jpg",
-    "hasHappyHourData": false,
-    "listingStatus": "unlisted",
+    "hasHappyHourData": true,
+    "listingStatus": "published",
     "lastScrape": {
-      "outcome": "not_published",
-      "found": false,
-      "reason": "No happy hour or recurring specials information specific to the Chula Vista location (2015 Birch Rd #1401) was found in any source. SOURCE 1 contains detailed happy hour details for the Carlsbad location (5621 Paseo Del Norte), which is a different location. SOURCES 2–6 are generic location-finder pages with no location-specific happy hour data. The target location's own page (referenced in metadata) was not provided in the sources. Without location-specific confirmation, the Carlsbad details cannot be applied to Chula Vista.",
-      "sourceUrl": "https://locations.pfchangs.com/ca/carlsbad/5621-paseo-del-norte.html?utm_source=google_gbp&utm_medium=organic",
+      "outcome": "found",
+      "found": true,
+      "reason": "Chula Vista location page publishes Mon–Fri 3–6pm happy hour with priced beer, wine, cocktails, and half apps.",
+      "sourceUrl": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
       "candidateUrls": [
-        "https://locations.pfchangs.com/ca/carlsbad/5621-paseo-del-norte.html?utm_source=google_gbp&utm_medium=organic",
-        "https://locations.pfchangs.com/specials--happy-hour",
-        "https://locations.pfchangs.com/specials/happy-hour",
-        "https://locations.pfchangs.com/happy-hour",
-        "https://locations.pfchangs.com/happy-hours",
-        "https://locations.pfchangs.com/happyhour"
+        "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+        "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html?utm_source=google_gbp&utm_medium=organic"
       ],
       "evidence": [
         {
-          "url": "https://locations.pfchangs.com/ca/carlsbad/5621-paseo-del-norte.html",
-          "quote": "P.F. Chang's Carlsbad is located at 5621 Paseo Del Norte, Carlsbad, CA — different from target location 2015 Birch Rd, Chula Vista",
+          "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+          "quote": "Happy Hour $5.99 Select Beer, $6.99 Select Wine, $8.99 Select Cocktails and Half Priced Half Apps Mon 3:00 PM - 6:00 PM Tue 3:00 PM - 6:00 PM Wed 3:00 PM - 6:00 PM Thu 3:00 PM - 6:00 PM Fri 3:00 PM - 6:00 PM Sat Not available Sun Not available",
           "field": "times"
+        },
+        {
+          "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+          "quote": "$5.99 Select Beer, $6.99 Select Wine, $8.99 Select Cocktails and Half Priced Half Apps",
+          "field": "deals"
         }
       ],
-      "locationApplicability": "unspecified",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "locationApplicability": "this_location",
+      "confidence": "high",
+      "observedAt": "2026-08-31"
+    },
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      }
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "dealsUnknown": false,
+    "hhSources": {
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+            "quote": "Happy Hour $5.99 Select Beer, $6.99 Select Wine, $8.99 Select Cocktails and Half Priced Half Apps Mon 3:00 PM - 6:00 PM Tue 3:00 PM - 6:00 PM Wed 3:00 PM - 6:00 PM Thu 3:00 PM - 6:00 PM Fri 3:00 PM - 6:00 PM Sat Not available Sun Not available",
+            "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://locations.pfchangs.com/ca/chulavista/2015-birch-rd-suite-1401.html",
+            "quote": "$5.99 Select Beer, $6.99 Select Wine, $8.99 Select Cocktails and Half Priced Half Apps",
+            "field": "deals"
+          }
+        ]
+      }
     }
   },
   {
@@ -38792,51 +38931,115 @@
     "address": "1216 Auto Park Way, Escondido, CA 92029, USA",
     "lat": 33.110020899999995,
     "lng": -117.09839009999999,
-    "deals": [],
+    "deals": [
+      "1/2 price appetizers"
+    ],
     "website": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79044&utm_content=website",
     "phone": "(760) 743-6612",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79044&utm_content=website",
-    "dealTypes": [],
-    "seoHidden": true,
+    "dealTypes": [
+      "food"
+    ],
+    "seoHidden": false,
     "image": "/images/venues/198-applebee-s-grill-bar.jpg",
-    "hasHappyHourData": false,
-    "listingStatus": "unlisted",
+    "hasHappyHourData": true,
+    "listingStatus": "published",
     "lastScrape": {
-      "outcome": "other_location",
-      "found": false,
-      "reason": "All sourced happy-hour pages (Sources 1–5) are for other Applebee's locations (Anchorage AK, Athens AL, Auburn AL, Bessemer AL, Birmingham AL), not the target Escondido CA location. Each page states 'Applebee's Happy Hour times vary by location' and instructs customers to 'contact your local Applebee's location' for specifics. Source 6 is a generic state-browser page with no offers. Social media references 'Late Night Half Price Apps' but do not specify times or applicability to Escondido. No documentation specific to the Escondido location (1216 Auto Park Way, Escondido, CA 92029) was provided.",
-      "sourceUrl": "https://restaurants.applebees.com/en-us/ak/anchorage/4331-credit-union-drive-94069/happy-hour",
+      "outcome": "found",
+      "found": true,
+      "reason": "Escondido location message quotes 3–6pm and 9pm–close (midnight close) in the bar with half-price apps. Overnight past midnight not published.",
+      "sourceUrl": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
       "candidateUrls": [
-        "https://restaurants.applebees.com/en-us/ak/anchorage/4331-credit-union-drive-94069/happy-hour",
-        "https://restaurants.applebees.com/en-us/al/athens/1331-hwy.-72-east-95010/happy-hour",
-        "https://restaurants.applebees.com/en-us/al/auburn/1627-34-opelika-road-84037/happy-hour",
-        "https://restaurants.applebees.com/en-us/al/bessemer/5050-academy-lane-94048/happy-hour",
-        "https://restaurants.applebees.com/en-us/al/birmingham/2246-bessemer-road-75096/happy-hour",
-        "https://restaurants.applebees.com/specials--happy-hour",
-        "https://assets.restaurants.applebees.com/images/specialty/happy-hour-hero.webp"
+        "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+        "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=79044&utm_content=website"
       ],
       "evidence": [
         {
-          "url": "https://restaurants.applebees.com/en-us/ak/anchorage/4331-credit-union-drive-94069/happy-hour",
-          "quote": "Applebee's Happy Hour times vary by location. For the most accurate information about Happy Hour availability and times, contact your local Applebee's location.",
+          "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+          "quote": "Happy Hour: 3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!",
           "field": "times"
         },
         {
-          "url": "https://restaurants.applebees.com/en-us/al/athens/1331-hwy.-72-east-95010/happy-hour",
-          "quote": "Applebee's Happy Hour times vary by location.",
-          "field": "times"
-        },
-        {
-          "url": "https://twitter.com/applebees",
-          "quote": "We have Late Night Half Price Apps",
+          "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+          "quote": "Enjoy a variety of 1/2 price appetizers and more!",
           "field": "deals"
         }
       ],
-      "locationApplicability": "other_location",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "locationApplicability": "this_location",
+      "confidence": "high",
+      "observedAt": "2026-08-31"
+    },
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      },
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "startTime": "21:00",
+        "endTime": "00:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      }
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "dealsUnknown": false,
+    "hhSources": {
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+            "quote": "Happy Hour: 3-6pm & 9pm-close in the bar area. Enjoy a variety of 1/2 price appetizers and more!",
+            "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://restaurants.applebees.com/en-us/ca/escondido/1216-auto-park-way-79044",
+            "quote": "Enjoy a variety of 1/2 price appetizers and more!",
+            "field": "deals"
+          }
+        ]
+      }
     }
   },
   {
@@ -69445,46 +69648,124 @@
     "address": "1035 La Bonita Dr Suite B, San Marcos, CA 92078, USA",
     "lat": 33.1238813,
     "lng": -117.2075972,
-    "deals": [],
+    "deals": [
+      "$2 off draft beer",
+      "$2 off glass of wine",
+      "Well drinks from $6",
+      "Arancini trio $12",
+      "Bruschetta Sorrento $10",
+      "Sliders (2) $13"
+    ],
     "website": "https://amalficucinaitaliana.com/",
     "phone": "(760) 653-3230",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://amalficucinaitaliana.com/",
-    "dealTypes": [],
-    "seoHidden": true,
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine",
+      "food"
+    ],
+    "seoHidden": false,
     "image": "/images/venues/344-amalfi-marina-bar-dockside.jpg",
-    "hasHappyHourData": false,
-    "listingStatus": "unlisted",
+    "hasHappyHourData": true,
+    "listingStatus": "published",
     "lastScrape": {
-      "outcome": "other_location",
-      "found": false,
-      "reason": "The website navigation and PDFs provided reference 'Marina Bar' as a separate location with its own menu (MARINA BAR MENUS: Summer Specials, Main Menu, Cocktails & Beer, Sunday Brunch). However, no actual happy hour details, times, or recurring specials for the Marina Bar Dockside location (1035 La Bonita Dr Suite B, San Marcos) were included in the sources. The San Marcos happy hour PDF mentioned in the attachment list (sm-happy-hour.pdf) was not provided in the documents. The PDFs attached contain menus for the San Marcos Cucina location and Amalfi Pizza & Bar (Carmel Valley Tuesday Specials), but not for Amalfi Marina Bar (Dockside).",
-      "sourceUrl": "http://www.amalficucinaitaliana.com/menu",
+      "outcome": "found",
+      "found": true,
+      "reason": "Marina Bar Lake San Marcos happy-hour PDF (linked from amalficucinaitaliana.com) publishes Mon–Fri 3–6pm with food and drink specials.",
+      "sourceUrl": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
       "candidateUrls": [
-        "http://www.amalficucinaitaliana.com/menu",
-        "http://amalfiftp.com/docs/sm-happy-hour.pdf",
-        "https://amalfiftp.com/docs/apb-tuesday-specials.pdf",
-        "http://amalfiftp.com/docs/sm-weekly-specials.pdf",
-        "http://amalfiftp.com/docs/asb-wine-menu.pdf",
-        "https://amalfiftp.com/docs/apb-main-menu.pdf",
-        "https://amalfiftp.com/docs/sm-main-menu.pdf"
+        "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+        "https://amalficucinaitaliana.com/"
       ],
       "evidence": [
         {
-          "url": "http://www.amalficucinaitaliana.com/menu",
-          "quote": "MARINA BAR MENUS Summer Specials Main Menu Cocktails & Beer Sunday Brunch",
-          "field": "specials"
+          "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+          "quote": "HAPPY HOUR MON-FRI 3:00 PM - 6:00 PM",
+          "field": "times"
         },
         {
-          "url": "http://www.amalficucinaitaliana.com/menu",
-          "quote": "Call Marina Bar (760) 614-2589",
-          "field": "specials"
+          "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+          "quote": "DRAFT BEER $2 OFF",
+          "field": "deals"
+        },
+        {
+          "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+          "quote": "GLASS OF WINE $2 OFF",
+          "field": "deals"
+        },
+        {
+          "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+          "quote": "WELL DRINKS START AT $6",
+          "field": "deals"
         }
       ],
-      "locationApplicability": "other_location",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "locationApplicability": "this_location",
+      "confidence": "high",
+      "observedAt": "2026-08-31"
+    },
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      }
+    ],
+    "startTime": "15:00",
+    "endTime": "18:00",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "dealsUnknown": false,
+    "hhSources": {
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+            "quote": "HAPPY HOUR MON-FRI 3:00 PM - 6:00 PM",
+            "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+            "quote": "DRAFT BEER $2 OFF",
+            "field": "deals"
+          },
+          {
+            "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+            "quote": "GLASS OF WINE $2 OFF",
+            "field": "deals"
+          },
+          {
+            "url": "https://amalfiftp.com/docs/marina-bar-happyhour.pdf",
+            "quote": "WELL DRINKS START AT $6",
+            "field": "deals"
+          }
+        ]
+      }
     }
   },
   {
@@ -86077,40 +86358,92 @@
     "address": "1833 Garnet Ave, San Diego, CA 92109, USA",
     "lat": 32.8005474,
     "lng": -117.23628710000001,
-    "deals": [],
+    "deals": [
+      "$7 well margaritas",
+      "$7 Bloody Mary's",
+      "$7 Screwdrivers"
+    ],
     "website": "https://silverfoxloungepb.com/",
     "phone": "(858) 270-1343",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "https://silverfoxloungepb.com/",
-    "dealTypes": [],
-    "seoHidden": true,
+    "dealTypes": [
+      "cocktails"
+    ],
+    "seoHidden": false,
     "image": "/images/venues/430-the-silver-fox-lounge.jpg",
-    "hasHappyHourData": false,
-    "listingStatus": "unlisted",
+    "hasHappyHourData": true,
+    "listingStatus": "published",
     "lastScrape": {
-      "outcome": "not_published",
-      "found": false,
-      "reason": "The drink menu page confirms Silver Fox Lounge exists at the target address (1833 Garnet Avenue, Pacific Beach) and states 'Happy hour runs daily — the longest in Pacific Beach' but provides no actual happy hour times, prices, or specific deals. The page explicitly directs customers to 'Call (858) 270-1343 for current happy hour times and pricing.' Without accessible happy hour details (times and/or prices), no happy hour window or deals can be extracted. Facebook and Instagram sources provided no additional details.",
-      "sourceUrl": "https://silverfoxloungepb.com/drink-menu/",
+      "outcome": "found",
+      "found": true,
+      "reason": "Homepage Specials section publishes Weekend 6am–3pm happy hour with $7 well brunch cocktails. Thursday College Night 9pm–1am is overnight and was not restored.",
+      "sourceUrl": "https://silverfoxloungepb.com/",
       "candidateUrls": [
-        "https://silverfoxloungepb.com/drink-menu/"
+        "https://silverfoxloungepb.com/",
+        "https://silverfoxloungepb.com/"
       ],
       "evidence": [
         {
-          "url": "https://silverfoxloungepb.com/drink-menu/",
-          "quote": "Happy hour runs daily — the longest in Pacific Beach — with some of the cheapest drink prices in PB.",
-          "field": "specials"
+          "url": "https://silverfoxloungepb.com/",
+          "quote": "Weekend 6am-3pm Happy Hour Longest Happy Hour In PB $7 Well Margaritas, Bloody Mary's, and Screwdrivers",
+          "field": "times"
         },
         {
-          "url": "https://silverfoxloungepb.com/drink-menu/",
-          "quote": "Call (858) 270-1343 for current happy hour times and pricing.",
-          "field": "times"
+          "url": "https://silverfoxloungepb.com/",
+          "quote": "$7 Well Margaritas, Bloody Mary's, and Screwdrivers",
+          "field": "deals"
         }
       ],
       "locationApplicability": "this_location",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "confidence": "high",
+      "observedAt": "2026-08-31"
+    },
+    "windows": [
+      {
+        "days": [
+          "Saturday",
+          "Sunday"
+        ],
+        "startTime": "06:00",
+        "endTime": "15:00",
+        "kind": "happy_hour",
+        "label": "Weekend Happy Hour"
+      }
+    ],
+    "startTime": "06:00",
+    "endTime": "15:00",
+    "days": [
+      "Saturday",
+      "Sunday"
+    ],
+    "dealsUnknown": false,
+    "hhSources": {
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://silverfoxloungepb.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://silverfoxloungepb.com/",
+            "quote": "Weekend 6am-3pm Happy Hour Longest Happy Hour In PB $7 Well Margaritas, Bloody Mary's, and Screwdrivers",
+            "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://silverfoxloungepb.com/",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://silverfoxloungepb.com/",
+            "quote": "$7 Well Margaritas, Bloody Mary's, and Screwdrivers",
+            "field": "deals"
+          }
+        ]
+      }
     }
   },
   {
@@ -108808,35 +109141,129 @@
     "address": "4002 30th St, San Diego, CA 92104, USA",
     "lat": 32.7504907,
     "lng": -117.13038119999999,
-    "deals": [],
+    "deals": [
+      "$7 Tiny Spro-Tini",
+      "$7 Tiny Dirty HM Tini",
+      "$9 Large Marg",
+      "$6 all draft beer",
+      "$9 glass of wine",
+      "$9 crispy mushroom po'boy"
+    ],
     "website": "http://www.happymediumsd.com/",
     "phone": "(619) 310-5642",
     "verified": false,
     "lastVerifiedAt": null,
     "sourceUrl": "http://www.happymediumsd.com/",
-    "dealTypes": [],
-    "seoHidden": true,
+    "dealTypes": [
+      "beer",
+      "cocktails",
+      "wine"
+    ],
+    "seoHidden": false,
     "image": "/images/venues/563-happy-medium.png",
-    "hasHappyHourData": false,
-    "listingStatus": "unlisted",
+    "hasHappyHourData": true,
+    "listingStatus": "published",
     "lastScrape": {
-      "outcome": "not_published",
-      "found": false,
-      "reason": "The Happy Hour Menu page (http://www.happymediumsd.com/happyhourmenu) contains only operating hours (MONDAY-WEDNESDAY: 4PM-MIDNIGHT, THURSDAY-SUNDAY: 11AM-MIDNIGHT) and contact/address information. No happy hour deals, pricing, menu items, or recurring specials are visible in the provided source material. The page appears to be a shell or improperly loaded menu template.",
-      "sourceUrl": "http://www.happymediumsd.com/happyhourmenu",
+      "outcome": "found",
+      "found": true,
+      "reason": "Happy Hour Menu page images publish Mon–Wed 4–6pm and Thu–Fri 3–6pm with priced cocktails, beer, wine, and food.",
+      "sourceUrl": "https://www.happymediumsd.com/happyhourmenu",
       "candidateUrls": [
-        "http://www.happymediumsd.com/happyhourmenu"
+        "https://www.happymediumsd.com/happyhourmenu",
+        "http://www.happymediumsd.com/"
       ],
       "evidence": [
         {
-          "url": "http://www.happymediumsd.com/happyhourmenu",
-          "quote": "MONDAY-WEDNESDAY: 4PM-MIDNIGHT THURSDAY-SUNDAY: 11AM-MIDNIGHT",
+          "url": "https://www.happymediumsd.com/happyhourmenu",
+          "quote": "MON-WED: 4PM – 6PM  THURS & FRI: 3PM – 6PM",
           "field": "times"
+        },
+        {
+          "url": "https://www.happymediumsd.com/happyhourmenu",
+          "quote": "Tiny Spro-Tini $7",
+          "field": "deals"
+        },
+        {
+          "url": "https://www.happymediumsd.com/happyhourmenu",
+          "quote": "All Draft Beer $6",
+          "field": "deals"
+        },
+        {
+          "url": "https://www.happymediumsd.com/happyhourmenu",
+          "quote": "Crispy Mushroom Po'Boy $9",
+          "field": "deals"
         }
       ],
       "locationApplicability": "this_location",
-      "confidence": "low",
-      "observedAt": "2026-08-29"
+      "confidence": "high",
+      "observedAt": "2026-08-31"
+    },
+    "windows": [
+      {
+        "days": [
+          "Monday",
+          "Tuesday",
+          "Wednesday"
+        ],
+        "startTime": "16:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      },
+      {
+        "days": [
+          "Thursday",
+          "Friday"
+        ],
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "kind": "happy_hour",
+        "label": "Happy Hour"
+      }
+    ],
+    "startTime": "16:00",
+    "endTime": "18:00",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday"
+    ],
+    "dealsUnknown": false,
+    "hhSources": {
+      "times": {
+        "source": "website_hh_page",
+        "url": "https://www.happymediumsd.com/happyhourmenu",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.happymediumsd.com/happyhourmenu",
+            "quote": "MON-WED: 4PM – 6PM  THURS & FRI: 3PM – 6PM",
+            "field": "times"
+          }
+        ]
+      },
+      "deals": {
+        "source": "website_hh_page",
+        "url": "https://www.happymediumsd.com/happyhourmenu",
+        "observedAt": "2026-08-31",
+        "evidence": [
+          {
+            "url": "https://www.happymediumsd.com/happyhourmenu",
+            "quote": "Tiny Spro-Tini $7",
+            "field": "deals"
+          },
+          {
+            "url": "https://www.happymediumsd.com/happyhourmenu",
+            "quote": "All Draft Beer $6",
+            "field": "deals"
+          },
+          {
+            "url": "https://www.happymediumsd.com/happyhourmenu",
+            "quote": "Crispy Mushroom Po'Boy $9",
+            "field": "deals"
+          }
+        ]
+      }
     }
   },
   {

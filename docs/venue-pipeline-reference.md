@@ -804,5 +804,6 @@ Honest list. None are currently breaking anything, but all are traps.
   overnight happy hours. `endTime: "00:00"` means until midnight (same evening); anything past
   midnight or swapped (`19:00–18:00`) is cleared or corrected from evidence.
   `scripts/import-google-venues/fix-overnight-windows.mjs`, `isPlausibleHappyHourWindow`,
-  `validate:data`, and `tests/no-overnight-windows.test.mjs` guard it. See
+  `validate:data`, and `tests/no-overnight-windows.test.mjs` guard it. The 26 stubs from that
+  pass were manually re-checked on live sites (6 restored / 19 confirmed empty / 1 owner). See
   `docs/deal-and-menu-audit.md`, `docs/lessons-and-invariants.md` §2.
