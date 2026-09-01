@@ -53,6 +53,8 @@ import Layout from '../../layouts/Layout.astro';
       if (filters.neighborhood) pills.push(filters.neighborhood);
       if (filters.dealType) pills.push(filters.dealType);
       if (filters.query) pills.push(`"${filters.query}"`);
+      if (filters.startTime) pills.push(`Starts after ${filters.startTime}`);
+      if (filters.endTime) pills.push(`Ends before ${filters.endTime}`);
       if (!pills.length) return '<span class="filter-pill">Any day, any spot</span>';
       return pills.map((p) => `<span class="filter-pill">${escapeHTML(p)}</span>`).join('');
     }

@@ -59,6 +59,23 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 
     if (action === 'approve') {
       try {
+        // A pending correction already carries the venue it targets. Approval
+        // updates that venue in place; saving an edit above never does.
+        if (submission.approvedListingId) {
+          const approvedListing = {
+            ...listing,
+            verified: true,
+            lastVerifiedAt: now.slice(0, 10),
+          };
+          await updateVenue(submission.approvedListingId, approvedListing);
+          const updated = await updateSubmission(submission.id, {
+            listing: approvedListing,
+            status: 'approved',
+            approvedListingId: submission.approvedListingId,
+          });
+          return json(updated);
+        }
+
         const nextId = await appendVenue(listing, now);
         const updated = await updateSubmission(submission.id, { listing, status: 'approved', approvedListingId: nextId });
         return json(updated);

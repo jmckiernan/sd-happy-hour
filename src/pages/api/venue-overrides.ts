@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getVenueOverrides, listPublishedVenueIds } from '../../lib/store';
+import { getVenueOverrides, listPublishedVenueIds, listVerifiedClaimedVenueIds } from '../../lib/store';
 import { LIVE_LISTING_FIELDS } from '../../lib/venueContent';
 
 export const prerender = false;
@@ -25,9 +25,10 @@ export const prerender = false;
 // stray key from an older patch shape would silently overwrite something it
 // shouldn't.
 export const GET: APIRoute = async () => {
-  const [overrides, publishedVenueIds] = await Promise.all([
+  const [overrides, publishedVenueIds, ownerVerifiedVenueIds] = await Promise.all([
     getVenueOverrides(),
     listPublishedVenueIds(),
+    listVerifiedClaimedVenueIds(),
   ]);
 
   const payload: Record<string, Record<string, unknown>> = {};
@@ -39,7 +40,11 @@ export const GET: APIRoute = async () => {
     payload[venueId] = patch;
   }
 
-  return new Response(JSON.stringify({ overrides: payload, publishedVenueIds: [...publishedVenueIds] }), {
+  return new Response(JSON.stringify({
+    overrides: payload,
+    publishedVenueIds: [...publishedVenueIds],
+    ownerVerifiedVenueIds: [...ownerVerifiedVenueIds],
+  }), {
     status: 200,
     headers: {
       'content-type': 'application/json; charset=utf-8',

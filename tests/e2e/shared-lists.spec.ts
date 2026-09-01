@@ -451,19 +451,29 @@ test('venue quick-save button toggles only the configured default list', async (
 
   await page.goto('/venues/ironside-fish-oyster/');
   const saveButton = page.locator('#save-btn');
-  await expect(saveButton).toHaveText('Saved to Favorites');
+  await expect(saveButton).toHaveText('Saved');
+  await expect(saveButton).toHaveAttribute('aria-label', 'Remove from Favorites');
+  await expect(page.locator('#save-list-info-text')).toHaveText(
+    'Saved in Favorites, your default list. Select Saved to remove it.',
+  );
+  await expect(page.getByRole('link', { name: 'Change your default list in My Stuff' }))
+    .toHaveAttribute('href', '/account/#section-lists');
   await expect(saveButton).toHaveClass(/saved/);
   await expect(saveButton).toHaveAttribute('aria-pressed', 'true');
 
   await saveButton.click();
   await expect.poll(() => methods).toEqual(['DELETE']);
-  await expect(saveButton).toHaveText('Save to Favorites');
+  await expect(saveButton).toHaveText('Save');
+  await expect(saveButton).toHaveAttribute('aria-label', 'Save to Favorites');
+  await expect(page.locator('#save-list-info-text')).toHaveText(
+    'This will save to Favorites, your default list.',
+  );
   await expect(saveButton).not.toHaveClass(/saved/);
   await expect(saveButton).toHaveAttribute('aria-pressed', 'false');
 
   await saveButton.click();
   await expect.poll(() => methods).toEqual(['DELETE', 'POST']);
-  await expect(saveButton).toHaveText('Saved to Favorites');
+  await expect(saveButton).toHaveText('Saved');
   await expect(saveButton).toHaveClass(/saved/);
 });
 
@@ -473,9 +483,10 @@ test('home card saves to the default or selected list from one compact row', asy
     ...venue,
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
   }))));
+  const longListTitle = 'List Number 3 — an intentionally long name that must stay on one row';
   const lists = [
     { id: 'favorites', title: 'Favorites', systemKey: 'favorites', canEdit: true },
-    { id: 'list-three', title: 'List Number 3', systemKey: null, canEdit: true },
+    { id: 'list-three', title: longListTitle, systemKey: null, canEdit: true },
   ];
   const savedListIds = new Set<string>();
   const mutations: string[] = [];
@@ -516,7 +527,7 @@ test('home card saves to the default or selected list from one compact row', asy
 
   await expect(card.getByText('Save to List Number 3', { exact: true })).toHaveCount(0);
   await expect(picker).toHaveAttribute('data-save-list-value', 'list-three');
-  await expect(picker).toContainText('List Number 3');
+  await expect(picker).toContainText(longListTitle);
   const rowAlignment = await card.locator('.save-panel-row').evaluate((row) => {
     const pickerBox = row.querySelector('.save-list-trigger')!.getBoundingClientRect();
     const saveBox = row.querySelector('[data-save-spot]')!.getBoundingClientRect();
@@ -549,10 +560,35 @@ test('home card saves to the default or selected list from one compact row', asy
   const manageListbox = card.getByRole('listbox', { name: 'Manage lists for Sunset Patio' });
   await expect(manageListbox).toBeVisible();
   await expect(manageListbox.getByRole('option', { name: 'Favorites' })).toHaveAttribute('aria-selected', 'true');
-  await manageListbox.getByRole('option', { name: 'List Number 3' }).click();
+  await manageListbox.getByRole('option', { name: longListTitle }).click();
   await expect.poll(() => mutations).toEqual([
     'PUT /api/lists/favorites/items/1',
     'PUT /api/lists/list-three/items/1',
   ]);
-  await expect(card.locator('.save-list-chip')).toHaveText(['Favorites', 'List Number 3']);
+  await expect(card.locator('.save-list-chip')).toHaveText(['Favorites', longListTitle]);
+  await expect(card.locator('.save-list-chip').last()).toHaveAttribute('title', longListTitle);
+  const chipOverflow = await card.locator('.save-list-chips').evaluate((container) => {
+    const chips = [...container.querySelectorAll<HTMLElement>('.save-list-chip')];
+    const longChip = chips.at(-1)!;
+    const style = getComputedStyle(longChip);
+    return {
+      priorChips: chips.slice(0, -1).map((chip) => ({
+        isTruncated: chip.scrollWidth > chip.clientWidth,
+        flexShrink: getComputedStyle(chip).flexShrink,
+      })),
+      whiteSpace: style.whiteSpace,
+      overflow: style.overflow,
+      textOverflow: style.textOverflow,
+      isTruncated: longChip.scrollWidth > longChip.clientWidth,
+      rows: Math.round(container.getBoundingClientRect().height / Math.max(...chips.map((chip) => chip.getBoundingClientRect().height))),
+    };
+  });
+  expect(chipOverflow).toEqual({
+    priorChips: [{ isTruncated: false, flexShrink: '0' }],
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    isTruncated: true,
+    rows: 1,
+  });
 });

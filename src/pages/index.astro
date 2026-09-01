@@ -81,6 +81,17 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       box-shadow: 0 0 12px #4ADE80;
     }
 
+    .live-count-loader {
+      animation: live-count-spin .8s linear infinite;
+      border: 3px solid rgba(255, 255, 255, .3);
+      border-radius: 50%;
+      border-top-color: white;
+      display: inline-block;
+      height: 28px;
+      width: 28px;
+    }
+    @keyframes live-count-spin { to { transform: rotate(360deg); } }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
@@ -122,16 +133,29 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     .live-counter {
+      appearance: none;
       display: inline-flex;
       align-items: center;
       gap: 16px;
       background: white;
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
       padding: 18px 36px;
       border-radius: 100px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transition: box-shadow 0.2s, transform 0.2s;
     }
 
+    .live-counter:not(:disabled):hover { box-shadow: 0 24px 68px rgba(0,0,0,0.32); transform: translateY(-2px); }
+    .live-counter:disabled { cursor: default; }
+
     .live-counter .number {
+      align-items: center;
+      display: inline-flex;
+      justify-content: center;
+      min-width: 48px;
       font-size: 2.5rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--sunset-start), #E85D4C);
@@ -200,6 +224,18 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       background-repeat: no-repeat;
       background-position: right 12px center;
       padding-right: 36px;
+    }
+    .time-filter-label {
+      align-items: center;
+      color: var(--night-soft);
+      display: flex;
+      font-size: .72rem;
+      font-weight: 700;
+      gap: 6px;
+    }
+    .time-filter-label .filter-btn {
+      background-image: none;
+      padding: 9px 12px;
     }
 
     .filter-btn:hover, .view-btn:hover, .location-btn:hover { background-color: var(--sunset-end); }
@@ -297,7 +333,9 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .card-image .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); }
 
     .card-image .card-status-badge { left: 12px; position: absolute; top: 12px; }
-    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-image-link { color: inherit; display: block; height: 100%; text-decoration: none; }
+    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 12px; z-index: 2; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+    .card-image a.neighborhood-tag:hover { background: var(--sunset-end); }
     .card-image .distance-tag { position: absolute; top: 12px; right: 52px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
     .card-image .time-overlay { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
     .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
@@ -360,8 +398,9 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       width: 11px;
     }
     @keyframes save-list-spin { to { transform: rotate(360deg); } }
-    .save-list-chips { display: flex; gap: 5px; flex-wrap: wrap; }
-    .save-list-chip { background: white; border-radius: 100px; color: var(--night-soft); font-size: .7rem; font-weight: 750; padding: 5px 8px; }
+    .save-list-chips { display: flex; gap: 5px; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+    .save-list-chip { background: white; border-radius: 100px; color: var(--night-soft); display: block; flex: 0 0 auto; font-size: .7rem; font-weight: 750; padding: 5px 8px; white-space: nowrap; }
+    .save-list-chip:last-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
     .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
     .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
@@ -395,7 +434,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .empty-state h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 12px; }
     .empty-state p { color: var(--night-soft); font-size: 1.125rem; }
 
-    :is(.filter-btn, .view-btn, .location-btn, .search-input, .save-action):focus-visible {
+    :is(.filter-btn, .view-btn, .location-btn, .search-input, .save-action, .live-counter):focus-visible {
       outline: 3px solid var(--ocean);
       outline-offset: 3px;
     }
@@ -417,7 +456,9 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       .cocktail-icon,
       .hero-badge .pulse { animation: none; }
       .card,
+      .live-counter,
       .card-image img { transition: none; }
+      .live-counter:not(:disabled):hover { transform: none; }
       .card:hover { transform: none; }
       /* Drops the hover growth but keeps the framing, which isn't motion. */
       .card:hover .card-image img { transform: scale(var(--image-crop-scale, 1)); }
@@ -454,18 +495,18 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       <p class="hero-tagline">The best deals happening right now, from Little Italy to PB</p>
 
-      <div class="live-counter">
-        <span class="number" id="live-count-big">0</span>
-        <div class="label">
+      <button class="live-counter" id="live-counter-button" type="button" disabled aria-busy="true" aria-label="Loading happy hours happening now">
+        <span class="number" id="live-count-big"><span class="live-count-loader" aria-hidden="true"></span></span>
+        <span class="label">
           <strong>happy hours happening now</strong>
-          <span>Scroll to explore</span>
-        </div>
-      </div>
+          <span id="live-counter-hint">Checking current happy hours</span>
+        </span>
+      </button>
     </div>
   </section>
 
   <!-- FILTERS -->
-  <section class="filters-section">
+  <section class="filters-section" id="happy-hour-filters" aria-label="Happy hour filters">
     <div class="filters-container">
       <div class="filters">
         <input class="search-input" id="search-input" type="search" placeholder="Search oysters, rooftop, PB..." autocomplete="off" aria-label="Search happy hour venues" />
@@ -506,6 +547,16 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
           <option value="verified">Verified only</option>
           <option value="unverified">Needs verification</option>
         </select>
+
+        <label class="time-filter-label">
+          <span>Starts after</span>
+          <input class="filter-btn" id="start-time-filter" type="time" aria-label="Happy hour starts at or after" />
+        </label>
+
+        <label class="time-filter-label">
+          <span>Ends before</span>
+          <input class="filter-btn" id="end-time-filter" type="time" aria-label="Happy hour ends at or before" />
+        </label>
 
         <button class="location-btn" id="location-btn" type="button" aria-pressed="false">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -574,7 +625,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       getSanDiegoDayBounds,
       getSanDiegoParts,
     } from '../lib/sanDiegoTime';
-    import { getListingImage, venuePath, venueSlug } from '../lib/venues';
+    import { getListingImage, venueMatchesTimeRange, venuePath, venueSlug, venueVerificationType } from '../lib/venues';
+    import { neighborhoodPath } from '../lib/neighborhoods';
     import { listingImageStyle } from '../lib/imageCrop';
     import { cardSpecials, cardTimeLabel } from '../lib/listingCopy';
     import { isPubliclyListed } from '../lib/listingVisibility';
@@ -716,6 +768,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
         status: (document.getElementById('status-filter') as HTMLSelectElement).value,
         trust: (document.getElementById('trust-filter') as HTMLSelectElement).value,
+        startTime: (document.getElementById('start-time-filter') as HTMLInputElement).value,
+        endTime: (document.getElementById('end-time-filter') as HTMLInputElement).value,
         nearMe: userLocation ? { ...userLocation } : null,
         view: listViewActive ? 'list' : 'map',
       };
@@ -803,6 +857,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       setSelectValue('deal-filter', saved.dealType);
       setSelectValue('status-filter', saved.status);
       setSelectValue('trust-filter', saved.trust);
+      if (saved.startTime !== undefined) {
+        (document.getElementById('start-time-filter') as HTMLInputElement).value = saved.startTime;
+      }
+      if (saved.endTime !== undefined) {
+        (document.getElementById('end-time-filter') as HTMLInputElement).value = saved.endTime;
+      }
 
       if (saved.nearMe) {
         applyNearMeLocation(saved.nearMe);
@@ -1124,13 +1184,14 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       try {
         const res = await fetch('/api/venue-overrides', { cache: 'no-store' });
         if (!res.ok) return failureFallback;
-        const { overrides, publishedVenueIds } = await res.json();
+        const { overrides, publishedVenueIds, ownerVerifiedVenueIds } = await res.json();
         const published = new Set<number>(publishedVenueIds || []);
+        const ownerVerified = new Set<number>(ownerVerifiedVenueIds || []);
         return venues
           .filter((venue) => isPubliclyListed(venue, published))
           .map((venue) => {
             const patch = overrides?.[String(venue.id)];
-            return patch ? { ...venue, ...patch } : venue;
+            return { ...venue, ...(patch || {}), ownerVerified: ownerVerified.has(venue.id) };
           });
       } catch {
         // Keep the last successfully loaded record if reconciliation fails.
@@ -1246,10 +1307,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     function getTrustLabel(h: any) {
-      if (h.verified && h.lastVerifiedAt) {
-        return `Verified ${new Date(h.lastVerifiedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+      const type = venueVerificationType(h, Boolean(h.ownerVerified));
+      if (type === 'owner') return '✓ Owner verified';
+      if (type === 'web' && h.lastVerifiedAt) {
+        return `✓ Web verified ${new Date(h.lastVerifiedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
       }
-      if (h.verified) return 'Verified';
+      if (type === 'web') return '✓ Web verified';
       return 'Needs verification';
     }
 
@@ -1263,6 +1326,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       if (state.state === 'live-deal-only' || state.state === 'both') return 0;
       if (state.state === 'happy-hour-only') return 1;
       return 2;
+    }
+
+    function getHappyHoursNowCount(venueStates: Map<number, ConsumerPromotionState>) {
+      return [...venueStates.values()]
+        .filter((state) => state.happyHourOccurrence !== null)
+        .length;
     }
 
     /** Which facet to leave out of a pass over the data, so the excluded-count
@@ -1280,6 +1349,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const dealFilter = ignore === 'dealType' ? '' : (document.getElementById('deal-filter') as HTMLSelectElement).value;
       const statusFilter = (document.getElementById('status-filter') as HTMLSelectElement).value;
       const trustFilter = (document.getElementById('trust-filter') as HTMLSelectElement).value;
+      const startTimeFilter = (document.getElementById('start-time-filter') as HTMLInputElement).value;
+      const endTimeFilter = (document.getElementById('end-time-filter') as HTMLInputElement).value;
 
       let filtered = [...happyHours];
 
@@ -1297,8 +1368,11 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       if (statusFilter === 'happy-hour-now') {
         filtered = filtered.filter((h) => Boolean(venueStates.get(h.id)?.happyHourOccurrence));
       }
-      if (trustFilter === 'verified') filtered = filtered.filter((h) => h.verified);
-      if (trustFilter === 'unverified') filtered = filtered.filter((h) => !h.verified);
+      if (startTimeFilter || endTimeFilter) {
+        filtered = filtered.filter((h) => venueMatchesTimeRange(h, startTimeFilter, endTimeFilter, dayFilter ? [dayFilter] : []));
+      }
+      if (trustFilter === 'verified') filtered = filtered.filter((h) => venueVerificationType(h, Boolean(h.ownerVerified)) !== 'none');
+      if (trustFilter === 'unverified') filtered = filtered.filter((h) => venueVerificationType(h, Boolean(h.ownerVerified)) === 'none');
 
       if (userLocation) {
         filtered = filtered.map((h) => ({
@@ -1380,12 +1454,33 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const empty = document.getElementById('empty-state')!;
       const countEl = document.getElementById('result-count')!;
       const liveCountBig = document.getElementById('live-count-big')!;
+      const liveCounterButton = document.getElementById('live-counter-button') as HTMLButtonElement;
+      const liveCounterHint = document.getElementById('live-counter-hint')!;
 
-      const happyHoursNow = [...venueStates.values()]
-        .filter((state) => state.happyHourOccurrence !== null)
-        .length;
+      const happyHoursNow = getHappyHoursNowCount(venueStates);
       countEl.textContent = String(filtered.length);
-      liveCountBig.textContent = String(happyHoursNow);
+      if (!feedSnapshot.data) {
+        liveCounterButton.disabled = true;
+        liveCounterButton.setAttribute('aria-busy', 'true');
+        liveCounterButton.setAttribute('aria-label', feedSnapshot.error
+          ? 'Current happy hour count is temporarily unavailable'
+          : 'Loading happy hours happening now');
+        liveCountBig.innerHTML = feedSnapshot.error
+          ? '<span aria-hidden="true">—</span>'
+          : '<span class="live-count-loader" aria-hidden="true"></span>';
+        liveCounterHint.textContent = feedSnapshot.error ? 'Count temporarily unavailable' : 'Checking current happy hours';
+      } else {
+        liveCountBig.textContent = String(happyHoursNow);
+        liveCounterButton.setAttribute('aria-busy', 'false');
+        liveCounterButton.disabled = happyHoursNow === 0;
+        liveCounterButton.setAttribute(
+          'aria-label',
+          happyHoursNow === 0
+            ? 'No happy hours happening now'
+            : `Show only the ${happyHoursNow} happy ${happyHoursNow === 1 ? 'hour' : 'hours'} happening now`,
+        );
+        liveCounterHint.textContent = happyHoursNow === 0 ? 'Check back soon' : 'Select to show only these spots';
+      }
       paintExcludedNote(now, venueStates, filtered.length);
 
       if (filtered.length === 0) {
@@ -1420,7 +1515,9 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
             return `<span class="${cls}">${dayAbbrev[i]}</span>`;
           }).join('');
 
-          const trustClass = h.verified ? '' : ' unverified';
+          const verificationType = venueVerificationType(h, Boolean(h.ownerVerified));
+          const isVerified = verificationType !== 'none';
+          const trustClass = isVerified ? '' : ' unverified';
 
           const weekday = todayIndex >= 0 ? dayNames[todayIndex] : undefined;
           const specialChips = cardSpecials(h, weekday);
@@ -1428,8 +1525,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
           return `
             <article class="card ${stateClass}" data-venue-card="${h.id}">
-              <a href="/venues/${slug}/" style="text-decoration: none; color: inherit;">
-                <div class="card-image">
+              <div class="card-image">
+                <a class="card-image-link" href="/venues/${slug}/">
                   <img
                     src="${escapeHTML(imageSources.primary)}"
                     alt="${escapeHTML(h.name)}"
@@ -1446,14 +1543,18 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                   ${statusBadge}
                   ${hasDistance
                     ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
-                    : `<span class="neighborhood-tag">${escapeHTML(h.neighborhood)}</span>`
+                    : ''
                   }
                   <div class="time-overlay">
                     <span class="venue-name">${escapeHTML(h.name)}</span>
                     <span class="time-badge">${escapeHTML(timeLabel)}</span>
                   </div>
-                </div>
-              </a>
+                </a>
+                ${!hasDistance
+                  ? `<a class="neighborhood-tag" href="${escapeHTML(neighborhoodPath(h.neighborhood) || '/neighborhoods/')}">${escapeHTML(h.neighborhood)}</a>`
+                  : ''
+                }
+              </div>
 
               <div class="card-body">
                 <div class="card-meta">
@@ -1471,8 +1572,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                 ` : ''}
 
                 <div class="trust-row">
-                  <span>${h.verified ? 'Venue details checked' : 'Community-sourced listing'}</span>
-                  <a href="/submit/">Report update</a>
+                  <span>${verificationType === 'owner' ? 'Checked by the venue owner' : verificationType === 'web' ? 'Checked against web sources' : 'Community-sourced listing'}</span>
+                  <a href="/submit/?venue=${encodeURIComponent(String(h.id))}">Report update</a>
                 </div>
 
                 ${renderSavePanel(h)}
@@ -1593,7 +1694,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       return `
         <div class="save-panel" data-saved-spot="${h.id}">
           <div class="save-list-chips">
-            ${saved.lists.map((list: any) => `<span class="save-list-chip">${escapeHTML(list.title)}${list.role === 'viewer' ? ' · view only' : ''}</span>`).join('')}
+            ${saved.lists.map((list: any) => {
+              const label = `${list.title}${list.role === 'viewer' ? ' · view only' : ''}`;
+              return `<span class="save-list-chip" title="${escapeHTML(label)}">${escapeHTML(label)}</span>`;
+            }).join('')}
           </div>
           <div class="save-list-combobox" data-list-menu-combobox data-manage-list-combobox="${h.id}">
             <button
@@ -1656,6 +1760,36 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
 
+    document.getElementById('live-counter-button')!.addEventListener('click', () => {
+      const now = getServerNow();
+      if (!now) return;
+
+      const venueStates = buildVenueStates(now);
+      if (getHappyHoursNowCount(venueStates) === 0) return;
+
+      (document.getElementById('search-input') as HTMLInputElement).value = '';
+      for (const id of ['day-filter', 'neighborhood-filter', 'deal-filter', 'status-filter', 'trust-filter', 'start-time-filter', 'end-time-filter']) {
+        (document.getElementById(id) as HTMLSelectElement).value = '';
+      }
+
+      // An explicit all-days choice prevents the automatic weekday default
+      // from being restored during render. Near Me and list/map are retained:
+      // they change sorting and presentation, but do not exclude any venues.
+      dayFilterInitialized = true;
+      dayFilterTouched = true;
+      automaticDayFilter = '';
+      const statusFilter = document.getElementById('status-filter') as HTMLSelectElement;
+      statusFilter.value = 'happy-hour-now';
+
+      render(now);
+      persistDirectoryFilters();
+
+      const filtersSection = document.getElementById('happy-hour-filters')!;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      filtersSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      statusFilter.focus({ preventScroll: true });
+    });
+
     document.getElementById('search-input')!.addEventListener('input', () => {
       render();
       schedulePersistDirectoryFilters();
@@ -1697,6 +1831,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       render();
       persistDirectoryFilters();
     });
+    for (const id of ['start-time-filter', 'end-time-filter']) {
+      document.getElementById(id)!.addEventListener('change', () => {
+        render();
+        persistDirectoryFilters();
+      });
+    }
 
     // "Save as Alert" — captures whatever's currently in the filter bar
     // (day/neighborhood/deal/search) as a named, saved alert. Full
@@ -1737,6 +1877,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         neighborhood: (document.getElementById('neighborhood-filter') as HTMLSelectElement).value,
         dealType: (document.getElementById('deal-filter') as HTMLSelectElement).value,
         query: (document.getElementById('search-input') as HTMLInputElement).value.trim(),
+        startTime: (document.getElementById('start-time-filter') as HTMLInputElement).value,
+        endTime: (document.getElementById('end-time-filter') as HTMLInputElement).value,
       };
       const channels = {
         email: (document.getElementById('alert-channel-email') as HTMLInputElement).checked,

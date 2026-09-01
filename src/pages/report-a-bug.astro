@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Report a Bug | SD Happy Hours" description="Tell us about a problem on SD Happy Hours so we can fix it.">
+  <header class="page-header">
+    <h1>Report a bug</h1>
+    <p>Tell us what went wrong, what you expected, and where you saw it.</p>
+  </header>
+
+  <main class="feedback-page">
+    <form class="feedback-form" id="bug-report-form">
+      <label>
+        Short title
+        <input name="title" maxlength="120" minlength="5" required placeholder="Example: Neighborhood link opens the wrong page" />
+      </label>
+      <label>
+        What happened?
+        <textarea name="details" minlength="20" maxlength="2000" rows="8" required placeholder="What did you do, what happened, and what did you expect instead?"></textarea>
+      </label>
+      <label>
+        Your email
+        <input name="email" type="email" maxlength="254" placeholder="you@example.com" />
+        <span>Signed-in users can leave this blank. We only use it to follow up about this report.</span>
+      </label>
+      <label>
+        Page where it happened
+        <input name="pageUrl" type="url" maxlength="2000" placeholder="https://…" />
+      </label>
+      <button type="submit">Send bug report</button>
+      <p class="form-status" id="bug-report-status" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <style>
+    .feedback-page { margin: 0 auto 72px; max-width: 760px; padding: 20px 24px; }
+    .feedback-form { background: white; border-radius: var(--radius); box-shadow: 0 8px 28px rgba(15,23,42,.08); display: grid; gap: 18px; padding: clamp(22px, 5vw, 38px); }
+    label { color: var(--night); display: grid; font-weight: 750; gap: 7px; }
+    label span { color: var(--night-soft); font-size: .78rem; font-weight: 500; }
+    input, textarea { border: 2px solid var(--sand-warm); border-radius: 12px; color: var(--night); font: inherit; padding: 11px 13px; width: 100%; }
+    textarea { line-height: 1.5; resize: vertical; }
+    :is(input, textarea):focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 800; justify-self: start; min-height: 44px; padding: 11px 22px; }
+    button:hover { background: var(--sunset-start); }
+    button:disabled { cursor: wait; opacity: .65; }
+    .form-status { color: #047857; font-weight: 700; min-height: 1.3em; }
+    .form-status.error { color: #B91C1C; }
+  </style>
+
+  <script>
+    const form = document.getElementById('bug-report-form') as HTMLFormElement;
+    const pageUrl = form.elements.namedItem('pageUrl') as HTMLInputElement;
+    const status = document.getElementById('bug-report-status')!;
+    pageUrl.value = document.referrer || window.location.href;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const data = new FormData(form);
+      button.disabled = true;
+      status.classList.remove('error');
+      status.textContent = 'Sending…';
+      try {
+        const response = await fetch('/api/bug-reports', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(data.entries())),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((body.errors || ['Could not store the report.']).join(' '));
+        form.reset();
+        pageUrl.value = document.referrer || window.location.href;
+        status.textContent = 'Thank you — your bug report is stored for review.';
+      } catch (error: any) {
+        status.classList.add('error');
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</Layout>

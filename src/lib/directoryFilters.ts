@@ -23,6 +23,8 @@ export interface DirectoryFiltersState {
   dealType?: string;
   status?: string;
   trust?: string;
+  startTime?: string;
+  endTime?: string;
   nearMe?: DirectoryNearMe | null;
   view?: DirectoryViewMode;
 }
@@ -48,6 +50,8 @@ export function parseDirectoryFilters(raw: string | null): DirectoryFiltersState
     const dealType = cleanString(parsed.dealType);
     const status = cleanString(parsed.status);
     const trust = cleanString(parsed.trust);
+    const startTime = cleanString(parsed.startTime);
+    const endTime = cleanString(parsed.endTime);
 
     if (search !== undefined) state.search = search;
     if (day !== undefined) state.day = day;
@@ -55,6 +59,8 @@ export function parseDirectoryFilters(raw: string | null): DirectoryFiltersState
     if (dealType !== undefined) state.dealType = dealType;
     if (status !== undefined) state.status = status;
     if (trust !== undefined) state.trust = trust;
+    if (startTime !== undefined) state.startTime = startTime;
+    if (endTime !== undefined) state.endTime = endTime;
 
     if (parsed.nearMe === null) {
       state.nearMe = null;

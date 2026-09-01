@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import LiveDealStyles from './LiveDealStyles.astro';
-import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, type ListedVenue } from '../lib/venues';
+import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, venueVerificationType, type ListedVenue } from '../lib/venues';
 import { happyHourDayNames } from '../lib/happyHourDays';
 import { listingImageStyle } from '../lib/imageCrop';
 import {
@@ -21,6 +21,7 @@ import { breadcrumbSchema, venueSchema, withSiteName } from '../lib/seo';
 
 interface Props { venue: ListedVenue }
 const { venue } = Astro.props;
+const initialVerificationType = venueVerificationType(venue);
 
 const posts = await getCollection('blog', ({ data }) => !data.draft && data.venues.includes(slugify(venue.name)));
 
@@ -30,6 +31,15 @@ const posts = await getCollection('blog', ({ data }) => !data.draft && data.venu
 // rendering a heading over blank space.
 const attributeGroups = venueAttributeGroups(venue);
 const priceSummary = formatPriceLevel(venue);
+// Typical spend, At this venue and Parking are the primary planning facts.
+// Accessibility and Payment can fill otherwise empty space beside a tall menu
+// board; client-side measurement reveals only the rows that actually fit.
+const goodToKnowGroups = attributeGroups.filter((group) =>
+  group.title === 'At this venue' || group.title === 'Parking'
+);
+const supplementalGoodToKnowGroups = attributeGroups.filter((group) =>
+  group.title === 'Accessibility' || group.title === 'Payment'
+);
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const weeklyGroups = specialsByDay(venue.weeklySpecials || [], dayNames);
@@ -55,16 +65,19 @@ const areaPath = neighborhoodPath(venue.neighborhood);
 // the same query, so an address that resolves badly resolves badly in one
 // place rather than two that drift apart.
 const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(venue.address + ', San Diego, CA')}`;
-// Flyers and the menu boards we typeset. Shown whole rather than cropped to a
-// frame — a menu with its edges trimmed off is a menu with items missing — and
-// the lightbox opens the full-resolution original for reading.
+// Our generated menu boards are the visual menu. They sit beside Good to know
+// in the primary grid; other gallery images remain in Photos. Both still open
+// in the same full-resolution lightbox.
 const galleryImages = venue.galleryImages || [];
-// Our own formatted menu, rendered from the stored text rather than shown as a
-// picture of a menu. Text is the thing that can be searched, fed to the AI
-// surfaces, and corrected when a price is wrong; the flyer it was read off
-// stays in hhMenu.sourceImages as provenance.
+const menuBoardImages = galleryImages.filter((image) => image.generated);
+const hasStylizedWebpMenu = menuBoardImages.some((image) => /\.webp(?:$|\?)/i.test(image.url));
+const photoGalleryImages = galleryImages.filter((image) => !image.generated);
+// The structured transcription powers homepage search and structured data.
+// On this page it is available in a native dialog opened from the card heading,
+// avoiding a second always-visible copy without hiding it from people.
 const hhMenuSections = (venue.hhMenu?.sections || []).filter((section) => section.items?.length);
 const menuSourceUrl = venue.hhMenu?.sourceUrl || null;
+const hasHappyHourMenu = menuBoardImages.length > 0 || hhMenuSections.length > 0;
 // A window and nothing under it: no deal chips, no stored menu, no flyer. The
 // page says so plainly and points at the claim flow, rather than rendering a
 // deal grid whose only chip is the words "happy hour".
@@ -145,6 +158,69 @@ function formatWindowLine(window: {
       z-index: 1;
     }
     .venue-hero .hero-primary-badge[hidden] { display: none; }
+    .hero-share {
+      align-items: center;
+      appearance: none;
+      background: var(--ocean-deep);
+      border: 2px solid rgba(255, 255, 255, 0.88);
+      border-radius: 50%;
+      bottom: 16px;
+      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.3);
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      height: 44px;
+      justify-content: center;
+      padding: 0;
+      position: absolute;
+      right: 40px;
+      width: 44px;
+      z-index: 3;
+    }
+    .hero-share svg { height: 18px; width: 18px; }
+    .hero-share:hover { background: var(--sunset-start); }
+    .hero-share:focus-visible {
+      outline: 3px solid white;
+      outline-offset: 3px;
+    }
+    .share-menu {
+      background: white;
+      border: 1px solid rgba(15, 23, 42, .1);
+      border-radius: var(--radius-sm);
+      bottom: 68px;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, .24);
+      display: grid;
+      gap: 4px;
+      padding: 8px;
+      position: absolute;
+      right: 40px;
+      width: min(230px, calc(100% - 80px));
+      z-index: 8;
+    }
+    .share-menu[hidden] { display: none; }
+    .share-menu button,
+    .share-menu a {
+      align-items: center;
+      appearance: none;
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
+      color: var(--night);
+      cursor: pointer;
+      display: flex;
+      font: inherit;
+      font-size: .86rem;
+      font-weight: 700;
+      gap: 10px;
+      padding: 10px 12px;
+      text-align: left;
+      text-decoration: none;
+      width: 100%;
+    }
+    .share-menu :is(button, a):hover,
+    .share-menu :is(button, a):focus-visible { background: var(--sand-warm); outline: none; }
+    .share-menu-status { color: #047857; font-size: .75rem; font-weight: 700; padding: 2px 12px 7px; }
+    .share-menu-title { font-size: .78rem; padding: 5px 12px 3px; }
     @keyframes venue-live-deal-glow {
       0%, 100% { box-shadow: 0 0 0 3px var(--violet), 0 10px 26px rgba(139, 92, 246, 0.2); }
       50% { box-shadow: 0 0 0 3px var(--violet), 0 8px 26px rgba(139, 92, 246, 0.55), 0 0 10px rgba(255, 107, 53, 0.35); }
@@ -197,10 +273,40 @@ function formatWindowLine(window: {
       margin: 0 auto 24px;
       padding: 0 24px;
     }
-    .regular-happy-hour > h2 {
+    .regular-happy-hour-heading-row {
+      align-items: center;
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .regular-happy-hour-heading-row > h2 {
       font-family: var(--font-display);
       font-size: clamp(1.35rem, 4vw, 1.8rem);
-      margin-bottom: 14px;
+      margin: 0;
+    }
+    .verification-actions {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: .78rem;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .verification-type {
+      background: #ECFDF5;
+      border-radius: 100px;
+      color: #047857;
+      font-weight: 800;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+    .verification-type.unverified { background: #FFF7ED; color: #C2410C; }
+    .verification-actions a { color: var(--ocean); font-weight: 750; text-decoration: none; white-space: nowrap; }
+    .verification-actions a:hover { text-decoration: underline; }
+    @media (max-width: 560px) {
+      .regular-happy-hour-heading-row { align-items: flex-start; flex-direction: column; }
+      .verification-actions { justify-content: flex-start; }
     }
     .venue-hours { border-top: 1px solid var(--sand-warm); margin-top: 16px; padding-top: 14px; }
     .venue-hours-label { color: var(--night-soft); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 4px; text-transform: uppercase; }
@@ -299,41 +405,176 @@ function formatWindowLine(window: {
     }
     .deals-unknown-claim a:hover { text-decoration: underline; }
     .deals-unknown[hidden] { display: none; }
-    /* Same 800px column and heading as .regular-happy-hour, and the card
-       treatment comes from .venue-card rather than a second copy of it, so this
-       lines up with the Times and Deals cards instead of breaking the page
-       width. Attributes are affirmative badges: a venue with three known facts
-       shows three and looks deliberate. Nothing renders a "no" or an empty
-       slot, because absent means Google never answered rather than answered no. */
-    .venue-attributes {
-      max-width: 800px;
-      margin: 0 auto 48px;
-      padding: 0 24px;
+    .menu-board-list {
+      display: grid;
+      gap: 12px;
     }
-    .venue-attributes > h2 {
+    .menu-card-heading {
+      align-items: center;
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .venue-card .menu-card-heading h3 { margin-bottom: 0; }
+    .hh-menu-text-open {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      color: var(--violet);
+      cursor: pointer;
+      flex: 0 0 auto;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 750;
+      min-height: 44px;
+      padding: 8px 4px 8px 10px;
+    }
+    .hh-menu-text-open:hover { text-decoration: underline; }
+    .menu-board-tile {
+      appearance: none;
+      background: var(--sand-warm);
+      border: 0;
+      border-radius: var(--radius-sm);
+      cursor: zoom-in;
+      display: block;
+      overflow: hidden;
+      padding: 0;
+      width: 100%;
+    }
+    .menu-card.has-stylized-webp-menu { min-height: 469px; }
+    .menu-board-tile--stylized { min-height: 365px; }
+    .menu-board-tile:focus-visible,
+    .hh-menu-text-open:focus-visible {
+      outline: 3px solid var(--violet);
+      outline-offset: 3px;
+    }
+    .menu-board-tile img {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+    .menu-board-tile--stylized img { min-height: 365px; object-fit: contain; }
+    .hh-menu-text-dialog {
+      background: var(--sand);
+      border: 0;
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      color: var(--night);
+      inset: 0;
+      margin: auto;
+      max-height: min(86vh, 900px);
+      max-width: calc(100% - 32px);
+      overflow: hidden;
+      padding: 0;
+      width: min(720px, calc(100% - 32px));
+    }
+    .hh-menu-text-dialog::backdrop { background: rgba(15, 23, 42, 0.78); }
+    .hh-menu-text-dialog-content {
+      max-height: min(86vh, 900px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 28px;
+    }
+    .hh-menu-text-dialog-header {
+      align-items: center;
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+    }
+    .hh-menu-text-dialog-header h2 {
       font-family: var(--font-display);
       font-size: clamp(1.35rem, 4vw, 1.8rem);
-      margin-bottom: 14px;
+      margin: 0;
     }
-    /* A label beside its chips rather than four columns of them: at 800px minus
-       padding there is not room for four, and the rows read as a list of
-       answers to questions instead of a grid the eye has to scan twice. */
-    .attribute-row {
-      display: grid;
-      grid-template-columns: 130px 1fr;
-      gap: 8px 16px;
-      align-items: baseline;
-      padding: 12px 0;
-      border-top: 1px solid var(--sand-warm);
+    .hh-menu-text-close {
+      align-items: center;
+      appearance: none;
+      background: var(--sand-warm);
+      border: 0;
+      border-radius: 50%;
+      color: var(--night);
+      cursor: pointer;
+      display: inline-flex;
+      flex: 0 0 44px;
+      font: inherit;
+      font-size: 1.6rem;
+      height: 44px;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
     }
-    .attribute-row:first-child { border-top: 0; padding-top: 0; }
-    .attribute-row:last-child { padding-bottom: 0; }
-    .attribute-row h3 {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    .hh-menu-text-close:focus-visible {
+      outline: 3px solid var(--violet);
+      outline-offset: 3px;
+    }
+    @media (max-width: 640px) {
+      .hh-menu-text-dialog {
+        border-radius: var(--radius);
+        margin: auto;
+        max-height: 88vh;
+        max-width: calc(100% - 32px);
+        width: calc(100% - 32px);
+      }
+      .hh-menu-text-dialog-content { max-height: 88vh; padding: 24px 18px; }
+    }
+    .hh-menu-section { margin-top: 18px; }
+    .hh-menu-section h4 {
+      border-bottom: 1px solid rgba(15, 23, 42, 0.12);
       color: var(--night-soft);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .hh-menu-section ul { list-style: none; margin: 0; padding: 0; }
+    .hh-menu-section li { align-items: baseline; display: flex; padding: 6px 0; }
+    .hh-menu-item { flex: 0 1 auto; }
+    .hh-menu-leader {
+      border-bottom: 1px dotted rgba(15, 23, 42, 0.28);
+      flex: 1 1 2rem;
+      margin: 0 8px;
+      min-width: 1rem;
+      transform: translateY(-4px);
+    }
+    .hh-menu-price { flex: 0 0 auto; font-weight: 700; white-space: nowrap; }
+    .hh-menu-price--discount {
+      color: var(--night-soft);
+      font-style: italic;
+      font-weight: 600;
+    }
+    .hh-menu-source {
+      color: var(--night-soft);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      margin-top: 18px;
+    }
+    .good-to-know-card .attribute-row:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+    /* The card stretches to the menu card's full grid-row height. Rows remain
+       compact inside it, with the source note pinned to the bottom. */
+    .good-to-know-card { min-height: 0; overflow: hidden; }
+    .good-to-know-card .attribute-source {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+    .optional-attribute-row[hidden] { display: none; }
+    .attribute-row {
+      border-top: 1px solid var(--sand-warm);
+      display: grid;
+      gap: 10px;
+      padding: 16px 0;
+    }
+    .attribute-row h4 {
+      color: var(--night-soft);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
       margin-bottom: 0;
+      text-transform: uppercase;
     }
     .attribute-price { font-size: 0.95rem; font-weight: 600; }
     .attribute-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; }
@@ -350,13 +591,9 @@ function formatWindowLine(window: {
       border-radius: 100px;
     }
     .attribute-source {
-      margin-top: 12px;
-      font-size: 0.8rem;
       color: var(--night-soft);
-    }
-    @media (max-width: 640px) {
-      /* The label column costs more than it earns on a phone. */
-      .attribute-row { grid-template-columns: 1fr; gap: 8px; }
+      font-size: 0.76rem;
+      line-height: 1.45;
     }
     .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
     :global(.day-pill) {
@@ -413,7 +650,9 @@ function formatWindowLine(window: {
       gap: 12px;
       flex-wrap: wrap;
     }
-    .venue-actions a, .venue-actions button {
+    .venue-actions > a,
+    .venue-actions > button,
+    .venue-actions > .save-quick-action > button {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -432,11 +671,86 @@ function formatWindowLine(window: {
     .btn-save.saved { background: var(--sunset-start); color: white; }
     .btn-follow.following { background: var(--ocean); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
+    .save-quick-action { display: flex; position: relative; }
+    .save-list-info {
+      background: var(--night);
+      border-radius: var(--radius-sm);
+      bottom: calc(100% + 12px);
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.24);
+      color: white;
+      font-size: 0.8rem;
+      left: 50%;
+      line-height: 1.45;
+      opacity: 0;
+      padding: 13px 15px;
+      pointer-events: none;
+      position: absolute;
+      transform: translate(-50%, 6px);
+      transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+      visibility: hidden;
+      width: min(290px, calc(100vw - 48px));
+      z-index: 20;
+    }
+    .save-list-info::after {
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 7px solid var(--night);
+      content: '';
+      left: 50%;
+      position: absolute;
+      top: 100%;
+      transform: translateX(-50%);
+    }
+    /* Keep hover continuity across the visual gap above the Save button so a
+       pointer can reach the link without racing the pop-up. */
+    .save-list-info::before {
+      content: '';
+      height: 12px;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 100%;
+    }
+    .save-list-info p { margin: 0 0 7px; }
+    .save-list-info a {
+      color: #a5f3fc;
+      font-size: inherit;
+      font-weight: 700;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .save-quick-action:hover .save-list-info {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
+      transition-delay: 0.5s;
+      visibility: visible;
+    }
+    .save-quick-action:focus-within .save-list-info {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
+      transition-delay: 0s;
+      visibility: visible;
+    }
+    .btn-save:focus-visible {
+      outline: 3px solid var(--violet);
+      outline-offset: 3px;
+    }
+    @media (max-width: 640px) {
+      .save-list-info {
+        left: 0;
+        transform: translateY(6px);
+      }
+      .save-quick-action:hover .save-list-info,
+      .save-quick-action:focus-within .save-list-info { transform: translateY(0); }
+      .save-list-info::after { left: 28px; }
+    }
     .btn-admin-edit { align-items: center; background: rgba(8, 145, 178, 0.14); border-radius: 100px; color: var(--ocean-deep); display: inline-flex; font-size: .78rem; font-weight: 700; padding: 8px 14px; text-decoration: none; }
     .btn-admin-edit:hover { background: rgba(8, 145, 178, 0.26); }
 
     .trust-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 9px; border-radius: 100px; background: #ECFDF5; color: #047857; margin-left: 8px; }
-    .trust-badge.unverified { background: #FFF7ED; color: #C2410C; }
 
     .live-deal-wrap {
       max-width: 800px;
@@ -589,58 +903,6 @@ function formatWindowLine(window: {
       .lightbox-nav { top: auto; bottom: 76px; transform: none; }
     }
 
-    /* Gallery of scraped/typeset happy-hour menus.
-       These are never cropped, in the frame or in the file. A menu trimmed to
-       fit a tidy grid is a menu with items missing, so each one is shown whole
-       at its own proportions and the tiles are allowed to end at different
-       heights — presented as a pinned-up sheet, with the card's padding and
-       shadow making the ragged bottom edge read as deliberate. */
-    .hh-menu {
-      max-width: 1100px;
-      margin: 0 auto 48px;
-      padding: 0 24px;
-    }
-    .hh-menu h2 { font-family: var(--font-display); margin-bottom: 8px; }
-    .hh-menu-section { margin-top: 20px; }
-    .hh-menu-section h3 {
-      font-size: 1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--night-soft);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.12);
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-    }
-    .hh-menu-section ul { list-style: none; padding: 0; margin: 0; }
-    .hh-menu-section li {
-      display: flex;
-      align-items: baseline;
-      padding: 6px 0;
-    }
-    /* The name takes the width it needs; a dot leader spans whatever is left so
-       a long item still reads across to its price. */
-    .hh-menu-item { flex: 0 1 auto; }
-    .hh-menu-leader {
-      flex: 1 1 2rem;
-      min-width: 1.5rem;
-      margin: 0 8px;
-      border-bottom: 1px dotted rgba(15, 23, 42, 0.28);
-      transform: translateY(-4px);
-    }
-    .hh-menu-price { flex: 0 0 auto; font-weight: 700; white-space: nowrap; }
-    /* "$2 off" is a saving off a price we never learned, not a price. Setting
-       it apart from the absolute figures stops the column reading as if the
-       item costs $2. */
-    .hh-menu-price--discount {
-      font-weight: 600;
-      font-style: italic;
-      color: var(--night-soft);
-    }
-    .hh-menu-source {
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: var(--night-soft);
-    }
     .venue-gallery {
       max-width: 800px;
       margin: 0 auto 40px;
@@ -770,15 +1032,34 @@ function formatWindowLine(window: {
         <span id="hero-primary-label"></span>
       </div>
       <span class="tag">{venue.neighborhood}</span>
-      <span class={`tag trust-badge ${venue.verified ? '' : 'unverified'}`} style="top: 52px;">
-        {venue.verified ? 'Verified' : 'Needs verification'}
-      </span>
+      <span
+        class="tag trust-badge"
+        id="hero-verification-badge"
+        style={`top: 52px;${initialVerificationType === 'web' ? '' : 'display:none;'}`}
+      >Web verified</span>
       <div class="hero-text">
         <h1>{venue.name}</h1>
         {/* Hidden rather than absent so the client-side listing refresh below
             can fill it in when an owner saves one. */}
         <p class="vibe" id="venue-vibe" hidden={!venue.vibe}>{venue.vibe}</p>
       </div>
+    </div>
+    <button class="hero-share" id="share-btn" type="button" aria-label={`Share ${venue.name}`} title="Share">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <path d="m8.6 10.5 6.8-4"></path>
+        <path d="m8.6 13.5 6.8 4"></path>
+      </svg>
+    </button>
+    <div class="share-menu" id="share-menu" role="dialog" aria-labelledby="share-menu-title" hidden>
+      <strong class="share-menu-title" id="share-menu-title">Share {venue.name}</strong>
+      <button type="button" data-share-action="copy">🔗 Copy link</button>
+      <a data-share-action="email" href="#">✉️ Email</a>
+      <a data-share-action="text" href="#">💬 Text message</a>
+      <a data-share-action="facebook" href="#" target="_blank" rel="noopener">↗ Share on Facebook</a>
+      <span class="share-menu-status" id="share-menu-status" aria-live="polite"></span>
     </div>
   </div>
 
@@ -791,16 +1072,27 @@ function formatWindowLine(window: {
       href={venue.phone ? `tel:${venue.phone.replace(/[^0-9+]/g, '')}` : '#'}
       style={venue.phone ? '' : 'display:none;'}
     >Call {venue.phone}</a>
-    <button class="btn-secondary btn-save" id="save-btn" data-venue-id={venue.id} aria-pressed="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-      </svg>
-      <span id="save-label">Save</span>
-    </button>
+    <div class="save-quick-action">
+      <button
+        class="btn-secondary btn-save"
+        id="save-btn"
+        data-venue-id={venue.id}
+        aria-pressed="false"
+        aria-describedby="save-list-info-text"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+        </svg>
+        <span id="save-label">Save</span>
+      </button>
+      <div class="save-list-info" id="save-list-info">
+        <p id="save-list-info-text">Save this venue to your default list.</p>
+        <a href="/account/#section-lists">Change your default list in My Stuff →</a>
+      </div>
+    </div>
     <button class="btn-secondary btn-follow" id="follow-btn" data-venue-id={venue.id} aria-pressed="false">
       <span id="follow-label">Follow live deals</span>
     </button>
-    <button class="btn-secondary" id="share-btn" type="button">Share</button>
   </div>
 
   <section class="live-deal-wrap" id="live-deal-section" aria-labelledby="live-deal-title" hidden>
@@ -831,7 +1123,16 @@ function formatWindowLine(window: {
        applyOwnerEdits() below if the venue's verified owner has since changed
        any of it. The ids exist for that repaint. -->
   <section class="regular-happy-hour" aria-labelledby="regular-happy-hour-heading">
-    <h2 id="regular-happy-hour-heading">{hasWeeklySpecials ? 'Hours & weekly specials' : 'Regular Happy Hour'}</h2>
+    <div class="regular-happy-hour-heading-row">
+      <h2 id="regular-happy-hour-heading">{hasWeeklySpecials ? 'Hours & weekly specials' : 'Regular Happy Hour'}</h2>
+      <div class="verification-actions">
+        <span
+          class:list={['verification-type', initialVerificationType === 'none' && 'unverified']}
+          id="venue-verification-type"
+        >{initialVerificationType === 'web' ? '✓ Web verified' : 'Needs verification'}</span>
+        <a href={`/submit/?venue=${venue.id}`}>Report an update</a>
+      </div>
+    </div>
     <div class="venue-details">
       <div class="venue-card">
         <h3>Happy Hour Times</h3>
@@ -876,6 +1177,119 @@ function formatWindowLine(window: {
           <p class="weekly-jump">Day-by-day schedule below, including Drink Exchange hours.</p>
         )}
       </div>
+
+      {hasHappyHourMenu && (
+        <article class:list={['venue-card', 'menu-card', hasStylizedWebpMenu && 'has-stylized-webp-menu']} aria-labelledby="happy-hour-menu-card-heading">
+          <div class="menu-card-heading">
+            <h3 id="happy-hour-menu-card-heading">Happy Hour Menu</h3>
+            {hhMenuSections.length > 0 && (
+              <button
+                type="button"
+                class="hh-menu-text-open"
+                id="hh-menu-text-open"
+                aria-haspopup="dialog"
+                aria-controls="hh-menu-text-dialog"
+              >View menu as text</button>
+            )}
+          </div>
+          {menuBoardImages.length > 0 && (
+            <div class="menu-board-list">
+              {menuBoardImages.map((image) => (
+                <button
+                  type="button"
+                  class:list={['menu-board-tile', /\.webp(?:$|\?)/i.test(image.url) && 'menu-board-tile--stylized']}
+                  data-gallery-url={image.url}
+                  aria-label={`Open ${venue.name} happy hour menu full screen`}
+                >
+                  <img
+                    src={getGalleryThumb(image.url)}
+                    alt={`${venue.name} happy hour menu`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+          {hhMenuSections.length > 0 && (
+            <dialog
+              class="hh-menu-text-dialog"
+              id="hh-menu-text-dialog"
+              aria-labelledby="hh-menu-text-dialog-heading"
+            >
+              <div class="hh-menu-text-dialog-content">
+                <div class="hh-menu-text-dialog-header">
+                  <h2 id="hh-menu-text-dialog-heading">{venue.name} happy hour menu</h2>
+                  <form method="dialog">
+                    <button class="hh-menu-text-close" type="submit" aria-label="Close text menu">&times;</button>
+                  </form>
+                </div>
+                {venue.hhMenu?.note && <p class="section-note">{venue.hhMenu.note}</p>}
+                {hhMenuSections.map((section) => (
+                  <div class="hh-menu-section">
+                    <h4>{section.title}</h4>
+                    <ul>
+                      {section.items.map((item) => (
+                        <li>
+                          <span class="hh-menu-item">{item.name}</span>
+                          {item.price && <span class="hh-menu-leader" aria-hidden="true"></span>}
+                          {item.price && (
+                            <span
+                              class:list={[
+                                'hh-menu-price',
+                                (item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off')
+                                  && 'hh-menu-price--discount',
+                              ]}
+                            >{item.price}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                <p class="hh-menu-source">
+                  {venue.hhMenu?.observedAt ? `As published by the venue, read ${venue.hhMenu.observedAt}. ` : ''}
+                  Prices and items change — confirm with the venue.
+                  {menuSourceUrl && <> <a href={menuSourceUrl}>See the venue's own menu →</a></>}
+                </p>
+              </div>
+            </dialog>
+          )}
+        </article>
+      )}
+
+      {(goodToKnowGroups.length > 0 || priceSummary || (hasHappyHourMenu && supplementalGoodToKnowGroups.length > 0)) && (
+        <aside class="venue-card good-to-know-card" aria-labelledby="good-to-know-card-heading">
+          <h3 id="good-to-know-card-heading">Good to Know</h3>
+          {priceSummary && (
+            <div class="attribute-row">
+              <h4>Typical spend</h4>
+              <p class="attribute-price">{priceSummary}</p>
+            </div>
+          )}
+          {goodToKnowGroups.map((group) => (
+            <div class="attribute-row">
+              <h4>{group.title}</h4>
+              <ul class="attribute-list">
+                {group.attributes.map((attribute) => (
+                  <li class="attribute">{attribute.label}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          {supplementalGoodToKnowGroups.map((group) => (
+            <div class="attribute-row optional-attribute-row" data-optional-attribute hidden>
+              <h4>{group.title}</h4>
+              <ul class="attribute-list">
+                {group.attributes.map((attribute) => (
+                  <li class="attribute">{attribute.label}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <p class="attribute-source">Amenity details from Google. Absent items just mean nobody has told us.</p>
+        </aside>
+      )}
     </div>
   </section>
 
@@ -921,74 +1335,7 @@ function formatWindowLine(window: {
     </section>
   )}
 
-  {hhMenuSections.length > 0 && (
-    <section class="hh-menu" aria-labelledby="hh-menu-heading">
-      <h2 id="hh-menu-heading">Happy hour menu</h2>
-      {venue.hhMenu?.note && <p class="section-note">{venue.hhMenu.note}</p>}
-      {hhMenuSections.map((section) => (
-        <div class="hh-menu-section">
-          <h3>{section.title}</h3>
-          <ul>
-            {section.items.map((item) => (
-              <li>
-                <span class="hh-menu-item">{item.name}</span>
-                {item.price && <span class="hh-menu-leader" aria-hidden="true"></span>}
-                {item.price && (
-                  <span
-                    class:list={[
-                      'hh-menu-price',
-                      // A saving reads differently from a cost, so it is set
-                      // differently — matching how the menu board typesets it.
-                      (item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off')
-                        && 'hh-menu-price--discount',
-                    ]}
-                  >{item.price}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-      <p class="hh-menu-source">
-        {venue.hhMenu?.observedAt ? `As published by the venue, read ${venue.hhMenu.observedAt}. ` : ''}
-        Prices and items change — confirm with the venue.
-        {menuSourceUrl && <> <a href={menuSourceUrl}>See the venue's own menu →</a></>}
-      </p>
-    </section>
-  )}
-
-  {/* Below the menu on purpose. Someone arrives wanting the window, the deals
-      and what is on the happy-hour menu; whether there is valet is a question
-      they ask after they have decided the place is worth considering. Sitting
-      between the deals and the menu split the one thing they came for. */}
-  {(attributeGroups.length > 0 || priceSummary) && (
-    <section class="venue-attributes" aria-labelledby="venue-attributes-heading">
-      <h2 id="venue-attributes-heading">Good to know</h2>
-      <div class="venue-card">
-        {priceSummary && (
-          <div class="attribute-row">
-            <h3>Typical spend</h3>
-            <p class="attribute-price">{priceSummary}</p>
-          </div>
-        )}
-        {/* Only groups with something known reach here, so there is no empty
-            state to render and no placeholder for a fact Google withheld. */}
-        {attributeGroups.map((group) => (
-          <div class="attribute-row">
-            <h3>{group.title}</h3>
-            <ul class="attribute-list">
-              {group.attributes.map((attribute) => (
-                <li class="attribute">{attribute.label}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <p class="attribute-source">Amenity details from Google. Absent items just mean nobody has told us.</p>
-    </section>
-  )}
-
-  {galleryImages.length > 0 && (
+  {photoGalleryImages.length > 0 && (
     <section class="venue-gallery" aria-labelledby="venue-gallery-heading">
       <h2 id="venue-gallery-heading">Photos</h2>
       <p class="section-note">
@@ -996,7 +1343,7 @@ function formatWindowLine(window: {
         magnify the small print.
       </p>
       <div class="gallery-strip">
-        {galleryImages.map((image, index) => (
+        {photoGalleryImages.map((image, index) => (
           <button
             type="button"
             class="gallery-tile"
@@ -1283,6 +1630,7 @@ function formatWindowLine(window: {
 
     const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     const saveLabel = document.getElementById('save-label')!;
+    const saveListInfoText = document.getElementById('save-list-info-text')!;
     let isSignedIn = false;
     let isSavedToDefault = false;
     let isFollowing = false;
@@ -1331,9 +1679,24 @@ function formatWindowLine(window: {
       saveBtn.classList.toggle('saved', isSavedToDefault);
       saveBtn.disabled = false;
       saveBtn.setAttribute('aria-pressed', String(isSavedToDefault));
-      saveLabel.textContent = isSavedToDefault
-        ? `Saved${defaultList ? ` to ${defaultList.title}` : ''}`
-        : `Save${defaultList ? ` to ${defaultList.title}` : ''}`;
+      saveLabel.textContent = isSavedToDefault ? 'Saved' : 'Save';
+      if (defaultList) {
+        saveBtn.setAttribute(
+          'aria-label',
+          `${isSavedToDefault ? 'Remove from' : 'Save to'} ${defaultList.title}`,
+        );
+        saveListInfoText.textContent = isSavedToDefault
+          ? `Saved in ${defaultList.title}, your default list. Select Saved to remove it.`
+          : `This will save to ${defaultList.title}, your default list.`;
+      } else {
+        saveBtn.setAttribute(
+          'aria-label',
+          isSignedIn ? 'Save to your default list' : 'Sign in to save to your default list',
+        );
+        saveListInfoText.textContent = isSignedIn
+          ? 'This will save to your default quick-save list.'
+          : 'Sign in to save this venue to your default list.';
+      }
     }
 
     async function init() {
@@ -1412,17 +1775,151 @@ function formatWindowLine(window: {
       }
     });
 
-    document.getElementById('share-btn')!.addEventListener('click', async () => {
-      const shareData = { title: document.title, text: `Check out ${document.querySelector('h1')?.textContent || 'this happy hour'}`, url: window.location.href };
-      try {
-        if (navigator.share) await navigator.share(shareData);
-        else await navigator.clipboard.writeText(window.location.href);
+    const shareButton = document.getElementById('share-btn') as HTMLButtonElement;
+    const shareMenu = document.getElementById('share-menu') as HTMLElement;
+    const shareMenuStatus = document.getElementById('share-menu-status')!;
+    const shareText = `Check out ${document.querySelector('h1')?.textContent || 'this happy hour'}`;
+    const shareUrl = () => document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href || window.location.href;
+
+    function closeShareMenu({ restoreFocus = false } = {}) {
+      shareMenu.hidden = true;
+      shareButton.setAttribute('aria-expanded', 'false');
+      if (restoreFocus) shareButton.focus();
+    }
+
+    function setShareLinks() {
+      const url = shareUrl();
+      const email = shareMenu.querySelector<HTMLAnchorElement>('[data-share-action="email"]')!;
+      const text = shareMenu.querySelector<HTMLAnchorElement>('[data-share-action="text"]')!;
+      const facebook = shareMenu.querySelector<HTMLAnchorElement>('[data-share-action="facebook"]')!;
+      email.href = `mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(`${shareText}\n\n${url}`)}`;
+      text.href = `sms:?&body=${encodeURIComponent(`${shareText} ${url}`)}`;
+      facebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    }
+
+    shareButton.setAttribute('aria-haspopup', 'dialog');
+    shareButton.setAttribute('aria-controls', 'share-menu');
+    shareButton.setAttribute('aria-expanded', 'false');
+    shareButton.addEventListener('click', () => {
+      const opening = shareMenu.hidden;
+      if (!opening) {
+        closeShareMenu();
+        return;
+      }
+      setShareLinks();
+      shareMenuStatus.textContent = '';
+      shareMenu.hidden = false;
+      shareButton.setAttribute('aria-expanded', 'true');
+      shareMenu.querySelector<HTMLElement>('[data-share-action]')?.focus();
+    });
+
+    shareMenu.addEventListener('click', async (event) => {
+      const action = (event.target as HTMLElement).closest<HTMLElement>('[data-share-action]');
+      if (!action) return;
+      if (action.dataset.shareAction !== 'copy') {
         trackVenueEvent('share');
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        console.error('[venue share]', error);
+        closeShareMenu();
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(shareUrl());
+        shareMenuStatus.textContent = 'Link copied';
+        trackVenueEvent('share');
+      } catch {
+        shareMenuStatus.textContent = 'Copy failed — select the address from your browser.';
       }
     });
+
+    document.addEventListener('click', (event) => {
+      if (shareMenu.hidden) return;
+      const target = event.target as Node;
+      if (!shareMenu.contains(target) && !shareButton.contains(target)) closeShareMenu();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !shareMenu.hidden) closeShareMenu({ restoreFocus: true });
+    });
+
+    const hhMenuTextOpen = document.getElementById('hh-menu-text-open') as HTMLButtonElement | null;
+    const hhMenuTextDialog = document.getElementById('hh-menu-text-dialog') as HTMLDialogElement | null;
+    if (hhMenuTextOpen && hhMenuTextDialog) {
+      let previousBodyOverflow = '';
+      hhMenuTextOpen.addEventListener('click', () => {
+        if (hhMenuTextDialog.open) return;
+        previousBodyOverflow = document.body.style.overflow;
+        hhMenuTextDialog.showModal();
+        document.body.style.overflow = 'hidden';
+        hhMenuTextDialog.querySelector<HTMLButtonElement>('.hh-menu-text-close')?.focus();
+      });
+      hhMenuTextDialog.addEventListener('close', () => {
+        document.body.style.overflow = previousBodyOverflow;
+        hhMenuTextOpen.focus();
+      });
+      // A click on the dimmed backdrop closes the dialog; clicks inside its
+      // visible rectangle continue to the menu links and close control.
+      hhMenuTextDialog.addEventListener('click', (event) => {
+        const bounds = hhMenuTextDialog.getBoundingClientRect();
+        const outside = event.clientX < bounds.left || event.clientX > bounds.right
+          || event.clientY < bounds.top || event.clientY > bounds.bottom;
+        if (outside) hhMenuTextDialog.close();
+      });
+    }
+
+    const menuCard = document.querySelector<HTMLElement>('.menu-card');
+    const goodToKnowCard = document.querySelector<HTMLElement>('.good-to-know-card');
+    const optionalAttributeRows = goodToKnowCard
+      ? [...goodToKnowCard.querySelectorAll<HTMLElement>('[data-optional-attribute]')]
+      : [];
+    const singleColumnCards = window.matchMedia('(max-width: 640px)');
+    let optionalAttributeFrame = 0;
+
+    function naturalCardHeight(card: HTMLElement) {
+      const previousAlignSelf = card.style.alignSelf;
+      card.style.alignSelf = 'start';
+      const height = card.getBoundingClientRect().height;
+      card.style.alignSelf = previousAlignSelf;
+      return height;
+    }
+
+    /**
+     * The generated board determines the second desktop row's height. Reveal
+     * Accessibility, then Payment, only while the Good to Know content fits
+     * within that existing menu height. Without a menu, or when the cards are
+     * stacked, there is no menu-created white space to fill.
+     */
+    function fitOptionalAttributes() {
+      if (!goodToKnowCard || !optionalAttributeRows.length) return;
+      optionalAttributeRows.forEach((row) => { row.hidden = true; });
+      if (singleColumnCards.matches || !menuCard) return;
+
+      const menuHeight = naturalCardHeight(menuCard);
+      let outOfRoom = false;
+      optionalAttributeRows.forEach((row) => {
+        if (outOfRoom) return;
+        row.hidden = false;
+        if (naturalCardHeight(goodToKnowCard) > menuHeight + 1) {
+          row.hidden = true;
+          outOfRoom = true;
+        }
+      });
+    }
+
+    function scheduleOptionalAttributeFit() {
+      window.cancelAnimationFrame(optionalAttributeFrame);
+      optionalAttributeFrame = window.requestAnimationFrame(fitOptionalAttributes);
+    }
+
+    if (goodToKnowCard && optionalAttributeRows.length) {
+      if ('ResizeObserver' in window) {
+        const cardResizeObserver = new ResizeObserver(scheduleOptionalAttributeFit);
+        if (menuCard) cardResizeObserver.observe(menuCard);
+      } else {
+        window.addEventListener('resize', scheduleOptionalAttributeFit);
+      }
+      singleColumnCards.addEventListener('change', scheduleOptionalAttributeFit);
+      window.addEventListener('load', scheduleOptionalAttributeFit, { once: true });
+      document.fonts?.ready.then(scheduleOptionalAttributeFit);
+      scheduleOptionalAttributeFit();
+    }
 
 
     // ---------------------------------------------------------------------
@@ -1963,6 +2460,17 @@ function formatWindowLine(window: {
       paintConsumerState();
     }
 
+    function paintVerification(ownerVerified: boolean) {
+      const type = document.getElementById('venue-verification-type')!;
+      const heroBadge = document.getElementById('hero-verification-badge') as HTMLElement;
+      if (ownerVerified) {
+        type.textContent = '✓ Owner verified';
+        type.classList.remove('unverified');
+        heroBadge.textContent = 'Owner verified';
+        heroBadge.style.display = '';
+      }
+    }
+
     function setVenueGallery(photos: any[]) {
       venueGalleryPhotos = photos;
       const featured = heroImg.getAttribute('src') || heroImg.src;
@@ -2072,6 +2580,7 @@ function formatWindowLine(window: {
         const res = await fetch(`/api/venue-content/${venueId}`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
+        paintVerification(Boolean(data.ownerVerified));
         // Only repaint when there's actually something different to show. The
         // static markup is already correct for a venue nobody has edited, so
         // repainting it identically just risks a flash of relayout and hides

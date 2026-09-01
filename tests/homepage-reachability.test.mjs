@@ -18,7 +18,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
-import { alertMatchesVenue, getPublicVenues, hasSchedule, getVenues } from '../src/lib/venues';
+import { alertMatchesVenue, getPublicVenues, hasSchedule, getVenues, venueMatchesTimeRange } from '../src/lib/venues';
 import { OFFERS_UNKNOWN_FILTER } from '../src/lib/directoryFilters';
 import { isPubliclyListed, isSitemapEligible } from '../src/lib/listingVisibility';
 import { venueSearchText } from '../src/lib/venueSearchText';
@@ -137,6 +137,64 @@ async function testVenuesWithNoDealTypesAreReachableThroughTheDealFilter() {
   assert.equal(alertMatchesVenue(filters, withTypes), false);
 }
 
+async function testHeroLiveCounterActivatesOnlyRecurringHappyHoursNow() {
+  const homepage = await readFile(path.join(process.cwd(), 'src', 'pages', 'index.astro'), 'utf8');
+
+  // The hero count stays in an explicit loading state until canonical server
+  // time arrives; a false zero is never painted during startup.
+  assert.match(homepage, /<button class="live-counter" id="live-counter-button" type="button" disabled aria-busy="true"/);
+  assert.match(homepage, /id="live-count-big"><span class="live-count-loader"/);
+  assert.match(homepage, /if \(!feedSnapshot\.data\) \{/);
+  assert.match(homepage, /feedSnapshot\.error[\s\S]*?Count temporarily unavailable/);
+  assert.match(homepage, /liveCounterButton\.disabled = happyHoursNow === 0/);
+  assert.match(homepage, /if \(getHappyHoursNowCount\(venueStates\) === 0\) return;/);
+
+  // The CTA clears every exclusionary facet before selecting the existing,
+  // visible recurring-status filter. Live Deals are not the definition of
+  // "Happy Hour Now"; the canonical consumer state occurrence is.
+  assert.match(homepage, /\['day-filter', 'neighborhood-filter', 'deal-filter', 'status-filter', 'trust-filter', 'start-time-filter', 'end-time-filter'\]/);
+  assert.match(homepage, /getElementById\('search-input'\)[\s\S]*?\.value = ''/);
+  assert.match(homepage, /statusFilter\.value = 'happy-hour-now'/);
+  assert.match(
+    homepage,
+    /if \(statusFilter === 'happy-hour-now'\) \{\s*filtered = filtered\.filter\(\(h\) => Boolean\(venueStates\.get\(h\.id\)\?\.happyHourOccurrence\)\);/,
+  );
+
+  // The selected filter remains visible and the scroll respects the visitor's
+  // reduced-motion preference. Distance and view mode are presentation/sort
+  // controls, so activating the CTA deliberately leaves them intact.
+  assert.match(homepage, /<option value="happy-hour-now">Happy Hour Now<\/option>/);
+  assert.match(homepage, /matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches/);
+  assert.match(homepage, /scrollIntoView\(\{ behavior: reduceMotion \? 'auto' : 'smooth', block: 'start' \}\)/);
+  assert.match(homepage, /Near Me and list\/map are retained/);
+}
+
+async function testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent() {
+  const homepage = await readFile(path.join(process.cwd(), 'src', 'pages', 'index.astro'), 'utf8');
+  assert.match(homepage, /id="start-time-filter" type="time"/);
+  assert.match(homepage, /id="end-time-filter" type="time"/);
+  assert.match(homepage, /startTime:\s*\(document\.getElementById\('start-time-filter'\)/);
+  assert.match(homepage, /endTime:\s*\(document\.getElementById\('end-time-filter'\)/);
+  assert.match(homepage, /<a class="card-image-link" href="\/venues\/\$\{slug\}\/">/);
+  assert.match(homepage, /<a class="neighborhood-tag" href="\$\{escapeHTML\(neighborhoodPath\(h\.neighborhood\)/);
+  assert.match(
+    homepage,
+    /<a class="card-image-link" href="\/venues\/\$\{slug\}\/">[\s\S]*?<\/a>\s*\$\{!hasDistance[\s\S]*?<a class="neighborhood-tag"/,
+  );
+
+  const venue = {
+    startTime: '15:00', endTime: '18:00',
+    windows: [
+      { days: ['Monday'], startTime: '15:00', endTime: '18:00' },
+      { days: ['Friday'], startTime: '20:00', endTime: '00:00' },
+    ],
+  };
+  assert.equal(venueMatchesTimeRange(venue, '14:00', '19:00', ['Monday']), true);
+  assert.equal(venueMatchesTimeRange(venue, '16:00', '19:00', ['Monday']), false);
+  assert.equal(venueMatchesTimeRange(venue, '19:00', '00:00', ['Friday']), true);
+  assert.equal(venueMatchesTimeRange(venue, '14:00', '19:00', ['Friday']), false);
+}
+
 function testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage() {
   // Two prerendered surfaces do read `seoHidden`: the homepage's ItemList
   // structured data and the neighborhood pages. A venue whose happy-hour
@@ -204,6 +262,8 @@ tests.push(
   testEveryPublishedVenueCanBeFoundBySearchingItsOwnName,
   testEveryPublishedVenueSurvivesEveryFilterFacet,
   testVenuesWithNoDealTypesAreReachableThroughTheDealFilter,
+  testHeroLiveCounterActivatesOnlyRecurringHappyHoursNow,
+  testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent,
   testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage,
   testABuildingFullOfTenantsIsNotAPublishedVenue,
 );

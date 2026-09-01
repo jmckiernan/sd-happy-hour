@@ -260,6 +260,8 @@ export interface AlertFilters {
   neighborhood: string;
   dealType: string;
   query: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 export interface AlertChannels {
@@ -535,6 +537,14 @@ export async function listVerifiedClaimedVenueIds(): Promise<Set<number>> {
   return new Set(rows.map((r) => r.venue_id));
 }
 
+export async function isVenueOwnerVerified(venueId: number): Promise<boolean> {
+  const rows = await sql<{ exists: boolean }>`
+    SELECT EXISTS(
+      SELECT 1 FROM venue_claims WHERE venue_id = ${venueId} AND status = 'verified'
+    ) AS exists`;
+  return Boolean(rows[0]?.exists);
+}
+
 // =============================================================================
 // Venue publications — clearance to appear on the public site
 // =============================================================================
@@ -716,7 +726,7 @@ export interface Submission {
   status: 'pending' | 'approved' | 'denied';
   createdAt: string;
   updatedAt: string;
-  contact: { contactName: string; contactEmail: string; notes: string };
+  contact: { contactName: string; contactEmail: string; relationshipToVenue: string; notes: string };
   listing: Listing;
   denialReason?: string;
   approvedListingId?: number;
@@ -727,6 +737,7 @@ interface SubmissionRow {
   status: 'pending' | 'approved' | 'denied';
   contact_name: string;
   contact_email: string;
+  contact_relationship: string;
   contact_notes: string;
   listing: Listing;
   denial_reason: string | null;
@@ -741,7 +752,12 @@ function mapSubmission(row: SubmissionRow): Submission {
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    contact: { contactName: row.contact_name, contactEmail: row.contact_email, notes: row.contact_notes },
+    contact: {
+      contactName: row.contact_name,
+      contactEmail: row.contact_email,
+      relationshipToVenue: row.contact_relationship ?? '',
+      notes: row.contact_notes,
+    },
     listing: row.listing,
     denialReason: row.denial_reason ?? undefined,
     approvedListingId: row.approved_listing_id ?? undefined,
@@ -759,14 +775,24 @@ export async function getSubmission(id: string): Promise<Submission | null> {
 }
 
 export interface CreateSubmissionInput {
-  contact: { contactName: string; contactEmail: string; notes: string };
+  contact: { contactName: string; contactEmail: string; relationshipToVenue: string; notes: string };
   listing: Listing;
+  /** Existing venue targeted by a public correction. It remains unchanged
+   * until an admin approves the pending submission. */
+  approvedListingId?: number;
 }
 
 export async function createSubmission(input: CreateSubmissionInput): Promise<Submission> {
   const rows = await sql<SubmissionRow>`
-    INSERT INTO submissions (contact_name, contact_email, contact_notes, listing)
-    VALUES (${input.contact.contactName}, ${input.contact.contactEmail}, ${input.contact.notes}, ${JSON.stringify(input.listing)}::jsonb)
+    INSERT INTO submissions (contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id)
+    VALUES (
+      ${input.contact.contactName},
+      ${input.contact.contactEmail},
+      ${input.contact.relationshipToVenue},
+      ${input.contact.notes},
+      ${JSON.stringify(input.listing)}::jsonb,
+      ${input.approvedListingId ?? null}
+    )
     RETURNING *`;
   return mapSubmission(rows[0]);
 }

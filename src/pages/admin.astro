@@ -161,8 +161,10 @@ const venueSlugByNameAndHood = Object.fromEntries(
     <!-- Nothing leaves this page once it's been decided on: approved and
          denied submissions stay here as the record of what happened, behind
          a filter. "All" is the default. -->
-    <div class="admin-filters" id="filters" role="group" aria-label="Filter submissions by status" hidden>
+    <div class="admin-filters" id="filters" role="group" aria-label="Filter submissions by status or type" hidden>
       <button type="button" data-filter="all" aria-pressed="true">All <span class="count" data-count="all"></span></button>
+      <button type="button" data-filter="new" aria-pressed="false">New listings <span class="count" data-count="new"></span></button>
+      <button type="button" data-filter="updates" aria-pressed="false">Updates <span class="count" data-count="updates"></span></button>
       <button type="button" data-filter="pending" aria-pressed="false">Pending <span class="count" data-count="pending"></span></button>
       <button type="button" data-filter="approved" aria-pressed="false">Approved <span class="count" data-count="approved"></span></button>
       <button type="button" data-filter="denied" aria-pressed="false">Denied <span class="count" data-count="denied"></span></button>
@@ -183,8 +185,8 @@ const venueSlugByNameAndHood = Object.fromEntries(
     const adminUserEl = document.getElementById('admin-user')!;
     const filtersEl = document.getElementById('filters')!;
 
-    type StatusFilter = 'all' | 'pending' | 'approved' | 'denied';
-    let activeFilter: StatusFilter = 'all';
+    type SubmissionFilter = 'all' | 'new' | 'updates' | 'pending' | 'approved' | 'denied';
+    let activeFilter: SubmissionFilter = 'all';
 
     // Everything the admin has open, kept out of the DOM so it survives the
     // full repaint that follows every save/approve/deny. Without this,
@@ -233,6 +235,15 @@ const venueSlugByNameAndHood = Object.fromEntries(
       );
     }
 
+    /** Update proposals and brand-new listings share the pending status. The
+     * target venue id is what distinguishes the two until either is reviewed. */
+    function matchesFilter(item: any, filter: SubmissionFilter) {
+      if (filter === 'all') return true;
+      if (filter === 'new') return item.status === 'pending' && item.approvedListingId == null;
+      if (filter === 'updates') return item.status === 'pending' && item.approvedListingId != null;
+      return item.status === filter;
+    }
+
     /** The buttons a submission gets depend on where it already is. An
      * approved one has a live venue behind it, so its edit button updates that
      * venue too (see api/admin/submissions/[id].ts), and there's no Deny:
@@ -242,9 +253,12 @@ const venueSlugByNameAndHood = Object.fromEntries(
       if (item.status === 'approved') {
         return '<button class="good" data-action="edit">Save changes &amp; update venue</button>';
       }
+      const approvalLabel = item.approvedListingId
+        ? (item.status === 'denied' ? 'Approve venue update after all' : 'Approve venue update')
+        : (item.status === 'denied' ? 'Approve after all' : 'Approve');
       return `
         <button class="secondary" data-action="edit">Save edit</button>
-        <button class="good" data-action="approve">${item.status === 'denied' ? 'Approve after all' : 'Approve'}</button>
+        <button class="good" data-action="approve">${approvalLabel}</button>
         ${item.status === 'denied' ? '' : '<button class="bad" data-action="deny">Deny</button>'}
       `;
     }
@@ -273,7 +287,12 @@ const venueSlugByNameAndHood = Object.fromEntries(
               </span>
               <div>
                 <h2>${escapeHTML(item.listing.name)}</h2>
-                <p>${escapeHTML(item.listing.neighborhood)} · submitted ${new Date(item.createdAt).toLocaleString()}</p>
+                <p>
+                  ${escapeHTML(item.listing.neighborhood)} · submitted ${new Date(item.createdAt).toLocaleString()}
+                  ${item.approvedListingId && item.status !== 'approved'
+                    ? ` · proposed update to venue #${escapeHTML(item.approvedListingId)}`
+                    : ''}
+                </p>
               </div>
             </div>
             <div class="submission-head-side">
@@ -291,6 +310,9 @@ const venueSlugByNameAndHood = Object.fromEntries(
           <div class="submission-summary">
             <div><strong>Contact:</strong> ${escapeHTML(item.contact.contactName)}</div>
             <div><strong>Email:</strong> <a href="mailto:${escapeHTML(item.contact.contactEmail)}">${escapeHTML(item.contact.contactEmail)}</a></div>
+            ${item.contact.relationshipToVenue
+              ? `<div><strong>Relationship to venue:</strong> ${escapeHTML(item.contact.relationshipToVenue)}</div>`
+              : ''}
           </div>
 
           <div class="submission-body" ${expanded ? '' : 'hidden'}>
@@ -320,12 +342,14 @@ const venueSlugByNameAndHood = Object.fromEntries(
     function renderSubmissions() {
       const counts = {
         all: allSubmissions.length,
+        new: allSubmissions.filter((item) => matchesFilter(item, 'new')).length,
+        updates: allSubmissions.filter((item) => matchesFilter(item, 'updates')).length,
         pending: allSubmissions.filter((item) => item.status === 'pending').length,
         approved: allSubmissions.filter((item) => item.status === 'approved').length,
         denied: allSubmissions.filter((item) => item.status === 'denied').length,
       };
       filtersEl.querySelectorAll('[data-count]').forEach((el) => {
-        el.textContent = `(${counts[(el as HTMLElement).dataset.count as StatusFilter]})`;
+        el.textContent = `(${counts[(el as HTMLElement).dataset.count as SubmissionFilter]})`;
       });
       filtersEl.querySelectorAll('[data-filter]').forEach((el) => {
         el.setAttribute('aria-pressed', String((el as HTMLElement).dataset.filter === activeFilter));
@@ -338,9 +362,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
         return;
       }
 
-      const visible = sortForReview(
-        activeFilter === 'all' ? allSubmissions : allSubmissions.filter((item) => item.status === activeFilter)
-      );
+      const visible = sortForReview(allSubmissions.filter((item) => matchesFilter(item, activeFilter)));
 
       const summary = `${counts.pending} pending, ${counts.approved} approved, ${counts.denied} denied`;
       setStatus(activeFilter === 'all' ? summary : `${summary} — showing ${visible.length} ${activeFilter}`);
@@ -438,7 +460,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
     filtersEl.addEventListener('click', (event) => {
       const button = (event.target as HTMLElement).closest('[data-filter]') as HTMLElement | null;
       if (!button) return;
-      activeFilter = button.dataset.filter as StatusFilter;
+      activeFilter = button.dataset.filter as SubmissionFilter;
       renderSubmissions();
     });
 

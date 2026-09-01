@@ -79,6 +79,17 @@ import Layout from '../layouts/Layout.astro';
     .form-status { color: var(--night-soft); font-weight: 600; }
     .form-status.error { color: #B91C1C; }
 
+    .update-context {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: var(--radius-sm);
+      color: var(--night-soft);
+      line-height: 1.55;
+      margin: 0 0 16px;
+      padding: 14px 16px;
+    }
+    .update-context strong { color: var(--night); }
+
     .submit-footnote { color: var(--night-soft); font-size: 0.85rem; margin-top: 16px; }
 
     @media (max-width: 720px) {
@@ -87,12 +98,19 @@ import Layout from '../layouts/Layout.astro';
   </style>
 
   <header class="page-header">
-    <h1>Submit a Happy Hour</h1>
-    <p>Own or manage a San Diego spot? Send us your happy hour details and our team will review and verify it before it goes live.</p>
+    <h1 id="submit-heading">Submit a Happy Hour</h1>
+    <p id="submit-intro">Own or manage a San Diego spot? Send us your happy hour details and our team will review and verify it before it goes live.</p>
   </header>
 
   <main class="submit-main">
+    <p class="update-context" id="update-context" hidden>
+      You’re suggesting changes to the existing <strong id="update-venue-name"></strong> listing.
+      Nothing on its public page changes unless an admin reviews and approves this update.
+    </p>
+
     <form class="submit-form" id="submit-form">
+      <input id="existing-venue-id" name="existingVenueId" type="hidden">
+
       <div class="form-field">
         <label for="contact-name">Your name</label>
         <input id="contact-name" name="contactName" required>
@@ -100,6 +118,17 @@ import Layout from '../layouts/Layout.astro';
       <div class="form-field">
         <label for="contact-email">Your email</label>
         <input id="contact-email" name="contactEmail" type="email" required>
+      </div>
+
+      <div class="form-field full" id="relationship-field" hidden>
+        <label for="contact-relationship">Your relationship to the venue</label>
+        <input
+          id="contact-relationship"
+          name="relationshipToVenue"
+          placeholder="For example: owner, employee, regular guest, or found it on Instagram"
+          disabled
+        >
+        <p class="field-note">Tell us how you know these details or where you found them.</p>
       </div>
 
       <div class="form-field">
@@ -176,7 +205,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <div class="submit-actions">
-        <button type="submit">Submit for review</button>
+        <button id="submit-button" type="submit">Submit for review</button>
         <span class="form-status" id="submit-status" aria-live="polite"></span>
       </div>
     </form>
@@ -193,9 +222,12 @@ import Layout from '../layouts/Layout.astro';
       const formData = new FormData(form);
       const website = String(formData.get('website') || '').trim();
       const sourceUrl = String(formData.get('sourceUrl') || '').trim();
+      const existingVenueId = String(formData.get('existingVenueId') || '').trim();
       return {
+        ...(existingVenueId ? { existingVenueId: Number(existingVenueId) } : {}),
         contactName: formData.get('contactName'),
         contactEmail: formData.get('contactEmail'),
+        relationshipToVenue: formData.get('relationshipToVenue'),
         name: formData.get('name'),
         neighborhood: formData.get('neighborhood'),
         address: formData.get('address'),
@@ -213,10 +245,83 @@ import Layout from '../layouts/Layout.astro';
     }
 
     const form = document.getElementById('submit-form') as HTMLFormElement;
+    const status = document.getElementById('submit-status')!;
+    const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+
+    function setFieldValue(id: string, value: unknown) {
+      const field = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (field) field.value = String(value ?? '');
+    }
+
+    function checkValues(name: string, values: unknown) {
+      const selected = new Set(Array.isArray(values) ? values.map(String) : []);
+      form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`).forEach((input) => {
+        input.checked = selected.has(input.value);
+      });
+    }
+
+    async function initializeVenueUpdate() {
+      const rawVenueId = new URLSearchParams(window.location.search).get('venue');
+      if (!rawVenueId) return;
+
+      const venueId = Number(rawVenueId);
+      status.classList.remove('error');
+      status.textContent = 'Loading current venue details…';
+      submitButton.disabled = true;
+
+      if (!Number.isSafeInteger(venueId) || venueId <= 0) {
+        status.classList.add('error');
+        status.textContent = 'That venue update link is invalid. Please return to the directory and try again.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/data/happy-hours.json');
+        if (!response.ok) throw new Error('Current venue details could not be loaded.');
+        const venues = await response.json();
+        const venue = Array.isArray(venues)
+          ? venues.find((item) => Number(item?.id) === venueId)
+          : undefined;
+        if (!venue) throw new Error('That venue could not be found. Please return to the directory and try again.');
+
+        setFieldValue('existing-venue-id', venue.id);
+        setFieldValue('submit-name', venue.name);
+        setFieldValue('submit-neighborhood', venue.neighborhood);
+        setFieldValue('submit-address', venue.address);
+        setFieldValue('submit-website', venue.website);
+        setFieldValue('submit-source', venue.sourceUrl || venue.website);
+        setFieldValue('submit-phone', venue.phone);
+        setFieldValue('submit-start', venue.startTime);
+        setFieldValue('submit-end', venue.endTime);
+        setFieldValue('submit-deals', Array.isArray(venue.deals) ? venue.deals.join('\n') : '');
+        setFieldValue('submit-vibe', venue.vibe);
+        checkValues('days', venue.days);
+        checkValues('dealTypes', venue.dealTypes);
+
+        document.getElementById('submit-heading')!.textContent = `Suggest an update to ${venue.name}`;
+        document.getElementById('submit-intro')!.textContent =
+          'Review the current happy hour details below, correct anything that has changed, and include a source when possible.';
+        document.getElementById('update-venue-name')!.textContent = venue.name;
+        document.getElementById('update-context')!.hidden = false;
+        document.getElementById('relationship-field')!.hidden = false;
+        const relationshipInput = document.getElementById('contact-relationship') as HTMLInputElement;
+        relationshipInput.disabled = false;
+        relationshipInput.required = true;
+        form.dataset.updateMode = 'true';
+        submitButton.textContent = 'Submit update for review';
+        document.title = `Update ${venue.name} Happy Hour | SD Happy Hours`;
+        status.textContent = '';
+        submitButton.disabled = false;
+      } catch (error: any) {
+        status.classList.add('error');
+        status.textContent = error.message;
+      }
+    }
+
+    void initializeVenueUpdate();
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const status = document.getElementById('submit-status')!;
-      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
       status.classList.remove('error');
       status.textContent = 'Submitting...';
@@ -230,13 +335,21 @@ import Layout from '../layouts/Layout.astro';
         });
         const data = await res.json();
         if (!res.ok) throw new Error((data.errors || ['Submission failed.']).join(' '));
-        form.reset();
-        status.textContent = "Submitted — thanks! We'll review it and reach out if we have questions.";
+        const isVenueUpdate = form.dataset.updateMode === 'true';
+        if (isVenueUpdate) {
+          status.textContent = "Update submitted — thanks! Nothing will change until an admin reviews and approves it.";
+          submitButton.textContent = 'Update submitted';
+        } else {
+          form.reset();
+          status.textContent = "Submitted — thanks! We'll review it and reach out if we have questions.";
+        }
       } catch (err: any) {
         status.classList.add('error');
         status.textContent = err.message;
       } finally {
-        submitButton.disabled = false;
+        // Keep a successful correction closed so it cannot be accidentally
+        // resubmitted as a duplicate proposal from the same loaded page.
+        submitButton.disabled = form.dataset.updateMode === 'true' && submitButton.textContent === 'Update submitted';
       }
     });
   </script>

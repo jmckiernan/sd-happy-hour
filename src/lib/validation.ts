@@ -217,11 +217,17 @@ export const validatePromotion = validatePromotionInput;
 const VALID_DAYS = new Set(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
 
 export function cleanAlertFilters(input: Record<string, any>): AlertFilters {
+  const cleanTime = (value: unknown) => {
+    const time = cleanString(value);
+    return /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '';
+  };
   return {
     days: cleanList(input?.days).filter((day) => VALID_DAYS.has(day)),
     neighborhood: cleanString(input?.neighborhood),
     dealType: cleanString(input?.dealType),
     query: cleanString(input?.query).slice(0, 80),
+    startTime: cleanTime(input?.startTime),
+    endTime: cleanTime(input?.endTime),
   };
 }
 
@@ -339,14 +345,21 @@ export function validateListing(
   return { listing, errors };
 }
 
-export function validateSubmission(input: Record<string, any>) {
+export function validateSubmission(
+  input: Record<string, any>,
+  options: { requireRelationshipToVenue?: boolean } = {},
+) {
   const { listing, errors } = validateListing(input);
   const contact = {
     contactName: cleanString(input.contactName),
     contactEmail: cleanString(input.contactEmail),
+    relationshipToVenue: cleanString(input.relationshipToVenue),
     notes: cleanString(input.notes),
   };
   if (!contact.contactName) errors.push('Contact name is required.');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact.contactEmail)) errors.push('A valid contact email is required.');
+  if (options.requireRelationshipToVenue && !contact.relationshipToVenue) {
+    errors.push('Tell us how you are connected to the venue.');
+  }
   return { listing, contact, errors };
 }

@@ -382,7 +382,71 @@ export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean 
       .toLowerCase();
     if (!haystack.includes(filters.query.toLowerCase())) return false;
   }
+  if (!venueMatchesTimeRange(venue, filters.startTime, filters.endTime, filters.days)) return false;
   return true;
+}
+
+function clockMinutes(value: string | undefined): number | null {
+  if (!value || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return null;
+  const [hours, minutes] = value.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+/**
+ * Matches recurring windows that fit inside the visitor's chosen clock
+ * bounds. A single bound remains useful ("starts after" or "ends before"),
+ * while a start + end describes the complete window an alert should watch.
+ */
+export function venueMatchesTimeRange(
+  venue: Pick<Venue, 'startTime' | 'endTime' | 'windows'>,
+  startTime = '',
+  endTime = '',
+  days: string[] = [],
+): boolean {
+  const lower = clockMinutes(startTime);
+  const upper = clockMinutes(endTime);
+  if (lower === null && upper === null) return true;
+
+  const windows = venue.windows?.length
+    ? venue.windows
+    : venue.startTime && venue.endTime
+      ? [{ startTime: venue.startTime, endTime: venue.endTime }]
+      : [];
+
+  return windows.some((window) => {
+    if (days.length && 'days' in window && window.days?.length && !days.some((day) => window.days.includes(day))) {
+      return false;
+    }
+    const rawStart = clockMinutes(window.startTime);
+    const rawEnd = clockMinutes(window.endTime);
+    if (rawStart === null || rawEnd === null) return false;
+    const windowEnd = rawEnd <= rawStart ? rawEnd + 24 * 60 : rawEnd;
+
+    if (lower !== null && upper !== null) {
+      const filterEnd = upper <= lower ? upper + 24 * 60 : upper;
+      return [-24 * 60, 0, 24 * 60].some((shift) =>
+        rawStart >= lower + shift && windowEnd <= filterEnd + shift
+      );
+    }
+    if (lower !== null) return rawStart >= lower;
+    return rawEnd <= upper!;
+  });
+}
+
+export type VenueVerificationType = 'owner' | 'web' | 'none';
+
+/** Public trust label. Google and the venue's own web pages are both web
+ * evidence; a verified owner claim always takes precedence over that. */
+export function venueVerificationType(
+  venue: Pick<Venue, 'verified' | 'lastVerifiedAt' | 'hhSources'>,
+  ownerVerified = false,
+): VenueVerificationType {
+  if (ownerVerified) return 'owner';
+  const hasWebEvidence = Object.values(venue.hhSources || {}).some((source) => {
+    const kind = String(source?.source || '').toLowerCase();
+    return kind.includes('website') || kind.includes('google') || kind.includes('venue');
+  });
+  return venue.verified || Boolean(venue.lastVerifiedAt) || hasWebEvidence ? 'web' : 'none';
 }
 
 export function formatTime(time: string): string {

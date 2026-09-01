@@ -145,8 +145,17 @@ test('the admin and submission validators accept a window with no deals too', ()
     ...base,
     contactName: 'Owner',
     contactEmail: 'owner@example.test',
+    relationshipToVenue: '  Regular guest  ',
   });
   assert.deepEqual(submission.errors, []);
+  assert.equal(submission.contact.relationshipToVenue, 'Regular guest');
+
+  const updateWithoutRelationship = validateSubmission({
+    ...base,
+    contactName: 'Owner',
+    contactEmail: 'owner@example.test',
+  }, { requireRelationshipToVenue: true });
+  assert.ok(updateWithoutRelationship.errors.includes('Tell us how you are connected to the venue.'));
 
   assert.ok(
     validateListing({ ...base, dealTypes: ['beer'] }).errors
@@ -166,6 +175,49 @@ test('every form on the claim path presents deals as optional', async () => {
   assert.doesNotMatch(submitPage, /id="submit-deals"[^>]*required/);
   assert.match(form, /<label>Deals \(one per line, optional\)<\/label>/);
   assert.doesNotMatch(form, /data-lf="deals"[^>]*required/);
+});
+
+test('card corrections target an existing venue but remain admin-gated', async () => {
+  const [homePage, submitPage, submitRoute, store, reviewRoute, adminPage, relationshipMigration] = await Promise.all([
+    readFile(path.join(ROOT, 'src', 'pages', 'index.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'submit.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'submissions.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'lib', 'store.ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'api', 'admin', 'submissions', '[id].ts'), 'utf8'),
+    readFile(path.join(ROOT, 'src', 'pages', 'admin.astro'), 'utf8'),
+    readFile(path.join(ROOT, 'migrations', '0019_submission_contact_relationship.sql'), 'utf8'),
+  ]);
+
+  assert.match(homePage, /href="\/submit\/\?venue=\$\{encodeURIComponent\(String\(h\.id\)\)\}">Report update<\/a>/);
+  assert.match(submitPage, /name="existingVenueId" type="hidden"/);
+  assert.match(submitPage, /fetch\('\/data\/happy-hours\.json'\)/);
+  assert.match(submitPage, /Suggest an update to \$\{venue\.name\}/);
+  assert.match(submitPage, /Nothing on its public page changes unless an admin reviews and approves this update\./);
+  assert.match(submitPage, /<label for="contact-relationship">Your relationship to the venue<\/label>/);
+  assert.match(submitPage, /id="contact-relationship"\s+name="relationshipToVenue"/);
+  assert.match(submitPage, /relationshipToVenue:\s*formData\.get\('relationshipToVenue'\)/);
+  assert.match(submitPage, /document\.getElementById\('relationship-field'\)!\.hidden = false/);
+  assert.match(submitPage, /relationshipInput\.disabled = false;\s*relationshipInput\.required = true/);
+
+  assert.match(submitRoute, /getVenueById\(parsedId\)/);
+  assert.match(submitRoute, /relationshipToVenue:\s*body\.relationshipToVenue/);
+  assert.match(submitRoute, /requireRelationshipToVenue:\s*targetVenueId !== undefined/);
+  assert.match(submitRoute, /createSubmission\(\{ contact, listing, approvedListingId: targetVenueId \}\)/);
+  assert.match(store, /relationshipToVenue:\s*row\.contact_relationship \?\? ''/);
+  assert.match(store, /INSERT INTO submissions \(contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id\)/);
+  assert.match(relationshipMigration, /ADD COLUMN contact_relationship text NOT NULL DEFAULT ''/);
+
+  // Merely saving the queued proposal cannot touch a live venue. Only an
+  // approval (or a later edit of an already-approved record) reaches it.
+  assert.match(reviewRoute, /const publishedId = submission\.status === 'approved'/);
+  assert.match(reviewRoute, /if \(action === 'approve'\) \{[\s\S]*if \(submission\.approvedListingId\) \{[\s\S]*await updateVenue\(submission\.approvedListingId, approvedListing\)/);
+  assert.match(adminPage, /Approve venue update/);
+  assert.match(adminPage, /proposed update to venue #/);
+  assert.match(adminPage, /data-filter="new"[^>]*>New listings/);
+  assert.match(adminPage, /data-filter="updates"[^>]*>Updates/);
+  assert.match(adminPage, /filter === 'new'\) return item\.status === 'pending' && item\.approvedListingId == null/);
+  assert.match(adminPage, /filter === 'updates'\) return item\.status === 'pending' && item\.approvedListingId != null/);
+  assert.match(adminPage, /item\.contact\.relationshipToVenue[\s\S]{0,160}<strong>Relationship to venue:<\/strong> \$\{escapeHTML\(item\.contact\.relationshipToVenue\)\}/);
 });
 
 test('manager listing form distinguishes venue hours from happy-hour hours', () => {
@@ -195,6 +247,24 @@ test('venue page keeps one default-list quick-save action without a list picker'
   assert.match(venuePage, /method:\s*removing \? 'DELETE' : 'POST'/);
   assert.match(venuePage, /aria-pressed="false"/);
   assert.doesNotMatch(venuePage, /venue-list-picker|venue-list-memberships|Add or remove a list/);
+});
+
+test('venue page exposes verification, report, measured WebP menus, and a custom share surface', async () => {
+  const venuePage = await readFile(path.join(ROOT, 'src', 'components', 'VenueHappyHourPage.astro'), 'utf8');
+
+  assert.match(venuePage, /venueVerificationType\(venue\)/);
+  assert.match(venuePage, /✓ Web verified/);
+  assert.match(venuePage, /✓ Owner verified/);
+  assert.match(venuePage, /href=\{`\/submit\/\?venue=\$\{venue\.id\}`\}>Report an update<\/a>/);
+  assert.match(venuePage, /\.menu-board-tile--stylized img\s*\{\s*min-height:\s*365px;\s*object-fit:\s*contain;/);
+  assert.match(venuePage, /\.menu-card\.has-stylized-webp-menu\s*\{\s*min-height:\s*469px;/);
+
+  assert.match(venuePage, /id="share-menu" role="dialog"/);
+  assert.match(venuePage, /aria-haspopup', 'dialog'/);
+  assert.match(venuePage, /data-share-action="copy"/);
+  assert.match(venuePage, /navigator\.clipboard\.writeText\(shareUrl\(\)\)/);
+  assert.match(venuePage, /if \(event\.key === 'Escape' && !shareMenu\.hidden\)/);
+  assert.doesNotMatch(venuePage, /navigator\.share/);
 });
 
 test('featured picker displays the current admin image and offers no empty-image choice', () => {

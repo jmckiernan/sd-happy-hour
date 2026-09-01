@@ -1,0 +1,259 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Feature Requests | SD Happy Hours" description="Suggest and upvote features for SD Happy Hours.">
+  <header class="page-header">
+    <h1>Feature requests</h1>
+    <p>Suggest what would make SD Happy Hours more useful, or upvote an idea that is already here.</p>
+  </header>
+
+  <main class="features-page">
+    <section class="signed-out" id="feature-signin" hidden>
+      <h2>Sign in to join the board</h2>
+      <p>The feature board is available to signed-in community members and venue owners.</p>
+      <a href="/account/?next=%2Ffeatures%2F">Sign in or create an account</a>
+    </section>
+
+    <div id="feature-app" hidden>
+      <section class="request-panel">
+        <h2>Request a feature</h2>
+        <form id="feature-form">
+          <label>Feature title <input name="title" minlength="5" maxlength="120" required placeholder="Example: Show dog-friendly patios" /></label>
+          <label>More detail <textarea name="details" maxlength="2000" rows="4" placeholder="How would you use it?"></textarea></label>
+          <button type="submit">Check for similar requests</button>
+          <p class="form-status" id="feature-form-status" aria-live="polite"></p>
+        </form>
+        <div class="match-panel" id="feature-matches" hidden>
+          <h3>Is one of these what you’re looking for?</h3>
+          <div id="feature-match-list"></div>
+          <button class="secondary" id="feature-submit-new" type="button">None match — submit as new</button>
+        </div>
+      </section>
+
+      <section class="board-panel" aria-labelledby="feature-board-title">
+        <div class="board-heading">
+          <h2 id="feature-board-title">Most requested</h2>
+          <span id="feature-count"></span>
+        </div>
+        <div class="feature-list" id="feature-list" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <style is:global>
+    .features-page { margin: 0 auto 80px; max-width: 960px; padding: 22px 24px; }
+    #feature-app { display: grid; gap: 26px; }
+    #feature-app[hidden], .signed-out[hidden], .match-panel[hidden] { display: none; }
+    .request-panel, .board-panel, .signed-out { background: white; border-radius: var(--radius); box-shadow: 0 8px 28px rgba(15,23,42,.08); padding: clamp(22px, 5vw, 36px); }
+    h2 { font-family: var(--font-display); margin-bottom: 16px; }
+    .signed-out { text-align: center; }
+    .signed-out p { color: var(--night-soft); margin-bottom: 20px; }
+    .signed-out a, button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; display: inline-flex; font: inherit; font-weight: 800; min-height: 44px; padding: 11px 20px; text-decoration: none; }
+    :is(.signed-out a, button):hover { background: var(--sunset-start); }
+    form { display: grid; gap: 15px; }
+    label { display: grid; font-weight: 750; gap: 7px; }
+    input, textarea { border: 2px solid var(--sand-warm); border-radius: 12px; color: var(--night); font: inherit; padding: 11px 13px; width: 100%; }
+    textarea { line-height: 1.5; resize: vertical; }
+    :is(input, textarea):focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    form button { justify-self: start; }
+    button.secondary { background: var(--sand-warm); color: var(--night); }
+    button:disabled { cursor: default; opacity: .58; }
+    .form-status { color: #047857; font-weight: 700; min-height: 1.2em; }
+    .form-status.error { color: #B91C1C; }
+    .match-panel { background: var(--sand); border: 2px solid var(--sunset-end); border-radius: var(--radius-sm); margin-top: 20px; padding: 18px; }
+    .match-panel h3 { font-size: 1rem; margin-bottom: 12px; }
+    #feature-match-list { display: grid; gap: 10px; margin-bottom: 14px; }
+    .match-card { align-items: center; background: white; border-radius: 12px; display: flex; gap: 12px; justify-content: space-between; padding: 13px; }
+    .match-card strong { display: block; }
+    .match-card span { color: var(--night-soft); font-size: .78rem; }
+    .match-card button { flex: 0 0 auto; font-size: .78rem; padding: 8px 13px; }
+    .board-heading { align-items: baseline; display: flex; justify-content: space-between; }
+    .board-heading span { color: var(--night-soft); font-size: .82rem; }
+    .feature-list { display: grid; gap: 12px; }
+    .feature-card { align-items: start; border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 14px; grid-template-columns: auto minmax(0, 1fr); padding: 16px; }
+    .vote-button { align-items: center; background: var(--sand-warm); color: var(--night); display: grid; font-size: .78rem; gap: 2px; justify-items: center; min-width: 66px; padding: 9px; }
+    .vote-button .arrow { color: var(--sunset-start); font-size: 1.2rem; line-height: 1; }
+    .vote-button.upvoted { background: #ECFDF5; color: #047857; }
+    .feature-card h3 { font-size: 1.05rem; margin-bottom: 5px; }
+    .feature-card p { color: var(--night-soft); line-height: 1.5; overflow-wrap: anywhere; }
+    .feature-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .feature-meta span { background: var(--sand-warm); border-radius: 100px; color: var(--night-soft); font-size: .7rem; font-weight: 750; padding: 4px 8px; }
+    .feature-meta .owner { background: #E0F2FE; color: var(--ocean-deep); }
+    @media (max-width: 560px) { .match-card { align-items: stretch; flex-direction: column; } }
+  </style>
+
+  <script>
+    interface FeatureRequest {
+      id: string; authorName: string; authorKind: string; title: string; details: string;
+      status: string; voteCount: number; viewerHasVoted: boolean;
+    }
+
+    const signin = document.getElementById('feature-signin')!;
+    const app = document.getElementById('feature-app')!;
+    const list = document.getElementById('feature-list')!;
+    const count = document.getElementById('feature-count')!;
+    const form = document.getElementById('feature-form') as HTMLFormElement;
+    const formStatus = document.getElementById('feature-form-status')!;
+    const matchesPanel = document.getElementById('feature-matches')!;
+    const matchesList = document.getElementById('feature-match-list')!;
+    let requests: FeatureRequest[] = [];
+    let draft: { title: string; details: string } | null = null;
+
+    function renderBoard() {
+      list.replaceChildren();
+      count.textContent = `${requests.length} request${requests.length === 1 ? '' : 's'}`;
+      if (!requests.length) {
+        const empty = document.createElement('p');
+        empty.textContent = 'No requests yet. Start the board with the first idea.';
+        list.append(empty);
+        return;
+      }
+      for (const request of requests) {
+        const card = document.createElement('article');
+        card.className = 'feature-card';
+        const vote = document.createElement('button');
+        vote.type = 'button';
+        vote.className = `vote-button${request.viewerHasVoted ? ' upvoted' : ''}`;
+        vote.disabled = request.viewerHasVoted || !['open', 'planned'].includes(request.status);
+        vote.setAttribute('aria-label', request.viewerHasVoted ? `${request.voteCount} votes, already upvoted` : `Upvote ${request.title}`);
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = '▲';
+        const voteCount = document.createElement('strong');
+        voteCount.textContent = String(request.voteCount);
+        const voteLabel = document.createElement('span');
+        voteLabel.textContent = request.viewerHasVoted ? 'Upvoted' : 'Upvote';
+        vote.append(arrow, voteCount, voteLabel);
+        vote.addEventListener('click', () => upvote(request.id));
+
+        const body = document.createElement('div');
+        const title = document.createElement('h3');
+        title.textContent = request.title;
+        const details = document.createElement('p');
+        details.textContent = request.details;
+        details.hidden = !request.details;
+        const meta = document.createElement('div');
+        meta.className = 'feature-meta';
+        const author = document.createElement('span');
+        author.textContent = request.authorKind === 'venue_owner' ? `${request.authorName} · venue owner` : request.authorName;
+        if (request.authorKind === 'venue_owner') author.className = 'owner';
+        const state = document.createElement('span');
+        state.textContent = request.status;
+        meta.append(author, state);
+        body.append(title, details, meta);
+        card.append(vote, body);
+        list.append(card);
+      }
+    }
+
+    async function loadBoard() {
+      const response = await fetch('/api/feature-requests', { cache: 'no-store' });
+      if (response.status === 401) {
+        signin.hidden = false;
+        app.hidden = true;
+        return;
+      }
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error((body.errors || ['Could not load feature requests.']).join(' '));
+      requests = body.requests || [];
+      signin.hidden = true;
+      app.hidden = false;
+      renderBoard();
+    }
+
+    async function upvote(id: string) {
+      const response = await fetch(`/api/feature-requests/${encodeURIComponent(id)}/vote`, { method: 'POST' });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        formStatus.classList.add('error');
+        formStatus.textContent = (body.errors || ['Could not upvote that request.']).join(' ');
+        return;
+      }
+      await loadBoard();
+    }
+
+    function renderMatches(matches: FeatureRequest[]) {
+      matchesList.replaceChildren();
+      for (const match of matches) {
+        const row = document.createElement('div');
+        row.className = 'match-card';
+        const copy = document.createElement('div');
+        const title = document.createElement('strong');
+        title.textContent = match.title;
+        const votes = document.createElement('span');
+        votes.textContent = `${match.voteCount} vote${match.voteCount === 1 ? '' : 's'}`;
+        copy.append(title, votes);
+        const choose = document.createElement('button');
+        choose.type = 'button';
+        choose.textContent = match.viewerHasVoted ? 'Already upvoted' : 'Yes — upvote this';
+        choose.disabled = match.viewerHasVoted;
+        choose.addEventListener('click', async () => {
+          await upvote(match.id);
+          matchesPanel.hidden = true;
+          form.reset();
+          formStatus.textContent = 'Added your upvote to the existing request.';
+        });
+        row.append(copy, choose);
+        matchesList.append(row);
+      }
+      matchesPanel.hidden = false;
+    }
+
+    async function createDraft(confirmCreate: boolean) {
+      if (!draft) return;
+      const response = await fetch('/api/feature-requests', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...draft, confirmCreate }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 409 && body.matches?.length) {
+        renderMatches(body.matches);
+        return;
+      }
+      if (!response.ok) throw new Error((body.errors || ['Could not create the request.']).join(' '));
+      form.reset();
+      matchesPanel.hidden = true;
+      draft = null;
+      formStatus.textContent = 'Feature request added.';
+      await loadBoard();
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      draft = { title: String(data.get('title') || '').trim(), details: String(data.get('details') || '').trim() };
+      formStatus.classList.remove('error');
+      formStatus.textContent = 'Looking for similar requests…';
+      try {
+        const query = encodeURIComponent(`${draft.title} ${draft.details}`.trim());
+        const response = await fetch(`/api/feature-requests/matches?q=${query}`, { cache: 'no-store' });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((body.errors || ['Could not check existing requests.']).join(' '));
+        if (body.matches?.length) {
+          renderMatches(body.matches);
+          formStatus.textContent = 'We found possible matches. Choose one or submit yours as new.';
+        } else {
+          await createDraft(false);
+        }
+      } catch (error: any) {
+        formStatus.classList.add('error');
+        formStatus.textContent = error.message;
+      }
+    });
+
+    document.getElementById('feature-submit-new')!.addEventListener('click', async () => {
+      try { await createDraft(true); }
+      catch (error: any) {
+        formStatus.classList.add('error');
+        formStatus.textContent = error.message;
+      }
+    });
+
+    loadBoard().catch((error) => {
+      signin.hidden = false;
+      signin.querySelector('p')!.textContent = error.message;
+    });
+  </script>
+</Layout>

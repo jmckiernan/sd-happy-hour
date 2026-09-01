@@ -112926,9 +112926,21 @@
       "observedAt": "2026-08-31"
     },
     "imageCrop": {
-      "x": 45,
-      "y": 34.6,
-      "scale": 4
+      "hero": {
+        "x": 45,
+        "y": 34.6,
+        "scale": 4
+      },
+      "card": {
+        "x": 45,
+        "y": 34.6,
+        "scale": 4
+      },
+      "tile": {
+        "x": 45,
+        "y": 34.6,
+        "scale": 4
+      }
     },
     "menuCandidateImages": [
       {

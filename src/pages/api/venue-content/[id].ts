@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getVenues } from '../../../lib/venues';
-import { getVenueOverride } from '../../../lib/store';
+import { getVenueOverride, isVenueOwnerVerified } from '../../../lib/store';
 import { getVenueContent, mergeVenue, LIVE_LISTING_FIELDS } from '../../../lib/venueContent';
 import { json, errorJson } from '../../../lib/api';
 
@@ -24,7 +24,11 @@ export const GET: APIRoute = async ({ params }) => {
   const venue = getVenues().find((entry) => entry.id === venueId);
   if (!venue) return errorJson(['Venue not found.'], 404);
 
-  const [override, content] = await Promise.all([getVenueOverride(venueId), getVenueContent(venueId)]);
+  const [override, content, ownerVerified] = await Promise.all([
+    getVenueOverride(venueId),
+    getVenueContent(venueId),
+    isVenueOwnerVerified(venueId),
+  ]);
   const merged = mergeVenue(venue, override);
 
   // Only the live-editable fields go back, not the whole venue: the page
@@ -37,6 +41,7 @@ export const GET: APIRoute = async ({ params }) => {
   return new Response(
     JSON.stringify({
       venueId,
+      ownerVerified,
       listing,
       hasOwnerEdits: Boolean(override),
       photos: content.photos,

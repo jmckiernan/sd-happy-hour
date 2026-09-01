@@ -1058,6 +1058,10 @@ import Layout from '../layouts/Layout.astro';
           <select data-field="neighborhood">${optionList(neighborhoods, filters.neighborhood || '')}</select>
           <select data-field="dealType">${optionList(dealTypes, filters.dealType || '')}</select>
         </div>
+        <div class="filter-row">
+          <label>Starts after <input type="time" data-field="startTime" value="${escapeHTML(filters.startTime || '')}"></label>
+          <label>Ends before <input type="time" data-field="endTime" value="${escapeHTML(filters.endTime || '')}"></label>
+        </div>
         <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters.query || '')}">
       `;
     }
@@ -1069,6 +1073,8 @@ import Layout from '../layouts/Layout.astro';
         neighborhood: (container.querySelector('[data-field="neighborhood"]') as HTMLSelectElement)?.value || '',
         dealType: (container.querySelector('[data-field="dealType"]') as HTMLSelectElement)?.value || '',
         query: (container.querySelector('[data-field="query"]') as HTMLInputElement)?.value || '',
+        startTime: (container.querySelector('[data-field="startTime"]') as HTMLInputElement)?.value || '',
+        endTime: (container.querySelector('[data-field="endTime"]') as HTMLInputElement)?.value || '',
       };
     }
 
