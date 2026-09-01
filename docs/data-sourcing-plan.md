@@ -68,7 +68,7 @@ are sourced differently from what an earlier document claimed, and they are call
 | Field | Present on | Source today | Could come from | Authoritative |
 |---|---|---|---|---|
 | `id` | 3,006 | Ours. `lib/venue-ids.mjs`, allocated inside San Diego's 1–99,999 band | — | Ours, always |
-| `placeId` | 2,590 | Google, discovery | — | Google. The one field licensed to keep forever, and the key that makes any re-fetch targeted |
+| `placeId` | 2,996 | Google, discovery | — | Google. The one field licensed to keep forever, and the key that makes any re-fetch targeted |
 | `name` | 3,006 | Google `displayName` at import; admin and owner edits override | Website `<title>`, ABC licence trade name, permit `record_name` | **Owner claim, then admin, then Google.** Google's display name is the best automated answer we have |
 | `address` | 3,006 | Google `formattedAddress`, captured in the *discovery* mask so most stubs need no Details call | County permit registry, ABC extract, the venue's own contact page | Owner, then Google. Google's postal form is consistent, which matters for dedupe |
 | `lat` / `lng` | 3,006 | Google `location` | Geocoding a permit or ABC address (Census batch geocoder, free) | Google, but note this is the field with the explicit 30-day caching term |
@@ -94,23 +94,25 @@ are sourced differently from what an earlier document claimed, and they are call
 
 ### 2.3 Amenities and commercial attributes
 
-Every field in this block is Google Atmosphere, bought once by `backfill-atmosphere.mjs` over 2,787
-distinct place IDs, and every one keeps true, false and absent distinct.
+Every field in this block is Google Atmosphere, bought by `backfill-atmosphere.mjs` over 3,188
+distinct place IDs (2,787 then a 401-id gap fill after `link-place-ids.mjs`), and every one keeps
+true, false and absent distinct. Counts below are keys present on the catalog after merge, not
+affirmative-only.
 
 | Field | Present on | Source today | Could come from | Authoritative |
 |---|---|---|---|---|
-| `outdoorSeating` | 1,983 | Google Atmosphere | **Owner claim — two checkboxes, not built** | Owner, then Google |
-| `allowsDogs` | 1,041 | Google Atmosphere | Owner claim | Owner, then Google |
-| `reservable` | 1,975 | Google Atmosphere | The venue's own booking link | Owner, then Google |
-| `liveMusic` | 2,069 | Google Atmosphere | Venue events page, Instagram | Owner, then website |
-| `restroom` | 2,148 | Google Atmosphere | — | Google |
-| `goodForGroups` | 1,592 | Google Atmosphere | Owner claim | Owner, then Google |
-| `goodForWatchingSports` | 1,861 | Google Atmosphere | Menu and page text | Owner, then Google |
-| `servesVegetarianFood` | 1,572 | Google Atmosphere | Menu text, which we already hold for 313 venues | Menu, then Google |
-| `parkingOptions` | 2,483 | Google Atmosphere | Owner claim | Google |
-| `paymentOptions` | 2,558 | Google Atmosphere | — | Google |
-| `accessibilityOptions` | 2,561 | Google Atmosphere | Owner claim | Owner, then Google |
-| `priceLevel` / `priceRange` | 2,125 / 2,090 | Google Enterprise, free at the tier we already pay | Our own menu prices | Google, at no marginal cost |
+| `outdoorSeating` | 2,337 | Google Atmosphere | **Owner claim — two checkboxes, not built** | Owner, then Google |
+| `allowsDogs` | 1,235 | Google Atmosphere | Owner claim | Owner, then Google |
+| `reservable` | 2,313 | Google Atmosphere | The venue's own booking link | Owner, then Google |
+| `liveMusic` | 2,415 | Google Atmosphere | Venue events page, Instagram | Owner, then website |
+| `restroom` | 2,532 | Google Atmosphere | — | Google |
+| `goodForGroups` | 1,941 | Google Atmosphere | Owner claim | Owner, then Google |
+| `goodForWatchingSports` | 2,175 | Google Atmosphere | Menu and page text | Owner, then Google |
+| `servesVegetarianFood` | 1,828 | Google Atmosphere | Menu text, which we already hold for 313 venues | Menu, then Google |
+| `parkingOptions` | 2,879 | Google Atmosphere | Owner claim | Google |
+| `paymentOptions` | 2,964 | Google Atmosphere | — | Google |
+| `accessibilityOptions` | 2,961 | Google Atmosphere | Owner claim | Owner, then Google |
+| `priceLevel` / `priceRange` | 2,454 / 2,417 | Google Enterprise, free at the tier we already pay | Our own menu prices | Google, at no marginal cost |
 
 ### 2.4 Editorial state and visibility
 

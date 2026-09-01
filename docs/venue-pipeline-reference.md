@@ -441,10 +441,13 @@ boolean, so an absent key means nobody has asked about that venue.
   cannot fill these — it skips anything already fetched, so the only way through it re-buys every
   candidate — so `npm run import:venues:backfill-atmosphere` runs the wide mask over the distinct
   place ids the catalog already carries, which is the set that can actually display an amenity. **It
-  has been run, over 2,787 place ids.** `outdoorSeating` is present on 1,983 catalog rows and
-  `allowsDogs` on 1,041, and the venue page shows the amenities Google answered. There is still no
-  filter facet on either, because a facet built on a field this uneven would silently omit the venues
-  nobody has asked about.
+  has been run twice:** 2,787 place ids on the first pass, then 401 more after
+  `npm run import:venues:link-place-ids` stamped ids from the local enrich/candidate caches onto
+  406 catalog rows that had never carried one ($10.03 list; ten published leftovers remain
+  unlinkable without a fresh lookup). After merge, `outdoorSeating` is present on 2,337 catalog
+  rows and `allowsDogs` on 1,235; published-visible Good to Know covers 627 of 636 pages. There is
+  still no filter facet on either amenity, because a facet built on a field this uneven would
+  silently omit the venues nobody has asked about.
 - **The run captured more than these two.** Because Google bills per call rather than per field, the
   backfill stored each response whole and merged the fields that bear on picking somewhere to drink:
   `reservable`, `liveMusic`, `restroom`, `goodForGroups`, `goodForWatchingSports`,

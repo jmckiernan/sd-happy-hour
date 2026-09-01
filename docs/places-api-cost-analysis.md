@@ -574,6 +574,30 @@ the page through `dealTypes` and would say it twice; `goodForChildren` and `menu
 off-audience here; `editorialSummary` is Google-authored prose at 46% with attribution strings
 attached. All of it is bought and sitting there if any of those judgements change.
 
+### 5.5 Place-id gap closed (same day)
+
+The first Atmosphere run only covered catalog rows that already carried a `placeId`. **416 rows
+had none**, including **294 published-visible** pages that therefore never rendered Good to Know —
+Surfside Fish House among them — even though many of those places already sat in
+`.data/import/google/enriched.json` / `candidates.json`.
+
+`link-place-ids.mjs` matched missing rows to the local caches on **exact normalized name + nearest
+pin within 0.01°**. No Places calls; no fuzzy names.
+
+| | Count |
+|---|---|
+| Missing `placeId` before | 416 |
+| Linked | **406** (97.6%) |
+| Leftovers (not stamped) | **10** — all published; name missing from cache or coord too far to trust |
+| Distinct new Atmosphere calls | **401** at $25/1k |
+| Spend this run | **$10.03** list (resume skipped the 2,787 already bought) |
+| Atmosphere store after | 3,188 places |
+
+Published-visible Good to Know after merge: **627 / 636**. The nine still missing are exactly the
+unlinkable leftovers (Waterfront, Bracero, Juniper & Ivy, Neighborhood, Patio on Lamont, Luce,
+PB AleHouse, Sushi Lounge Point Loma, Sushi Lounge Poway). Re-linking those needs a Text Google
+lookup or a manual id, not another Atmosphere pass.
+
 ---
 
 ## Sources
