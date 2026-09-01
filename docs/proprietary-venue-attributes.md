@@ -1,18 +1,22 @@
 # Proprietary venue attributes — starting with character
 
-**Status, 31 August 2026 — plan only. Nothing here is implemented, no model calls were made,
-and the catalog was not written.** This page answers the owner's question after
-`docs/vibe-field-audit.md` and `docs/features-field-experiment.md`: can we own data points that
-are more accurate, unique and useful than Google's, starting with the *character* of a place rather
-than its establishment kind? Counts below were read from `public/data/happy-hours.json` and the
-cited docs on 31 August 2026 (3,006 rows, 686 published, 313 with `hhMenu`, 410 published with deal
-text, 330 with gallery images). Measured model rates are from `docs/capped-menu-rescrape.md`
-($0.0169/call) and `docs/features-field-experiment.md` ($0.0137/venue for two Haiku passes). How to
-tell this page has rotted: if `vibe` has been renamed or a `character` field exists in the catalog,
-or if the spike in §5 has been run and its verdict is not reflected in the status line.
+**Status, 1 September 2026 — character vibe spike FAIL. Do not ship a character `vibe` pill; keep
+`venueKind` as the honest establishment field. Catalog was not written.** Step 1 in §5 was run on
+1 September 2026 (`scripts/experiments/venue-character/`): 40 published venues, closed vocabulary of
+twelve, one Haiku pass, hand verdicts on every row. **Among 19 labelled: 15 true (78.9%), 4 false
+(21.1%)** — below the ≥85% true / ≤10% false gate. Model spend **$0.3882**. Absence behaved well
+(21/21 absent-correctly, 0 absent-miss). Failures are the features-experiment mode again: quotes
+that appear in the packet but support the wrong conclusion (street address → waterfront; "RESTAURANT
++ BAR" → gastropub; chain Brewhouse beer list → brewery taproom; restaurant happy-hour cocktail copy
+→ cocktail lounge). Recommendation: **stop.** Do not rename `vibe` → `venueKind` for a character
+field; do not bulk-write character labels. Prefer HH price band / signature deal / freshness (§3.1)
+next. Counts below were read from `public/data/happy-hours.json` on 31 August 2026 (3,006 rows, 686
+published, 313 with `hhMenu`, 410 published with deal text, 330 with gallery images). How to tell
+this page has rotted: if character labels appear in the catalog after this fail, or if the status
+line no longer matches `scripts/experiments/venue-character/results.json`.
 
-**This is not a wishlist.** §4 cuts candidates that fail the features experiment's bar. §5 is one
-spike with a kill criterion.
+**This is not a wishlist.** §4 cuts candidates that fail the features experiment's bar. §5 was the
+spike; §7 records the autopsy.
 
 ---
 
@@ -297,29 +301,35 @@ subtitle.
 Resolve `verified` vs `lastVerifiedAt`, and put an observed date on published venue pages that have
 one. Cost: engineering time. Failure mode: none that resembles the features experiment.
 
-### Step 1 — character vibe spike (the gate for everything in §2)
+### Step 1 — character vibe spike — DONE, FAIL (1 September 2026)
 
-1. Add `scripts/experiments/venue-character/` mirroring `features-field`: deterministic sample of 40,
-   freeze pages, closed-vocabulary extract with quotes, automated quote check, hand `verdicts.json`.
-2. Optional open-vocabulary pass on the same freeze **only** to stress-test whether the twelve values
-   miss a recurring label; if it surfaces a repeated decision-changing word we lack, amend the
-   vocabulary before the hand check, not after shipping.
-3. **Budget:** &lt; \$1 model, one evening of crawl, a few hours of hand review.
-4. **Success:** quote grounding 100%; ≥85% true among labeled; false ≤10%; `none` on thin packets;
-   at least the gold-control seeds land correctly; a stranger would use the label to choose.
-5. **If it fails the way features did** (one-offs, grounded-but-wrong, or labels that do not change
-   choices): **stop.** Keep `venueKind` as the honest establishment field. Do not ship a character
-   pill. Write the autopsy into this document's status line and leave the scripts marked exploratory.
-   Do not "tune the prompt and rerun the catalog."
+Ran as designed. Scripts: `scripts/experiments/venue-character/`. Frozen pages and full extraction
+live under `.data/experiments/venue-character/` (gitignored); committed summary in
+`results.json` + `verdicts.json`.
 
-### Step 2 — only if Step 1 passes
+| Gate | Result |
+|---|---|
+| Sample | 40 published; strata met (6 deals-no-menu, 5 thin, 29 menu+deals+web, 4 chain, 4 gold seeds) |
+| Quote grounding | 17/19 verbatim, 2/19 partial (still in packet); source ids matched |
+| Labelled | 19/40 |
+| True among labelled | **15/19 (78.9%)** — need ≥85% |
+| False among labelled | **4/19 (21.1%)** — need ≤10% |
+| Absent | 21/21 absent-correctly; 0 absent-miss |
+| Gold controls | False Idol → tiki ✓; Coin-Op → arcade bar ✓; Raised by Wolves / Coasterra → absent on thin packets ✓ |
+| Cost | **$0.3882** (40 × Haiku, $0.0097/venue) |
+| Catalog writes | **None** |
 
-- Mechanical rename `vibe` → `venueKind` on the kind derivation; reserve `vibe` for character.
-- Owner-claim picker.
-- Rules-first HH price band from absolute menu offers; signature deal line as a single quote-backed
-  string.
-- Publish character only on hand-accepted rows until a refresh playbook exists — propose in bulk,
-  accept by hand, store the quote (`lessons` §2.11).
+**Kill criterion hit.** Same autopsy shape as features: the model can quote the page and still
+mis-name the room. See §7. Do not tune-and-rerun the catalog.
+
+### Step 2 — blocked by Step 1 fail
+
+- Do **not** rename `vibe` → `venueKind` in order to reclaim `vibe` for character.
+- Do **not** ship an owner-claim character picker as a catalog field until (if ever) a new evidence
+  rule beats this spike — owner free-text on individual venues remains fine as editorial.
+- **Do** schedule rules-first HH price band and signature deal line from absolute menu offers (§3.1);
+  those do not depend on this spike.
+- Freshness display (Step 0) remains unblocked.
 
 ### Step 3 — do not schedule yet
 
@@ -330,12 +340,60 @@ with new evidence, not with enthusiasm.
 
 ## 6. What this page is not asking anyone to do
 
-- No catalog writes, no rename in code, no paid API calls from this document.
+- No catalog writes from the failed spike; no rename in code driven by character.
 - No dependence on the in-flight menu WebP / price-model / browser-fetch work; those land on their
-  own. Price band *consumes* the offer model once it exists; it does not block the character spike.
-- No filter facet for character until coverage and accuracy are measured on published rows. A sentence
-  on a page can be sparse; a facet that silently omits cannot.
+  own. Price band *consumes* the offer model once it exists; it does not need character.
+- No filter facet for character. Coverage would have been sparse even on a pass; on a fail it must
+  not exist.
 
-The owner’s instinct is right: the valuable data is the data Google will never publish about a happy
-hour. The features experiment taught that instinct still has to survive a forty-venue hand check.
-Character is the right first proprietary bet; it is also the one we should be willing to kill.
+The owner's instinct is still right: the valuable data is what Google will never publish about a
+happy hour. The spike showed character-from-websites is not yet that data. Kill it; spend the next
+proprietary dollar on prices and freshness.
+
+---
+
+## 7. Spike autopsy (1 September 2026)
+
+### Sample (40)
+
+Deterministic SHA-1 draw (`venue-character:{id}`) from published rows with a website, strata reserved
+before kind fill so menu+deals could not crowd out thin / deals-only / gold / chain slots.
+
+Gold seeds pinned: Raised by Wolves (Speakeasy), False Idol (Tiki), Coasterra (Waterfront Mexican),
+Coin-Op Game Room (Arcade bar).
+
+Evidence classes in the draw: 29 menu+deals+own-website, 6 deals-no-menu, 5 thin. 33/40 yielded
+pages on the first inventory crawl; the rest were hydrated from warm page cache or plain GET where
+possible. Raised by Wolves remained empty (host down) — correctly labelled absent.
+
+### Per-venue summary
+
+Full table and quotes: `scripts/experiments/venue-character/results.json`. Hand notes:
+`verdicts.json`. Headline:
+
+| Hand verdict | Count |
+|---|---|
+| true | 15 |
+| false | 4 |
+| absent-correctly | 21 |
+| absent-miss | 0 |
+
+**False labels (scored harshly):**
+
+| Venue | Model said | Why false |
+|---|---|---|
+| Tom Ham's Lighthouse | waterfront | Quote was only the Harbor Island street address — context, not character copy |
+| BJ's Restaurant & Brewhouse | brewery taproom | Chain full-service restaurant with a branded beer list ≠ taproom room |
+| Nolita Hall | gastropub | Quote was only "RESTAURANT + BAR"; dinner menu ≠ gastropub self-claim |
+| Bellamy's Restaurant | cocktail lounge | Upscale-restaurant happy-hour cocktail marketing ≠ lounge character |
+
+**True labels that worked** were almost always *self-descriptions*: "classic dive bar", "#1 Sports
+Bar", "award-winning rooftop", "Must-Visit Gastropub", "candlelit cocktail lounge", "$10 tiki
+cocktails", "part bar, part arcade". When the venue names the room, the model is fine. When it has
+to infer, it invents with a citation.
+
+### Pass / fail
+
+**FAIL.** 78.9% true and 21.1% false miss both numeric gates. Cost under budget is irrelevant once
+accuracy fails. Recommendation in one sentence: **keep `venueKind` only; do not write character
+vibes into the catalog; next proprietary build is HH price band + signature deal + freshness.**
