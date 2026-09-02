@@ -17,6 +17,12 @@ import {
   scoreMediaUrl,
   socialSnippetFromHtml,
 } from './media.mjs';
+import {
+  conflictsWithVenue,
+  discoverBranchLocationLinksFromHtml,
+  pickLocationPage,
+  scoreLocationUrl,
+} from './location-page.mjs';
 
 export { isCloudflareChallenge };
 
@@ -571,6 +577,7 @@ export async function inventoryWebsite(websiteUri, options = {}) {
 
   const homepageHtml = homepageContent?.html || '';
   const homepageBlocked = Boolean(homepageContent?.blocked) || isCloudflareChallenge(homepageHtml);
+  let branchPriorityUrl = null;
   if (homepageHtml && !homepageBlocked) {
     discovered.push(...discoverHappyHourLinksFromHtml(homepageHtml, origin));
     if (/\bpopmenu\b/i.test(homepageHtml)) {
@@ -587,10 +594,32 @@ export async function inventoryWebsite(websiteUri, options = {}) {
         discovered.push({ path: link, score: MENU_PATH_RE.test(link) ? 28 : 20 });
       }
     }
+
+    // Branch location pages rarely mention "happy hour" in the anchor, but that
+    // is where chain brands publish the HH PDF and gallery. Prefer this venue's
+    // own page when we can identify it.
+    if (venueContext) {
+      const branchLinks = discoverBranchLocationLinksFromHtml(homepageHtml, origin, venueContext);
+      const absoluteBranches = [];
+      for (const link of branchLinks) {
+        const linkUrl = `${origin}${link.path.startsWith('/') ? link.path : `/${link.path}`}`;
+        if (conflictsWithVenue(linkUrl, venueContext)) continue;
+        const locationScore = scoreLocationUrl(linkUrl, venueContext);
+        if (locationScore <= 0) continue;
+        discovered.push({ path: link.path, score: 48 + locationScore });
+        absoluteBranches.push(linkUrl);
+      }
+      branchPriorityUrl = pickLocationPage(
+        [websiteUri, priorityUrl, ...absoluteBranches].filter(Boolean),
+        venueContext
+      )?.url || null;
+    }
   }
 
   const effectivePriority =
-    priorityUrl || (sitemapCandidates[0]?.score >= 35 ? sitemapCandidates[0].url : null);
+    priorityUrl
+    || branchPriorityUrl
+    || (sitemapCandidates[0]?.score >= 35 ? sitemapCandidates[0].url : null);
 
   const candidateUrls = buildCandidateUrls(origin, discovered, {
     includeHomepage: true,
@@ -677,14 +706,30 @@ export async function inventoryWebsite(websiteUri, options = {}) {
           if (isMenuItemDetailUrl(linkUrl)) continue;
           if (!fetched.has(linkUrl) && !queue.includes(linkUrl)) queue.unshift(linkUrl);
         }
+        if (venueContext) {
+          for (const link of discoverBranchLocationLinksFromHtml(content.html || '', origin, venueContext)) {
+            const linkUrl = `${origin}${link.path.startsWith('/') ? link.path : `/${link.path}`}`;
+            if (conflictsWithVenue(linkUrl, venueContext)) continue;
+            if (scoreLocationUrl(linkUrl, venueContext) <= 0) continue;
+            if (!fetched.has(linkUrl) && !queue.includes(linkUrl)) queue.unshift(linkUrl);
+          }
+        }
       }
 
-      const corePage = isCoreCandidateUrl(url) || urlLooksLikeMenuPage(url) || isListedWebsiteUrl(url, websiteUri);
+      const locationMatchScore = venueContext ? scoreLocationUrl(url, venueContext) : 0;
+      const corePage = isCoreCandidateUrl(url)
+        || urlLooksLikeMenuPage(url)
+        || isListedWebsiteUrl(url, websiteUri)
+        || locationMatchScore > 0;
       if (!corePage) {
         if (score < minHappyHourScore && sitemapScore < 20) continue;
         if (score <= 0) continue;
       } else if (score <= 0) {
-        score = Math.max(sitemapScore, urlLooksLikeMenuPage(url) ? 18 : 12);
+        score = Math.max(
+          sitemapScore,
+          locationMatchScore > 0 ? 22 + locationMatchScore : 0,
+          urlLooksLikeMenuPage(url) ? 18 : 12
+        );
       }
 
       results.push(contentToCandidate(url, { ...content, text }, score, sitemapScore ? 'sitemap' : 'crawl'));
@@ -698,6 +743,7 @@ export async function inventoryWebsite(websiteUri, options = {}) {
       const followLinks = urlLooksLikeHappyHourPage(url)
         || urlLooksLikeMenuPage(url)
         || isHomepageUrl(url, origin)
+        || locationMatchScore > 0
         || (!strongSitemap && results.length <= 2);
       if (followLinks) {
         for (const link of discoverHappyHourLinksFromHtml(content.html || '', origin)) {

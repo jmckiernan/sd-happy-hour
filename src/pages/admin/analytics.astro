@@ -83,10 +83,11 @@ const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
   </main>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
     (async () => {
       const session = await fetch('/api/admin/me', { headers:{ 'cache-control':'no-cache' } })
         .then((response) => response.json()).catch(() => ({ authenticated:false }));
-      if (!session.authenticated) window.location.href = '/account/';
+      if (!session.authenticated) window.location.href = accountSignInHref(currentReturnPath());
     })();
   </script>
 </Layout>

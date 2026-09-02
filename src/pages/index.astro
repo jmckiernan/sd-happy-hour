@@ -325,9 +325,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     .card-image .card-status-badge { left: 12px; position: absolute; top: 12px; }
     .card-image-link { color: inherit; display: block; height: 100%; text-decoration: none; }
-    .card-image .neighborhood-tag { position: absolute; top: 12px; right: 12px; z-index: 2; background: rgba(255,255,255,0.95); color: var(--night); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+    .card-image .card-location-tags { align-items: flex-end; display: flex; flex-direction: column; gap: 6px; max-width: 42%; position: absolute; right: 12px; top: 12px; z-index: 2; }
+    .card-image .neighborhood-tag { background: rgba(255,255,255,0.95); border-radius: 100px; color: var(--night); font-size: 0.7rem; font-weight: 600; max-width: 100%; overflow: hidden; padding: 5px 10px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
     .card-image a.neighborhood-tag:hover { background: var(--sunset-end); }
-    .card-image .distance-tag { position: absolute; top: 12px; right: 52px; background: var(--ocean); color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: 100px; }
+    .card-image .distance-tag { background: var(--ocean); border-radius: 100px; color: white; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; white-space: nowrap; }
     .card-image .time-overlay { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
     .card-image .venue-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); line-height: 1.1; max-width: 65%; }
     .card-image .time-badge { background: white; color: var(--night); font-weight: 700; font-size: 0.8rem; padding: 6px 12px; border-radius: var(--radius-sm); white-space: nowrap; }
@@ -335,7 +336,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .card-vibe { font-size: 0.75rem; font-weight: 600; color: var(--ocean); background: rgba(8, 145, 178, 0.1); padding: 4px 10px; border-radius: 100px; }
-    .card-distance { font-size: 0.75rem; font-weight: 600; color: var(--sunset-start); }
     /* Pill button styled like .card-vibe but in green, so it reads as
        tappable. Pushed to the right edge of the row, then nudged 8px
        further so it lines up exactly with .time-badge above — .card-body
@@ -639,6 +639,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       writeStoredDirectoryFilters,
       type DirectoryFiltersState,
     } from '../lib/directoryFilters';
+    import { accountSignInHref, currentReturnPath } from '../lib/authRedirect';
+    import { fetchBrowserSession } from '../lib/browserSession';
 
     let baseHappyHours: any[] = [];
     let happyHours: any[] = [];
@@ -1031,8 +1033,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     async function loadAccount() {
       try {
-        const res = await fetch('/api/account/me');
-        const session = await res.json();
+        const session = await fetchBrowserSession();
         accountUser = session.authenticated ? session.user : null;
       } catch {
         accountUser = null;
@@ -1557,19 +1558,18 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                   >
                   <div class="overlay"></div>
                   ${statusBadge}
-                  ${hasDistance
-                    ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
-                    : ''
-                  }
                   <div class="time-overlay">
                     <span class="venue-name">${escapeHTML(h.name)}</span>
                     <span class="time-badge">${escapeHTML(timeLabel)}</span>
                   </div>
                 </a>
-                ${!hasDistance
-                  ? `<a class="neighborhood-tag" href="${escapeHTML(neighborhoodPath(h.neighborhood) || '/neighborhoods/')}">${escapeHTML(h.neighborhood)}</a>`
-                  : ''
-                }
+                <div class="card-location-tags">
+                  ${hasDistance
+                    ? `<span class="distance-tag">${formatDistance(h.distance)}</span>`
+                    : ''
+                  }
+                  <a class="neighborhood-tag" href="${escapeHTML(neighborhoodPath(h.neighborhood) || '/neighborhoods/')}">${escapeHTML(h.neighborhood)}</a>
+                </div>
               </div>
 
               <div class="card-body">
@@ -1577,7 +1577,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                   ${h.vibe ? `<span class="card-vibe">${escapeHTML(h.vibe)}</span>` : ''}
                   <span class="trust-badge${trustClass}">${getTrustLabel(h)}</span>
                   ${h.phone ? `<a class="card-phone" href="tel:${h.phone.replace(/[^0-9+]/g, '')}">${escapeHTML(h.phone)}</a>` : ''}
-                  ${hasDistance ? `<span class="card-distance">${escapeHTML(h.neighborhood)}</span>` : ''}
                 </div>
 
                 ${primaryDeal ? `
@@ -1863,7 +1862,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     document.getElementById('save-alert-btn')!.addEventListener('click', () => {
       if (!accountUser) {
-        window.location.href = '/account/';
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
       saveAlertPanel.classList.toggle('hidden');
@@ -1943,7 +1942,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       }
 
       if (target.closest('[data-save-login]')) {
-        window.location.href = '/account/';
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
 

@@ -13,6 +13,7 @@ function validVenueId(raw: string | undefined): number | null {
     : null;
 }
 
+/** Saves global rating/comment plus optional list-scoped note for this membership. */
 export const PUT: APIRoute = async ({ params, cookies, request }) => {
   const session = await getSession(cookies);
   if (!session) return errorJson(['Sign in to add notes.'], 401);
@@ -25,10 +26,11 @@ export const PUT: APIRoute = async ({ params, cookies, request }) => {
     return errorJson(['Invalid JSON body.'], 400);
   }
   try {
-    const status = await replaceVenueFeedback(params.id!, venueId, session.userId, {
-      rating: body.rating,
-      comment: body.comment,
-    });
+    const payload: { rating?: unknown; comment?: unknown; note?: unknown } = {};
+    if (Object.prototype.hasOwnProperty.call(body, 'rating')) payload.rating = body.rating;
+    if (Object.prototype.hasOwnProperty.call(body, 'comment')) payload.comment = body.comment;
+    if (Object.prototype.hasOwnProperty.call(body, 'note')) payload.note = body.note;
+    const status = await replaceVenueFeedback(params.id!, venueId, session.userId, payload);
     if (status === 'forbidden') return errorJson(['You cannot edit this list.'], 403);
     if (status === 'missing') return errorJson(['This venue is not on the list.'], 404);
     return json({ status });
@@ -45,6 +47,7 @@ export const DELETE: APIRoute = async ({ params, cookies }) => {
   const status = await replaceVenueFeedback(params.id!, venueId, session.userId, {
     rating: null,
     comment: '',
+    note: '',
     clear: true,
   });
   if (status === 'forbidden') return errorJson(['You cannot edit this list.'], 403);

@@ -43,6 +43,9 @@ import Layout from '../../layouts/Layout.astro';
   </main>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
+    import { fetchBrowserSession } from '../../lib/browserSession';
+
     function escapeHTML(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -93,11 +96,10 @@ import Layout from '../../layouts/Layout.astro';
 
     async function renderCTA(shareId: string, alertId: string) {
       const cta = document.getElementById('cta')!;
-      const meRes = await fetch('/api/account/me');
-      const session = await meRes.json();
+      const session = await fetchBrowserSession();
 
       if (!session.authenticated) {
-        cta.innerHTML = '<a class="cta-link" href="/account/">Sign in to add this alert</a>';
+        cta.innerHTML = `<a class="cta-link" href="${accountSignInHref(currentReturnPath())}">Sign in to add this alert</a>`;
         return;
       }
 

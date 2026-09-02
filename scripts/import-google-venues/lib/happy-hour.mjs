@@ -584,6 +584,8 @@ export async function extractWebsiteHappyHourDeep(websiteUri, venueContext = nul
 
   // A URL naming this venue's city, ZIP or street number outranks a generic
   // one on a chain site, where the generic page describes some other branch.
+  // Branch discovery inside inventoryWebsite also mines homepage location links
+  // when websiteUri is only the brand homepage.
   const branchUrl = venueContext
     ? pickLocationPage([venueContext.sourceUrl, websiteUri].filter(Boolean), venueContext)?.url
     : null;

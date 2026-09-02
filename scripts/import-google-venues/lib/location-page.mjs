@@ -155,3 +155,79 @@ export function pickLocationPage(urls, venue = {}) {
   }
   return best;
 }
+
+/**
+ * Paths that look like a single branch page rather than a brand section.
+ *
+ * Multi-location brands often put the offer and gallery only on `/bonita/` or
+ * `/locations/chula-vista-…`, never on the homepage. Those links do not say
+ * "happy hour", so the HH link recognizer skips them — this catch recovers them.
+ */
+const BRANCH_INDEX_RE = /\/(?:locations?|restaurants?|stores?|find-?us|our-?locations?)(?:\/|$)/i;
+const SHALLOW_BRANCH_SLUG_RE = /^\/[a-z0-9][a-z0-9-]{1,48}\/?$/i;
+const BRANCH_NOISE_RE = /(?:^|\/)(?:happy|menu|specials?|privacy|terms|career|blog|press|contact|about|order|reserv|cart|login|account|gift|events?|careers?|jobs?)(?:\/|$|\.)/i;
+
+function stripAnchorHtml(html) {
+  return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Discover same-site links that look like per-location pages.
+ *
+ * When `venue` is provided, only links that score as this branch are returned
+ * (wrong-neighborhood paths are filtered out). Without a venue, returns every
+ * shallow place-named slug so callers can pick later.
+ */
+export function discoverBranchLocationLinksFromHtml(html, origin, venue = null, maxLinks = 24) {
+  let originUrl;
+  try {
+    originUrl = new URL(origin);
+  } catch {
+    return [];
+  }
+
+  const scored = new Map();
+  for (const match of String(html || '').matchAll(/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
+    const href = match[1].trim();
+    if (!href || /^(?:mailto:|tel:|javascript:|#)/i.test(href)) continue;
+    let url;
+    try {
+      url = new URL(href, originUrl);
+    } catch {
+      continue;
+    }
+    if (url.origin !== originUrl.origin) continue;
+    url.hash = '';
+    const path = url.pathname;
+    if (!path || path === '/') continue;
+    if (/\.(?:pdf|jpe?g|png|webp|gif|svg|zip|mp4|webm)(?:\?|$)/i.test(path)) continue;
+
+    const anchor = stripAnchorHtml(match[2]);
+    const placeHit = placesMentioned(`${path} ${anchor}`).length > 0;
+    const looksBranch =
+      BRANCH_INDEX_RE.test(path)
+      || (SHALLOW_BRANCH_SLUG_RE.test(path) && placeHit)
+      || (BRANCH_INDEX_RE.test(path + '/') && placeHit);
+    if (!looksBranch) continue;
+    if (BRANCH_NOISE_RE.test(path) && !BRANCH_INDEX_RE.test(path)) continue;
+
+    const absolute = url.href;
+    if (venue && conflictsWithVenue(absolute, venue)) continue;
+    let score = venue ? scoreLocationUrl(absolute, venue) : 0;
+    if (!score) {
+      if (!venue && placeHit) score = 3;
+      else if (!venue && BRANCH_INDEX_RE.test(path)) score = 2;
+      else if (venue) continue;
+      else continue;
+    }
+
+    const key = url.pathname + url.search;
+    scored.set(key, Math.max(scored.get(key) || 0, score));
+    if (scored.size >= maxLinks * 3) break;
+  }
+
+  return [...scored.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, maxLinks)
+    .map(([path, score]) => ({ path, score }));
+}

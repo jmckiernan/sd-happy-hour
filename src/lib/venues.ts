@@ -34,6 +34,24 @@ export interface GalleryImage {
   generated?: boolean;
 }
 
+/** Provenance for the featured photograph stored in `image`.
+ *
+ * Scraped assets are copied to first-party storage before publication; this
+ * record preserves the page and original asset URL so a future audit, removal
+ * request, or refresh never has to reverse-engineer where the bytes came from.
+ */
+export interface VenueImageSource {
+  provider: 'venue_website' | 'google_places' | 'instagram' | 'owner_upload' | 'admin_upload' | 'ai_generated';
+  pageUrl: string;
+  assetUrl?: string;
+  retrievedAt: string;
+  review: 'ai_high_confidence' | 'manual' | 'owner_supplied' | 'ai_placeholder';
+  rightsBasis?: 'published_on_official_venue_website' | 'owner_permission' | 'licensed_asset' | 'ai_synthetic_placeholder';
+  referenceVenueId?: number;
+  referenceImage?: string;
+  sha256?: string;
+}
+
 export interface Venue {
   id: number;
   name: string;
@@ -250,6 +268,9 @@ export interface Venue {
   // this venue is shown. Set in the submission review queue or the venue
   // editor; see getListingImage() for the fallback chain.
   image?: string;
+  /** Source and approval trail for `image`. Legacy photos predate this field;
+   * every automated backfill must write it together with the local path. */
+  imageSource?: VenueImageSource;
   /** Which part of `image` each fixed frame shows — the hero, the card and the
    * neighborhood tile are framed separately — set by an admin in the venue
    * editor. An absent frame means centered and unmagnified, how every featured
@@ -367,7 +388,10 @@ export function isVenueLive(venue: Venue, overrides: Record<number, LiveOverride
 }
 
 export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean {
-  if (filters.days?.length && !filters.days.some((day) => venue.days.includes(day))) return false;
+  // Stub / window-only listings omit `days`; treat them as matching no day filter
+  // rather than throwing when alerts (or Save preferences) re-count matches.
+  const venueDays = venue.days || [];
+  if (filters.days?.length && !filters.days.some((day) => venueDays.includes(day))) return false;
   if (filters.neighborhood && venue.neighborhood !== filters.neighborhood) return false;
   // An alert saved from the homepage filter bar can carry that bar's one
   // non-deal-type option, which selects venues whose offers nobody published.
@@ -414,7 +438,7 @@ export function venueMatchesTimeRange(
       : [];
 
   return windows.some((window) => {
-    if (days.length && 'days' in window && window.days?.length && !days.some((day) => window.days.includes(day))) {
+    if (days.length && 'days' in window && window.days?.length && !days.some((day) => (window.days || []).includes(day))) {
       return false;
     }
     const rawStart = clockMinutes(window.startTime);

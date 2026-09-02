@@ -83,10 +83,11 @@ test('account discovers owned/shared lists and creates a new custom list', async
         ],
         venues: [{
           venueId: 1,
+          myFeedback: { rating: 4, comment: 'Great patio' },
           lists: [
-            { listId: 'favorites', title: 'Favorites', role: 'owner', canEdit: true, ratingsEnabled: true, commentsEnabled: true, myFeedback: { rating: 4, comment: 'Great patio' }, feedback: [] },
-            { listId: 'list-1', title: 'Friday Crew', role: 'owner', canEdit: true, ratingsEnabled: true, commentsEnabled: true, myFeedback: null, feedback: [] },
-            { listId: 'want-to-try', title: 'Want to Try', systemKey: 'want_to_try', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: true, myFeedback: null, feedback: [] },
+            { listId: 'favorites', title: 'Favorites', role: 'owner', canEdit: true, ratingsEnabled: true, commentsEnabled: true, myFeedback: { rating: 4, comment: 'Great patio' }, myNote: '', feedback: [] },
+            { listId: 'list-1', title: 'Friday Crew', role: 'owner', canEdit: true, ratingsEnabled: true, commentsEnabled: true, myFeedback: { rating: 4, comment: 'Great patio' }, myNote: '', feedback: [] },
+            { listId: 'want-to-try', title: 'Want to Try', systemKey: 'want_to_try', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: true, myFeedback: { rating: 4, comment: 'Great patio' }, myNote: '', feedback: [] },
           ],
         }],
       },
@@ -133,7 +134,7 @@ test('account discovers owned/shared lists and creates a new custom list', async
   await expect(sunsetCard.locator('.list-chip')).toHaveText([/Favorites/, /Friday Crew/, /Want to Try/]);
   await expect(page.getByLabel('Default quick-save list')).toHaveValue('favorites');
   await expect(sunsetCard.getByLabel('Add to another list')).toContainText('Been To · moves from Want to Try');
-  await expect(sunsetCard.getByRole('group', { name: 'Your rating for Favorites' }).locator('.filled')).toHaveCount(4);
+  await expect(sunsetCard.getByRole('group', { name: 'Your rating' }).locator('.filled')).toHaveCount(4);
 
   const createForm = page.locator('#create-list-form');
   await createForm.getByLabel('List title', { exact: true }).fill('Beach Day');
@@ -142,7 +143,6 @@ test('account discovers owned/shared lists and creates a new custom list', async
   await expect.poll(() => createdBody).toEqual({
     title: 'Beach Day',
     description: 'Ocean-view happy hours',
-    ratingsEnabled: false,
     commentsEnabled: false,
   });
   await expect(page).toHaveURL(/\/lists\/new-list\//);
@@ -157,12 +157,12 @@ test('adding a fourth list is additive and removing the third targets only that 
     { id: 'list-four', title: 'List Four' },
   ];
   const memberships = [
-    { listId: 'list-one', title: 'List One', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, feedback: [] },
-    { listId: 'list-two', title: 'List Two', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, feedback: [] },
-    { listId: 'list-three', title: 'List Three', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, feedback: [] },
+    { listId: 'list-one', title: 'List One', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, myNote: '', feedback: [] },
+    { listId: 'list-two', title: 'List Two', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, myNote: '', feedback: [] },
+    { listId: 'list-three', title: 'List Three', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, myNote: '', feedback: [] },
   ];
   const otherMemberships = [
-    { listId: 'list-one', title: 'List One', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, feedback: [] },
+    { listId: 'list-one', title: 'List One', role: 'owner', canEdit: true, ratingsEnabled: false, commentsEnabled: false, myFeedback: null, myNote: '', feedback: [] },
   ];
   let venueOrder = [2, 1];
   const addedPaths: string[] = [];
@@ -191,6 +191,7 @@ test('adding a fourth list is additive and removing the third targets only that 
         })),
         venues: venueOrder.map((venueId) => ({
           venueId,
+          myFeedback: null,
           lists: venueId === 1 ? memberships : otherMemberships,
         })),
       },
@@ -221,7 +222,7 @@ test('adding a fourth list is additive and removing the third targets only that 
       const list = allLists.find((candidate) => candidate.id === listId)!;
       memberships.push({
         listId: list.id, title: list.title, role: 'owner', canEdit: true,
-        ratingsEnabled: false, commentsEnabled: false, myFeedback: null, feedback: [],
+        ratingsEnabled: false, commentsEnabled: false, myFeedback: null, myNote: '', feedback: [],
       });
       // Simulate the server returning this changed venue at a different grid
       // position; the UI should compensate so the user's viewport stays put.
@@ -299,16 +300,19 @@ test('editor mutates the canonical list while a link-only visitor stays read-onl
         canEdit: editor, canManageSharing: false,
         ratingsEnabled: true, commentsEnabled: true,
         inviteId: editor ? null : 'invite-view', updatedAt: `version-${mutations.length}`,
-        items: [{ venueId: 1, venue: { ...venues[0], slug: 'sunset-patio' } }],
+        items: [{ venueId: 1, venue: { ...venues[0], slug: 'sunset-patio' }, feedback: [], myFeedback: null, notes: [], myNote: '' }],
       },
     });
   });
 
   await page.goto('/lists/list-1/');
   await expect(page.locator('#role-pill')).toHaveText('Can edit');
-  const commentField = page.getByPlaceholder('Add your comment…');
+  const commentField = page.getByLabel('Public comment');
   await expect(commentField).toBeVisible();
   expect(await commentField.evaluate((element) => getComputedStyle(element).paddingLeft)).toBe('11px');
+  await expect(page.getByLabel('Note for this list')).toBeVisible();
+  await expect(page.getByPlaceholder('What did you think of this place?')).toBeVisible();
+  await expect(page.getByPlaceholder(/Only on this list/)).toBeVisible();
   const venueSearch = page.getByLabel('Search venues');
   await venueSearch.fill('harb');
   const harborResult = page.getByRole('option', { name: 'Harbor Bar · Little Italy' });
@@ -391,7 +395,7 @@ test('owner shares in a modal, can recover link URLs, and settings auto-save', a
         ratingsEnabled: false, commentsEnabled: false, subscription,
         access: { role: 'owner', isMember: true }, canEdit: true, canManageSharing: true,
         inviteId: null, updatedAt: `version-${version}`,
-        items: [{ venueId: 1, venue: { ...venues[0], slug: 'sunset-patio' } }],
+        items: [{ venueId: 1, venue: { ...venues[0], slug: 'sunset-patio' }, feedback: [], myFeedback: null, notes: [], myNote: '' }],
       },
     });
   });

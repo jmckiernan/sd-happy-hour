@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { accountSignInHref } from '../lib/authRedirect';
 ---
 
 <Layout title="Feature Requests | SD Happy Hours" description="Suggest and upvote features for SD Happy Hours.">
@@ -12,7 +13,7 @@ import Layout from '../layouts/Layout.astro';
     <section class="signed-out" id="feature-signin" hidden>
       <h2>Sign in to join the board</h2>
       <p>The feature board is available to signed-in community members and venue owners.</p>
-      <a href="/account/?next=%2Ffeatures%2F">Sign in or create an account</a>
+      <a href={accountSignInHref('/features/')}>Sign in or create an account</a>
     </section>
 
     <div id="feature-app" hidden>
@@ -252,8 +253,16 @@ import Layout from '../layouts/Layout.astro';
     });
 
     loadBoard().catch((error) => {
+      // Network/API failures are not the same as "please sign in".
+      app.hidden = true;
       signin.hidden = false;
-      signin.querySelector('p')!.textContent = error.message;
+      signin.querySelector('h2')!.textContent = 'Could not load the board';
+      signin.querySelector('p')!.textContent = error.message || 'Please try again.';
+      const link = signin.querySelector('a');
+      if (link) {
+        link.textContent = 'Retry';
+        link.setAttribute('href', '/features/');
+      }
     });
   </script>
 </Layout>

@@ -15,6 +15,7 @@ import {
 } from './sharedListPermissions';
 import {
   addVenueToEditableList,
+  cleanVenueFeedbackText,
   createSavedList,
   ensureBuiltInListsForUser,
   listAccessibleSavedLists,
@@ -69,12 +70,25 @@ export interface PendingListInvite {
   expiresAt: string;
 }
 
+/** List-scoped note visible to people on this shared list only. */
+export interface ListItemNote {
+  userId: string;
+  userName: string;
+  note: string;
+  updatedAt: string;
+  isMine: boolean;
+}
+
 export interface HappyHourListItem {
   venueId: number;
   addedByUserId: string | null;
   createdAt: string;
   feedback: VenueFeedback[];
   myFeedback: VenueFeedback | null;
+  /** Collaborators' list-scoped notes (not yours). */
+  notes: ListItemNote[];
+  /** Your list-scoped note for this list only. */
+  myNote: string;
 }
 
 export interface HappyHourListDetail extends HappyHourListSummary {
@@ -139,6 +153,14 @@ interface ListFeedbackRow {
   user_name: string;
   rating: number | null;
   comment: string;
+  updated_at: string;
+}
+
+interface ListNoteRow {
+  venue_id: number;
+  user_id: string;
+  user_name: string;
+  note: string;
   updated_at: string;
 }
 
@@ -313,22 +335,59 @@ export async function getHappyHourListForViewer(
     LIMIT 1`;
   if (!rows[0]) return null;
 
-  const [itemRows, feedbackRows] = await Promise.all([
+  const ownerUserId = rows[0].owner_user_id;
+  const [itemRows, feedbackRows, noteRows] = await Promise.all([
     sql<ListItemRow>`
       SELECT venue_id, added_by_user_id, created_at
       FROM happy_hour_list_items WHERE list_id = ${listId} ORDER BY created_at DESC`,
     sql<ListFeedbackRow>`
       SELECT feedback.venue_id, feedback.user_id, users.name AS user_name,
              feedback.rating, feedback.comment, feedback.updated_at
-      FROM happy_hour_list_item_feedback feedback
+      FROM user_venue_feedback feedback
       JOIN users ON users.id = feedback.user_id
-      WHERE feedback.list_id = ${listId}
+      JOIN happy_hour_list_items item
+        ON item.venue_id = feedback.venue_id AND item.list_id = ${listId}
+      LEFT JOIN happy_hour_list_members author_member
+        ON author_member.list_id = ${listId}
+       AND author_member.user_id = feedback.user_id
+      WHERE feedback.user_id = ${ownerUserId}
+         OR author_member.user_id IS NOT NULL
       ORDER BY feedback.updated_at DESC`,
+    // Same audience as feedback: anyone who can view the list (incl. signed-out).
+    sql<ListNoteRow>`
+      SELECT notes.venue_id, notes.user_id, users.name AS user_name,
+             notes.note, notes.updated_at
+      FROM happy_hour_list_item_notes notes
+      JOIN users ON users.id = notes.user_id
+      LEFT JOIN happy_hour_list_members author_member
+        ON author_member.list_id = notes.list_id
+       AND author_member.user_id = notes.user_id
+      WHERE notes.list_id = ${listId}
+        AND (notes.user_id = ${ownerUserId} OR author_member.user_id IS NOT NULL)
+      ORDER BY notes.updated_at DESC`,
   ]);
   const feedbackByVenue = new Map<number, VenueFeedback[]>();
+  const myFeedbackByVenue = new Map<number, VenueFeedback>();
   for (const row of feedbackRows) {
-    const rating = rows[0].ratings_enabled && row.rating !== null ? Number(row.rating) : null;
-    const comment = rows[0].comments_enabled ? row.comment : '';
+    const isMine = Boolean(userId) && row.user_id === userId;
+    const rating = row.rating !== null ? Number(row.rating) : null;
+    const comment = rows[0].comments_enabled
+      ? cleanVenueFeedbackText(row.comment)
+      : '';
+    if (isMine) {
+      // Keep the viewer's own rating even when this list hides comments.
+      if (rating !== null || comment) {
+        myFeedbackByVenue.set(row.venue_id, {
+          userId: row.user_id,
+          userName: row.user_name,
+          rating,
+          comment,
+          updatedAt: row.updated_at,
+          isMine: true,
+        });
+      }
+      continue;
+    }
     if (rating === null && !comment) continue;
     const entries = feedbackByVenue.get(row.venue_id) ?? [];
     entries.push({
@@ -337,9 +396,29 @@ export async function getHappyHourListForViewer(
       rating,
       comment,
       updatedAt: row.updated_at,
-      isMine: row.user_id === userId,
+      isMine: false,
     });
     feedbackByVenue.set(row.venue_id, entries);
+  }
+  const notesByVenue = new Map<number, ListItemNote[]>();
+  const myNoteByVenue = new Map<number, string>();
+  for (const row of noteRows) {
+    const note = cleanVenueFeedbackText(row.note);
+    if (!note) continue;
+    const isMine = Boolean(userId) && row.user_id === userId;
+    if (isMine) {
+      myNoteByVenue.set(row.venue_id, note);
+      continue;
+    }
+    const entries = notesByVenue.get(row.venue_id) ?? [];
+    entries.push({
+      userId: row.user_id,
+      userName: row.user_name,
+      note,
+      updatedAt: row.updated_at,
+      isMine: false,
+    });
+    notesByVenue.set(row.venue_id, entries);
   }
   const access: ListAccess = { role: rows[0].access_role, isMember: rows[0].is_member };
   return {
@@ -351,16 +430,15 @@ export async function getHappyHourListForViewer(
     inviteId: rows[0].invite_id,
     inviteEmail: rows[0].invite_email,
     inviteExpiresAt: rows[0].invite_expires_at,
-    items: itemRows.map((row) => {
-      const feedback = feedbackByVenue.get(row.venue_id) ?? [];
-      return {
-        venueId: row.venue_id,
-        addedByUserId: row.added_by_user_id,
-        createdAt: row.created_at,
-        feedback,
-        myFeedback: feedback.find((entry) => entry.isMine) ?? null,
-      };
-    }),
+    items: itemRows.map((row) => ({
+      venueId: row.venue_id,
+      addedByUserId: row.added_by_user_id,
+      createdAt: row.created_at,
+      feedback: feedbackByVenue.get(row.venue_id) ?? [],
+      myFeedback: myFeedbackByVenue.get(row.venue_id) ?? null,
+      notes: notesByVenue.get(row.venue_id) ?? [],
+      myNote: myNoteByVenue.get(row.venue_id) ?? '',
+    })),
   };
 }
 

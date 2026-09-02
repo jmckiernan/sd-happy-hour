@@ -396,26 +396,52 @@ export function isUnboundedAllDayWindow(window: Pick<HappyHourWindow, 'allDay' |
   return start != null && start < EARLIEST_CREDIBLE_SERVICE_START;
 }
 
+/** Placeholder bounds from a prior fix pass that never saw real venue hours. */
+export function isDefaultServiceDayWindow(window: Pick<HappyHourWindow, 'allDay' | 'startTime' | 'endTime'>): boolean {
+  return Boolean(
+    window.allDay &&
+      window.startTime === DEFAULT_SERVICE_DAY.startTime &&
+      window.endTime === DEFAULT_SERVICE_DAY.endTime
+  );
+}
+
 /**
  * Give an all-day window real bounds, preferring the venue's own hours and
- * falling back to a plausible service day. Returned unchanged when the window
- * is already bounded, so this is safe to run over the whole catalog.
+ * falling back to a plausible service day.
+ *
+ * Unbounded calendar-day windows are always rewritten. Windows that already
+ * sit on the default service day are rewritten only when real open/close
+ * hours are supplied — otherwise a later pass with atmosphere hours could
+ * never replace the placeholder.
  */
 export function boundAllDayWindow<T extends HappyHourWindow>(
   window: T,
   hours: { openTime?: string | null; closeTime?: string | null } = {}
 ): T {
-  if (!isUnboundedAllDayWindow(window)) return window;
   const openMinutes = clockMinutes(String(hours.openTime || ''));
   const open = openMinutes != null && openMinutes >= EARLIEST_CREDIBLE_SERVICE_START ? String(hours.openTime) : null;
   const close = clockMinutes(String(hours.closeTime || '')) != null ? String(hours.closeTime) : null;
-  // A stored end time is kept when it is credible; only the start is the part
-  // these records get wrong.
-  const endMinutes = clockMinutes(window.endTime);
-  const keptEnd = endMinutes != null && window.endTime !== '23:59' && window.endTime !== '00:00' ? window.endTime : null;
-  return {
-    ...window,
-    startTime: open || DEFAULT_SERVICE_DAY.startTime,
-    endTime: keptEnd || close || DEFAULT_SERVICE_DAY.endTime,
-  };
+  const hasVenueHours = Boolean(open && close);
+
+  if (isUnboundedAllDayWindow(window)) {
+    // A stored end time is kept when it is credible; only the start is the part
+    // these records get wrong.
+    const endMinutes = clockMinutes(window.endTime);
+    const keptEnd = endMinutes != null && window.endTime !== '23:59' && window.endTime !== '00:00' ? window.endTime : null;
+    return {
+      ...window,
+      startTime: open || DEFAULT_SERVICE_DAY.startTime,
+      endTime: keptEnd || close || DEFAULT_SERVICE_DAY.endTime,
+    };
+  }
+
+  if (hasVenueHours && isDefaultServiceDayWindow(window)) {
+    return {
+      ...window,
+      startTime: open!,
+      endTime: close!,
+    };
+  }
+
+  return window;
 }

@@ -4,7 +4,7 @@ import { addVenueToHappyHourList } from '../../../../lib/sharedLists';
 import {
   getUnifiedSavedState,
   projectLegacySavedSpots,
-  replaceVenueFeedback,
+  replaceUserVenueFeedback,
 } from '../../../../lib/savedLists';
 import { publicUser, cleanString } from '../../../../lib/validation';
 import { getSession } from '../../../../lib/session';
@@ -39,11 +39,10 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 
   const note = cleanString(body.note).slice(0, 500);
 
-  // Rating only makes sense for spots you've actually favorited or been
-  // to — not ones still on the "want to try" list. Rather than error out
-  // if a stale rating value tags along with a status change (e.g. moving
-  // a rated favorite back to "want to try"), it's just silently dropped so
-  // status is always the source of truth for whether a rating is kept.
+  // Ratings are global (user×venue). Legacy clients still only send a rating
+  // with favorite/been-to; Want to Try may still carry a global rating if one
+  // exists from another list, but this endpoint only writes a rating when the
+  // target built-in historically accepted one.
   let rating: number | undefined;
   if (status === 'favorite' || status === 'been-to') {
     if (body.rating !== undefined && body.rating !== null && body.rating !== '') {
@@ -67,7 +66,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   if (result === 'forbidden') return errorJson(['Could not edit the built-in list.'], 403);
   if (result === 'full') return errorJson(['The selected list is full.'], 409);
   if (note || rating) {
-    await replaceVenueFeedback(target.id, spotId, user.id, { comment: note, rating });
+    await replaceUserVenueFeedback(user.id, spotId, { comment: note, rating });
   }
   const [nextSaved, alerts] = await Promise.all([getUnifiedSavedState(user.id), listAlerts(user.id)]);
   return json(publicUser(user, projectLegacySavedSpots(nextSaved), alerts, nextSaved));

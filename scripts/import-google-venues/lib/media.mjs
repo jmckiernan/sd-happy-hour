@@ -96,7 +96,10 @@ export function scoreMediaUrl(url) {
   if (isDecorativeMediaUrl(lower)) return 0;
   let score = 0;
   if (/happy[-_ ]?hour|happyhour/i.test(lower)) score += 45;
-  if (/(?:^|[/_-])hh(?:[._-]|\.pdf)/i.test(lower)) score += 40;
+  // Brand flyers often name the file WebMenuHH… / MenuHH… without separators.
+  if (/(?:^|[/_-])hh(?:[._-]|\.pdf)/i.test(lower) || /(?:^|[/_-]|menu)hh[a-z0-9_-]*\.pdf/i.test(lower)) {
+    score += 40;
+  }
   if (/specials?/i.test(lower)) score += 30;
   if (/menu/i.test(lower)) score += 18;
   if (PDF_RE.test(lower) && score > 0) score += 8;

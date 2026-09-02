@@ -114,6 +114,7 @@ import Layout from '../../layouts/Layout.astro';
   </main>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
     const statusEl = document.getElementById('status')!;
     const restaurantsEl = document.getElementById('restaurants')!;
     const adminUserEl = document.getElementById('admin-user')!;
@@ -205,7 +206,7 @@ import Layout from '../../layouts/Layout.astro';
         renderRestaurants(await api('/api/admin/restaurants'));
       } catch (err: any) {
         if (err?.status === 401) {
-          window.location.href = '/account/';
+          window.location.href = accountSignInHref(currentReturnPath());
           return;
         }
         setStatus(err?.message || 'Could not load venue claims.');
@@ -216,7 +217,7 @@ import Layout from '../../layouts/Layout.astro';
       const res = await fetch('/api/admin/me');
       const session = await res.json();
       if (!session.authenticated) {
-        window.location.href = '/account/';
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
       adminUserEl.textContent = `Logged in as ${session.email}`;

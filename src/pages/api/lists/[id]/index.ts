@@ -35,6 +35,8 @@ export const GET: APIRoute = async ({ params, url, cookies }) => {
         createdAt: item.createdAt,
         feedback: item.feedback,
         myFeedback: item.myFeedback,
+        notes: item.notes,
+        myNote: item.myNote,
         venue: { ...venue, slug: venueSlug(venue) },
       };
     })

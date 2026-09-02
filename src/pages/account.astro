@@ -1,6 +1,15 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import { getSession } from '../lib/session';
+import { postAuthReturnPath } from '../lib/authRedirect';
+
+// Already signed in and sent here with ?next=… — skip the sign-in gate and
+// continue to the intended same-origin destination (never back to /account/).
+const returnPath = postAuthReturnPath(Astro.url.searchParams.get('next'));
+if (returnPath && await getSession(Astro.cookies)) {
+  return Astro.redirect(returnPath);
+}
 ---
 <Layout title="My Stuff | SD Happy Hours" description="Shared lists, saved spots, alerts, and account preferences, all in one place.">
   <style is:global>
@@ -114,7 +123,9 @@ import Layout from '../layouts/Layout.astro';
     .saved-list-tools { display: grid; gap: 9px; grid-template-columns: minmax(180px, 260px) minmax(180px, 260px); }
     .inline-list-create { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm); display: grid; gap: 9px; padding: 12px; }
     .feedback-contributions { display: grid; gap: 7px; }
-    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); font-size: .82rem; padding: 9px 11px; }
+    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); display: grid; font-size: .82rem; gap: 4px; padding: 9px 11px; }
+    .feedback-entry .feedback-body { color: var(--night); }
+    .feedback-entry .feedback-note-label { color: var(--night-soft); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
     .list-alert-controls { border-top: 1px solid var(--sand-warm); display: grid; gap: 9px; margin-top: 2px; padding-top: 11px; }
     .default-list-control { min-width: min(100%, 270px); }
 
@@ -156,6 +167,7 @@ import Layout from '../layouts/Layout.astro';
       margin-bottom: 14px;
       padding: 10px 12px;
     }
+    .sms-status:empty { display: none; }
     .sms-status.is-ready { background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; }
     .sms-status.is-pending { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
     .sms-consent-note { color: var(--night-soft); font-size: 0.78rem; line-height: 1.45; margin: 0; }
@@ -264,8 +276,7 @@ import Layout from '../layouts/Layout.astro';
           <label>List title <input name="title" maxlength="80" placeholder="Friday night picks" required></label>
           <label>Description (optional) <input name="description" maxlength="500" placeholder="Patios and cocktails near North Park"></label>
           <div class="list-create-options">
-            <label class="channel-check"><input type="checkbox" name="ratingsEnabled"> Enable star ratings</label>
-            <label class="channel-check"><input type="checkbox" name="commentsEnabled"> Enable comments</label>
+            <label class="channel-check"><input type="checkbox" name="commentsEnabled"> Enable comments on this list</label>
           </div>
           <div class="form-actions"><button type="submit">Create list</button></div>
         </form>
@@ -299,7 +310,7 @@ import Layout from '../layouts/Layout.astro';
       <section class="panel" id="section-preferences">
         <h2>Text alert setup</h2>
         <p class="hint">Add your phone and opt in once here. Then enable the Text channel on any alert above.</p>
-        <div class="sms-status is-pending" id="sms-status" aria-live="polite"></div>
+        <div class="sms-status" id="sms-status" aria-live="polite"></div>
         <form id="preferences-form">
           <label>Phone number (for text alerts) <input type="tel" name="phone" placeholder="(619) 555-0100" autocomplete="tel"></label>
           <label style="flex-direction:row; align-items:flex-start; display:flex; gap:8px;">
@@ -355,6 +366,8 @@ import Layout from '../layouts/Layout.astro';
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     import { alertMatchesVenue } from '../lib/venues';
+    import { postAuthReturnPath } from '../lib/authRedirect';
+    import { fetchBrowserSession } from '../lib/browserSession';
 
     let currentUser: any = null;
     let happyHours: any[] = [];
@@ -436,29 +449,29 @@ import Layout from '../layouts/Layout.astro';
     }
 
     async function loadAccount() {
-      let session: any = { authenticated: false };
-      try {
-        const res = await fetch('/api/account/me');
-        session = await res.json();
-      } catch {
-        // Treat an unreachable session store as signed out. Swallowing this
-        // also matters for the loading state: render() is what clears the
-        // spinner, so throwing here would leave the page loading forever.
-      }
+      // Shared no-store session fetch — matches Layout.astro so this page and
+      // the nav cannot disagree about whether someone is signed in.
+      const session = await fetchBrowserSession();
       const nextUser = session.authenticated ? session.user : null;
       // Only announce an actual signed-in/signed-out transition. loadAccount()
       // also re-runs after ordinary saves (alerts, preferences, saved spots),
       // and re-checking the nav on each of those is pure wasted round trips.
       const signedInChanged = Boolean(currentUser) !== Boolean(nextUser);
       currentUser = nextUser;
+      if (signedInChanged) announceAuthChange(Boolean(currentUser), Boolean(session.isAdmin));
+
+      // Honor ?next= after password/Google/register (and as a client fallback
+      // when the SSR redirect above did not run). Never redirect back to
+      // /account/ itself — that re-shows the sign-in gate as a loop.
+      const nextPath = postAuthReturnPath(new URLSearchParams(window.location.search).get('next'));
+      if (currentUser && nextPath) {
+        window.location.replace(nextPath);
+        return;
+      }
+
       if (currentUser) await loadCustomLists();
       else customListState = { lists: [], pendingInvites: [] };
       render();
-      if (signedInChanged) announceAuthChange(Boolean(currentUser), Boolean(session.isAdmin));
-      const nextPath = new URLSearchParams(window.location.search).get('next');
-      if (currentUser && nextPath?.startsWith('/') && !nextPath.startsWith('//')) {
-        window.location.replace(nextPath);
-      }
     }
 
     async function loadAccountKeepingVenueInPlace(venueId: number) {
@@ -588,6 +601,10 @@ import Layout from '../layouts/Layout.astro';
       // The session is known by the time anything calls render(), so this is
       // where the spinner gives way to the real page — either half of which
       // would otherwise have had to be guessed at in the static markup.
+      // Reveal auth/account shells BEFORE filling them. Section fills stay
+      // synchronous in this turn (no paint between reveal and SMS status), and
+      // .sms-status:empty already hides an unset banner. Filling first meant any
+      // throw in a render*() left My Stuff blank with only the page header.
       document.getElementById('loading-section')!.classList.add('hidden');
       document.getElementById('page-header')!.classList.remove('hidden');
       document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentUser));
@@ -595,24 +612,33 @@ import Layout from '../layouts/Layout.astro';
 
       const headerTitle = document.getElementById('header-title')!;
       const headerSubtitle = document.getElementById('header-subtitle')!;
-      if (currentUser) {
-        headerTitle.textContent = 'My Stuff';
-        headerSubtitle.textContent = 'Shared lists, saved spots, alerts, and preferences, all in one place.';
-      } else {
+      if (!currentUser) {
         headerTitle.textContent = 'Sign In';
         headerSubtitle.textContent = 'Sign in to build and share happy hour lists, save favorites, and manage alerts.';
+        const statusEl = document.getElementById('sms-status')!;
+        statusEl.textContent = '';
+        statusEl.classList.remove('is-ready', 'is-pending');
+        return;
       }
 
-      if (!currentUser) return;
-
+      headerTitle.textContent = 'My Stuff';
+      headerSubtitle.textContent = 'Shared lists, saved spots, alerts, and preferences, all in one place.';
       document.getElementById('account-subtitle')!.textContent = currentUser.email;
 
-      renderCustomLists();
-      renderSavedSpots();
-      renderCreateAlertForm();
-      renderAlertsList();
-      renderPreferences();
-      renderProfile();
+      for (const [name, fn] of [
+        ['lists', renderCustomLists],
+        ['saved', renderSavedSpots],
+        ['create-alert', renderCreateAlertForm],
+        ['alerts', renderAlertsList],
+        ['preferences', renderPreferences],
+        ['profile', renderProfile],
+      ] as const) {
+        try {
+          fn();
+        } catch (err) {
+          console.error(`[account] ${name} render failed`, err);
+        }
+      }
     }
 
     // ---------------------------------------------------------------------
@@ -678,7 +704,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <h3>${escapeHTML(list.title)}</h3>
             <p class="custom-list-meta">${escapeHTML(list.description || (list.role === 'owner' ? 'Private until you share it.' : `Shared by ${list.ownerName}`))}</p>
-            <p class="custom-list-meta">Ratings ${list.ratingsEnabled ? 'on' : 'off'} · Comments ${list.commentsEnabled ? 'on' : 'off'} · Your alerts ${escapeHTML(alertLabel)}</p>
+            <p class="custom-list-meta">Comments ${list.commentsEnabled ? 'on' : 'off'} · Your alerts ${escapeHTML(alertLabel)}</p>
           </div>
           <div class="actions">
             <a class="secondary" href="/lists/${encodeURIComponent(list.id)}/" style="display:inline-flex;align-items:center;padding:9px 15px;border-radius:100px;text-decoration:none;color:var(--night);background:var(--sand-warm);font-weight:700;">Open list</a>
@@ -700,7 +726,6 @@ import Layout from '../layouts/Layout.astro';
         const data = await postJson('/api/account/lists', {
           title: (form.elements.namedItem('title') as HTMLInputElement).value,
           description: (form.elements.namedItem('description') as HTMLInputElement).value,
-          ratingsEnabled: (form.elements.namedItem('ratingsEnabled') as HTMLInputElement).checked,
           commentsEnabled: (form.elements.namedItem('commentsEnabled') as HTMLInputElement).checked,
         });
         window.location.href = `/lists/${encodeURIComponent(data.list.id)}/`;
@@ -742,7 +767,7 @@ import Layout from '../layouts/Layout.astro';
     // Saved spots
     // ---------------------------------------------------------------------
 
-    const activeFeedbackListByVenue = new Map<number, string>();
+    const activeNoteListByVenue = new Map<number, string>();
 
     function paintStars(container: HTMLElement, rating: number) {
       container.dataset.rating = String(rating);
@@ -764,34 +789,73 @@ import Layout from '../layouts/Layout.astro';
       container.querySelectorAll('.star').forEach((el) => el.classList.remove('preview'));
     }
 
-    function renderFeedback(membership: any) {
-      if (!membership) return '';
-      const mine = membership.myFeedback || {};
+    function cleanFeedbackText(value: unknown) {
+      const text = String(value ?? '').trim();
+      if (!text) return '';
+      const normalized = text.toLowerCase().replace(/[.…]+$/g, '').replace(/\s+/g, ' ').trim();
+      if (normalized === 'comment here' || normalized === 'note here') return '';
+      return text;
+    }
+
+    function renderVenueFeedback(saved: any, activeNoteList: any) {
+      const mine = saved.myFeedback || activeNoteList?.myFeedback || {};
+      const myComment = cleanFeedbackText(mine.comment);
       const rating = Number(mine.rating) || 0;
       const stars = [1, 2, 3, 4, 5].map((n) =>
         `<button type="button" class="star${n <= rating ? ' filled' : ''}" data-value="${n}" aria-label="${n} star${n === 1 ? '' : 's'}">&#9733;</button>`
       ).join('');
-      const contributions = (membership.feedback || []).map((entry: any) => `
+      const canEditAny = (saved.lists || []).some((list: any) => list.canEdit);
+      const seenFriends = new Set();
+      const friendEntries = (saved.lists || []).flatMap((list: any) =>
+        (list.feedback || []).map((entry: any) => ({ ...entry, listTitle: list.title }))
+      ).filter((entry: any) => {
+        if (seenFriends.has(entry.userId)) return false;
+        seenFriends.add(entry.userId);
+        return true;
+      });
+      const contributions = friendEntries.map((entry: any) => {
+        const comment = cleanFeedbackText(entry.comment);
+        const starsText = entry.rating
+          ? ` · ${'★'.repeat(Math.max(0, Math.min(5, Number(entry.rating) || 0)))}${'☆'.repeat(Math.max(0, 5 - Math.min(5, Number(entry.rating) || 0)))}`
+          : '';
+        if (!entry.rating && !comment) return '';
+        return `
         <div class="feedback-entry">
-          <strong>${escapeHTML(entry.userName || 'List member')}</strong>
-          ${entry.rating ? ` · ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}` : ''}
-          ${entry.comment ? `<div>${escapeHTML(entry.comment)}</div>` : ''}
-        </div>`).join('');
-      const editable = membership.canEdit && (membership.ratingsEnabled || membership.commentsEnabled);
+          <div><strong>${escapeHTML(entry.userName || 'List member')}</strong>${starsText}${entry.listTitle ? ` · ${escapeHTML(entry.listTitle)}` : ''}</div>
+          ${comment ? `<div class="feedback-body">${escapeHTML(comment)}</div>` : ''}
+        </div>`;
+      }).filter(Boolean).join('');
+      const noteLists = (saved.lists || []).filter((list: any) => list.canEdit);
+      const noteMembership = noteLists.find((list: any) => list.listId === activeNoteList?.listId) || noteLists[0] || null;
+      const myNote = cleanFeedbackText(noteMembership?.myNote);
       return `
-        <div class="saved-edit" data-feedback-list="${escapeHTML(membership.listId)}">
-          ${editable ? `<div class="saved-edit-row">
-            ${membership.ratingsEnabled ? `<div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating for ${escapeHTML(membership.title)}">${stars}</div>` : ''}
+        <div class="saved-edit" data-venue-feedback>
+          ${canEditAny ? `<div class="saved-edit-row">
+            <div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating">${stars}</div>
           </div>
-          ${membership.commentsEnabled ? `<textarea data-feedback-comment placeholder="Add your comment to ${escapeHTML(membership.title)}...">${escapeHTML(mine.comment || '')}</textarea>` : ''}
-          <div class="saved-edit-actions"><button type="button" data-action="save-feedback">Save notes</button></div>` : ''}
-          ${!editable && !(membership.feedback || []).length ? '<div class="saved-meta">Ratings and comments are not available for this list.</div>' : ''}
+          <label>Public comment
+            <textarea data-feedback-comment placeholder="What did you think of this place?">${escapeHTML(myComment)}</textarea>
+          </label>
+          ${noteMembership ? `
+            <label>Note for this list
+              <select data-note-list>
+                ${noteLists.map((list: any) => `<option value="${escapeHTML(list.listId)}" ${list.listId === noteMembership.listId ? 'selected' : ''}>${escapeHTML(list.title)}</option>`).join('')}
+              </select>
+              <textarea data-list-note maxlength="500" placeholder="Only on ${escapeHTML(noteMembership.title)} — visible to people on that list, not on your other lists…">${escapeHTML(myNote)}</textarea>
+            </label>
+          ` : ''}
+          <div class="saved-edit-actions"><button type="button" data-action="save-feedback">Save</button></div>` : ''}
+          ${!canEditAny && !friendEntries.length ? '<div class="saved-meta">You can view this spot, but only editors can add ratings or notes.</div>' : ''}
           ${contributions ? `<div class="feedback-contributions">${contributions}</div>` : ''}
         </div>`;
     }
 
     function renderSavedSpots() {
-      const state = currentUser.saved || { lists: [], venues: [], defaultListId: '' };
+      const state = {
+        lists: currentUser.saved?.lists || [],
+        venues: currentUser.saved?.venues || [],
+        defaultListId: currentUser.saved?.defaultListId || '',
+      };
       const savedGrid = document.getElementById('saved-grid')!;
       if (!state.venues.length) {
         savedGrid.innerHTML = '<div class="empty">No saved spots yet. Save a venue from the homepage or add one to a list.</div>';
@@ -801,12 +865,15 @@ import Layout from '../layouts/Layout.astro';
       savedGrid.innerHTML = state.venues.map((saved: any) => {
         const spot = happyHours.find((item) => item.id === saved.venueId);
         if (!spot) return '';
-        const currentActive = activeFeedbackListByVenue.get(saved.venueId);
-        const active = saved.lists.find((list: any) => list.listId === currentActive) || saved.lists[0];
-        activeFeedbackListByVenue.set(saved.venueId, active.listId);
-        const includedIds = new Set(saved.lists.map((list: any) => list.listId));
+        const memberships = saved.lists || [];
+        const currentNoteList = activeNoteListByVenue.get(saved.venueId);
+        const activeNote = memberships.find((list: any) => list.listId === currentNoteList && list.canEdit)
+          || memberships.find((list: any) => list.canEdit)
+          || memberships[0];
+        if (activeNote) activeNoteListByVenue.set(saved.venueId, activeNote.listId);
+        const includedIds = new Set(memberships.map((list: any) => list.listId));
         const available = state.lists.filter((list: any) => list.canEdit && !includedIds.has(list.id));
-        const chips = saved.lists.map((list: any) => list.canEdit
+        const chips = memberships.map((list: any) => list.canEdit
           ? `<button type="button" class="list-chip" data-action="remove-list"
               data-list-id="${escapeHTML(list.listId)}" data-list-title="${escapeHTML(list.title)}"
               data-venue-id="${saved.venueId}"
@@ -822,7 +889,7 @@ import Layout from '../layouts/Layout.astro';
               ? 'want_to_try'
               : null;
           const replaced = oppositeKey
-            ? saved.lists.find((membership: any) => membership.systemKey === oppositeKey)
+            ? memberships.find((membership: any) => membership.systemKey === oppositeKey)
             : null;
           const moveNote = replaced ? ` · moves from ${replaced.title}` : '';
           return `<option value="${escapeHTML(list.id)}">${escapeHTML(list.title + moveNote)}</option>`;
@@ -830,11 +897,13 @@ import Layout from '../layouts/Layout.astro';
         const createOption = ownedCustomCount < 7
           ? '<option value="__create">+ Create a new list…</option>'
           : '<option value="" disabled>7 custom-list limit reached</option>';
+        const dealBits = Array.isArray(spot.deals) ? spot.deals.slice(0, 2).join(' · ') : '';
+        const meta = [spot.neighborhood, dealBits].filter(Boolean).join(' · ');
         return `
           <article class="saved-card" data-id="${saved.venueId}">
             <div>
               <h3><a href="/venues/${escapeHTML(spot.slug || spot.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))}/">${escapeHTML(spot.name)}</a></h3>
-              <div class="saved-meta">${escapeHTML(spot.neighborhood)} · ${escapeHTML(spot.deals.slice(0, 2).join(' · '))}</div>
+              <div class="saved-meta">${escapeHTML(meta)}</div>
             </div>
             <div class="list-chips">${chips}</div>
             <div class="save-confirm list-action-status" data-list-action-status role="status" aria-live="polite">
@@ -848,25 +917,19 @@ import Layout from '../layouts/Layout.astro';
                   ${createOption}
                 </select>
               </label>
-              <label>Rating and comments for
-                <select data-detail-list>
-                  ${saved.lists.map((list: any) => `<option value="${escapeHTML(list.listId)}" ${list.listId === active.listId ? 'selected' : ''}>${escapeHTML(list.title)}</option>`).join('')}
-                </select>
-              </label>
             </div>
             <div class="inline-list-create hidden" data-inline-create>
               <label>New list title <input data-new-list-title maxlength="80" placeholder="Weekend picks"></label>
               <label>Description (optional) <input data-new-list-description maxlength="500"></label>
               <div class="list-create-options">
-                <label class="channel-check"><input type="checkbox" data-new-list-ratings> Enable star ratings</label>
-                <label class="channel-check"><input type="checkbox" data-new-list-comments> Enable comments</label>
+                <label class="channel-check"><input type="checkbox" data-new-list-comments> Enable comments on this list</label>
               </div>
               <div class="saved-edit-actions">
                 <button type="button" data-action="create-list-here">Create and add</button>
                 <button type="button" class="secondary" data-action="cancel-create-list">Cancel</button>
               </div>
             </div>
-            ${renderFeedback(active)}
+            ${renderVenueFeedback(saved, activeNote)}
           </article>`;
       }).join('');
     }
@@ -896,8 +959,8 @@ import Layout from '../layouts/Layout.astro';
       const card = select.closest('.saved-card') as HTMLElement | null;
       if (!card) return;
       const venueId = Number(card.dataset.id);
-      if (select.matches('[data-detail-list]')) {
-        activeFeedbackListByVenue.set(venueId, select.value);
+      if (select.matches('[data-note-list]')) {
+        activeNoteListByVenue.set(venueId, select.value);
         renderSavedSpots();
         return;
       }
@@ -994,23 +1057,29 @@ import Layout from '../layouts/Layout.astro';
           const data = await postJson('/api/account/lists', {
             title,
             description: (card.querySelector('[data-new-list-description]') as HTMLInputElement).value,
-            ratingsEnabled: (card.querySelector('[data-new-list-ratings]') as HTMLInputElement).checked,
             commentsEnabled: (card.querySelector('[data-new-list-comments]') as HTMLInputElement).checked,
             venueId,
           });
-          activeFeedbackListByVenue.set(venueId, data.list.id);
+          activeNoteListByVenue.set(venueId, data.list.id);
           saveConfirmation = { spotId: venueId, text: `Added to ${data.list.title}` };
           await loadAccountKeepingVenueInPlace(venueId);
           return;
         }
         if (action === 'save-feedback') {
-          const feedback = card.querySelector('[data-feedback-list]') as HTMLElement;
-          const ratingEl = feedback.querySelector('.star-rating') as HTMLElement | null;
-          await postJson(`/api/lists/${encodeURIComponent(feedback.dataset.feedbackList!)}/items/${venueId}/feedback`, {
+          const ratingEl = card.querySelector('.star-rating') as HTMLElement | null;
+          const commentEl = card.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null;
+          const noteList = (card.querySelector('[data-note-list]') as HTMLSelectElement | null)?.value;
+          const noteEl = card.querySelector('[data-list-note]') as HTMLTextAreaElement | null;
+          await postJson(`/api/account/venues/${venueId}/feedback`, {
             rating: Number(ratingEl?.dataset.rating) || null,
-            comment: (feedback.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null)?.value || '',
+            comment: commentEl?.value || '',
           }, 'PUT');
-          saveConfirmation = { spotId: venueId, text: 'Notes saved' };
+          if (noteList) {
+            await postJson(`/api/lists/${encodeURIComponent(noteList)}/items/${venueId}/notes`, {
+              note: noteEl?.value || '',
+            }, 'PUT');
+          }
+          saveConfirmation = { spotId: venueId, text: 'Saved' };
           await loadAccount();
         }
       } catch (error: any) {
@@ -1032,10 +1101,10 @@ import Layout from '../layouts/Layout.astro';
       ).join('');
     }
 
-    function filterFieldsHTML(filters: any) {
-      const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood))].sort();
+    function filterFieldsHTML(filters: any = {}) {
+      const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood).filter(Boolean))].sort();
       const dealTypes = [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort();
-      const days = filters.days || [];
+      const days = Array.isArray(filters?.days) ? filters.days : [];
 
       return `
         <div class="day-checks">
@@ -1047,14 +1116,14 @@ import Layout from '../layouts/Layout.astro';
           `).join('')}
         </div>
         <div class="filter-row">
-          <select data-field="neighborhood">${optionList(neighborhoods, filters.neighborhood || '')}</select>
-          <select data-field="dealType">${optionList(dealTypes, filters.dealType || '')}</select>
+          <select data-field="neighborhood">${optionList(neighborhoods, filters?.neighborhood || '')}</select>
+          <select data-field="dealType">${optionList(dealTypes, filters?.dealType || '')}</select>
         </div>
         <div class="filter-row">
-          <label>Starts after <input type="time" data-field="startTime" value="${escapeHTML(filters.startTime || '')}"></label>
-          <label>Ends before <input type="time" data-field="endTime" value="${escapeHTML(filters.endTime || '')}"></label>
+          <label>Starts after <input type="time" data-field="startTime" value="${escapeHTML(filters?.startTime || '')}"></label>
+          <label>Ends before <input type="time" data-field="endTime" value="${escapeHTML(filters?.endTime || '')}"></label>
         </div>
-        <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters.query || '')}">
+        <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters?.query || '')}">
       `;
     }
 
@@ -1081,7 +1150,7 @@ import Layout from '../layouts/Layout.astro';
       return Boolean(currentUser?.phone && currentUser?.smsOptedIn);
     }
 
-    function channelFieldsHTML(channels: any) {
+    function channelFieldsHTML(channels: any = {}) {
       const eligible = smsTextEligible();
       const textNote = eligible
         ? '<span class="channel-note">(uses your phone from Preferences)</span>'
@@ -1089,11 +1158,11 @@ import Layout from '../layouts/Layout.astro';
       return `
         <div class="channel-row">
           <label class="channel-check">
-            <input type="checkbox" data-field="channel-email" ${channels.email !== false ? 'checked' : ''}>
+            <input type="checkbox" data-field="channel-email" ${channels?.email !== false ? 'checked' : ''}>
             Email
           </label>
           <label class="channel-check">
-            <input type="checkbox" data-field="channel-text" ${channels.text ? 'checked' : ''}>
+            <input type="checkbox" data-field="channel-text" ${channels?.text ? 'checked' : ''}>
             Text ${textNote}
           </label>
         </div>
@@ -1114,7 +1183,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     function matchCount(filters: any) {
-      return happyHours.filter((h) => alertMatchesVenue(filters, h)).length;
+      return happyHours.filter((h) => alertMatchesVenue(filters || {}, h)).length;
     }
 
     function renderAlertsList() {
@@ -1235,6 +1304,7 @@ import Layout from '../layouts/Layout.astro';
       (form.querySelector('[name="smsOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.smsOptedIn);
       (form.querySelector('[name="locationAnalyticsOptIn"]') as HTMLInputElement).checked = Boolean(currentUser.locationAnalyticsOptIn);
 
+      // Always pending or on once preferences are known — never leave empty.
       const ready = smsTextEligible();
       statusEl.classList.toggle('is-ready', ready);
       statusEl.classList.toggle('is-pending', !ready);

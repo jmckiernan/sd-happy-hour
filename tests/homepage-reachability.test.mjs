@@ -194,7 +194,7 @@ async function testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent() {
   assert.match(homepage, /<a class="neighborhood-tag" href="\$\{escapeHTML\(neighborhoodPath\(h\.neighborhood\)/);
   assert.match(
     homepage,
-    /<a class="card-image-link" href="\/venues\/\$\{slug\}\/">[\s\S]*?<\/a>\s*\$\{!hasDistance[\s\S]*?<a class="neighborhood-tag"/,
+    /<a class="card-image-link" href="\/venues\/\$\{slug\}\/">[\s\S]*?<\/a>\s*<div class="card-location-tags"[\s\S]*?<a class="neighborhood-tag"/,
   );
 
   const venue = {

@@ -61,12 +61,14 @@ test('account navigation consumes one authoritative session state after login', 
     readFile(path.join(ROOT, 'src', 'pages', 'api', 'account', 'me.ts'), 'utf8'),
   ]);
   assert.match(accountMe, /isAdmin:\s*isAdminEmail\(user\.email\)/);
-  assert.match(layout, /fetch\('\/api\/account\/me'/);
+  assert.match(layout, /fetchBrowserSession/);
   assert.match(layout, /applyAuthNav\(state\)/);
   assert.match(layout, /authSyncVersion/);
   assert.doesNotMatch(layout, /fetch\('\/api\/admin\/me'/);
   assert.match(accountPage, /new CustomEvent\(AUTH_CHANGED_EVENT/);
   assert.match(accountPage, /detail:\s*\{ authenticated, isAdmin \}/);
+  assert.match(accountPage, /postAuthReturnPath/);
+  assert.match(accountPage, /export const prerender = false/);
 });
 
 test('account state transitions and dependency transfer rules are explicit', () => {

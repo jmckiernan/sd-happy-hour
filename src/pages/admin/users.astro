@@ -165,6 +165,7 @@ import Layout from '../../layouts/Layout.astro';
   </div>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
     const rowsEl = document.getElementById('user-rows')!;
     const statusEl = document.getElementById('table-status')!;
     const filters = document.getElementById('filters') as HTMLFormElement;
@@ -248,7 +249,7 @@ import Layout from '../../layouts/Layout.astro';
         renderRows(data.total);
         await loadAreas(data.days);
       } catch (error:any) {
-        if (/access|required|sign/i.test(error.message)) { window.location.href='/account/'; return; }
+        if (/access|required|sign/i.test(error.message)) { window.location.href = accountSignInHref(currentReturnPath()); return; }
         statusEl.textContent = error.message;
       } finally {
         loading = false;
@@ -345,6 +346,6 @@ import Layout from '../../layouts/Layout.astro';
     loadMoreButton.addEventListener('click',()=>loadUsers(true));
     document.getElementById('refresh')!.addEventListener('click',()=>loadUsers(false));
     document.getElementById('logout')!.addEventListener('click',async()=>{ await fetch('/api/account/logout',{method:'POST'}); window.location.href='/'; });
-    (async()=>{ const session=await fetch('/api/admin/me').then((response)=>response.json()).catch(()=>({authenticated:false})); if(!session.authenticated){window.location.href='/account/';return;} document.getElementById('admin-user')!.textContent=`Logged in as ${session.email}`; await loadUsers(false); })();
+    (async()=>{ const session=await fetch('/api/admin/me').then((response)=>response.json()).catch(()=>({authenticated:false})); if(!session.authenticated){window.location.href = accountSignInHref(currentReturnPath());return;} document.getElementById('admin-user')!.textContent=`Logged in as ${session.email}`; await loadUsers(false); })();
   </script>
 </Layout>

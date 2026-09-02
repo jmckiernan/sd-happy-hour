@@ -58,7 +58,8 @@ async function testSchemaAndSurfaces() {
   assert.match(featuresPage, /Possibly|similar requests|Is one of these what you’re looking for\?/i);
   assert.match(featuresPage, /None match — submit as new/);
   assert.match(featuresPage, /Yes — upvote this/);
-  assert.match(featuresPage, /\/account\/\?next=%2Ffeatures%2F/);
+  assert.match(featuresPage, /accountSignInHref\('\/features\/'\)/);
+  assert.match(featuresPage, /Could not load the board/);
   assert.match(bugPage, /fetch\('\/api\/bug-reports'/);
   assert.match(bugRoute, /reporterUserId:\s*user\?\.id \|\| null/);
   assert.match(bugRoute, /A valid email is required/);

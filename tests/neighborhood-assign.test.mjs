@@ -55,6 +55,12 @@ function testARecognisedSanDiegoZipGetsARealNeighborhood() {
   assert.equal(assignNeighborhood(32.7016, -117.0453, '954 Cardiff St, San Diego, CA 92114, USA'), 'Encanto');
   assert.equal(assignNeighborhood(32.5757, -117.0848, '2265 Flower Ave D, San Diego, CA 92154, USA'), 'Otay Mesa');
   assert.equal(assignNeighborhood(32.5452, -117.0391, '4419 Camino De La Plaza, San Diego, CA 92173, USA'), 'San Ysidro');
+  // Karina's: Bonita Rd and Otay Ranch Birch Rd are not plain "Chula Vista",
+  // and National Ave is Barrio Logan — never Coronado across the bay.
+  assert.equal(assignNeighborhood(32.6482333, -117.0647837, '89 Bonita Rd, Chula Vista, CA 91910, USA'), 'Bonita');
+  assert.equal(assignNeighborhood(32.624843, -116.9663695, '2015 Birch Rd #710, Chula Vista, CA 91915, USA'), 'Otay Ranch');
+  assert.equal(assignNeighborhood(32.701372, -117.1458024, '1852 National Ave, San Diego, CA 92113, USA'), 'Barrio Logan');
+  assert.equal(assignNeighborhood(32.7429114, -117.1807899, '3731 India St B, San Diego, CA 92103, USA'), 'Mission Hills');
 }
 
 function testBackcountryPlacesMapToTheNearestPage() {

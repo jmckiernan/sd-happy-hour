@@ -5,11 +5,12 @@ import { isAdminEmail } from '../../lib/adminIdentity';
 import { listMerchantReportVenues } from '../../lib/merchantEntitlements';
 import { getSession } from '../../lib/session';
 import { getUserById } from '../../lib/store';
+import { accountSignInHref } from '../../lib/authRedirect';
 
 const session = await getSession(Astro.cookies);
-if (!session) return Astro.redirect(`/account/?next=${encodeURIComponent('/restaurant/reports/')}`);
+if (!session) return Astro.redirect(accountSignInHref('/restaurant/reports/'));
 const user = await getUserById(session.userId);
-if (!user) return Astro.redirect(`/account/?next=${encodeURIComponent('/restaurant/reports/')}`);
+if (!user) return Astro.redirect(accountSignInHref('/restaurant/reports/'));
 const venues = await listMerchantReportVenues(user.id, isAdminEmail(user.email));
 const requestedVenueId = Number(Astro.url.searchParams.get('venueId'));
 const selectedVenue = venues.find((venue) => venue.venueId === requestedVenueId) || venues[0] || null;

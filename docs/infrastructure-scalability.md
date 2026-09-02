@@ -22,6 +22,11 @@ Numbers are marked **measured** or **projected**. Measured values were read off 
 the assumption rather than the number. Pipeline mechanics are in `docs/venue-pipeline-reference.md`.
 Multi-city groundwork is in `docs/porting-to-a-new-city.md`.
 
+**Image-egress addendum, 1 September 2026:** §14 measures the current homepage's cold-scroll image
+transfer, models the cost at city scale, and defines the image-delivery work that is a prerequisite
+for a second city. It also records when moving image delivery from Netlify to Cloudflare R2 should
+be evaluated.
+
 ---
 
 ## 1. The answer in one page
@@ -128,7 +133,9 @@ but now harder to fix. Run `git gc` if you like — it will tidy the 83 abandone
   verbatim plus filesystem block overhead. Netlify uploads only changed files, so steady-state deploys
   are fine; the first deploy after any image batch is not.
 - Serving: these are plain static assets on the CDN, which is the one part of the media story that is
-  correct. Bandwidth is the only cost and it is Netlify's problem, not yours.
+  correct. Bandwidth is still a direct usage cost: edge caching avoids repeated transformation and
+  origin work, but bytes delivered from the edge to each browser count as egress. §14 measures the
+  current exposure and defines the multi-city gate.
 
 **At ten cities**, holding the per-published-venue rate constant (**projected**; today 690 published
 venues carry 717 MB, so 1.04 MB per published venue, and image coverage tracks the published set —
@@ -794,6 +801,24 @@ wasted if the database migration happens later.
 
 ### 11.2 Before city two
 
+**Complete the image-egress gate before beginning a second city.** The current homepage inserts
+every matching card into the DOM and relies only on native image lazy-loading. A weekday can produce
+more than 600 cards, so a deep scroll can turn one session into hundreds of image deliveries. Before
+multi-city expansion:
+
+- scope the browse dataset and results to the selected city;
+- render the first 24–36 cards, then append bounded pages or virtualized batches;
+- generate responsive 400px, 600px and 800px card sources and declare `srcset`/`sizes`;
+- keep ordinary card variants in a 50–100 KB target range, with larger hero variants loaded only on
+  venue pages;
+- use immutable, content-addressed asset URLs with long browser cache lifetimes;
+- ensure every stored image path can use the optimized delivery path rather than serving an original
+  Blob or full-resolution upload directly;
+- measure images and transferred bytes per session, alert on image bandwidth, and rate-limit abusive
+  crawlers; and
+- evaluate the R2 image architecture in §14 before projected image delivery exceeds 1 TB/month, or
+  earlier if image egress becomes a material share of the Netlify bill.
+
 7. **Move pipeline images to Netlify Blobs**, behind the existing `/api/images/` route. New images
    stop entering git history. Then `git filter-repo` the old ones out, once, deliberately. This is
    the item that must not slip past city three. §2.4
@@ -873,3 +898,132 @@ re-litigating the analysis.
 - **What does `validate-data.js` catch that a database constraint would not?** The stub rules look
   expressible as a table `CHECK`; the nested `jsonb` shapes look like they want to stay in TypeScript.
   Classifying all 197 lines is the real design work of migration Phase 1.
+
+---
+
+## 14. Multi-city gate: image egress
+
+This section is a prerequisite, not a future optimization. It was measured on 1 September 2026 in
+response to the decision to own and serve durable venue images rather than pay a third party for
+each live photo render.
+
+### 14.1 What the homepage does today
+
+`src/pages/index.astro` renders every venue that survives the current filters into one
+`grid.innerHTML`. There is no pagination, incremental batch size or virtualization. Images do have
+native `loading="lazy"`, so a browser normally fetches only a margin around the viewport and then
+continues as the visitor scrolls. That prevents an immediate full-catalog download, but a complete
+scroll eventually loads almost every unique image in the result set.
+
+The card path requests one 800px-wide, quality-80 Netlify Image CDN transform. It does not provide
+`srcset` or `sizes`, so a small phone and a high-density desktop card request the same nominal width.
+Two published Blob-backed images currently bypass the transform and can deliver original-resolution
+bytes. The fallback chain does not normally duplicate requests: original and stock fallbacks load
+only after an error.
+
+Measured against the current published catalog:
+
+| Session shape | Cards in results | Unique image requests on complete scroll | Approximate optimized card bytes |
+|---|---:|---:|---:|
+| Tuesday | 620 | 524 | 39.9 MB |
+| Saturday | 254 | 206 | 15.2 MB |
+| Typical visitor viewing about 20 cards | 20 | roughly 20 | 1.5–2 MB |
+
+The representative transform was 800px WebP at quality 80 over the exact current unique source set.
+Its median was 73.8 KB and p90 was 118.7 KB. Netlify may serve AVIF to capable browsers, so production
+transfer can be lower; direct originals and remote images can make it higher.
+
+The page also fetches the entire catalog before rendering. `happy-hours.json` is currently 6.73 MB
+uncompressed, about 0.67 MB gzip or 0.44 MB Brotli. That is egress too, and it grows with every city
+even when a visitor only wants one market. City-scoped browse payloads are therefore part of the
+image-egress fix rather than a separate cleanup.
+
+### 14.2 Cold-session scale model
+
+The useful equation is:
+
+```
+monthly image GB = sessions × images actually loaded × average transferred KB / 1,000,000
+```
+
+Browser caching can make repeat visits on one device cheaper. These figures deliberately model cold
+sessions so expansion planning does not depend on repeat visitors retaining a cache:
+
+| Monthly activity | Approximate image egress |
+|---|---:|
+| 10,000 ordinary sessions at 2 MB | 20 GB |
+| 100,000 ordinary sessions | 200 GB |
+| 1,000,000 ordinary sessions | 2 TB |
+| 10,000 complete Tuesday scrolls | 399 GB |
+| 100,000 complete Tuesday scrolls | 3.99 TB |
+
+On Netlify's current credit-based plans, bandwidth consumes 20 credits/GB and web requests consume
+2 credits per 10,000. Pro starts at $20/month with 3,000 credits; additional 1,500-credit packs are
+$10. On that model, 100,000 ordinary 2 MB sessions are roughly a $30/month total-plan shape if image
+delivery dominates usage; one million are roughly $300/month. Deep-scroll and crawler traffic can be
+materially higher because hundreds of requests accompany the extra bytes. These are planning
+figures, not a quote: HTML, JSON, JavaScript, functions and deployments use the same pool.
+
+Accounts created before 4 September 2025 may still use legacy pricing. Legacy Pro includes 1 TB of
+bandwidth before overage, while the newer plans use credits. Check the actual team billing dashboard
+before changing plans; moving from a legacy plan is irreversible.
+
+Current pricing references:
+
+- [Netlify pricing and included credits](https://www.netlify.com/pricing/)
+- [How Netlify credits and bandwidth are measured](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/)
+- [Netlify legacy-plan details](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-legacy-plans/legacy-pricing-plans/)
+
+### 14.3 Required implementation before expansion
+
+1. **City-scope the browse payload.** A visitor gets only the selected city's published display
+   fields, not the national catalog.
+2. **Bound card creation.** Render 24–36 results initially and append another bounded page when the
+   visitor approaches the end. Preserve filters and result count without keeping thousands of card
+   elements alive.
+3. **Generate variants at ingestion.** At minimum: 400px, 600px and 800px card widths plus a dedicated
+   hero. Prefer AVIF/WebP where supported and enforce the 50–100 KB ordinary-card budget.
+4. **Declare responsive intent.** Add `srcset` and `sizes`; do not make a 360px phone download an
+   800px asset by default.
+5. **Make caching durable.** Use content-hashed paths and `public, max-age=31536000, immutable` for
+   stored variants. A replacement produces a new URL instead of invalidating the old object.
+6. **Unify the media path.** Static, pipeline and owner-uploaded photos must all receive the same
+   variants. Do not send full-resolution Blob originals to cards.
+7. **Remove avoidable work.** Eliminate the homepage's duplicate startup grid render and debounce
+   search/filter rebuilds. Browser caching limits repeat bytes, but it does not fix the DOM, CPU or
+   aborted-request cost.
+8. **Instrument and defend.** Record image requests and bytes per session, watch Netlify bandwidth,
+   and rate-limit crawlers that enumerate the full catalog or image namespace.
+
+### 14.4 When and how to move images to Cloudflare
+
+Netlify is acceptable for the first cities once the preceding controls are in place. Re-evaluate the
+delivery layer when any of these is true for two consecutive months:
+
+- image delivery exceeds 1 TB/month;
+- image bandwidth is more than roughly 25% of the platform bill;
+- crawler traffic is producing a material share of transfers; or
+- the next-city forecast would require repeatedly purchasing bandwidth credits.
+
+The scale architecture keeps the application on Netlify and moves only media:
+
+1. Store originals in a private Cloudflare R2 bucket.
+2. Generate the standard card and hero variants during ingestion, rather than paying to transform
+   arbitrary widths on every request.
+3. Publish immutable variants through a dedicated asset hostname such as `images.example.com`.
+4. Store the asset key, dimensions, checksum, provenance and rights record with the venue.
+5. Keep the existing local vibe fallback available if the media host is unavailable.
+
+R2 currently charges for storage and operations but not internet egress. Its Standard tier includes
+10 GB storage and 10 million Class B reads monthly, after which reads are $0.36 per million. For a
+few thousand pre-generated assets, storage is negligible and requests—not transferred bytes—become
+the principal media-delivery meter. Cloudflare Images can sit in front when dynamic transformation
+is needed; the first 5,000 unique transformations are currently free and later transformations are
+$0.50 per 1,000 unique variants, not per delivery.
+
+- [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/)
+- [Cloudflare Images pricing](https://developers.cloudflare.com/images/pricing/)
+
+Do not migrate merely because R2 advertises zero egress. First make the application request fewer,
+smaller and cacheable images. Otherwise the move hides an inefficient homepage behind a cheaper
+meter while leaving its browser-performance problem intact.

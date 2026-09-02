@@ -102,6 +102,34 @@ await build({
             export async function getUnifiedSavedState() {
               return { defaultListId: 'default-list', lists: [], venues: [] };
             }
+
+            export async function replaceUserVenueFeedback(userId, venueId, input) {
+              globalThis.__sharedListApiFixture ||= { calls: [] };
+              globalThis.__sharedListApiFixture.calls.push(['global-feedback', userId, venueId, input]);
+              if (input?.clear) return 'removed';
+              return 'updated';
+            }
+
+            export async function replaceListItemNote(listId, venueId, userId, input) {
+              globalThis.__sharedListApiFixture ||= { calls: [] };
+              globalThis.__sharedListApiFixture.calls.push(['list-note', listId, venueId, userId, input]);
+              if (userId === 'viewer') return 'forbidden';
+              if (venueId === 999) return 'missing';
+              if (input?.clear || !String(input?.note ?? '').trim()) return 'removed';
+              return 'updated';
+            }
+
+            export async function replaceVenueFeedback(listId, venueId, userId, input) {
+              globalThis.__sharedListApiFixture ||= { calls: [] };
+              globalThis.__sharedListApiFixture.calls.push(['list-feedback', listId, venueId, userId, input]);
+              if (userId === 'viewer') return 'forbidden';
+              if (venueId === 999) return 'missing';
+              if (input?.comment && globalThis.__sharedListApiFixture.commentsDisabled) {
+                throw new Error('Comments are not enabled for this list.');
+              }
+              if (input?.clear) return 'removed';
+              return 'updated';
+            }
           `,
         }));
         context.onLoad({ filter: /^shared-list-store-fixture$/, namespace: 'shared-list-test' }, () => ({
@@ -125,7 +153,7 @@ await build({
                 canEdit: isMember && (role === 'owner' || role === 'editor'),
                 canManageSharing: isMember && role === 'owner',
                 inviteId, inviteEmail: null, inviteExpiresAt: null,
-                items: [{ venueId: 1, addedByUserId: 'owner', createdAt: '2026-08-01T00:00:00.000Z' }],
+                items: [{ venueId: 1, addedByUserId: 'owner', createdAt: '2026-08-01T00:00:00.000Z', feedback: [], myFeedback: null, notes: [], myNote: '' }],
               };
             }
 

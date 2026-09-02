@@ -177,6 +177,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
   </script>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../lib/authRedirect';
     import { listingFormHTML, readListingForm, wireImageCropControls, wireListingImageControls, previewSrc } from '../lib/listingForm';
     import { vibeImageFor } from '../lib/vibeImages';
 
@@ -378,7 +379,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
         allSubmissions = await api('/api/admin/submissions');
         renderSubmissions();
       } catch {
-        window.location.href = '/account/';
+        window.location.href = accountSignInHref(currentReturnPath());
       }
     }
 
@@ -386,7 +387,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
       const res = await fetch('/api/admin/me');
       const session = await res.json();
       if (!session.authenticated) {
-        window.location.href = '/account/';
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
       adminUserEl.textContent = `Logged in as ${session.email}`;

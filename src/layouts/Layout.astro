@@ -491,23 +491,14 @@ const isHome = Astro.url.pathname === '/';
     }
 
     async function getAuthNavState(): Promise<AuthNavState> {
-      try {
-        const res = await fetch('/api/account/me', {
-          cache: 'no-store',
-          credentials: 'same-origin',
-          headers: { 'cache-control': 'no-cache' },
-        });
-        if (!res.ok) return { authenticated: false, isAdmin: false };
-        const session = await res.json();
-        return {
-          authenticated: Boolean(session.authenticated),
-          isAdmin: Boolean(session.authenticated && session.isAdmin),
-        };
-      } catch {
-        // Offline, or the session store isn't reachable — treat as signed
-        // out rather than leaving whatever the nav happened to show before.
-        return { authenticated: false, isAdmin: false };
-      }
+      // Same helper as account.astro / gated pages so a transient miss cannot
+      // leave the nav saying "My Stuff" while a page still shows Sign in.
+      const { fetchBrowserSession } = await import('../lib/browserSession');
+      const session = await fetchBrowserSession();
+      return {
+        authenticated: session.authenticated,
+        isAdmin: session.isAdmin,
+      };
     }
 
     let authSyncVersion = 0;

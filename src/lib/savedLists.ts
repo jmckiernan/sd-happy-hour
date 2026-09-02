@@ -12,6 +12,28 @@ export const MAX_OWNED_LISTS_PER_USER = 10;
 export const MAX_CUSTOM_LISTS_PER_USER = 7;
 export const MAX_VENUES_PER_SAVED_LIST = 250;
 
+/** Placeholder strings that were typed/saved as real comment or note content. */
+const PLACEHOLDER_FEEDBACK_TEXT = new Set([
+  'comment here',
+  'note here',
+  'add your public comment',
+  'add a public comment',
+  'add a note',
+  'add a list note',
+]);
+
+/** Trims feedback text and drops known placeholder garbage so it never shows as body copy. */
+export function cleanVenueFeedbackText(value: unknown): string {
+  const text = String(value ?? '').trim().slice(0, 500);
+  if (!text) return '';
+  const normalized = text
+    .toLowerCase()
+    .replace(/[.…]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return PLACEHOLDER_FEEDBACK_TEXT.has(normalized) ? '' : text;
+}
+
 export interface ListAlertSubscription {
   happyHour: boolean;
   liveDeals: boolean;
@@ -54,12 +76,18 @@ export interface SavedVenueMembership {
   ratingsEnabled: boolean;
   commentsEnabled: boolean;
   createdAt: string;
+  /** Friends'/collaborators' global feedback visible on this list. */
   feedback: VenueFeedback[];
+  /** Synced global user×venue rating/comment (same across all lists). */
   myFeedback: VenueFeedback | null;
+  /** List-scoped note; stays on this list only (visible to people on that shared list). */
+  myNote: string;
 }
 
 export interface SavedVenueRecord {
   venueId: number;
+  /** Synced global user×venue rating/comment. */
+  myFeedback: VenueFeedback | null;
   lists: SavedVenueMembership[];
 }
 
@@ -104,14 +132,19 @@ interface ItemRow {
   created_at: string;
 }
 
-interface FeedbackRow {
-  list_id: string;
+interface GlobalFeedbackRow {
   venue_id: number;
   user_id: string;
   user_name: string;
   rating: number | null;
   comment: string;
   updated_at: string;
+}
+
+interface ListNoteRow {
+  list_id: string;
+  venue_id: number;
+  note: string;
 }
 
 const BUILT_INS: Array<{
@@ -228,7 +261,8 @@ export async function listAccessibleSavedLists(userId: string): Promise<SavedLis
 export async function getUnifiedSavedState(userId: string): Promise<UnifiedSavedState> {
   const lists = await listAccessibleSavedLists(userId);
   const defaultListId = await resolveDefaultListId(userId, lists);
-  const [itemRows, feedbackRows] = await Promise.all([
+  const listIds = lists.map((list) => list.id);
+  const [itemRows, myFeedbackRows, friendFeedbackRows, noteRows] = await Promise.all([
     sql<ItemRow>`
       SELECT item.list_id, item.venue_id, item.created_at
       FROM happy_hour_list_items item
@@ -241,46 +275,106 @@ export async function getUnifiedSavedState(userId: string): Promise<UnifiedSaved
       ORDER BY
         min(item.created_at) OVER (PARTITION BY item.venue_id) DESC,
         item.created_at DESC`,
-    sql<FeedbackRow>`
-      SELECT feedback.list_id, feedback.venue_id, feedback.user_id,
-             users.name AS user_name, feedback.rating, feedback.comment,
-             feedback.updated_at
-      FROM happy_hour_list_item_feedback feedback
+    sql<GlobalFeedbackRow>`
+      SELECT feedback.venue_id, feedback.user_id, users.name AS user_name,
+             feedback.rating, feedback.comment, feedback.updated_at
+      FROM user_venue_feedback feedback
       JOIN users ON users.id = feedback.user_id
-      JOIN happy_hour_lists lists ON lists.id = feedback.list_id
+      WHERE feedback.user_id = ${userId}
+        AND feedback.venue_id IN (
+          SELECT item.venue_id
+          FROM happy_hour_list_items item
+          JOIN happy_hour_lists lists ON lists.id = item.list_id
+          LEFT JOIN happy_hour_list_members member
+            ON member.list_id = lists.id AND member.user_id = ${userId}
+          WHERE lists.owner_user_id = ${userId} OR member.user_id = ${userId}
+        )
+      ORDER BY feedback.updated_at DESC`,
+    listIds.length
+      ? sql<GlobalFeedbackRow & { list_id: string }>`
+          SELECT item.list_id, feedback.venue_id, feedback.user_id,
+                 users.name AS user_name, feedback.rating, feedback.comment,
+                 feedback.updated_at
+          FROM happy_hour_list_items item
+          JOIN user_venue_feedback feedback
+            ON feedback.venue_id = item.venue_id
+          JOIN users ON users.id = feedback.user_id
+          JOIN happy_hour_lists lists ON lists.id = item.list_id
+          LEFT JOIN happy_hour_list_members author_member
+            ON author_member.list_id = item.list_id
+           AND author_member.user_id = feedback.user_id
+          WHERE item.list_id = ANY(${listIds}::uuid[])
+            AND feedback.user_id <> ${userId}
+            AND (lists.owner_user_id = feedback.user_id OR author_member.user_id IS NOT NULL)
+          ORDER BY feedback.updated_at DESC`
+      : Promise.resolve([] as Array<GlobalFeedbackRow & { list_id: string }>),
+    sql<ListNoteRow>`
+      SELECT notes.list_id, notes.venue_id, notes.note
+      FROM happy_hour_list_item_notes notes
+      JOIN happy_hour_lists lists ON lists.id = notes.list_id
       LEFT JOIN happy_hour_list_members member
         ON member.list_id = lists.id AND member.user_id = ${userId}
-      WHERE lists.owner_user_id = ${userId} OR member.user_id = ${userId}
-      ORDER BY feedback.updated_at DESC`,
+      WHERE notes.user_id = ${userId}
+        AND (lists.owner_user_id = ${userId} OR member.user_id = ${userId})`,
   ]);
 
   const listById = new Map(lists.map((list) => [list.id, list]));
-  const feedbackByItem = new Map<string, VenueFeedback[]>();
-  for (const row of feedbackRows) {
-    const list = listById.get(row.list_id);
-    if (!list) continue;
-    const rating = list.ratingsEnabled && row.rating !== null ? Number(row.rating) : null;
-    const comment = list.commentsEnabled ? row.comment : '';
+  const myFeedbackByVenue = new Map<number, VenueFeedback>();
+  for (const row of myFeedbackRows) {
+    const comment = cleanVenueFeedbackText(row.comment);
+    const rating = row.rating !== null ? Number(row.rating) : null;
     if (rating === null && !comment) continue;
+    myFeedbackByVenue.set(row.venue_id, {
+      userId: row.user_id,
+      userName: row.user_name,
+      rating,
+      comment,
+      updatedAt: row.updated_at,
+      isMine: true,
+    });
+  }
+
+  const friendFeedbackByItem = new Map<string, VenueFeedback[]>();
+  for (const row of friendFeedbackRows) {
     const key = `${row.list_id}:${row.venue_id}`;
-    const entries = feedbackByItem.get(key) ?? [];
+    const entries = friendFeedbackByItem.get(key) ?? [];
+    const comment = cleanVenueFeedbackText(row.comment);
+    const rating = row.rating !== null ? Number(row.rating) : null;
+    if (rating === null && !comment) continue;
     entries.push({
       userId: row.user_id,
       userName: row.user_name,
       rating,
       comment,
       updatedAt: row.updated_at,
-      isMine: row.user_id === userId,
+      isMine: false,
     });
-    feedbackByItem.set(key, entries);
+    friendFeedbackByItem.set(key, entries);
   }
+
+  const notesByItem = new Map(
+    noteRows
+      .map((row) => [`${row.list_id}:${row.venue_id}`, cleanVenueFeedbackText(row.note)] as const)
+      .filter(([, note]) => Boolean(note))
+  );
 
   const venuesById = new Map<number, SavedVenueRecord>();
   for (const row of itemRows) {
     const list = listById.get(row.list_id);
     if (!list) continue;
-    const feedback = feedbackByItem.get(`${row.list_id}:${row.venue_id}`) ?? [];
-    const venue = venuesById.get(row.venue_id) ?? { venueId: row.venue_id, lists: [] };
+    const myFeedback = myFeedbackByVenue.get(row.venue_id) ?? null;
+    const friends = (friendFeedbackByItem.get(`${row.list_id}:${row.venue_id}`) ?? [])
+      .map((entry) => ({
+        ...entry,
+        comment: list.commentsEnabled ? entry.comment : '',
+      }))
+      .filter((entry) => entry.rating !== null || entry.comment);
+    const venue = venuesById.get(row.venue_id) ?? {
+      venueId: row.venue_id,
+      myFeedback,
+      lists: [],
+    };
+    venue.myFeedback = myFeedback;
     venue.lists.push({
       listId: list.id,
       title: list.title,
@@ -290,8 +384,9 @@ export async function getUnifiedSavedState(userId: string): Promise<UnifiedSaved
       ratingsEnabled: list.ratingsEnabled,
       commentsEnabled: list.commentsEnabled,
       createdAt: row.created_at,
-      feedback,
-      myFeedback: feedback.find((entry) => entry.isMine) ?? null,
+      feedback: friends,
+      myFeedback,
+      myNote: notesByItem.get(`${row.list_id}:${row.venue_id}`) ?? '',
     });
     venuesById.set(row.venue_id, venue);
   }
@@ -320,10 +415,10 @@ export function projectLegacySavedSpots(state: UnifiedSavedState): LegacySavedSp
     return [{
       spotId: venue.venueId,
       status,
-      note: membership.myFeedback?.comment ?? '',
-      rating: membership.myFeedback?.rating ?? undefined,
+      note: venue.myFeedback?.comment ?? membership.myNote ?? '',
+      rating: venue.myFeedback?.rating ?? undefined,
       createdAt: membership.createdAt,
-      updatedAt: membership.myFeedback?.updatedAt ?? membership.createdAt,
+      updatedAt: venue.myFeedback?.updatedAt ?? membership.createdAt,
     }];
   });
 }
@@ -406,13 +501,13 @@ export async function createSavedList(
   return (await listAccessibleSavedLists(userId)).find((list) => list.id === listId) ?? null;
 }
 
-export async function replaceVenueFeedback(
-  listId: string,
-  venueId: number,
+export async function replaceUserVenueFeedback(
   userId: string,
-  input: { rating?: unknown; comment?: unknown; clear?: boolean }
-): Promise<'updated' | 'removed' | 'forbidden' | 'missing'> {
-  const rawComment = String(input.comment ?? '').trim().slice(0, 500);
+  venueId: number,
+  input: { rating?: unknown; comment?: unknown; clear?: boolean },
+  executor?: QueryExecutor
+): Promise<'updated' | 'removed'> {
+  const rawComment = cleanVenueFeedbackText(input.comment);
   let rating: number | null = null;
   if (input.rating !== undefined && input.rating !== null && input.rating !== '') {
     const parsed = Number(input.rating);
@@ -422,14 +517,56 @@ export async function replaceVenueFeedback(
     rating = parsed;
   }
 
+  const run = async (tx: QueryExecutor) => {
+    const existing = await tx<{ rating: number | null; comment: string }>`
+      SELECT rating, comment
+      FROM user_venue_feedback
+      WHERE user_id = ${userId} AND venue_id = ${venueId}
+      FOR UPDATE`;
+
+    const nextRating = input.clear
+      ? null
+      : input.rating !== undefined
+        ? rating
+        : existing[0]?.rating ?? null;
+    const nextComment = input.clear
+      ? ''
+      : input.comment !== undefined
+        ? rawComment
+        : cleanVenueFeedbackText(existing[0]?.comment);
+
+    if (nextRating === null && !nextComment) {
+      await tx`
+        DELETE FROM user_venue_feedback
+        WHERE user_id = ${userId} AND venue_id = ${venueId}`;
+      return 'removed' as const;
+    }
+
+    await tx`
+      INSERT INTO user_venue_feedback (user_id, venue_id, rating, comment)
+      VALUES (${userId}, ${venueId}, ${nextRating}, ${nextComment})
+      ON CONFLICT (user_id, venue_id) DO UPDATE SET
+        rating = EXCLUDED.rating,
+        comment = EXCLUDED.comment`;
+    return 'updated' as const;
+  };
+
+  if (executor) return run(executor);
+  return withTransaction(run);
+}
+
+/** Writes global rating/comment (and optional list note) after verifying list edit access. */
+export async function replaceVenueFeedback(
+  listId: string,
+  venueId: number,
+  userId: string,
+  input: { rating?: unknown; comment?: unknown; clear?: boolean; note?: unknown }
+): Promise<'updated' | 'removed' | 'forbidden' | 'missing'> {
   return withTransaction(async (tx) => {
     const rows = await tx<{
       can_edit: boolean;
       item_exists: boolean;
-      ratings_enabled: boolean;
       comments_enabled: boolean;
-      existing_rating: number | null;
-      existing_comment: string | null;
     }>`
       SELECT
         (lists.owner_user_id = ${userId} OR member.role = 'editor') AS can_edit,
@@ -437,61 +574,97 @@ export async function replaceVenueFeedback(
           SELECT 1 FROM happy_hour_list_items item
           WHERE item.list_id = lists.id AND item.venue_id = ${venueId}
         ) AS item_exists,
-        lists.ratings_enabled, lists.comments_enabled,
-        existing.rating AS existing_rating,
-        existing.comment AS existing_comment
+        lists.comments_enabled
       FROM happy_hour_lists lists
       LEFT JOIN happy_hour_list_members member
         ON member.list_id = lists.id AND member.user_id = ${userId}
-      LEFT JOIN happy_hour_list_item_feedback existing
-        ON existing.list_id = lists.id
-       AND existing.venue_id = ${venueId}
-       AND existing.user_id = ${userId}
       WHERE lists.id = ${listId}
       FOR UPDATE OF lists`;
     if (!rows[0]?.can_edit) return 'forbidden';
     if (!rows[0].item_exists) return 'missing';
-    if (rating !== null && !rows[0].ratings_enabled) {
-      throw new Error('Ratings are not enabled for this list.');
-    }
-    if (rawComment && !rows[0].comments_enabled) {
-      throw new Error('Comments are not enabled for this list.');
-    }
 
-    const nextRating = input.clear
-      ? null
-      : rows[0].ratings_enabled
-        ? rating
-        : rows[0].existing_rating;
-    const nextComment = input.clear
-      ? ''
-      : rows[0].comments_enabled
-        ? rawComment
-        : rows[0].existing_comment ?? '';
+    const hasComment = Object.prototype.hasOwnProperty.call(input, 'comment');
+    const hasRating = Object.prototype.hasOwnProperty.call(input, 'rating');
+    const hasNote = Object.prototype.hasOwnProperty.call(input, 'note');
+    const rawComment = cleanVenueFeedbackText(input.comment);
 
-    if (nextRating === null && !nextComment) {
-      const deleted = await tx<{ user_id: string }>`
-        DELETE FROM happy_hour_list_item_feedback
-        WHERE list_id = ${listId} AND venue_id = ${venueId} AND user_id = ${userId}
-        RETURNING user_id`;
-      if (deleted[0]) {
-        await tx`UPDATE happy_hour_lists SET updated_at = now() WHERE id = ${listId}`;
-        await insertActivity(tx, listId, userId, 'venue_feedback_updated', { venueId, cleared: true });
-      }
+    if (input.clear) {
+      await replaceUserVenueFeedback(userId, venueId, { clear: true }, tx);
+      await replaceListItemNote(listId, venueId, userId, { clear: true }, tx);
+      await tx`UPDATE happy_hour_lists SET updated_at = now() WHERE id = ${listId}`;
+      await insertActivity(tx, listId, userId, 'venue_feedback_updated', { venueId, cleared: true });
       return 'removed';
     }
 
-    await tx`
-      INSERT INTO happy_hour_list_item_feedback (
-        list_id, venue_id, user_id, rating, comment
-      ) VALUES (${listId}, ${venueId}, ${userId}, ${nextRating}, ${nextComment})
-      ON CONFLICT (list_id, venue_id, user_id) DO UPDATE SET
-        rating = EXCLUDED.rating,
-        comment = EXCLUDED.comment`;
+    if (hasComment && rawComment && !rows[0].comments_enabled) {
+      throw new Error('Comments are not enabled for this list.');
+    }
+
+    if (hasRating || (hasComment && rows[0].comments_enabled)) {
+      await replaceUserVenueFeedback(userId, venueId, {
+        ...(hasRating ? { rating: input.rating } : {}),
+        ...(hasComment && rows[0].comments_enabled ? { comment: rawComment } : {}),
+      }, tx);
+    }
+
+    if (hasNote) {
+      const noteStatus = await replaceListItemNote(listId, venueId, userId, {
+        note: input.note,
+      }, tx);
+      if (noteStatus === 'forbidden' || noteStatus === 'missing') return noteStatus;
+    }
+
     await tx`UPDATE happy_hour_lists SET updated_at = now() WHERE id = ${listId}`;
     await insertActivity(tx, listId, userId, 'venue_feedback_updated', { venueId });
     return 'updated';
   });
+}
+
+export async function replaceListItemNote(
+  listId: string,
+  venueId: number,
+  userId: string,
+  input: { note?: unknown; clear?: boolean },
+  executor?: QueryExecutor
+): Promise<'updated' | 'removed' | 'forbidden' | 'missing'> {
+  const rawNote = cleanVenueFeedbackText(input.note);
+  const run = async (tx: QueryExecutor) => {
+    const rows = await tx<{
+      can_edit: boolean;
+      item_exists: boolean;
+    }>`
+      SELECT
+        (lists.owner_user_id = ${userId} OR member.role = 'editor') AS can_edit,
+        EXISTS(
+          SELECT 1 FROM happy_hour_list_items item
+          WHERE item.list_id = lists.id AND item.venue_id = ${venueId}
+        ) AS item_exists
+      FROM happy_hour_lists lists
+      LEFT JOIN happy_hour_list_members member
+        ON member.list_id = lists.id AND member.user_id = ${userId}
+      WHERE lists.id = ${listId}
+      FOR UPDATE OF lists`;
+    if (!rows[0]?.can_edit) return 'forbidden' as const;
+    if (!rows[0].item_exists) return 'missing' as const;
+
+    const nextNote = input.clear ? '' : rawNote;
+    if (!nextNote) {
+      await tx`
+        DELETE FROM happy_hour_list_item_notes
+        WHERE list_id = ${listId} AND venue_id = ${venueId} AND user_id = ${userId}`;
+      return 'removed' as const;
+    }
+
+    await tx`
+      INSERT INTO happy_hour_list_item_notes (list_id, venue_id, user_id, note)
+      VALUES (${listId}, ${venueId}, ${userId}, ${nextNote})
+      ON CONFLICT (list_id, venue_id, user_id) DO UPDATE SET
+        note = EXCLUDED.note`;
+    return 'updated' as const;
+  };
+
+  if (executor) return run(executor);
+  return withTransaction(run);
 }
 
 export async function replaceListSubscription(

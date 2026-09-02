@@ -18,6 +18,9 @@ import {
 import { GET as getList } from '../src/pages/api/lists/[id]/index.ts';
 import { GET as getShares } from '../src/pages/api/lists/[id]/shares/index.ts';
 import { PUT as addVenue, DELETE as removeVenue } from '../src/pages/api/lists/[id]/items/[venueId].ts';
+import { PUT as putListFeedback, DELETE as deleteListFeedback } from '../src/pages/api/lists/[id]/items/[venueId]/feedback.ts';
+import { PUT as putListNote } from '../src/pages/api/lists/[id]/items/[venueId]/notes.ts';
+import { PUT as putGlobalFeedback } from '../src/pages/api/account/venues/[venueId]/feedback.ts';
 import { POST as acceptInvite } from '../src/pages/api/list-invites/[identifier]/accept.ts';
 import {
   POST as saveToDefault,
@@ -54,6 +57,42 @@ function defaultSaveContext(userId, venueId = '1') {
   return {
     params: { venueId }, cookies: cookies(userId),
     request: new Request(`https://happyhoursd.com/api/account/saved-venues/${venueId}`),
+  };
+}
+
+function feedbackContext(userId, venueId = '1', body = {}) {
+  return {
+    params: { id: 'list-1', venueId },
+    cookies: cookies(userId),
+    request: new Request(`https://happyhoursd.com/api/lists/list-1/items/${venueId}/feedback`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+  };
+}
+
+function noteContext(userId, venueId = '1', body = {}) {
+  return {
+    params: { id: 'list-1', venueId },
+    cookies: cookies(userId),
+    request: new Request(`https://happyhoursd.com/api/lists/list-1/items/${venueId}/notes`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+  };
+}
+
+function globalFeedbackContext(userId, venueId = '1', body = {}) {
+  return {
+    params: { venueId },
+    cookies: cookies(userId),
+    request: new Request(`https://happyhoursd.com/api/account/venues/${venueId}/feedback`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
   };
 }
 
@@ -148,6 +187,43 @@ async function main() {
     call[0] === 'remove' && call[1] === 'default-list' && call[2] === 'owner' && call[3] === 1
   ));
 
+  // Global rating/comment writes do not require a list id. List notes stay
+  // list-scoped and still enforce editor access on that membership.
+  result = await responseJson(await putGlobalFeedback(globalFeedbackContext('owner', '1', {
+    rating: 5, comment: 'Great patio',
+  })));
+  assert.equal(result.status, 200);
+  assert.equal(result.body.status, 'updated');
+  assert.ok(globalThis.__sharedListApiFixture.calls.some((call) =>
+    call[0] === 'global-feedback' && call[1] === 'owner' && call[2] === 1
+  ));
+
+  result = await responseJson(await putListNote(noteContext('editor', '1', { note: 'meet at 7' })));
+  assert.equal(result.status, 200);
+  assert.equal(result.body.status, 'updated');
+  result = await responseJson(await putListNote(noteContext('viewer', '1', { note: 'nope' })));
+  assert.equal(result.status, 403);
+
+  result = await responseJson(await putListFeedback(feedbackContext('editor', '1', {
+    rating: 4, comment: 'Synced note', note: 'list only',
+  })));
+  assert.equal(result.status, 200);
+  assert.ok(globalThis.__sharedListApiFixture.calls.some((call) =>
+    call[0] === 'list-feedback'
+    && call[4]?.rating === 4
+    && call[4]?.comment === 'Synced note'
+    && call[4]?.note === 'list only'
+  ));
+  result = await responseJson(await putListFeedback(feedbackContext('viewer', '1', { rating: 1 })));
+  assert.equal(result.status, 403);
+  result = await responseJson(await deleteListFeedback({
+    params: { id: 'list-1', venueId: '1' },
+    cookies: cookies('editor'),
+    request: new Request('https://happyhoursd.com/api/lists/list-1/items/1/feedback', { method: 'DELETE' }),
+  }));
+  assert.equal(result.status, 200);
+  assert.equal(result.body.status, 'removed');
+
   // Accepting the link turns editor intent into an account membership.
   result = await responseJson(await acceptInvite({
     params: { identifier: 'invite-1' },
@@ -174,6 +250,30 @@ async function main() {
   assert.match(unifiedMigration, /CREATE TABLE happy_hour_list_subscriptions/);
   assert.match(unifiedMigration, /ADD COLUMN default_list_id uuid/);
   assert.match(unifiedMigration, /FROM saved_spots spots/);
+
+  const globalFeedbackMigration = await readFile(path.join(process.cwd(), 'migrations', '0021_user_venue_feedback.sql'), 'utf8');
+  assert.match(globalFeedbackMigration, /CREATE TABLE user_venue_feedback/);
+  assert.match(globalFeedbackMigration, /CREATE TABLE happy_hour_list_item_notes/);
+  assert.match(globalFeedbackMigration, /array_agg\(feedback\.rating ORDER BY feedback\.updated_at DESC\)/);
+  assert.match(globalFeedbackMigration, /FILTER \(WHERE btrim\(feedback\.comment\) <> ''\)/);
+  assert.match(globalFeedbackMigration, /REFERENCES happy_hour_list_items\(list_id, venue_id\) ON DELETE CASCADE/);
+
+  const placeholderCleanup = await readFile(path.join(process.cwd(), 'migrations', '0022_clear_placeholder_feedback_text.sql'), 'utf8');
+  assert.match(placeholderCleanup, /comment here/);
+  assert.match(placeholderCleanup, /note here/);
+  assert.match(placeholderCleanup, /DELETE FROM happy_hour_list_item_notes/);
+
+  const savedListsSource = await readFile(path.join(process.cwd(), 'src', 'lib', 'savedLists.ts'), 'utf8');
+  assert.match(savedListsSource, /export function cleanVenueFeedbackText/);
+  assert.match(savedListsSource, /'comment here'/);
+  assert.match(savedListsSource, /'note here'/);
+
+  const listPage = await readFile(path.join(process.cwd(), 'src', 'pages', 'lists', '[id].astro'), 'utf8');
+  assert.match(listPage, /<label>Public comment/);
+  assert.match(listPage, /<label>Note for this list/);
+  assert.match(listPage, /feedback-note-label/);
+  assert.doesNotMatch(listPage, />comment here</);
+  assert.doesNotMatch(listPage, />note here</);
 
   // Saved-list labels on directory cards stay to one row. Long names keep
   // their full text in the DOM/title while CSS clips the visual pill.

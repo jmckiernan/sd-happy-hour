@@ -35,9 +35,12 @@ export interface VenueFileSnapshot {
  * "clear the featured image, go back to the vibe photo" — and for "put the
  * framing back to centered" — to work. getListingImage() treats both absent
  * and empty as no photo. */
-function withoutEmptyImage<T extends { image?: string; imageCrop?: unknown }>(row: T): T {
+function withoutEmptyImage<T extends { image?: string; imageCrop?: unknown; imageSource?: unknown }>(row: T): T {
   const next = { ...row };
-  if (!next.image) delete next.image;
+  if (!next.image) {
+    delete next.image;
+    delete next.imageSource;
+  }
   if (!next.imageCrop) delete next.imageCrop;
   return next;
 }
@@ -117,7 +120,11 @@ export async function updateVenue(
 
   // Spread over the existing row rather than replacing it, so any field the
   // form doesn't cover survives the round trip.
-  const updated = withoutEmptyImage({ ...venues[index], ...listing, id }) as Venue;
+  const merged = { ...venues[index], ...listing, id } as Venue;
+  // The form edits the photo but not automated provenance. Replacing an image
+  // must not leave the old website's source attached to the new bytes.
+  if (String(listing.image || '') !== String(venues[index].image || '')) delete merged.imageSource;
+  const updated = withoutEmptyImage(merged) as Venue;
   venues[index] = updated;
 
   await commitVenues(venues, sha, `Edit venue: ${listing.name}`);

@@ -20,7 +20,11 @@ export const NEIGHBORHOOD_BOXES = [
   // Harbor Island plus the airport terminals on North Harbor Drive. Without the
   // western stretch, Stone Brewing and the United Club fell to a bare "San Diego".
   { name: 'Harbor Island', minLat: 32.718, maxLat: 32.735, minLng: -117.210, maxLng: -117.188 },
-  { name: 'Middletown', minLat: 32.728, maxLat: 32.738, minLng: -117.178, maxLng: -117.168 },
+  { name: 'Middletown', minLat: 32.728, maxLat: 32.742, minLng: -117.178, maxLng: -117.168 },
+  // Mission Hills sits on the India / Reynard ridge above Middletown. Without
+  // its own box, 3731 India St fell into Old Town or Hillcrest ZIP leftovers.
+  // Western edge stops short of San Diego Ave so Old Town keeps Cafe Coyote.
+  { name: 'Mission Hills', minLat: 32.740, maxLat: 32.758, minLng: -117.185, maxLng: -117.172 },
   { name: 'Hillcrest', minLat: 32.744, maxLat: 32.758, minLng: -117.172, maxLng: -117.154 },
   { name: 'North Park', minLat: 32.728, maxLat: 32.752, minLng: -117.138, maxLng: -117.118 },
   { name: 'Normal Heights', minLat: 32.752, maxLat: 32.764, minLng: -117.138, maxLng: -117.108 },
@@ -29,7 +33,7 @@ export const NEIGHBORHOOD_BOXES = [
   { name: 'Mission Beach', minLat: 32.764, maxLat: 32.782, minLng: -117.262, maxLng: -117.238 },
   { name: 'Pacific Beach', minLat: 32.790, maxLat: 32.812, minLng: -117.260, maxLng: -117.230 },
   { name: 'Point Loma', minLat: 32.698, maxLat: 32.738, minLng: -117.260, maxLng: -117.210 },
-  { name: 'Old Town', minLat: 32.744, maxLat: 32.762, minLng: -117.218, maxLng: -117.188 },
+  { name: 'Old Town', minLat: 32.744, maxLat: 32.762, minLng: -117.218, maxLng: -117.190 },
   { name: 'Mission Valley', minLat: 32.758, maxLat: 32.782, minLng: -117.182, maxLng: -117.138 },
   { name: 'Kearny Mesa', minLat: 32.812, maxLat: 32.848, minLng: -117.182, maxLng: -117.138 },
   { name: 'Clairemont', minLat: 32.812, maxLat: 32.848, minLng: -117.222, maxLng: -117.182 },
@@ -54,7 +58,12 @@ export const NEIGHBORHOOD_BOXES = [
   { name: 'Oceanside', minLat: 33.180, maxLat: 33.260, minLng: -117.420, maxLng: -117.280 },
 
   // South bay
-  { name: 'Coronado', minLat: 32.670, maxLat: 32.710, minLng: -117.180, maxLng: -117.130 },
+  // Coronado is the island west of the bay. The old maxLng of -117.130 reached
+  // across the water into Barrio Logan (National Ave), so Karina's Ceviche Bar
+  // and neighbours were labelled Coronado.
+  { name: 'Coronado', minLat: 32.670, maxLat: 32.710, minLng: -117.210, maxLng: -117.155 },
+  // Barrio Logan / Logan Heights waterfront before the broad Chula Vista box.
+  { name: 'Barrio Logan', minLat: 32.690, maxLat: 32.715, minLng: -117.160, maxLng: -117.120 },
   { name: 'Imperial Beach', minLat: 32.570, maxLat: 32.600, minLng: -117.150, maxLng: -117.110 },
   // San Ysidro before Otay Mesa: the border crossing sits inside the wider Otay
   // rectangle, and boxes are first-match. Dairy Mart Road runs just west of
@@ -63,6 +72,11 @@ export const NEIGHBORHOOD_BOXES = [
   // Otay Mesa / Nestor / Palm City (92154). Without this box the ZIP fell through
   // to a bare "San Diego" and 28 claim stubs had no neighborhood page to land on.
   { name: 'Otay Mesa', minLat: 32.540, maxLat: 32.595, minLng: -117.100, maxLng: -116.920 },
+  // Otay Ranch Town Center and eastern Chula Vista before the city-wide box.
+  { name: 'Otay Ranch', minLat: 32.610, maxLat: 32.645, minLng: -117.010, maxLng: -116.940 },
+  // Bonita sits north of central Chula Vista; Bonita Rd venues postal-city as
+  // Chula Vista but locals and the restaurants themselves say Bonita.
+  { name: 'Bonita', minLat: 32.640, maxLat: 32.680, minLng: -117.080, maxLng: -117.030 },
   { name: 'Chula Vista', minLat: 32.600, maxLat: 32.680, minLng: -117.120, maxLng: -116.960 },
   { name: 'National City', minLat: 32.640, maxLat: 32.680, minLng: -117.120, maxLng: -117.080 },
 
@@ -89,7 +103,7 @@ const SAN_DIEGO_ZIP_NEIGHBORHOOD = {
   92109: 'Pacific Beach',
   92110: 'Old Town',
   92111: 'Kearny Mesa',
-  92113: 'Logan Heights',
+  92113: 'Barrio Logan',
   92114: 'Encanto',
   92115: 'College Area',
   92116: 'Normal Heights',
@@ -155,8 +169,12 @@ const ADDRESS_NEIGHBORHOOD_RE = [
   [/ocean beach|\bob\b/i, 'Ocean Beach'],
   [/mission beach/i, 'Mission Beach'],
   [/point loma|liberty station/i, 'Point Loma'],
-  [/old town|mission hills/i, 'Old Town'],
+  [/mission hills/i, 'Mission Hills'],
+  [/old town/i, 'Old Town'],
   [/hillcrest/i, 'Hillcrest'],
+  [/barrio logan|logan heights/i, 'Barrio Logan'],
+  [/otay ranch/i, 'Otay Ranch'],
+  [/bonita/i, 'Bonita'],
   [/la jolla/i, 'La Jolla'],
   [/del mar/i, 'Del Mar'],
   [/carlsbad/i, 'Carlsbad'],

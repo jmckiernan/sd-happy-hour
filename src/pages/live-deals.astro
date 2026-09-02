@@ -242,6 +242,7 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
     import { getListingImage } from '../lib/venues';
     import { listingImageStyle } from '../lib/imageCrop';
     import { isPubliclyListed } from '../lib/listingVisibility';
+    import { accountSignInHref } from '../lib/authRedirect';
 
     let baseVenues: any[] = [];
     let venues: any[] = [];
@@ -377,11 +378,10 @@ import LiveDealStyles from '../components/LiveDealStyles.astro';
       const codeState = classifyDealCode(promotion);
       if (codeState.kind === 'none') return '';
       if (codeState.kind === 'gated') {
-        const next = encodeURIComponent('/live-deals/');
         return `
           <div class="live-deal-code-row">
             <span>Deal code available</span>
-            <a class="live-deal-link" href="/account/?next=${next}">Sign in to see deal code</a>
+            <a class="live-deal-link" href="${accountSignInHref('/live-deals/')}">Sign in to see deal code</a>
           </div>
         `;
       }

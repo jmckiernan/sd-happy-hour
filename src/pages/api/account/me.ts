@@ -17,10 +17,33 @@ export const GET: APIRoute = async ({ cookies }) => {
   const user = await getUserById(session.userId);
   if (!user) return json({ authenticated: false, user: null, isAdmin: false });
 
-  const [saved, alerts] = await Promise.all([getUnifiedSavedState(user.id), listAlerts(user.id)]);
+  // Auth status must not depend on saved-list / feedback enrichment. A broken
+  // or un-migrated saved-state query used to 503 here, which made
+  // fetchBrowserSession treat a valid cookie as signed-out and bounced users
+  // straight back to the sign-in form (or into an account↔next redirect loop).
+  let savedSpots: ReturnType<typeof projectLegacySavedSpots> = [];
+  let alerts: Awaited<ReturnType<typeof listAlerts>> = [];
+  let saved: Awaited<ReturnType<typeof getUnifiedSavedState>> | undefined;
+  try {
+    const [savedState, alertRows] = await Promise.all([
+      getUnifiedSavedState(user.id),
+      listAlerts(user.id),
+    ]);
+    saved = savedState;
+    savedSpots = projectLegacySavedSpots(savedState);
+    alerts = alertRows;
+  } catch (err) {
+    console.error('[api/account/me] saved-state enrichment failed', err);
+    try {
+      alerts = await listAlerts(user.id);
+    } catch {
+      alerts = [];
+    }
+  }
+
   return json({
     authenticated: true,
-    user: publicUser(user, projectLegacySavedSpots(saved), alerts, saved),
+    user: publicUser(user, savedSpots, alerts, saved),
     isAdmin: isAdminEmail(user.email),
   });
 };

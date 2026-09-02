@@ -1,5 +1,28 @@
 function normalizeName(name) {
-  return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return String(name || '')
+    .toLowerCase()
+    // "The Waterfront" and "Waterfront" are the same venue; leaving the article
+    // in made exact-name matching miss the clear duplicates we later found.
+    .replace(/^the\s+/, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function normalizePhone(phone) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('1')) return digits.slice(1);
+  return digits.length === 10 ? digits : '';
+}
+
+/** Street number + street name before city/state, enough to compare locations. */
+function normalizeStreetAddress(address) {
+  const first = String(address || '').split(',')[0] || '';
+  return first
+    .toLowerCase()
+    .replace(/\b(street|st|avenue|ave|boulevard|blvd|drive|dr|road|rd|lane|ln|court|ct|way|place|pl)\b\.?/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -13,6 +36,14 @@ function nameOf(record) {
   return display?.text || record?.name || '';
 }
 
+function phoneOf(record) {
+  return normalizePhone(record.nationalPhoneNumber || record.phone || '');
+}
+
+function addressOf(record) {
+  return normalizeStreetAddress(record.formattedAddress || record.address || '');
+}
+
 function distanceMeters(aLat, aLng, bLat, bLng) {
   const toRad = (value) => (value * Math.PI) / 180;
   const earth = 6371000;
@@ -24,6 +55,29 @@ function distanceMeters(aLat, aLng, bLat, bLng) {
   return 2 * earth * Math.asin(Math.sqrt(h));
 }
 
+function nearEnough(candidate, venue, meters = 120) {
+  const lat = candidate.location?.latitude ?? candidate.lat;
+  const lng = candidate.location?.longitude ?? candidate.lng;
+  if (Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)) {
+    return distanceMeters(lat, lng, venue.lat, venue.lng) < meters;
+  }
+  // No coordinates on one side: only treat as near when another strong key
+  // already matched (caller decides). Returning true here would collapse
+  // same-name venues across the county.
+  return false;
+}
+
+function namesCompatible(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+  const aTokens = new Set(a.split(' ').filter((t) => t.length > 2));
+  const bTokens = b.split(' ').filter((t) => t.length > 2);
+  if (!aTokens.size || !bTokens.length) return false;
+  const overlap = bTokens.filter((t) => aTokens.has(t)).length;
+  return overlap >= Math.min(2, bTokens.length) && overlap / Math.max(aTokens.size, bTokens.length) >= 0.5;
+}
+
 /**
  * The catalog venue this candidate already is, or null.
  *
@@ -31,24 +85,52 @@ function distanceMeters(aLat, aLng, bLat, bLng) {
  * claimable stubs, "already present" is frequently a stub waiting for exactly
  * the happy hour this candidate is bringing, and that is an upgrade rather
  * than a duplicate to discard.
+ *
+ * Match order:
+ * 1. place ID
+ * 2. same normalized name within 120 m (leading "The" ignored)
+ * 3. same phone + compatible name within 250 m (hotel shared lines need proximity)
+ * 4. same street address + compatible name
  */
 export function findMatchingVenue(candidate, existingVenues, byPlaceId = new Map()) {
   const placeId = candidate.googlePlaceId || candidate.id?.replace(/^places\//, '');
   if (placeId && byPlaceId.has(placeId)) return byPlaceId.get(placeId);
 
   const name = normalizeName(nameOf(candidate));
-  if (!name) return null;
-  const lat = candidate.location?.latitude ?? candidate.lat;
-  const lng = candidate.location?.longitude ?? candidate.lng;
+  const phone = phoneOf(candidate);
+  const street = addressOf(candidate);
 
   for (const venue of existingVenues) {
-    if (normalizeName(venue.name) !== name) continue;
-    if (Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(venue.lat) && Number.isFinite(venue.lng)) {
-      if (distanceMeters(lat, lng, venue.lat, venue.lng) < 120) return venue;
-    } else {
+    const venueName = normalizeName(venue.name);
+    if (name && venueName === name && nearEnough(candidate, venue, 120)) return venue;
+  }
+
+  if (phone) {
+    const candLat = candidate.location?.latitude ?? candidate.lat;
+    const candLng = candidate.location?.longitude ?? candidate.lng;
+    const hasCoords = Number.isFinite(candLat) && Number.isFinite(candLng);
+    for (const venue of existingVenues) {
+      if (normalizePhone(venue.phone) !== phone) continue;
+      if (!namesCompatible(name, normalizeName(venue.name))) continue;
+      // Shared hotel / resort lines need proximity when we have coordinates.
+      // Without coordinates, only accept an exact name match so "Par Lounge"
+      // does not swallow "Oaks Grille" on the same switchboard.
+      if (hasCoords) {
+        if (nearEnough(candidate, venue, 250)) return venue;
+      } else if (name && name === normalizeName(venue.name)) {
+        return venue;
+      }
+    }
+  }
+
+  if (street && name) {
+    for (const venue of existingVenues) {
+      if (normalizeStreetAddress(venue.address) !== street) continue;
+      if (!namesCompatible(name, normalizeName(venue.name))) continue;
       return venue;
     }
   }
+
   return null;
 }
 
@@ -111,3 +193,13 @@ export function dedupeRecords(records, existingVenues) {
   }
   return { kept, upgrades, skipped };
 }
+
+export {
+  normalizeName,
+  normalizePhone,
+  normalizeStreetAddress,
+  namesCompatible,
+  nameOf,
+  phoneOf,
+  addressOf,
+};

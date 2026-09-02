@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import LiveDealStyles from './LiveDealStyles.astro';
 import { venueSlug, venuePath, slugify, formatTime, getGalleryThumb, getListingImage, getVenueImage, isPubliclyListed, venueVerificationType, type ListedVenue } from '../lib/venues';
+import { accountSignInHref } from '../lib/authRedirect';
 import { happyHourDayNames } from '../lib/happyHourDays';
 import { listingImageStyle } from '../lib/imageCrop';
 import {
@@ -601,14 +602,17 @@ function formatWindowLine(window: {
       font-size: 0.76rem;
       line-height: 1.45;
     }
-    .day-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .day-row { display: flex; gap: 4px; flex-wrap: nowrap; }
     :global(.day-pill) {
-      font-size: 0.75rem;
+      flex: 1 1 0;
+      font-size: 0.7rem;
       font-weight: 600;
-      padding: 6px 12px;
+      min-width: 0;
+      padding: 6px 4px;
       border-radius: 100px;
       background: var(--sand-warm);
       color: var(--night-soft);
+      text-align: center;
     }
     :global(.day-pill.active) { background: var(--sunset-start); color: white; }
     .hh-windows {
@@ -1114,7 +1118,7 @@ function formatWindowLine(window: {
       <div class="live-deal-code-row" id="live-deal-code-row" hidden>
         <span class="live-deal-code-label">Deal code</span>
         <code class="live-deal-code" id="live-deal-code" hidden></code>
-        <a class="live-deal-link" id="live-deal-signin" href={`/account/?next=${encodeURIComponent(venuePath(venue))}`} hidden>Sign in to see code</a>
+        <a class="live-deal-link" id="live-deal-signin" href={accountSignInHref(venuePath(venue))} hidden>Sign in to see code</a>
       </div>
     </div>
   </section>
@@ -1428,6 +1432,8 @@ function formatWindowLine(window: {
       getHappyHourOccurrenceForDate,
       getSanDiegoDayBounds,
     } from '../lib/sanDiegoTime';
+    import { accountSignInHref, currentReturnPath } from '../lib/authRedirect';
+    import { fetchBrowserSession } from '../lib/browserSession';
 
     // ---------------------------------------------------------------------
     // Canonical venue activity. Both the Live Deal and recurring happy-hour
@@ -1701,12 +1707,11 @@ function formatWindowLine(window: {
 
     async function init() {
       try {
-        const [sessionResponse, followsResponse] = await Promise.all([
-          fetch('/api/account/me'),
-          fetch('/api/account/follows'),
+        const [session, followsResponse] = await Promise.all([
+          fetchBrowserSession(),
+          fetch('/api/account/follows', { cache: 'no-store', credentials: 'same-origin' }),
         ]);
-        const session = await sessionResponse.json();
-        isSignedIn = Boolean(session.authenticated);
+        isSignedIn = session.authenticated;
         savedState = session.user?.saved || null;
         renderSaveState();
         if (followsResponse.ok) {
@@ -1730,7 +1735,7 @@ function formatWindowLine(window: {
 
     saveBtn.addEventListener('click', async () => {
       if (!isSignedIn) {
-        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
       const removing = isSavedToDefault;
@@ -1752,7 +1757,7 @@ function formatWindowLine(window: {
 
     followBtn.addEventListener('click', async () => {
       if (!isSignedIn) {
-        window.location.href = `/account/?next=${encodeURIComponent(window.location.pathname)}`;
+        window.location.href = accountSignInHref(currentReturnPath());
         return;
       }
       followBtn.disabled = true;

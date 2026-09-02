@@ -241,6 +241,21 @@ function validateListing(listing, label) {
   if ('image' in listing && !(hasString(listing.image) && /^(\/[^/]|https?:\/\/)/i.test(listing.image))) {
     errors.push(`${label}: image must be a stored image path or an http(s) URL when present.`);
   }
+  if ('imageSource' in listing) {
+    const source = listing.imageSource;
+    const providers = new Set(['venue_website', 'google_places', 'instagram', 'owner_upload', 'admin_upload', 'ai_generated']);
+    const reviews = new Set(['ai_high_confidence', 'manual', 'owner_supplied', 'ai_placeholder']);
+    const valid = source && typeof source === 'object' && !Array.isArray(source)
+      && providers.has(source.provider)
+      && isUrl(source.pageUrl)
+      && (!('assetUrl' in source) || isUrl(source.assetUrl))
+      && hasString(source.retrievedAt) && !Number.isNaN(Date.parse(source.retrievedAt))
+      && reviews.has(source.review)
+      && (!('rightsBasis' in source) || ['published_on_official_venue_website', 'owner_permission', 'licensed_asset', 'ai_synthetic_placeholder'].includes(source.rightsBasis))
+      && (!('sha256' in source) || /^[a-f0-9]{64}$/i.test(source.sha256));
+    if (!valid) errors.push(`${label}: imageSource must contain valid provider, pageUrl, retrievedAt, and review values.`);
+    if (!hasString(listing.image)) errors.push(`${label}: imageSource cannot be set without an image.`);
+  }
   // Framing for that photo, and only for that photo: a crop with nothing to
   // crop would be applied to the vibe stock image, which no admin ever framed.
   if ('imageCrop' in listing) {

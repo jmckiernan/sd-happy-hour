@@ -261,11 +261,12 @@ const ALL_NEIGHBORHOODS = [
   'Hillcrest', 'North Park', 'Normal Heights', 'South Park', 'Mission Valley', 'Old Town', 'Point Loma',
   'Ocean Beach', 'Mission Beach', 'Pacific Beach', 'La Jolla', 'UTC', 'Carmel Valley', 'Sorrento Valley',
   'Kearny Mesa', 'Clairemont', 'Mira Mesa', 'Rancho Bernardo', 'Rancho Peñasquitos', 'Scripps Ranch',
-  'San Carlos', 'College Area', 'City Heights', 'Tierrasanta', 'Bankers Hill', 'Cortez Hill', 'Logan Heights', 'National City',
-  'Encanto', 'Paradise Hills', 'Otay Mesa', 'San Ysidro',
+  'San Carlos', 'College Area', 'City Heights', 'Tierrasanta', 'Bankers Hill', 'Cortez Hill', 'Mission Hills',
+  'Barrio Logan', 'Logan Heights', 'National City',
+  'Encanto', 'Paradise Hills', 'Otay Mesa', 'Otay Ranch', 'San Ysidro',
   'Carlsbad', 'Encinitas', 'Cardiff', 'Del Mar', 'Solana Beach', 'Oceanside', 'Vista', 'San Marcos', 'Escondido',
   'Poway', 'Fallbrook', 'Bonsall', 'Ramona', 'Santa Ysabel', 'Temecula', 'San Clemente',
-  'Coronado', 'Imperial Beach', 'Chula Vista', 'La Mesa', 'El Cajon', 'Santee', 'Spring Valley',
+  'Coronado', 'Imperial Beach', 'Chula Vista', 'Bonita', 'La Mesa', 'El Cajon', 'Santee', 'Spring Valley',
   'Alpine', 'Lakeside', 'Lemon Grove', 'Jamul', 'Rancho Santa Fe', 'Valley Center', 'Tijuana',
 ];
 

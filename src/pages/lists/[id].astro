@@ -41,6 +41,7 @@ const listId = Astro.params.id || '';
     .list-item-meta { color: var(--night-soft); font-size: .86rem; line-height: 1.5; }
     .list-item-actions { display: flex; gap: 8px; align-items: center; }
     .list-feedback { border-top: 1px solid var(--sand-warm); display: grid; gap: 10px; margin-top: 13px; padding-top: 13px; }
+    .list-feedback label { color: var(--night-soft); display: grid; font-size: .72rem; font-weight: 800; gap: 6px; letter-spacing: .05em; text-transform: uppercase; }
     .list-feedback textarea { border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; min-height: 78px; padding: 10px 11px; resize: vertical; width: 100%; }
     .list-feedback textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
     .feedback-row, .settings-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -49,7 +50,9 @@ const listId = Astro.params.id || '';
     .star-rating { display: inline-flex; gap: 2px; }
     .star-rating .star { background: none; border: 0; color: var(--sand-warm); cursor: pointer; font-size: 1.35rem; line-height: 1; padding: 2px; }
     .star-rating .star.filled { color: var(--sunset-start); }
-    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); font-size: .82rem; padding: 9px 11px; }
+    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); display: grid; font-size: .82rem; gap: 4px; padding: 9px 11px; }
+    .feedback-entry .feedback-body { color: var(--night); }
+    .feedback-entry .feedback-note-label { color: var(--night-soft); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
     .share-dialog { background: transparent; border: 0; margin: auto; max-height: min(88vh, 900px); padding: 0; width: min(760px, calc(100vw - 32px)); }
     .share-dialog::backdrop { background: rgba(15, 23, 42, .68); }
     .share-modal { background: white; border-radius: var(--radius); box-shadow: 0 24px 72px rgba(15, 23, 42, .28); max-height: min(88vh, 900px); overflow: auto; padding: 22px; }
@@ -113,10 +116,9 @@ const listId = Astro.params.id || '';
           <label>List title <input name="title" maxlength="80" required></label>
           <label>Description (optional) <textarea name="description" maxlength="500"></textarea></label>
           <div class="settings-row hidden" id="list-settings-fields">
-            <label class="setting-check"><input type="checkbox" name="ratingsEnabled"> Enable star ratings</label>
             <label class="setting-check"><input type="checkbox" name="commentsEnabled"> Enable comments</label>
           </div>
-          <p class="collab-muted hidden" id="ratings-rule"></p>
+          <p class="collab-muted hidden" id="comments-rule"></p>
           <div class="collab-actions" style="justify-content:flex-start;">
             <span class="collab-status" id="details-status" aria-live="polite">Changes save automatically.</span>
           </div>
@@ -206,6 +208,8 @@ const listId = Astro.params.id || '';
   </main>
 
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
+
     const app = document.getElementById('collab-app')!;
     const listId = app.dataset.listId!;
     let inviteToken = new URLSearchParams(window.location.search).get('invite');
@@ -306,23 +310,81 @@ const listId = Astro.params.id || '';
       closeVenueSearch();
     }
 
+    function cleanFeedbackText(value: unknown) {
+      const text = String(value ?? '').trim();
+      if (!text) return '';
+      const normalized = text.toLowerCase().replace(/[.…]+$/g, '').replace(/\s+/g, ' ').trim();
+      if (normalized === 'comment here' || normalized === 'note here') return '';
+      return text;
+    }
+
+    function feedbackEntryMarkup(opts: {
+      name: string;
+      rating?: number | null;
+      comment?: string;
+      note?: string;
+    }) {
+      const rating = Number(opts.rating) || 0;
+      const comment = cleanFeedbackText(opts.comment);
+      const note = cleanFeedbackText(opts.note);
+      if (!rating && !comment && !note) return '';
+      return `<div class="feedback-entry">
+        <div><strong>${escapeHTML(opts.name)}</strong>${rating ? ` · ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}` : ''}</div>
+        ${comment ? `<div class="feedback-body">${escapeHTML(comment)}</div>` : ''}
+        ${note ? `<div class="feedback-body"><div class="feedback-note-label">List note</div>${escapeHTML(note)}</div>` : ''}
+      </div>`;
+    }
+
     function feedbackMarkup(item: any) {
       const mine = item.myFeedback || {};
+      const myComment = cleanFeedbackText(mine.comment);
+      const myNote = cleanFeedbackText(item.myNote);
       const rating = Number(mine.rating) || 0;
       const stars = [1, 2, 3, 4, 5].map((value) => `
         <button type="button" class="star${value <= rating ? ' filled' : ''}" data-value="${value}" aria-label="${value} star${value === 1 ? '' : 's'}">★</button>
       `).join('');
-      const contributions = (item.feedback || []).map((entry: any) => `
-        <div class="feedback-entry"><strong>${escapeHTML(entry.userName || 'List member')}</strong>${entry.rating ? ` · ${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}` : ''}${entry.comment ? `<div>${escapeHTML(entry.comment)}</div>` : ''}</div>
-      `).join('');
-      const canContribute = list.canEdit && (list.ratingsEnabled || list.commentsEnabled);
-      if (!canContribute && !contributions) return '';
+      const notesByUser = new Map((item.notes || []).map((entry: any) => [entry.userId, entry]));
+      const seenContributors = new Set<string>();
+      const contributionParts: string[] = [];
+      for (const entry of (item.feedback || []).filter((row: any) => !row.isMine)) {
+        seenContributors.add(entry.userId);
+        const listNote = notesByUser.get(entry.userId) as { note?: string } | undefined;
+        const markup = feedbackEntryMarkup({
+          name: entry.userName || 'List member',
+          rating: entry.rating,
+          comment: list.commentsEnabled ? entry.comment : '',
+          note: listNote?.note,
+        });
+        if (markup) contributionParts.push(markup);
+      }
+      for (const entry of item.notes || []) {
+        if (seenContributors.has(entry.userId) || entry.isMine) continue;
+        const markup = feedbackEntryMarkup({
+          name: entry.userName || 'List member',
+          note: entry.note,
+        });
+        if (markup) contributionParts.push(markup);
+      }
+      const contributions = contributionParts.join('');
+      const canContribute = list.canEdit;
+      if (!canContribute && !contributions && !rating && !(list.commentsEnabled && myComment) && !myNote) return '';
       return `<div class="list-feedback">
         ${canContribute ? `
-          <div class="feedback-row">${list.ratingsEnabled ? `<div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating">${stars}</div>` : ''}</div>
-          ${list.commentsEnabled ? `<textarea data-feedback-comment maxlength="500" placeholder="Add your comment…">${escapeHTML(mine.comment || '')}</textarea>` : ''}
-          <div><button class="collab-button small" data-save-feedback type="button">Save notes</button></div>
+          <div class="feedback-row"><div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating">${stars}</div></div>
+          ${list.commentsEnabled ? `<label>Public comment
+            <textarea data-feedback-comment maxlength="500" placeholder="What did you think of this place?">${escapeHTML(myComment)}</textarea>
+          </label>` : ''}
+          <label>Note for this list
+            <textarea data-list-note maxlength="500" placeholder="Only on this list — visible to people here, not on your other lists…">${escapeHTML(myNote)}</textarea>
+          </label>
+          <div><button class="collab-button small" data-save-feedback type="button">Save</button></div>
         ` : ''}
+        ${!canContribute ? feedbackEntryMarkup({
+          name: 'You',
+          rating,
+          comment: list.commentsEnabled ? myComment : '',
+          note: myNote,
+        }) : ''}
         ${contributions ? `<div class="list-feedback">${contributions}</div>` : ''}
       </div>`;
     }
@@ -339,7 +401,7 @@ const listId = Astro.params.id || '';
         : 'You were invited to view this live list. Join it so it stays easy to find in My Stuff.';
       const action = authenticated
         ? '<button class="collab-button" id="accept-invite" type="button">Join list</button>'
-        : `<a class="collab-link" href="/account/?next=${encodeURIComponent(window.location.pathname + window.location.search)}">Sign in to join</a>`;
+        : `<a class="collab-link" href="${accountSignInHref(currentReturnPath())}">Sign in to join</a>`;
       banner.innerHTML = `<strong>${escapeHTML(message)}</strong><div>${action}</div>`;
       document.getElementById('accept-invite')?.addEventListener('click', acceptInvite);
     }
@@ -399,22 +461,15 @@ const listId = Astro.params.id || '';
       titleInput.disabled = Boolean(list.systemKey);
       const settings = document.getElementById('list-settings-fields')!;
       settings.classList.toggle('hidden', list.role !== 'owner');
-      const ratingsInput = document.querySelector('#details-form input[name="ratingsEnabled"]') as HTMLInputElement;
       const commentsInput = document.querySelector('#details-form input[name="commentsEnabled"]') as HTMLInputElement;
-      ratingsInput.disabled = Boolean(list.systemKey);
       if (!detailsSavePending) {
         titleInput.value = list.title;
         (document.querySelector('#details-form textarea[name="description"]') as HTMLTextAreaElement).value = list.description || '';
-        ratingsInput.checked = Boolean(list.ratingsEnabled);
         commentsInput.checked = Boolean(list.commentsEnabled);
       }
-      const rule = document.getElementById('ratings-rule')!;
-      rule.classList.toggle('hidden', !list.systemKey || list.role !== 'owner');
-      rule.textContent = list.systemKey === 'want_to_try'
-        ? 'Want to Try never shows star ratings.'
-        : list.systemKey
-          ? 'Star ratings are always available on this built-in list, but giving a rating is optional.'
-          : '';
+      const rule = document.getElementById('comments-rule')!;
+      rule.classList.toggle('hidden', list.role !== 'owner');
+      rule.textContent = 'Star ratings are personal and sync across every list. Comments on this list are only shown when enabled here.';
       const subscription = list.subscription;
       const alertsForm = document.getElementById('list-alerts-form') as HTMLFormElement;
       if (!alertsSavePending) {
@@ -513,7 +568,6 @@ const listId = Astro.params.id || '';
       };
       if (!list.systemKey) body.title = (form.elements.namedItem('title') as HTMLInputElement).value;
       if (list.role === 'owner') {
-        body.ratingsEnabled = (form.elements.namedItem('ratingsEnabled') as HTMLInputElement).checked;
         body.commentsEnabled = (form.elements.namedItem('commentsEnabled') as HTMLInputElement).checked;
       }
       return body;
@@ -644,15 +698,19 @@ const listId = Astro.params.id || '';
           setStatus('item-status', 'Removed from the shared list.');
         } else {
           const group = card.querySelector('.star-rating') as HTMLElement | null;
+          const payload: Record<string, unknown> = {
+            rating: Number(group?.dataset.rating) || null,
+            note: (card.querySelector('[data-list-note]') as HTMLTextAreaElement | null)?.value || '',
+          };
+          if (list.commentsEnabled) {
+            payload.comment = (card.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null)?.value || '';
+          }
           await requestJson(
             `/api/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(card.dataset.venueId!)}/feedback`,
-            jsonOptions('PUT', {
-              rating: Number(group?.dataset.rating) || null,
-              comment: (card.querySelector('[data-feedback-comment]') as HTMLTextAreaElement | null)?.value || '',
-            })
+            jsonOptions('PUT', payload)
           );
           await loadList(false, true);
-          setStatus('item-status', 'Your notes are saved and synced.');
+          setStatus('item-status', 'Saved. Rating and public comment sync everywhere; this list note stays on this list (visible to people with the link).');
         }
       } catch (error: any) {
         setStatus('item-status', error.message, true);

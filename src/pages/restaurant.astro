@@ -184,6 +184,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       getSanDiegoDateKey,
       parseInstant,
     } from '../lib/sanDiegoTime';
+    import { accountSignInHref } from '../lib/authRedirect';
 
     interface DashboardClaim {
       id: string;
@@ -739,7 +740,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         if (requestVersion !== dashboardRequestVersion) return;
         currentUser = me.authenticated ? me.user : null;
         if (!currentUser) {
-          window.location.replace(`/account/?next=${encodeURIComponent('/restaurant/')}`);
+          window.location.replace(accountSignInHref('/restaurant/'));
           return;
         }
 

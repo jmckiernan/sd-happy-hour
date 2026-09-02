@@ -37,6 +37,7 @@ import {
   isHomepageUrl,
   isCloudflareChallenge,
   isMenuItemDetailUrl,
+  inventoryWebsite,
 } from '../scripts/import-google-venues/lib/website-crawl.mjs';
 import {
   parseSitemapLocs,
@@ -55,8 +56,17 @@ import {
   isHappyHourActive,
   getHappyHourOccurrenceForDate,
   isUnboundedAllDayWindow,
+  isDefaultServiceDayWindow,
   boundAllDayWindow,
+  DEFAULT_SERVICE_DAY,
 } from '../src/lib/sanDiegoTime.ts';
+import {
+  operatingWindowsFromPeriods,
+  uniformHoursForDays,
+  representativeVenueHours,
+  closeClockForHappyHour,
+} from '../scripts/import-google-venues/lib/operating-hours.mjs';
+import { isUnboundedPrimaryClock } from '../scripts/import-google-venues/bound-all-day-windows.mjs';
 import { happyHourDayNames } from '../src/lib/happyHourDays.ts';
 import { venueSearchText, venueMenuText } from '../src/lib/venueSearchText.ts';
 import { isPlausibleHappyHourWindow, normalizeWindows, endTimeFromOpenUntilQuote, applyOpenUntilFromQuotes, repairOpenStartWindows } from '../scripts/import-google-venues/lib/schedule-windows.mjs';
@@ -67,7 +77,7 @@ import { rasterizePdfPages, pdfLooksLikeHappyHourMenu } from '../scripts/import-
 import { MAX_BOARD_PAGES, MIN_BOARD_HEIGHT, buildBoardHtml, packMenuSections } from '../scripts/import-google-venues/lib/menu-board-image.mjs';
 import { menuTextFromJsonResponses } from '../scripts/import-google-venues/lib/json-menu-extract.mjs';
 import { classifyCounty } from '../scripts/import-google-venues/lib/county.mjs';
-import { conflictsWithVenue, pickLocationPage, cityFromAddress } from '../scripts/import-google-venues/lib/location-page.mjs';
+import { conflictsWithVenue, pickLocationPage, cityFromAddress, discoverBranchLocationLinksFromHtml } from '../scripts/import-google-venues/lib/location-page.mjs';
 import { dedupeRecords } from '../scripts/import-google-venues/lib/dedupe.mjs';
 import { hasUsableSchedule } from '../scripts/import-google-venues/lib/happy-hour.mjs';
 import {
@@ -1174,6 +1184,7 @@ function testAnUnboundedAllDayWindowIsRecognizedAndGivenServiceHours() {
   // Already bounded, and a plain window that merely spans the day, are left be.
   assert.equal(isUnboundedAllDayWindow({ ...unbounded, startTime: '11:00', endTime: '22:00' }), false);
   assert.equal(isUnboundedAllDayWindow({ ...unbounded, allDay: false }), false);
+  assert.equal(isDefaultServiceDayWindow({ ...unbounded, ...DEFAULT_SERVICE_DAY }), true);
 
   assert.deepEqual(boundAllDayWindow(unbounded, { openTime: '12:00', closeTime: '02:00' }), {
     days: ['Monday'], startTime: '12:00', endTime: '02:00', allDay: true,
@@ -1182,12 +1193,50 @@ function testAnUnboundedAllDayWindowIsRecognizedAndGivenServiceHours() {
   assert.deepEqual(boundAllDayWindow(unbounded, {}), {
     days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true,
   });
+  // Placeholder default is upgraded when real venue hours arrive later.
+  assert.deepEqual(
+    boundAllDayWindow(
+      { days: ['Monday'], startTime: '11:00', endTime: '22:00', allDay: true },
+      { openTime: '11:00', closeTime: '00:00' }
+    ),
+    { days: ['Monday'], startTime: '11:00', endTime: '00:00', allDay: true }
+  );
+}
+
+function testOperatingHoursFromGooglePeriodsPreferRealOpenClose() {
+  const periods = [
+    { open: { day: 1, hour: 11, minute: 0 }, close: { day: 2, hour: 0, minute: 0 } },
+    { open: { day: 5, hour: 11, minute: 30 }, close: { day: 6, hour: 1, minute: 0 } },
+  ];
+  assert.equal(
+    closeClockForHappyHour(periods[0].open, periods[0].close),
+    '00:00'
+  );
+  assert.equal(
+    closeClockForHappyHour(periods[1].open, periods[1].close),
+    '00:00'
+  );
+  assert.deepEqual(uniformHoursForDays(periods, ['Monday'], { forHappyHour: true }), {
+    openTime: '11:00',
+    closeTime: '00:00',
+  });
+  assert.deepEqual(representativeVenueHours(periods, ['Monday']), {
+    openTime: '11:00',
+    closeTime: '00:00',
+  });
+  assert.deepEqual(operatingWindowsFromPeriods(periods, { forHappyHour: true }), [
+    { startTime: '11:00', endTime: '00:00', days: ['Monday'] },
+    { startTime: '11:30', endTime: '00:00', days: ['Friday'] },
+  ]);
 }
 
 /** No listing may go back to claiming happy hour round the clock. */
 function testNoCatalogListingStoresAnUnboundedAllDayWindow() {
   const offenders = happyHours
-    .filter((venue) => (venue.windows || []).some((window) => isUnboundedAllDayWindow(window)))
+    .filter((venue) =>
+      (venue.windows || []).some((window) => isUnboundedAllDayWindow(window)) ||
+      isUnboundedPrimaryClock(venue)
+    )
     .map((venue) => `${venue.name} (${venue.id})`);
   assert.deepEqual(offenders, []);
 }
@@ -2296,9 +2345,105 @@ function testAChainPageMustBelongToThisBranch() {
   assert.equal(picked.url, 'https://restaurants.applebees.com/en-us/ca/chula-vista/610-palomar-st-77062');
 }
 
+function testBranchLocationPagesAreDiscoveredFromBrandHome() {
+  // Karina's (and many multi-location brands) only publish HH PDFs on the
+  // neighborhood page. Those nav links say "Bonita", not "Happy Hour".
+  const html = `
+    <nav>
+      <a href="/bonita/">Bonita</a>
+      <a href="/otay-ranch/">Otay Ranch</a>
+      <a href="/gaslamp-quarter/">Gaslamp Quarter</a>
+      <a href="/about/">About</a>
+      <a href="/menu/">Menu</a>
+    </nav>
+  `;
+  const bonita = {
+    name: "Karina's Mexican Seafood - Bonita",
+    address: '89 Bonita Rd, Chula Vista, CA 91910, USA',
+    neighborhood: 'Bonita',
+  };
+  const links = discoverBranchLocationLinksFromHtml(html, 'https://karinasseafood.com', bonita);
+  assert.deepEqual(links.map((row) => row.path), ['/bonita/']);
+  assert.equal(
+    pickLocationPage(links.map((row) => `https://karinasseafood.com${row.path}`), bonita)?.url,
+    'https://karinasseafood.com/bonita/'
+  );
+  assert.equal(conflictsWithVenue('https://karinasseafood.com/gaslamp-quarter/', bonita), true);
+}
+
+async function testInventoryFollowsMatchingBranchPagesForHhMedia() {
+  const pages = {
+    'https://brand.example/': `
+      <a href="/bonita/">Bonita</a>
+      <a href="/gaslamp-quarter/">Gaslamp</a>
+      <a href="/about/">About</a>
+    `,
+    'https://brand.example/bonita/': `
+      <h1>Bonita</h1>
+      <a href="/uploads/WebMenuHHOtayAndBonita.pdf">Happy Hour Menu</a>
+      <img src="/uploads/bg_bonita1.jpg" alt="Dining room">
+    `,
+    'https://brand.example/uploads/WebMenuHHOtayAndBonita.pdf': 'PDF',
+  };
+  const fetchImpl = async (url) => {
+    const href = String(url);
+    if (/robots\.txt|sitemap/i.test(href)) {
+      return { ok: false, status: 404, headers: { get: () => '' }, text: async () => '', arrayBuffer: async () => new ArrayBuffer(0) };
+    }
+    const body = pages[href] || pages[href.replace(/\/$/, '') + '/'] || '';
+    if (!body) {
+      return { ok: false, status: 404, headers: { get: () => 'text/plain' }, text: async () => '', arrayBuffer: async () => new ArrayBuffer(0) };
+    }
+    if (/\.pdf$/i.test(href)) {
+      const bytes = Buffer.from('%PDF-1.4 mock happy hour menu');
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: (name) => (name === 'content-type' ? 'application/pdf' : '') },
+        text: async () => '',
+        arrayBuffer: async () => bytes,
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: (name) => (name === 'content-type' ? 'text/html' : '') },
+      text: async () => body,
+      arrayBuffer: async () => Buffer.from(body),
+    };
+  };
+
+  const inventory = await inventoryWebsite('https://brand.example/', {
+    fetchImpl,
+    delayMs: 0,
+    venueContext: {
+      name: "Karina's Mexican Seafood - Bonita",
+      address: '89 Bonita Rd, Chula Vista, CA 91910, USA',
+      neighborhood: 'Bonita',
+    },
+  });
+
+  assert.ok(
+    inventory.candidates.some((row) => /\/bonita\/?$/.test(row.url)),
+    'matching branch page must be inventoried'
+  );
+  assert.ok(
+    inventory.candidates.some((row) => /WebMenuHHOtayAndBonita\.pdf/i.test(row.url)),
+    'HH flyer on the branch page must be discovered'
+  );
+  assert.ok(
+    !inventory.candidates.some((row) => /gaslamp/i.test(row.url)),
+    'wrong-neighborhood branch must not be crawled for this venue'
+  );
+}
+
+function testHhFlyerFilenamesWithoutSeparatorsStillScore() {
+  assert.ok(scoreMediaUrl('https://example.com/uploads/WebMenuHHOtayAndBonita.pdf') >= 40);
+}
+
 function testDedupeSeesVenuesTheCacheStoresAsPlainStrings() {
   const existing = [
-    { name: 'Board & Brew', lat: 32.910701, lng: -117.108498, placeId: 'ChIJabc' },
+    { name: 'Board & Brew', lat: 32.910701, lng: -117.108498, placeId: 'ChIJabc', phone: '(858) 555-0100', address: '1225 Camino Del Mar' },
   ];
 
   // Google sends `{ text }`, the enrich cache flattens it to a string. Reading
@@ -2323,6 +2468,43 @@ function testDedupeSeesVenuesTheCacheStoresAsPlainStrings() {
 
   // A nameless record must not collapse into every nameless venue.
   assert.equal(dedupeRecords([{ location: { latitude: 32.9, longitude: -117.1 } }], [{ name: '', lat: 32.9, lng: -117.1 }]).kept.length, 1);
+
+  // Leading "The" must not create a second listing of the same bar.
+  const waterfront = [{ name: 'The Waterfront Bar & Grill', lat: 32.7267, lng: -117.1697, phone: '(619) 232-9656', address: '2044 Kettner Blvd' }];
+  assert.equal(
+    dedupeRecords([{
+      displayName: 'Waterfront Bar & Grill',
+      nationalPhoneNumber: '(619) 232-9656',
+      formattedAddress: '2044 Kettner Blvd, San Diego, CA 92101, USA',
+      location: { latitude: 32.7256, longitude: -117.1703 },
+    }], waterfront).kept.length,
+    0
+  );
+
+  // Same phone + compatible name nearby is a duplicate even when the street
+  // string differs (Herb & Wood: Kettner vs Ivy entrances).
+  const herb = [{ name: 'Herb & Wood', lat: 32.7283, lng: -117.1698, phone: '(619) 955-8495', address: '2210 Kettner Blvd' }];
+  assert.equal(
+    dedupeRecords([{
+      displayName: 'Herb & Wood',
+      nationalPhoneNumber: '6199558495',
+      location: { latitude: 32.7272, longitude: -117.1710 },
+      formattedAddress: '936 W Ivy St, San Diego, CA 92101, USA',
+    }], herb).kept.length,
+    0
+  );
+
+  // Shared resort switchboard with a different name must not merge.
+  const resort = [{ name: 'The Par Lounge and Deck', lat: 33.1, lng: -116.9, phone: '(760) 789-8290', address: '24157 San Vicente Rd' }];
+  assert.equal(
+    dedupeRecords([{
+      displayName: 'The Oaks Grille',
+      nationalPhoneNumber: '(760) 789-8290',
+      location: { latitude: 33.101, longitude: -116.901 },
+      formattedAddress: '24157 San Vicente Rd, Ramona, CA',
+    }], resort).kept.length,
+    1
+  );
 }
 
 function testFoundWithoutAScheduleIsNotAFinding() {
@@ -2404,6 +2586,9 @@ tests.push(
   testAStubIsClaimableButNeverBrowsable,
   testAStubCarriesNoInventedHappyHour,
   testAChainPageMustBelongToThisBranch,
+  testBranchLocationPagesAreDiscoveredFromBrandHome,
+  testInventoryFollowsMatchingBranchPagesForHhMedia,
+  testHhFlyerFilenamesWithoutSeparatorsStillScore,
   testDedupeSeesVenuesTheCacheStoresAsPlainStrings,
   testFoundWithoutAScheduleIsNotAFinding,
   testCountyComesFromGoogleNotTheBoundsRectangle,
@@ -2786,6 +2971,7 @@ tests.push(
   testAnAllDayWindowIsNotLiveInTheSmallHours,
   testTheOpenNowCheckReadsTheSanDiegoWeekdayNotTheUtcOne,
   testAnUnboundedAllDayWindowIsRecognizedAndGivenServiceHours,
+  testOperatingHoursFromGooglePeriodsPreferRealOpenClose,
   testNoCatalogListingStoresAnUnboundedAllDayWindow,
   testHighlightedDaysCoverEveryWindowNotJustThePrimaryOne,
   testCatalogHighlightedDaysNeverOmitAScheduledDay,
