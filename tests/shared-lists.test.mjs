@@ -271,7 +271,8 @@ async function main() {
   const listPage = await readFile(path.join(process.cwd(), 'src', 'pages', 'lists', '[id].astro'), 'utf8');
   assert.match(listPage, /<label>Public comment/);
   assert.match(listPage, /<label>Note for this list/);
-  assert.match(listPage, /feedback-note-label/);
+  assert.match(listPage, /feedback-label">Comments:/);
+  assert.match(listPage, /feedback-label">Notes:/);
   assert.doesNotMatch(listPage, />comment here</);
   assert.doesNotMatch(listPage, />note here</);
 

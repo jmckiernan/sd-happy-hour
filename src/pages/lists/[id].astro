@@ -50,9 +50,10 @@ const listId = Astro.params.id || '';
     .star-rating { display: inline-flex; gap: 2px; }
     .star-rating .star { background: none; border: 0; color: var(--sand-warm); cursor: pointer; font-size: 1.35rem; line-height: 1; padding: 2px; }
     .star-rating .star.filled { color: var(--sunset-start); }
-    .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); display: grid; font-size: .82rem; gap: 4px; padding: 9px 11px; }
-    .feedback-entry .feedback-body { color: var(--night); }
-    .feedback-entry .feedback-note-label { color: var(--night-soft); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .feedback-entry { color: var(--night-soft); display: grid; font-size: .82rem; gap: 8px; }
+    .feedback-entry .feedback-meta { color: var(--night-soft); }
+    .feedback-entry .feedback-block { background: var(--sand); border-radius: var(--radius-sm); color: var(--night); padding: 9px 11px; }
+    .feedback-entry .feedback-label { color: var(--night-soft); font-weight: 800; }
     .share-dialog { background: transparent; border: 0; margin: auto; max-height: min(88vh, 900px); padding: 0; width: min(760px, calc(100vw - 32px)); }
     .share-dialog::backdrop { background: rgba(15, 23, 42, .68); }
     .share-modal { background: white; border-radius: var(--radius); box-shadow: 0 24px 72px rgba(15, 23, 42, .28); max-height: min(88vh, 900px); overflow: auto; padding: 22px; }
@@ -329,9 +330,9 @@ const listId = Astro.params.id || '';
       const note = cleanFeedbackText(opts.note);
       if (!rating && !comment && !note) return '';
       return `<div class="feedback-entry">
-        <div><strong>${escapeHTML(opts.name)}</strong>${rating ? ` · ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}` : ''}</div>
-        ${comment ? `<div class="feedback-body">${escapeHTML(comment)}</div>` : ''}
-        ${note ? `<div class="feedback-body"><div class="feedback-note-label">List note</div>${escapeHTML(note)}</div>` : ''}
+        <div class="feedback-meta"><strong>${escapeHTML(opts.name)}</strong>${rating ? ` · ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}` : ''}</div>
+        ${comment ? `<div class="feedback-block"><span class="feedback-label">Comments:</span> ${escapeHTML(comment)}</div>` : ''}
+        ${note ? `<div class="feedback-block"><span class="feedback-label">Notes:</span> ${escapeHTML(note)}</div>` : ''}
       </div>`;
     }
 
