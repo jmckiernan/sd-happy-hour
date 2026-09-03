@@ -1,9 +1,17 @@
 // Small shared helpers for JSON API routes under src/pages/api/.
 
-export function json(body: unknown, status = 200): Response {
+export interface JsonOptions {
+  /** Override default cache-control (no-store). */
+  cacheControl?: string;
+}
+
+export function json(body: unknown, status = 200, options?: JsonOptions): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': options?.cacheControl ?? 'no-store',
+    },
   });
 }
 

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getUserById, listAlerts } from '../../../lib/store';
 import { getUnifiedSavedState, projectLegacySavedSpots } from '../../../lib/savedLists';
+import { listHappyHourListsForUser } from '../../../lib/sharedLists';
 import { publicUser } from '../../../lib/validation';
 import { getSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
@@ -24,14 +25,17 @@ export const GET: APIRoute = async ({ cookies }) => {
   let savedSpots: ReturnType<typeof projectLegacySavedSpots> = [];
   let alerts: Awaited<ReturnType<typeof listAlerts>> = [];
   let saved: Awaited<ReturnType<typeof getUnifiedSavedState>> | undefined;
+  let listsData: Awaited<ReturnType<typeof listHappyHourListsForUser>> = { lists: [], pendingInvites: [] };
   try {
-    const [savedState, alertRows] = await Promise.all([
+    const [savedState, alertRows, listsResult] = await Promise.all([
       getUnifiedSavedState(user.id),
       listAlerts(user.id),
+      listHappyHourListsForUser(user.id, user.email),
     ]);
     saved = savedState;
     savedSpots = projectLegacySavedSpots(savedState);
     alerts = alertRows;
+    listsData = listsResult;
   } catch (err) {
     console.error('[api/account/me] saved-state enrichment failed', err);
     try {
@@ -44,6 +48,8 @@ export const GET: APIRoute = async ({ cookies }) => {
   return json({
     authenticated: true,
     user: publicUser(user, savedSpots, alerts, saved),
+    // Consolidated lists data - eliminates separate /api/account/lists call
+    lists: listsData,
     isAdmin: isAdminEmail(user.email),
   });
 };

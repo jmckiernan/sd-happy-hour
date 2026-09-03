@@ -8,9 +8,11 @@ export interface BrowserSession {
   authenticated: boolean;
   user: any | null;
   isAdmin: boolean;
+  /** Consolidated lists data (lists + pending invites) - avoids separate API call. */
+  lists: { lists: any[]; pendingInvites: any[] } | null;
 }
 
-const SIGNED_OUT: BrowserSession = { authenticated: false, user: null, isAdmin: false };
+const SIGNED_OUT: BrowserSession = { authenticated: false, user: null, isAdmin: false, lists: null };
 
 type FetchAttempt =
   | { ok: true; session: BrowserSession }
@@ -33,6 +35,7 @@ async function fetchOnce(): Promise<FetchAttempt> {
         authenticated: true,
         user: body.user ?? null,
         isAdmin: Boolean(body.isAdmin),
+        lists: body.lists ?? null,
       },
     };
   } catch {

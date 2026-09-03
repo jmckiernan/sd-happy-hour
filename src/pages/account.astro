@@ -363,17 +363,23 @@ if (returnPath && await getSession(Astro.cookies)) {
     </section>
   </main>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     import { alertMatchesVenue } from '../lib/venues';
     import { postAuthReturnPath } from '../lib/authRedirect';
     import { fetchBrowserSession } from '../lib/browserSession';
 
     let currentUser: any = null;
-    let happyHours: any[] = [];
     let customListState: any = { lists: [], pendingInvites: [] };
     let saveConfirmation: { spotId: number; text: string } | null = null;
     let alertSaveConfirmation: { alertId: string; text: string } | null = null;
+    // Lazy-loaded venue data for alerts filtering (no longer needed for saved spots)
+    let happyHoursCache: any[] | null = null;
+    async function getHappyHours(): Promise<any[]> {
+      if (happyHoursCache) return happyHoursCache;
+      const res = await fetch('/data/happy-hours.json');
+      happyHoursCache = await res.json();
+      return happyHoursCache;
+    }
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayAbbrev = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -409,11 +415,6 @@ if (returnPath && await getSession(Astro.cookies)) {
       }
     }
 
-    async function loadHappyHours() {
-      const res = await fetch('/data/happy-hours.json');
-      happyHours = await res.json();
-    }
-
     // Sticky jump nav: only give it an opaque backing once it's pinned to the
     // top. The 1px sentinel sits just above the nav, so "sentinel has scrolled
     // off the top" is exactly "nav is pinned". The top < 0 check matters
@@ -433,6 +434,7 @@ if (returnPath && await getSession(Astro.cookies)) {
     // told when the session flips — otherwise signing in leaves "Sign In" and
     // the admin-only links showing their pre-login state until a refresh.
     const AUTH_CHANGED_EVENT = 'sdhh:auth-changed';
+    const AUTH_CACHE_KEY = 'sdhh_auth_nav';
 
     function announceAuthChange(authenticated: boolean, isAdmin: boolean) {
       // Update this page synchronously as well as notifying Layout.astro.
@@ -443,6 +445,14 @@ if (returnPath && await getSession(Astro.cookies)) {
       for (const el of document.querySelectorAll<HTMLElement>('[data-admin-only]')) {
         el.style.display = isAdmin ? '' : 'none';
       }
+
+      // Cache auth state for prerendered pages to use on next load
+      try {
+        localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify({ authenticated, isAdmin }));
+      } catch {
+        // localStorage unavailable
+      }
+
       window.dispatchEvent(new CustomEvent(AUTH_CHANGED_EVENT, {
         detail: { authenticated, isAdmin },
       }));
@@ -469,9 +479,14 @@ if (returnPath && await getSession(Astro.cookies)) {
         return;
       }
 
-      if (currentUser) await loadCustomLists();
-      else customListState = { lists: [], pendingInvites: [] };
+      // Use lists data from session (consolidated in /api/account/me)
+      customListState = session.lists ?? { lists: [], pendingInvites: [] };
       render();
+
+      // Only load Google Sign-In SDK when showing the auth section
+      if (!currentUser) {
+        initGoogleLogin();
+      }
     }
 
     async function loadAccountKeepingVenueInPlace(venueId: number) {
@@ -516,10 +531,39 @@ if (returnPath && await getSession(Astro.cookies)) {
       document.getElementById('google-note')!.textContent = message;
     }
 
+    let googleScriptLoaded = false;
+    async function loadGoogleScript(): Promise<boolean> {
+      if (googleScriptLoaded) return true;
+      // @ts-ignore
+      if (window.google?.accounts?.id) {
+        googleScriptLoaded = true;
+        return true;
+      }
+
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.onload = () => {
+          googleScriptLoaded = true;
+          resolve(true);
+        };
+        script.onerror = () => resolve(false);
+        document.head.appendChild(script);
+      });
+    }
+
     async function initGoogleLogin() {
       const config = await loadConfig();
       if (!config.googleClientId) {
         showPasswordFallback('Google login is not configured yet. Use email + password for now.');
+        return;
+      }
+
+      // Dynamically load Google Sign-In script only when needed
+      const loaded = await loadGoogleScript();
+      if (!loaded) {
+        showPasswordFallback('Google sign-in did not load. Email login is available as a fallback.');
         return;
       }
 
@@ -625,11 +669,10 @@ if (returnPath && await getSession(Astro.cookies)) {
       headerSubtitle.textContent = 'Shared lists, saved spots, alerts, and preferences, all in one place.';
       document.getElementById('account-subtitle')!.textContent = currentUser.email;
 
+      // Sync render functions (immediate data available)
       for (const [name, fn] of [
         ['lists', renderCustomLists],
         ['saved', renderSavedSpots],
-        ['create-alert', renderCreateAlertForm],
-        ['alerts', renderAlertsList],
         ['preferences', renderPreferences],
         ['profile', renderProfile],
       ] as const) {
@@ -639,21 +682,17 @@ if (returnPath && await getSession(Astro.cookies)) {
           console.error(`[account] ${name} render failed`, err);
         }
       }
+
+      // Async render functions (lazy-load happy hours data for alerts)
+      Promise.all([
+        renderCreateAlertForm().catch((err) => console.error('[account] create-alert render failed', err)),
+        renderAlertsList().catch((err) => console.error('[account] alerts render failed', err)),
+      ]);
     }
 
     // ---------------------------------------------------------------------
     // Custom collaborative lists
     // ---------------------------------------------------------------------
-
-    async function loadCustomLists() {
-      try {
-        const response = await fetch('/api/account/lists');
-        const data = await response.json();
-        customListState = response.ok ? data : { lists: [], pendingInvites: [] };
-      } catch {
-        customListState = { lists: [], pendingInvites: [] };
-      }
-    }
 
     function accessLabel(role: string) {
       return role === 'owner' ? 'Owner' : role === 'editor' ? 'Can edit' : 'View only';
@@ -863,7 +902,8 @@ if (returnPath && await getSession(Astro.cookies)) {
       }
       const ownedCustomCount = state.lists.filter((list: any) => list.role === 'owner' && !list.systemKey).length;
       savedGrid.innerHTML = state.venues.map((saved: any) => {
-        const spot = happyHours.find((item) => item.id === saved.venueId);
+        // Use inline venue details (no separate lookup needed)
+        const spot = saved.venue;
         if (!spot) return '';
         const memberships = saved.lists || [];
         const currentNoteList = activeNoteListByVenue.get(saved.venueId);
@@ -902,7 +942,7 @@ if (returnPath && await getSession(Astro.cookies)) {
         return `
           <article class="saved-card" data-id="${saved.venueId}">
             <div>
-              <h3><a href="/venues/${escapeHTML(spot.slug || spot.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))}/">${escapeHTML(spot.name)}</a></h3>
+              <h3><a href="/venues/${escapeHTML(spot.slug)}/">${escapeHTML(spot.name)}</a></h3>
               <div class="saved-meta">${escapeHTML(meta)}</div>
             </div>
             <div class="list-chips">${chips}</div>
@@ -1101,9 +1141,9 @@ if (returnPath && await getSession(Astro.cookies)) {
       ).join('');
     }
 
-    function filterFieldsHTML(filters: any = {}) {
-      const neighborhoods = [...new Set(happyHours.map((h) => h.neighborhood).filter(Boolean))].sort();
-      const dealTypes = [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort();
+    function filterFieldsHTML(filters: any = {}, happyHours: any[] = []) {
+      const neighborhoods = [...new Set(happyHours.map((h: any) => h.neighborhood).filter(Boolean))].sort();
+      const dealTypes = [...new Set(happyHours.flatMap((h: any) => h.dealTypes || []))].sort();
       const days = Array.isArray(filters?.days) ? filters.days : [];
 
       return `
@@ -1169,11 +1209,12 @@ if (returnPath && await getSession(Astro.cookies)) {
       `;
     }
 
-    function renderCreateAlertForm() {
+    async function renderCreateAlertForm() {
       const form = document.getElementById('create-form')!;
+      const happyHours = await getHappyHours();
       form.innerHTML = `
         <label>Alert name <input type="text" data-field="name" placeholder="e.g. Friday Rooftop Wine" required></label>
-        ${filterFieldsHTML({})}
+        ${filterFieldsHTML({}, happyHours)}
         ${channelFieldsHTML({ email: true, text: false })}
         <div class="alert-actions">
           <button type="submit">Save alert</button>
@@ -1182,11 +1223,11 @@ if (returnPath && await getSession(Astro.cookies)) {
       `;
     }
 
-    function matchCount(filters: any) {
-      return happyHours.filter((h) => alertMatchesVenue(filters || {}, h)).length;
+    function matchCount(filters: any, happyHours: any[]) {
+      return happyHours.filter((h: any) => alertMatchesVenue(filters || {}, h)).length;
     }
 
-    function renderAlertsList() {
+    async function renderAlertsList() {
       const grid = document.getElementById('alerts-grid')!;
       const alerts = currentUser?.alerts || [];
       document.getElementById('list-subtitle')!.textContent = `${alerts.length} alert${alerts.length === 1 ? '' : 's'}`;
@@ -1196,8 +1237,9 @@ if (returnPath && await getSession(Astro.cookies)) {
         return;
       }
 
+      const happyHours = await getHappyHours();
       grid.innerHTML = alerts.map((alert: any) => {
-        const count = matchCount(alert.filters);
+        const count = matchCount(alert.filters, happyHours);
         const confirm = alertSaveConfirmation && alertSaveConfirmation.alertId === alert.id
           ? `<span class="save-confirm">&#10003; ${escapeHTML(alertSaveConfirmation.text)}</span>`
           : '';
@@ -1211,7 +1253,7 @@ if (returnPath && await getSession(Astro.cookies)) {
               <span class="match-count">${count} spot${count === 1 ? '' : 's'} match right now</span>
             </div>
             <label>Alert name <input type="text" data-field="name" value="${escapeHTML(alert.name)}"></label>
-            ${filterFieldsHTML(alert.filters)}
+            ${filterFieldsHTML(alert.filters, happyHours)}
             ${channelFieldsHTML(alert.channels)}
             <div class="alert-actions">
               <button data-action="save">Save changes</button>
@@ -1429,6 +1471,6 @@ if (returnPath && await getSession(Astro.cookies)) {
     });
 
     watchStuffNav();
-    Promise.all([loadHappyHours(), loadAccount(), initGoogleLogin()]);
+    loadAccount();
   </script>
 </Layout>

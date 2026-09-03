@@ -7,6 +7,7 @@ import {
   type ListAccessRole,
   type ListSystemKey,
 } from './sharedListPermissions';
+import happyHours from '../../public/data/happy-hours.json';
 
 export const MAX_OWNED_LISTS_PER_USER = 10;
 export const MAX_CUSTOM_LISTS_PER_USER = 7;
@@ -67,6 +68,33 @@ export interface VenueFeedback {
   isMine: boolean;
 }
 
+/** Minimal venue details for rendering saved spots without loading the full venue database. */
+export interface VenueDetails {
+  name: string;
+  slug: string;
+  neighborhood: string;
+  deals: string[];
+}
+
+/** Generate a URL-safe slug from a venue name. */
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+/** Build a lookup map of venue details by ID. */
+const venueDetailsById = new Map<number, VenueDetails>(
+  (happyHours as Array<{ id: number; name: string; slug?: string; neighborhood: string; deals?: string[] }>)
+    .map((venue) => [
+      venue.id,
+      {
+        name: venue.name,
+        slug: venue.slug ?? slugify(venue.name),
+        neighborhood: venue.neighborhood,
+        deals: venue.deals ?? [],
+      },
+    ])
+);
+
 export interface SavedVenueMembership {
   listId: string;
   title: string;
@@ -86,6 +114,8 @@ export interface SavedVenueMembership {
 
 export interface SavedVenueRecord {
   venueId: number;
+  /** Venue details (name, slug, neighborhood, deals) for rendering without full venue lookup. */
+  venue: VenueDetails | null;
   /** Synced global user×venue rating/comment. */
   myFeedback: VenueFeedback | null;
   lists: SavedVenueMembership[];
@@ -371,6 +401,7 @@ export async function getUnifiedSavedState(userId: string): Promise<UnifiedSaved
       .filter((entry) => entry.rating !== null || entry.comment);
     const venue = venuesById.get(row.venue_id) ?? {
       venueId: row.venue_id,
+      venue: venueDetailsById.get(row.venue_id) ?? null,
       myFeedback,
       lists: [],
     };
