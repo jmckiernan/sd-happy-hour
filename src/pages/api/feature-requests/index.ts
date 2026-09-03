@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getAdminUser } from '../../../lib/admins';
 import { getSession } from '../../../lib/session';
 import { getUserById } from '../../../lib/store';
 import { createFeatureRequest, findFeatureMatches, listFeatureRequests } from '../../../lib/feedbackStore';
@@ -15,7 +16,11 @@ async function signedInUser(cookies: Parameters<typeof getSession>[0]) {
 export const GET: APIRoute = async ({ cookies }) => {
   const user = await signedInUser(cookies);
   if (!user) return errorJson(['Sign in to view feature requests.'], 401);
-  return json({ requests: await listFeatureRequests(user.id) });
+  const admin = await getAdminUser(cookies);
+  return json({
+    requests: await listFeatureRequests(user.id),
+    viewerIsAdmin: Boolean(admin),
+  });
 };
 
 export const POST: APIRoute = async ({ request, cookies }) => {

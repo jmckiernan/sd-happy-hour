@@ -210,6 +210,7 @@ const listId = Astro.params.id || '';
 
   <script>
     import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
+    import { venuesForListPicker } from '../../lib/listVenuePicker';
 
     const app = document.getElementById('collab-app')!;
     const listId = app.dataset.listId!;
@@ -902,7 +903,11 @@ const listId = Astro.params.id || '';
     });
 
     Promise.all([
-      fetch('/data/happy-hours.json').then((response) => response.json()).then((venues) => { allVenues = venues; }),
+      fetch('/data/happy-hours.json').then((response) => response.json()).then((venues) => {
+        // Collapse import stubs that share a name + neighborhood with a real
+        // listing so the picker never shows two identical labels.
+        allVenues = venuesForListPicker(venues);
+      }),
       loadList(true, true),
     ]).then(() => {
       if (list) renderItems();

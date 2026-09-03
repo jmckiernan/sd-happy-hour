@@ -230,6 +230,15 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     .filter-btn:hover, .view-btn:hover, .location-btn:hover { background-color: var(--sunset-end); }
+    /* A filled filter should read as "on" at a glance without matching the
+       stronger night active state used by view/location toggles. */
+    .filter-btn.has-value,
+    .search-input.has-value {
+      background-color: color-mix(in srgb, var(--sunset-mid) 34%, var(--sand-warm));
+      border-color: color-mix(in srgb, var(--sunset-start) 55%, transparent);
+    }
+    .filter-btn.has-value:hover,
+    .search-input.has-value:hover { background-color: var(--sunset-end); }
     .view-btn.active, .location-btn.active { background: var(--night); color: white; }
     .location-btn { display: flex; align-items: center; gap: 6px; }
     .location-btn svg { width: 16px; height: 16px; }
@@ -310,11 +319,14 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .grid.hidden { display: none; }
 
     /* ===== CARD ===== */
-    .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; }
+    .card { background: white; border-radius: var(--radius); overflow: visible; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; }
     .card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 24px 60px rgba(0,0,0,0.08); }
     .card.is-happy-hour { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55), 0 10px 28px rgba(34, 197, 94, 0.12); }
     .card.has-live-deal { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.7), 0 18px 42px rgba(139, 92, 246, 0.2); }
-    .card-image { position: relative; height: 200px; overflow: hidden; }
+    /* Keep an open list menu above neighboring cards (hover transform creates
+       its own stacking context, so this has to win that fight). */
+    .card.list-menu-open { z-index: 20; }
+    .card-image { position: relative; height: 200px; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
     .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
     /* Composed with the admin's framing rather than replacing it: a card whose
        photo is zoomed in on a focal point still grows on hover, from there.
@@ -1075,9 +1087,11 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     function setSaveListMenuOpen(combobox: HTMLElement, open: boolean) {
       const trigger = combobox.querySelector('[data-list-menu-trigger]') as HTMLButtonElement | null;
       const menu = combobox.querySelector('[data-list-menu]') as HTMLElement | null;
+      const card = combobox.closest('.card') as HTMLElement | null;
       if (!trigger || !menu) return;
       menu.hidden = !open;
       trigger.setAttribute('aria-expanded', String(open));
+      card?.classList.toggle('list-menu-open', open);
     }
 
     function closeSaveListMenus(except?: HTMLElement) {
@@ -1448,8 +1462,28 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       note.hidden = parts.length === 0;
     }
 
+    /** Marks each filter control when it has a real value so the bar shows
+     * which facets are narrowing results, including the automatic weekday. */
+    function syncFilterValueStyles() {
+      const controls = [
+        document.getElementById('search-input'),
+        document.getElementById('day-filter'),
+        document.getElementById('neighborhood-filter'),
+        document.getElementById('deal-filter'),
+        document.getElementById('status-filter'),
+        document.getElementById('trust-filter'),
+        document.getElementById('start-time-filter'),
+        document.getElementById('end-time-filter'),
+      ];
+      for (const control of controls) {
+        if (!(control instanceof HTMLInputElement || control instanceof HTMLSelectElement)) continue;
+        control.classList.toggle('has-value', Boolean(control.value.trim()));
+      }
+    }
+
     function render(now = getServerNow()) {
       const todayIndex = now ? syncServerTimePresentation(now) : -1;
+      syncFilterValueStyles();
       const venueStates = buildVenueStates(now);
       const filtered = getFilteredData(now, venueStates);
 

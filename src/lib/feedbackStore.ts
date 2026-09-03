@@ -106,22 +106,88 @@ export async function createFeatureRequest(
   return requests.find((request) => request.id === rows[0].id)!;
 }
 
-export async function upvoteFeatureRequest(
+/** Adds a vote, or removes it if this account already voted. */
+export async function toggleFeatureRequestVote(
   featureRequestId: string,
   userId: string,
-): Promise<{ status: 'created' | 'already_voted' | 'not_found'; voteCount: number }> {
-  const inserted = await sql<{ feature_request_id: string }>`
-    INSERT INTO feature_request_votes (feature_request_id, user_id)
-    SELECT id, ${userId} FROM feature_requests
-    WHERE id = ${featureRequestId} AND status IN ('open', 'planned')
-    ON CONFLICT DO NOTHING
-    RETURNING feature_request_id`;
-  const rows = await sql<{ exists: boolean; vote_count: number | string }>`
-    SELECT EXISTS(SELECT 1 FROM feature_requests WHERE id = ${featureRequestId}) AS exists,
-      (SELECT COUNT(*) FROM feature_request_votes WHERE feature_request_id = ${featureRequestId}) AS vote_count`;
-  const state = rows[0];
+): Promise<{ status: 'created' | 'removed' | 'closed' | 'not_found'; voteCount: number; viewerHasVoted: boolean }> {
+  const requestRows = await sql<{ id: string; status: FeatureRequest['status'] }>`
+    SELECT id, status FROM feature_requests WHERE id = ${featureRequestId}`;
+  const request = requestRows[0];
+  if (!request) {
+    return { status: 'not_found', voteCount: 0, viewerHasVoted: false };
+  }
+
+  const existing = await sql<{ feature_request_id: string }>`
+    SELECT feature_request_id FROM feature_request_votes
+    WHERE feature_request_id = ${featureRequestId} AND user_id = ${userId}`;
+
+  if (existing.length) {
+    await sql`
+      DELETE FROM feature_request_votes
+      WHERE feature_request_id = ${featureRequestId} AND user_id = ${userId}`;
+  } else if (request.status !== 'open' && request.status !== 'planned') {
+    const closedVotes = await sql<{ vote_count: number | string }>`
+      SELECT COUNT(*)::integer AS vote_count FROM feature_request_votes
+      WHERE feature_request_id = ${featureRequestId}`;
+    return {
+      status: 'closed',
+      voteCount: Number(closedVotes[0]?.vote_count) || 0,
+      viewerHasVoted: false,
+    };
+  } else {
+    await sql`
+      INSERT INTO feature_request_votes (feature_request_id, user_id)
+      VALUES (${featureRequestId}, ${userId})
+      ON CONFLICT DO NOTHING`;
+  }
+
+  const rows = await sql<{ vote_count: number | string; viewer_has_voted: boolean }>`
+    SELECT
+      (SELECT COUNT(*)::integer FROM feature_request_votes WHERE feature_request_id = ${featureRequestId}) AS vote_count,
+      EXISTS(
+        SELECT 1 FROM feature_request_votes
+        WHERE feature_request_id = ${featureRequestId} AND user_id = ${userId}
+      ) AS viewer_has_voted`;
   return {
-    status: !state?.exists ? 'not_found' : inserted.length ? 'created' : 'already_voted',
-    voteCount: Number(state?.vote_count) || 0,
+    status: existing.length ? 'removed' : 'created',
+    voteCount: Number(rows[0]?.vote_count) || 0,
+    viewerHasVoted: Boolean(rows[0]?.viewer_has_voted),
   };
+}
+
+const FEATURE_STATUSES = ['open', 'planned', 'complete', 'closed'] as const;
+
+export function isFeatureRequestStatus(value: unknown): value is FeatureRequest['status'] {
+  return typeof value === 'string' && (FEATURE_STATUSES as readonly string[]).includes(value);
+}
+
+export async function updateFeatureRequestStatus(
+  featureRequestId: string,
+  status: FeatureRequest['status'],
+): Promise<FeatureRequest | null> {
+  const rows = await sql<{ id: string }>`
+    UPDATE feature_requests
+    SET status = ${status}, updated_at = now()
+    WHERE id = ${featureRequestId}
+    RETURNING id`;
+  if (!rows.length) return null;
+  // Re-list would need a viewer; return a minimal refresh via direct select.
+  const refreshed = await sql<FeatureRequestRow>`
+    SELECT requests.id,
+      users.name AS author_name,
+      requests.author_kind,
+      requests.title,
+      requests.details,
+      requests.status,
+      requests.created_at,
+      requests.updated_at,
+      COUNT(votes.user_id)::integer AS vote_count,
+      false AS viewer_has_voted
+    FROM feature_requests requests
+    JOIN users ON users.id = requests.author_user_id
+    LEFT JOIN feature_request_votes votes ON votes.feature_request_id = requests.id
+    WHERE requests.id = ${featureRequestId}
+    GROUP BY requests.id, users.name`;
+  return refreshed[0] ? mapFeature(refreshed[0]) : null;
 }

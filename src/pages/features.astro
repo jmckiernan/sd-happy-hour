@@ -26,7 +26,8 @@ import { accountSignInHref } from '../lib/authRedirect';
           <p class="form-status" id="feature-form-status" aria-live="polite"></p>
         </form>
         <div class="match-panel" id="feature-matches" hidden>
-          <h3>Is one of these what you’re looking for?</h3>
+          <h3 id="feature-matches-title">Is one of these what you’re looking for?</h3>
+          <p class="match-empty" id="feature-matches-empty" hidden>No similar requests turned up. You can submit yours as new.</p>
           <div id="feature-match-list"></div>
           <button class="secondary" id="feature-submit-new" type="button">None match — submit as new</button>
         </div>
@@ -45,7 +46,7 @@ import { accountSignInHref } from '../lib/authRedirect';
   <style is:global>
     .features-page { margin: 0 auto 80px; max-width: 960px; padding: 22px 24px; }
     #feature-app { display: grid; gap: 26px; }
-    #feature-app[hidden], .signed-out[hidden], .match-panel[hidden] { display: none; }
+    #feature-app[hidden], .signed-out[hidden], .match-panel[hidden], .match-empty[hidden] { display: none; }
     .request-panel, .board-panel, .signed-out { background: white; border-radius: var(--radius); box-shadow: 0 8px 28px rgba(15,23,42,.08); padding: clamp(22px, 5vw, 36px); }
     h2 { font-family: var(--font-display); margin-bottom: 16px; }
     .signed-out { text-align: center; }
@@ -54,9 +55,9 @@ import { accountSignInHref } from '../lib/authRedirect';
     :is(.signed-out a, button):hover { background: var(--sunset-start); }
     form { display: grid; gap: 15px; }
     label { display: grid; font-weight: 750; gap: 7px; }
-    input, textarea { border: 2px solid var(--sand-warm); border-radius: 12px; color: var(--night); font: inherit; padding: 11px 13px; width: 100%; }
+    input, textarea, select.status-select { border: 2px solid var(--sand-warm); border-radius: 12px; color: var(--night); font: inherit; padding: 11px 13px; width: 100%; }
     textarea { line-height: 1.5; resize: vertical; }
-    :is(input, textarea):focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    :is(input, textarea, select.status-select):focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
     form button { justify-self: start; }
     button.secondary { background: var(--sand-warm); color: var(--night); }
     button:disabled { cursor: default; opacity: .58; }
@@ -64,6 +65,7 @@ import { accountSignInHref } from '../lib/authRedirect';
     .form-status.error { color: #B91C1C; }
     .match-panel { background: var(--sand); border: 2px solid var(--sunset-end); border-radius: var(--radius-sm); margin-top: 20px; padding: 18px; }
     .match-panel h3 { font-size: 1rem; margin-bottom: 12px; }
+    .match-empty { color: var(--night-soft); font-size: .9rem; line-height: 1.45; margin-bottom: 14px; }
     #feature-match-list { display: grid; gap: 10px; margin-bottom: 14px; }
     .match-card { align-items: center; background: white; border-radius: 12px; display: flex; gap: 12px; justify-content: space-between; padding: 13px; }
     .match-card strong { display: block; }
@@ -78,9 +80,13 @@ import { accountSignInHref } from '../lib/authRedirect';
     .vote-button.upvoted { background: #ECFDF5; color: #047857; }
     .feature-card h3 { font-size: 1.05rem; margin-bottom: 5px; }
     .feature-card p { color: var(--night-soft); line-height: 1.5; overflow-wrap: anywhere; }
-    .feature-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .feature-meta span { background: var(--sand-warm); border-radius: 100px; color: var(--night-soft); font-size: .7rem; font-weight: 750; padding: 4px 8px; }
+    .feature-meta { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .feature-meta span, .feature-meta .status-pill { background: var(--sand-warm); border-radius: 100px; color: var(--night-soft); font-size: .7rem; font-weight: 750; padding: 4px 8px; }
     .feature-meta .owner { background: #E0F2FE; color: var(--ocean-deep); }
+    .feature-meta .status-pill.planned { background: #FEF3C7; color: #92400E; }
+    .feature-meta .status-pill.complete { background: #DCFCE7; color: #166534; }
+    .feature-meta .status-pill.closed { background: #E2E8F0; color: #475569; }
+    .status-select { appearance: none; background: white; border-radius: 100px; font-size: .72rem; font-weight: 750; max-width: 140px; min-height: 0; padding: 5px 28px 5px 10px; width: auto; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230F172A' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 8px center; background-repeat: no-repeat; }
     @media (max-width: 560px) { .match-card { align-items: stretch; flex-direction: column; } }
   </style>
 
@@ -90,6 +96,13 @@ import { accountSignInHref } from '../lib/authRedirect';
       status: string; voteCount: number; viewerHasVoted: boolean;
     }
 
+    const STATUSES = [
+      { value: 'open', label: 'Open' },
+      { value: 'planned', label: 'Planned' },
+      { value: 'complete', label: 'Complete' },
+      { value: 'closed', label: 'Closed' },
+    ] as const;
+
     const signin = document.getElementById('feature-signin')!;
     const app = document.getElementById('feature-app')!;
     const list = document.getElementById('feature-list')!;
@@ -97,9 +110,20 @@ import { accountSignInHref } from '../lib/authRedirect';
     const form = document.getElementById('feature-form') as HTMLFormElement;
     const formStatus = document.getElementById('feature-form-status')!;
     const matchesPanel = document.getElementById('feature-matches')!;
+    const matchesTitle = document.getElementById('feature-matches-title')!;
+    const matchesEmpty = document.getElementById('feature-matches-empty')!;
     const matchesList = document.getElementById('feature-match-list')!;
     let requests: FeatureRequest[] = [];
+    let viewerIsAdmin = false;
     let draft: { title: string; details: string } | null = null;
+
+    function statusLabel(status: string) {
+      return STATUSES.find((entry) => entry.value === status)?.label || status;
+    }
+
+    function canVote(request: FeatureRequest) {
+      return request.viewerHasVoted || ['open', 'planned'].includes(request.status);
+    }
 
     function renderBoard() {
       list.replaceChildren();
@@ -116,17 +140,22 @@ import { accountSignInHref } from '../lib/authRedirect';
         const vote = document.createElement('button');
         vote.type = 'button';
         vote.className = `vote-button${request.viewerHasVoted ? ' upvoted' : ''}`;
-        vote.disabled = request.viewerHasVoted || !['open', 'planned'].includes(request.status);
-        vote.setAttribute('aria-label', request.viewerHasVoted ? `${request.voteCount} votes, already upvoted` : `Upvote ${request.title}`);
+        vote.disabled = !canVote(request);
+        vote.setAttribute(
+          'aria-label',
+          request.viewerHasVoted
+            ? `${request.voteCount} votes, click to remove your vote`
+            : `Upvote ${request.title}`,
+        );
         const arrow = document.createElement('span');
         arrow.className = 'arrow';
         arrow.textContent = '▲';
         const voteCount = document.createElement('strong');
         voteCount.textContent = String(request.voteCount);
         const voteLabel = document.createElement('span');
-        voteLabel.textContent = request.viewerHasVoted ? 'Upvoted' : 'Upvote';
+        voteLabel.textContent = request.viewerHasVoted ? 'Remove' : 'Upvote';
         vote.append(arrow, voteCount, voteLabel);
-        vote.addEventListener('click', () => upvote(request.id));
+        vote.addEventListener('click', () => toggleVote(request.id));
 
         const body = document.createElement('div');
         const title = document.createElement('h3');
@@ -139,9 +168,28 @@ import { accountSignInHref } from '../lib/authRedirect';
         const author = document.createElement('span');
         author.textContent = request.authorKind === 'venue_owner' ? `${request.authorName} · venue owner` : request.authorName;
         if (request.authorKind === 'venue_owner') author.className = 'owner';
-        const state = document.createElement('span');
-        state.textContent = request.status;
-        meta.append(author, state);
+        meta.append(author);
+
+        if (viewerIsAdmin) {
+          const select = document.createElement('select');
+          select.className = 'status-select';
+          select.setAttribute('aria-label', `Status for ${request.title}`);
+          for (const entry of STATUSES) {
+            const option = document.createElement('option');
+            option.value = entry.value;
+            option.textContent = entry.label;
+            option.selected = entry.value === request.status;
+            select.append(option);
+          }
+          select.addEventListener('change', () => updateStatus(request.id, select.value, select));
+          meta.append(select);
+        } else {
+          const state = document.createElement('span');
+          state.className = `status-pill ${request.status}`;
+          state.textContent = statusLabel(request.status);
+          meta.append(state);
+        }
+
         body.append(title, details, meta);
         card.append(vote, body);
         list.append(card);
@@ -158,24 +206,60 @@ import { accountSignInHref } from '../lib/authRedirect';
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error((body.errors || ['Could not load feature requests.']).join(' '));
       requests = body.requests || [];
+      viewerIsAdmin = Boolean(body.viewerIsAdmin);
       signin.hidden = true;
       app.hidden = false;
       renderBoard();
     }
 
-    async function upvote(id: string) {
+    async function toggleVote(id: string) {
       const response = await fetch(`/api/feature-requests/${encodeURIComponent(id)}/vote`, { method: 'POST' });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
         formStatus.classList.add('error');
-        formStatus.textContent = (body.errors || ['Could not upvote that request.']).join(' ');
+        formStatus.textContent = (body.errors || ['Could not update your vote.']).join(' ');
         return;
       }
+      formStatus.classList.remove('error');
+      formStatus.textContent = body.status === 'removed' ? 'Vote removed.' : 'Upvoted.';
       await loadBoard();
+    }
+
+    async function updateStatus(id: string, status: string, select: HTMLSelectElement) {
+      select.disabled = true;
+      try {
+        const response = await fetch(`/api/feature-requests/${encodeURIComponent(id)}/status`, {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((body.errors || ['Could not update status.']).join(' '));
+        const index = requests.findIndex((request) => request.id === id);
+        if (index >= 0 && body.request) {
+          requests[index] = { ...requests[index], status: body.request.status };
+        }
+        formStatus.classList.remove('error');
+        formStatus.textContent = `Marked as ${statusLabel(status)}.`;
+        renderBoard();
+      } catch (error: any) {
+        formStatus.classList.add('error');
+        formStatus.textContent = error.message;
+        await loadBoard();
+      } finally {
+        select.disabled = false;
+      }
     }
 
     function renderMatches(matches: FeatureRequest[]) {
       matchesList.replaceChildren();
+      const hasMatches = matches.length > 0;
+      matchesTitle.textContent = hasMatches
+        ? 'Is one of these what you’re looking for?'
+        : 'No similar requests found';
+      matchesEmpty.hidden = hasMatches;
+      matchesEmpty.textContent = 'No similar requests turned up. You can submit yours as new.';
+
       for (const match of matches) {
         const row = document.createElement('div');
         row.className = 'match-card';
@@ -183,16 +267,18 @@ import { accountSignInHref } from '../lib/authRedirect';
         const title = document.createElement('strong');
         title.textContent = match.title;
         const votes = document.createElement('span');
-        votes.textContent = `${match.voteCount} vote${match.voteCount === 1 ? '' : 's'}`;
+        votes.textContent = `${match.voteCount} vote${match.voteCount === 1 ? '' : 's'} · ${statusLabel(match.status)}`;
         copy.append(title, votes);
         const choose = document.createElement('button');
         choose.type = 'button';
         choose.textContent = match.viewerHasVoted ? 'Already upvoted' : 'Yes — upvote this';
-        choose.disabled = match.viewerHasVoted;
+        choose.disabled = match.viewerHasVoted || !['open', 'planned'].includes(match.status);
         choose.addEventListener('click', async () => {
-          await upvote(match.id);
+          await toggleVote(match.id);
           matchesPanel.hidden = true;
           form.reset();
+          draft = null;
+          formStatus.classList.remove('error');
           formStatus.textContent = 'Added your upvote to the existing request.';
         });
         row.append(copy, choose);
@@ -217,6 +303,7 @@ import { accountSignInHref } from '../lib/authRedirect';
       form.reset();
       matchesPanel.hidden = true;
       draft = null;
+      formStatus.classList.remove('error');
       formStatus.textContent = 'Feature request added.';
       await loadBoard();
     }
@@ -232,12 +319,10 @@ import { accountSignInHref } from '../lib/authRedirect';
         const response = await fetch(`/api/feature-requests/matches?q=${query}`, { cache: 'no-store' });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error((body.errors || ['Could not check existing requests.']).join(' '));
-        if (body.matches?.length) {
-          renderMatches(body.matches);
-          formStatus.textContent = 'We found possible matches. Choose one or submit yours as new.';
-        } else {
-          await createDraft(false);
-        }
+        renderMatches(body.matches || []);
+        formStatus.textContent = body.matches?.length
+          ? 'We found possible matches. Choose one or submit yours as new.'
+          : 'No similar requests found. Submit yours as new if you still want to.';
       } catch (error: any) {
         formStatus.classList.add('error');
         formStatus.textContent = error.message;

@@ -70,7 +70,7 @@
     "test:lightbox-keys": "esbuild tests/lightbox-keys.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/lightbox-keys.bundle.mjs && node .data/tests/lightbox-keys.bundle.mjs",
     "test:images": "esbuild tests/image-sanitize.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/image-sanitize.bundle.mjs && node .data/tests/image-sanitize.bundle.mjs",
     "test:venue-management": "node tests/build-venue-management-test.mjs && node .data/tests/venue-management.bundle.mjs",
-    "test:shared-lists": "node tests/build-shared-lists-test.mjs && node .data/tests/shared-lists.bundle.mjs && node tests/unified-saved-lists-migration.test.mjs && node tests/user-venue-feedback-migration.test.mjs",
+    "test:shared-lists": "node --test tests/list-venue-picker.test.mjs && node tests/build-shared-lists-test.mjs && node .data/tests/shared-lists.bundle.mjs && node tests/unified-saved-lists-migration.test.mjs && node tests/user-venue-feedback-migration.test.mjs",
     "test:feedback-board": "esbuild tests/feedback-board.test.mjs --bundle --platform=node --format=esm --outfile=.data/tests/feedback-board.bundle.mjs && node .data/tests/feedback-board.bundle.mjs",
     "test:auth-redirect": "node --test tests/auth-redirect.test.mjs",
     "test:user-intelligence": "node tests/build-admin-user-intelligence-test.mjs && node .data/tests/admin-user-intelligence.bundle.mjs",
