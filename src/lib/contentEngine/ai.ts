@@ -4,35 +4,112 @@ import { collectDateTags, linkAndEmphasizeDates } from './dateLinks';
 import { evaluateDraftQuality } from './quality';
 import { normalizeText, slugifyContent } from './normalize';
 import { venuePath } from '../venues';
+import { recordAIUsage, calculateCost, type AIFeature } from '../aiUsage';
 import type { EditorialCluster, GeneratedDraft, NormalizedContentItem } from './types';
+
+export interface TextModelResponse {
+  text: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  model?: string;
+}
 
 export interface TextModel {
   complete(input: { system: string; user: string; maxTokens: number }): Promise<string>;
+  completeWithUsage?(input: { system: string; user: string; maxTokens: number }): Promise<TextModelResponse>;
 }
 
 export class AnthropicTextModel implements TextModel {
+  private contentRunId?: string;
+  private feature: AIFeature = 'other';
+
+  constructor(options?: { contentRunId?: string; feature?: AIFeature }) {
+    this.contentRunId = options?.contentRunId;
+    this.feature = options?.feature || 'other';
+  }
+
   async complete(input: { system: string; user: string; maxTokens: number }): Promise<string> {
+    const response = await this.completeWithUsage(input);
+    return response.text;
+  }
+
+  async completeWithUsage(input: { system: string; user: string; maxTokens: number }): Promise<TextModelResponse> {
     const apiKey = getEnv('ANTHROPIC_API_KEY');
     if (!apiKey) throw new Error('Missing ANTHROPIC_API_KEY env var.');
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: getEnv('ANTHROPIC_MODEL') || 'claude-sonnet-5',
-        max_tokens: input.maxTokens,
-        system: input.system,
-        messages: [{ role: 'user', content: input.user }],
-      }),
-    });
-    if (!response.ok) throw new Error(`Anthropic API error (${response.status}): ${(await response.text()).slice(0, 800)}`);
-    const data = await response.json();
-    const block = Array.isArray(data.content) ? data.content.find((item: any) => item?.type === 'text') : null;
-    if (!block?.text) throw new Error('Anthropic returned no text content.');
-    return block.text;
+    const model = getEnv('ANTHROPIC_MODEL') || 'claude-sonnet-5';
+    const startTime = Date.now();
+    let success = true;
+    let errorMessage: string | null = null;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: input.maxTokens,
+          system: input.system,
+          messages: [{ role: 'user', content: input.user }],
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Anthropic API error (${response.status}): ${errText.slice(0, 800)}`);
+      }
+
+      const data = await response.json();
+      const block = Array.isArray(data.content) ? data.content.find((item: any) => item?.type === 'text') : null;
+      if (!block?.text) throw new Error('Anthropic returned no text content.');
+
+      // Extract token usage from response
+      const inputTokens = data.usage?.input_tokens;
+      const outputTokens = data.usage?.output_tokens;
+      const durationMs = Date.now() - startTime;
+
+      // Record usage asynchronously
+      const costCents = calculateCost({ provider: 'anthropic', model, inputTokens, outputTokens });
+      recordAIUsage({
+        provider: 'anthropic',
+        model,
+        feature: this.feature,
+        contentRunId: this.contentRunId,
+        inputTokens,
+        outputTokens,
+        costCents,
+        success: true,
+        durationMs,
+        requestMetadata: { maxTokens: input.maxTokens },
+      }).catch(() => {});
+
+      return {
+        text: block.text,
+        inputTokens,
+        outputTokens,
+        model,
+      };
+    } catch (error) {
+      success = false;
+      errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Record failed attempt
+      recordAIUsage({
+        provider: 'anthropic',
+        model,
+        feature: this.feature,
+        contentRunId: this.contentRunId,
+        costCents: 0,
+        success: false,
+        errorMessage,
+        durationMs: Date.now() - startTime,
+      }).catch(() => {});
+
+      throw error;
+    }
   }
 }
 
@@ -179,10 +256,13 @@ function newsletterBlocks(markdown: string): Array<Record<string, unknown>> {
 
 export async function generateDraftBundle(
   cluster: EditorialCluster,
-  model: TextModel = new AnthropicTextModel()
+  model?: TextModel,
+  options?: { contentRunId?: string }
 ): Promise<{ blog: GeneratedDraft; newsletter: GeneratedDraft }> {
+  const blogModel = model || new AnthropicTextModel({ contentRunId: options?.contentRunId, feature: 'content_engine_draft' });
+  const newsletterModel = model || new AnthropicTextModel({ contentRunId: options?.contentRunId, feature: 'content_engine_newsletter' });
   const sourceBundle = promptBundle(cluster);
-  const blogRaw = await model.complete({
+  const blogRaw = await blogModel.complete({
     system: BLOG_SYSTEM,
     user: `Write the article from this source bundle.\n\n${sourceBundle}`,
     maxTokens: 5000,
@@ -224,7 +304,7 @@ export async function generateDraftBundle(
   blog.qualityScore = blogQuality.score;
   blog.qualityFlags = blogQuality.flags;
 
-  const newsletterRaw = await model.complete({
+  const newsletterRaw = await newsletterModel.complete({
     system: NEWSLETTER_SYSTEM,
     user: `Create a newsletter from this source bundle. Do not reuse wording from the blog excerpt that follows.\n\nSOURCE BUNDLE:\n${sourceBundle}\n\nBLOG EXCERPT FOR DIFFERENTIATION ONLY:\n${blogBody.slice(0, 1800)}`,
     maxTokens: 2600,
@@ -265,10 +345,12 @@ export async function generateDraftBundle(
  * the model can improve the angle and ordering, but cannot add an item or fact. */
 export async function refineClusterEditorialJudgment(
   clusters: EditorialCluster[],
-  model: TextModel = new AnthropicTextModel()
+  model?: TextModel,
+  options?: { contentRunId?: string }
 ): Promise<EditorialCluster[]> {
   if (clusters.length < 2 || !getEnv('ANTHROPIC_API_KEY')) return clusters;
-  const raw = await model.complete({
+  const refinementModel = model || new AnthropicTextModel({ contentRunId: options?.contentRunId, feature: 'content_engine_cluster_refinement' });
+  const raw = await refinementModel.complete({
     system: 'You are a San Diego local editor. Rank proposed source-grounded story bundles for usefulness, timeliness, specificity, and non-duplication. You may rewrite only the working title and angle. Return JSON only.',
     user: JSON.stringify(clusters.map((cluster) => ({
       signature: cluster.signature,

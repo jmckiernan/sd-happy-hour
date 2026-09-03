@@ -135,7 +135,9 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     edited = await callGeminiImage([
       { inlineData: { mimeType: source.contentType, data: Buffer.from(source.bytes).toString('base64') } },
       { text: isCurrentImageEdit ? buildEditPrompt(prompt) : prompt },
-    ]);
+    ], {
+      feature: 'admin_image_edit',
+    });
   } catch (err: any) {
     return errorJson([`Image edit failed: ${err.message}`], 502);
   }

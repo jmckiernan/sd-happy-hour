@@ -3,6 +3,7 @@ import { describeGitHubError, getGitHubTarget, getOctokit } from '../../lib/gith
 import happyHours from '../../../public/data/happy-hours.json';
 import { getAdminUser } from '../../lib/admins';
 import { venueSlug } from '../../lib/venues';
+import { recordAIUsage, calculateCost } from '../../lib/aiUsage';
 
 export const prerender = false;
 
@@ -83,6 +84,9 @@ ${JSON.stringify(verifiedVenues, null, 2)}
 
 Write the blog post now, following all rules in your instructions. Respond in the exact TITLE/DESCRIPTION/---BODY--- format only.`;
 
+  const model = import.meta.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+  const startTime = Date.now();
+
   const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -91,7 +95,7 @@ Write the blog post now, following all rules in your instructions. Respond in th
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: import.meta.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
+      model,
       max_tokens: 4000,
       system: CONTENT_BRIEF,
       messages: [{ role: 'user', content: userPrompt }],
@@ -100,10 +104,36 @@ Write the blog post now, following all rules in your instructions. Respond in th
 
   if (!anthropicRes.ok) {
     const errText = await anthropicRes.text();
+    const durationMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: 'anthropic',
+      model,
+      feature: 'manual_draft_generation',
+      costCents: 0,
+      success: false,
+      errorMessage: errText.slice(0, 500),
+      durationMs,
+    }).catch(() => {});
     return new Response(JSON.stringify({ error: 'Claude API error', detail: errText }), { status: 502 });
   }
 
   const anthropicData = await anthropicRes.json();
+  const durationMs = Date.now() - startTime;
+
+  // Extract token usage and record
+  const inputTokens = anthropicData.usage?.input_tokens;
+  const outputTokens = anthropicData.usage?.output_tokens;
+  const costCents = calculateCost({ provider: 'anthropic', model, inputTokens, outputTokens });
+  recordAIUsage({
+    provider: 'anthropic',
+    model,
+    feature: 'manual_draft_generation',
+    inputTokens,
+    outputTokens,
+    costCents,
+    success: true,
+    durationMs,
+  }).catch(() => {});
 
   // Don't assume the text is at content[0] — if the model emits any other
   // block first (e.g. a "thinking" block), content[0] has no .text field

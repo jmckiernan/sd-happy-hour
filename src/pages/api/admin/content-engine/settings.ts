@@ -22,6 +22,7 @@ export const PUT: APIRoute = async ({ cookies, request }) => {
     }
   }
   const settings = await saveContentEngineSettings({
+    paused: Boolean(body.paused),
     autoPublishEnabled: Boolean(body.autoPublishEnabled),
     autoPublishMinQuality: Number(body.autoPublishMinQuality),
     minItemConfidence: Number(body.minItemConfidence),

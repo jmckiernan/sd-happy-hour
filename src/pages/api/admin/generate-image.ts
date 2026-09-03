@@ -32,7 +32,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   let generated;
   try {
-    generated = await callGeminiImage([{ text: `${prompt}\n\n${STYLE_SUFFIX}` }]);
+    generated = await callGeminiImage([{ text: `${prompt}\n\n${STYLE_SUFFIX}` }], {
+      feature: 'admin_image_generation',
+    });
   } catch (err: any) {
     return errorJson([`Image generation failed: ${err.message}`], 502);
   }

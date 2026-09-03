@@ -547,6 +547,7 @@ export async function getContentEngineSettings(): Promise<ContentEngineSettings>
   const rows = await sql<any>`SELECT * FROM content_engine_settings WHERE singleton = true`;
   const row = rows[0];
   return {
+    paused: Boolean(row.paused),
     autoPublishEnabled: Boolean(row.auto_publish_enabled),
     autoPublishMinQuality: Number(row.auto_publish_min_quality),
     minItemConfidence: Number(row.min_item_confidence),
@@ -560,6 +561,7 @@ export async function getContentEngineSettings(): Promise<ContentEngineSettings>
 export async function saveContentEngineSettings(settings: ContentEngineSettings): Promise<ContentEngineSettings> {
   await sql`
     UPDATE content_engine_settings SET
+      paused = ${settings.paused},
       auto_publish_enabled = ${settings.autoPublishEnabled},
       auto_publish_min_quality = ${settings.autoPublishMinQuality},
       min_item_confidence = ${settings.minItemConfidence},
@@ -578,6 +580,26 @@ export async function startIngestionRun(triggerType: IngestionRunSummary['trigge
 
 export async function finishIngestionRun(summary: IngestionRunSummary): Promise<void> {
   if (!summary.runId) return;
+  
+  // Calculate costs for this run from ai_usage_log
+  let costs = { contentGeneration: 0, clusterRefinement: 0, imageGeneration: 0, total: 0 };
+  try {
+    const costRows = await sql<any>`
+      SELECT feature, COALESCE(sum(cost_cents), 0)::numeric AS cost_cents
+      FROM ai_usage_log WHERE content_run_id = ${summary.runId} GROUP BY feature`;
+    for (const row of costRows) {
+      const cents = Number(row.cost_cents);
+      costs.total += cents;
+      if (row.feature === 'content_engine_draft' || row.feature === 'content_engine_newsletter') {
+        costs.contentGeneration += cents;
+      } else if (row.feature === 'content_engine_cluster_refinement') {
+        costs.clusterRefinement += cents;
+      } else if (row.feature === 'content_engine_image') {
+        costs.imageGeneration += cents;
+      }
+    }
+  } catch { /* Cost tracking is optional */ }
+  
   await sql`
     UPDATE content_ingestion_runs SET
       status = ${summary.status}, sources_attempted = ${summary.sourcesAttempted},
@@ -585,6 +607,7 @@ export async function finishIngestionRun(summary: IngestionRunSummary): Promise<
       items_created = ${summary.itemsCreated}, items_merged = ${summary.itemsMerged},
       items_outside_county = ${summary.itemsOutsideCounty}, clusters_created = ${summary.clustersCreated},
       drafts_created = ${summary.draftsCreated}, errors = ${JSON.stringify(summary.errors)}::jsonb,
+      costs = ${JSON.stringify(costs)}::jsonb,
       finished_at = now()
     WHERE id = ${summary.runId}`;
 }
@@ -613,8 +636,31 @@ export async function recordContentEngineEvent(input: {
     )`;
 }
 
+function computeNextScheduledRun(settings: ContentEngineSettings): string | null {
+  if (settings.paused || settings.runSchedule === 'manual') return null;
+
+  const now = new Date();
+  // Schedule runs at 15:05 UTC and 23:05 UTC (twice_daily) or just 15:05 UTC (daily)
+  const scheduleHours = settings.runSchedule === 'daily' ? [15] : [15, 23];
+  const scheduleMinute = 5;
+
+  for (let dayOffset = 0; dayOffset <= 1; dayOffset++) {
+    for (const hour of scheduleHours) {
+      const candidate = new Date(now);
+      candidate.setUTCDate(candidate.getUTCDate() + dayOffset);
+      candidate.setUTCHours(hour, scheduleMinute, 0, 0);
+      if (candidate > now) return candidate.toISOString();
+    }
+  }
+  // Fallback: next occurrence of first scheduled hour tomorrow
+  const fallback = new Date(now);
+  fallback.setUTCDate(fallback.getUTCDate() + 1);
+  fallback.setUTCHours(scheduleHours[0], scheduleMinute, 0, 0);
+  return fallback.toISOString();
+}
+
 export async function contentEngineOverview(): Promise<Record<string, unknown>> {
-  const [counts, recentRuns, analytics] = await Promise.all([
+  const [counts, recentRuns, analytics, settings] = await Promise.all([
     sql<any>`SELECT
       (SELECT count(*) FROM content_sources WHERE enabled) AS enabled_sources,
       (SELECT count(*) FROM content_items) AS items,
@@ -631,8 +677,14 @@ export async function contentEngineOverview(): Promise<Record<string, unknown>> 
       FROM content_engine_events
       WHERE created_at >= now() - interval '30 days'
       GROUP BY event_name ORDER BY event_name`,
+    getContentEngineSettings(),
   ]);
-  return { counts: counts[0], recentRuns, analytics };
+
+  const lastRun = recentRuns[0] || null;
+  const lastRunAt = lastRun?.started_at ? new Date(lastRun.started_at).toISOString() : null;
+  const nextScheduledRun = computeNextScheduledRun(settings);
+
+  return { counts: counts[0], recentRuns, analytics, lastRunAt, nextScheduledRun };
 }
 
 export async function listDueScheduledDrafts(): Promise<GeneratedDraft[]> {

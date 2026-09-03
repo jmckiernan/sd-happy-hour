@@ -57,16 +57,18 @@ async function createDraftsForCluster(input: {
   clusterId: string;
   model?: TextModel;
   generateImages: boolean;
+  contentRunId?: string;
 }): Promise<{ blog: GeneratedDraft; newsletter: GeneratedDraft }> {
   const cluster = await getEditorialCluster(input.clusterId);
   if (!cluster) throw new Error('Cluster not found after creation.');
-  const generated = await generateDraftBundle(cluster, input.model);
+  const generated = await generateDraftBundle(cluster, input.model, { contentRunId: input.contentRunId });
 
   try {
     const image = await resolveDraftImage({
       cluster,
       draft: generated.blog,
       allowGeneration: input.generateImages,
+      contentRunId: input.contentRunId,
     });
     generated.blog.heroImageUrl = image.url;
     generated.blog.imageMetadata = image.metadata;
@@ -219,6 +221,11 @@ export async function runContentEngine(options: RunContentEngineOptions = {}): P
 
   try {
     const settings = await getContentEngineSettings();
+    if (triggerType === 'scheduled' && settings.paused) {
+      summary.status = 'completed';
+      console.log('[content-engine] scheduled run skipped: engine is paused');
+      return summary;
+    }
     if (triggerType === 'scheduled' && settings.runSchedule === 'manual') {
       summary.status = 'completed';
       return summary;
@@ -292,7 +299,7 @@ export async function runContentEngine(options: RunContentEngineOptions = {}): P
       minClusterScore: settings.minClusterScore,
     });
     try {
-      clusters = await refineClusterEditorialJudgment(clusters, options.model);
+      clusters = await refineClusterEditorialJudgment(clusters, options.model, { contentRunId: summary.runId });
     } catch (error) {
       summary.errors.push({ stage: 'cluster_ai', message: error instanceof Error ? error.message : String(error) });
     }
@@ -317,6 +324,7 @@ export async function runContentEngine(options: RunContentEngineOptions = {}): P
       try {
         const drafts = await createDraftsForCluster({
           clusterId: pendingCluster.id!, model: options.model, generateImages: settings.generateImages,
+          contentRunId: summary.runId,
         });
         summary.draftsCreated += 2;
         const cluster = await getEditorialCluster(pendingCluster.id!);

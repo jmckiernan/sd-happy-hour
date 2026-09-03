@@ -24,6 +24,8 @@
 //   be traced back to what the model actually said.
 // ---------------------------------------------------------------------------
 
+import { recordAIUsage, calculateCost } from './aiUsage';
+
 // Verified against this project's key rather than picked from memory:
 // gemini-2.5-flash returns 404 "no longer available to new users" and the API's
 // own error names this as the replacement. Pinned rather than using the
@@ -108,7 +110,11 @@ export async function screenImage({ bytes, contentType }: ScreenInput): Promise<
     };
   }
 
+  const startTime = Date.now();
   let text: string;
+  let inputTokens: number | undefined;
+  let outputTokens: number | undefined;
+
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
@@ -128,6 +134,16 @@ export async function screenImage({ bytes, contentType }: ScreenInput): Promise<
 
     if (!res.ok) {
       const detail = (await res.text()).slice(0, 300);
+      const durationMs = Date.now() - startTime;
+      recordAIUsage({
+        provider: 'gemini',
+        model,
+        feature: 'photo_moderation',
+        costCents: 0,
+        success: false,
+        errorMessage: `HTTP ${res.status}: ${detail}`,
+        durationMs,
+      }).catch(() => {});
       return {
         decision: 'review',
         reason: 'Automated screening could not run, so this photo is waiting on manual review.',
@@ -144,7 +160,34 @@ export async function screenImage({ bytes, contentType }: ScreenInput): Promise<
     text = Array.isArray(parts)
       ? parts.map((part: any) => (typeof part?.text === 'string' ? part.text : '')).join('').trim()
       : '';
+
+    // Extract token usage if available
+    inputTokens = data?.usageMetadata?.promptTokenCount;
+    outputTokens = data?.usageMetadata?.candidatesTokenCount;
+
+    const durationMs = Date.now() - startTime;
+    const costCents = calculateCost({ provider: 'gemini', model, inputTokens, outputTokens });
+    recordAIUsage({
+      provider: 'gemini',
+      model,
+      feature: 'photo_moderation',
+      inputTokens,
+      outputTokens,
+      costCents,
+      success: true,
+      durationMs,
+    }).catch(() => {});
   } catch (err: any) {
+    const durationMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: 'gemini',
+      model,
+      feature: 'photo_moderation',
+      costCents: 0,
+      success: false,
+      errorMessage: String(err?.message || err).slice(0, 300),
+      durationMs,
+    }).catch(() => {});
     return {
       decision: 'review',
       reason: 'Automated screening could not run, so this photo is waiting on manual review.',

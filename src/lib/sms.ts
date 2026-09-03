@@ -1,5 +1,6 @@
 import { getEnv } from './env';
 import { normalizeUsPhone } from './phone';
+import { recordAIUsage, calculateCost } from './aiUsage';
 
 // ---------------------------------------------------------------------------
 // Text delivery via Twilio's plain REST API (no SDK dependency, same reason
@@ -64,40 +65,82 @@ export async function sendSms(to: string, body: string, options?: { awaitDeliver
     throw new Error(`Invalid SMS recipient number: ${to}`);
   }
 
-  const params = new URLSearchParams({ To: normalizedTo, From: from, Body: body });
-  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString('base64')}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: params.toString(),
-  });
+  const startTime = Date.now();
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`Twilio API error ${res.status}: ${text}`);
+  try {
+    const params = new URLSearchParams({ To: normalizedTo, From: from, Body: body });
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    });
+
+    const durationMs = Date.now() - startTime;
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      recordAIUsage({
+        provider: 'twilio',
+        model: 'sms',
+        feature: 'sms_alert',
+        messageCount: 1,
+        costCents: 0,
+        success: false,
+        errorMessage: `HTTP ${res.status}: ${text.slice(0, 200)}`,
+        durationMs,
+      }).catch(() => {});
+      throw new Error(`Twilio API error ${res.status}: ${text}`);
+    }
+
+    const data = await res.json();
+    let twilioStatus = data.status as string | undefined;
+    let errorCode = data.error_code ?? null;
+    let errorMessage = data.error_message ?? null;
+
+    if (options?.awaitDeliveryStatus && data.sid) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      const latest = await fetchTwilioMessage(data.sid);
+      twilioStatus = latest.status ?? twilioStatus;
+      errorCode = latest.errorCode ?? errorCode;
+      errorMessage = latest.errorMessage ?? errorMessage;
+    }
+
+    // Record successful send
+    const costCents = calculateCost({ provider: 'twilio', model: 'sms', messageCount: 1 });
+    recordAIUsage({
+      provider: 'twilio',
+      model: 'sms',
+      feature: 'sms_alert',
+      messageCount: 1,
+      costCents,
+      success: true,
+      durationMs,
+      requestMetadata: { messageSid: data.sid, status: twilioStatus },
+    }).catch(() => {});
+
+    return {
+      sent: true,
+      simulated: false,
+      messageSid: data.sid,
+      twilioStatus,
+      errorCode,
+      errorMessage,
+    };
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: 'twilio',
+      model: 'sms',
+      feature: 'sms_alert',
+      messageCount: 1,
+      costCents: 0,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      durationMs,
+    }).catch(() => {});
+    throw error;
   }
-
-  const data = await res.json();
-  let twilioStatus = data.status as string | undefined;
-  let errorCode = data.error_code ?? null;
-  let errorMessage = data.error_message ?? null;
-
-  if (options?.awaitDeliveryStatus && data.sid) {
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-    const latest = await fetchTwilioMessage(data.sid);
-    twilioStatus = latest.status ?? twilioStatus;
-    errorCode = latest.errorCode ?? errorCode;
-    errorMessage = latest.errorMessage ?? errorMessage;
-  }
-
-  return {
-    sent: true,
-    simulated: false,
-    messageSid: data.sid,
-    twilioStatus,
-    errorCode,
-    errorMessage,
-  };
 }

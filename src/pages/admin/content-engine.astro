@@ -15,6 +15,10 @@ import Layout from '../../layouts/Layout.astro';
     .ce-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .ce-actions button, .ce-button { border: 0; border-radius: 999px; padding: 10px 16px; background: var(--night); color: white; font: inherit; font-weight: 750; cursor: pointer; text-decoration: none; }
     .ce-actions button.secondary, .ce-button.secondary { background: var(--sand-warm); color: var(--night); }
+    .ce-actions button.danger { background: #FEE2E2; color: #991B1B; }
+    .ce-schedule-info { max-width: 1180px; margin: 10px auto 0; display: flex; gap: 20px; flex-wrap: wrap; font-size: .82rem; color: var(--night-soft); }
+    .ce-schedule-info strong { color: var(--night); }
+    .ce-schedule-info .paused { color: #B91C1C; font-weight: 700; }
     .ce-actions button:disabled, .ce-button:disabled { opacity: .5; cursor: wait; }
     .ce-status { margin: 20px 0 12px; color: var(--night-soft); font-weight: 650; min-height: 1.5em; }
     .ce-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(145px,1fr)); gap: 12px; margin-bottom: 20px; }
@@ -88,12 +92,14 @@ import Layout from '../../layouts/Layout.astro';
     <header class="ce-header">
       <div class="ce-header-inner">
         <div><h1>Always-current Content Engine</h1><p>San Diego County discovery, drafting, review, publishing, and newsletter repurposing.</p></div>
-        <div class="ce-actions"><span id="ce-user" class="ce-meta"></span><button id="ce-run">Run pipeline now</button><button id="ce-refresh" class="secondary">Refresh</button></div>
+        <div class="ce-actions"><span id="ce-user" class="ce-meta"></span><button id="ce-pause" class="secondary">Pause</button><button id="ce-run">Run pipeline now</button><button id="ce-refresh" class="secondary">Refresh</button></div>
       </div>
+      <div id="ce-schedule-info" class="ce-schedule-info"></div>
       <nav class="ce-nav">
         <a href="/admin/">Submissions</a><a href="/admin/users/">Users</a><a href="/admin/analytics/">Analytics</a>
         <a href="/admin/restaurants/">Restaurant Verifications</a><a href="/admin/photos/">Photo Review</a>
         <a href="/admin/drafts/">Posts</a><a href="/admin/content-engine/" aria-current="page">Content Engine</a>
+        <a href="/admin/ai-costs/">AI Costs</a>
       </nav>
     </header>
 
@@ -132,6 +138,7 @@ import Layout from '../../layouts/Layout.astro';
       <section class="ce-panel" data-panel="settings" hidden>
         <div class="ce-panel-head"><div><h2>Safety settings</h2><p>Auto-publishing stays off until explicitly enabled and every quality guard passes.</p></div></div>
         <form id="ce-settings-form" class="ce-settings">
+          <label class="ce-check"><input name="paused" type="checkbox" /> Pause scheduled runs</label>
           <label class="ce-check"><input name="autoPublishEnabled" type="checkbox" /> Enable auto-publish</label>
           <label class="ce-check"><input name="requireMultipleSources" type="checkbox" /> Require multiple sources</label>
           <label class="ce-check"><input name="generateImages" type="checkbox" /> Generate missing images</label>
@@ -143,7 +150,7 @@ import Layout from '../../layouts/Layout.astro';
         </form>
         <div id="ce-settings-error" class="ce-error"></div>
         <h2 style="margin-top:28px">Last 30 days</h2><div id="ce-analytics" class="ce-summary"></div>
-        <h2>Recent runs</h2><div id="ce-runs"></div>
+        <h2>Recent runs <a href="/admin/ai-costs/" style="font-size:.75rem;font-weight:600;color:var(--ocean-deep);margin-left:8px;">View full AI costs →</a></h2><div id="ce-runs"></div>
       </section>
     </main>
   </div>
@@ -250,15 +257,47 @@ import Layout from '../../layouts/Layout.astro';
     function renderClusters() {
       $('ce-clusters').innerHTML = state.data.clusters.length ? state.data.clusters.map((cluster: any) => `<article class="ce-card"><div class="ce-panel-head"><div><h3>${esc(cluster.workingTitle)}</h3><div class="ce-meta">${esc(cluster.clusterType)} · editorial ${pct(cluster.editorialScore)} · confidence ${pct(cluster.confidenceScore)}</div></div>${pill(`${cluster.items.length} items`,'info')}</div><p class="ce-copy"><strong>Angle:</strong> ${esc(cluster.angle)}</p><ol class="ce-source-list">${cluster.items.map((item:any)=>`<li>${esc(item.title)} · ${fmt(item.eventStartAt)}</li>`).join('')}</ol><details><summary class="ce-meta">Inspect all provenance</summary>${sourceList(cluster.items.flatMap((item:any)=>item.provenance))}</details></article>`).join('') : '<p class="ce-empty">No clusters created yet.</p>';
     }
+    function renderScheduleInfo() {
+      const overview = state.data.overview;
+      const settings = state.data.settings;
+      const pauseBtn = $('ce-pause');
+      if (settings.paused) {
+        pauseBtn.textContent = 'Resume';
+        pauseBtn.classList.add('danger');
+        pauseBtn.classList.remove('secondary');
+      } else {
+        pauseBtn.textContent = 'Pause';
+        pauseBtn.classList.remove('danger');
+        pauseBtn.classList.add('secondary');
+      }
+      const parts: string[] = [];
+      if (settings.paused) {
+        parts.push('<span class="paused">⏸ Engine paused — scheduled runs will not execute</span>');
+      }
+      if (overview.lastRunAt) {
+        parts.push(`<span><strong>Last run:</strong> ${fmt(overview.lastRunAt)}</span>`);
+      }
+      if (overview.nextScheduledRun && !settings.paused) {
+        parts.push(`<span><strong>Next scheduled:</strong> ${fmt(overview.nextScheduledRun)}</span>`);
+      } else if (settings.runSchedule === 'manual' && !settings.paused) {
+        parts.push('<span><strong>Schedule:</strong> Manual only</span>');
+      }
+      $('ce-schedule-info').innerHTML = parts.join('');
+    }
     function renderSettings() {
       const form = $('ce-settings-form') as HTMLFormElement; const settings = state.data.settings;
-      for (const key of ['autoPublishEnabled','requireMultipleSources','generateImages']) (form.elements.namedItem(key) as HTMLInputElement).checked = Boolean(settings[key]);
+      for (const key of ['paused','autoPublishEnabled','requireMultipleSources','generateImages']) (form.elements.namedItem(key) as HTMLInputElement).checked = Boolean(settings[key]);
       for (const key of ['autoPublishMinQuality','minItemConfidence','minClusterScore','runSchedule']) (form.elements.namedItem(key) as HTMLInputElement).value = settings[key];
       $('ce-analytics').innerHTML = list(state.data.overview.analytics).map((row:any)=>`<div class="ce-stat"><strong>${esc(row.count)}</strong><span>${esc(row.event_name).replaceAll('_',' ')}</span></div>`).join('') || '<p class="ce-empty">No engine events in the last 30 days.</p>';
       const runs = list(state.data.overview.recentRuns);
-      $('ce-runs').innerHTML = runs.length ? `<table class="ce-run-table"><thead><tr><th>Started</th><th>Trigger</th><th>Status</th><th>Fetched</th><th>New / merged</th><th>Clusters / drafts</th></tr></thead><tbody>${runs.map((run:any)=>`<tr><td>${fmt(run.started_at)}</td><td>${esc(run.trigger_type)}</td><td>${pill(run.status,statusTone(run.status))}</td><td>${esc(run.items_fetched)}</td><td>${esc(run.items_created)} / ${esc(run.items_merged)}</td><td>${esc(run.clusters_created)} / ${esc(run.drafts_created)}</td></tr>`).join('')}</tbody></table>` : '<p class="ce-empty">No pipeline runs yet.</p>';
+      const fmtCost = (cents: number) => cents < 100 ? `${cents.toFixed(1)}¢` : `$${(cents / 100).toFixed(2)}`;
+      $('ce-runs').innerHTML = runs.length ? `<table class="ce-run-table"><thead><tr><th>Started</th><th>Trigger</th><th>Status</th><th>Fetched</th><th>New / merged</th><th>Clusters / drafts</th><th>AI Cost</th></tr></thead><tbody>${runs.map((run:any)=>{
+        const costs = run.costs || {};
+        const totalCost = costs.total || 0;
+        return `<tr><td>${fmt(run.started_at)}</td><td>${esc(run.trigger_type)}</td><td>${pill(run.status,statusTone(run.status))}</td><td>${esc(run.items_fetched)}</td><td>${esc(run.items_created)} / ${esc(run.items_merged)}</td><td>${esc(run.clusters_created)} / ${esc(run.drafts_created)}</td><td title="Content: ${fmtCost(costs.contentGeneration||0)}, Clusters: ${fmtCost(costs.clusterRefinement||0)}, Images: ${fmtCost(costs.imageGeneration||0)}" style="color:#059669;font-weight:600;cursor:help">${totalCost > 0 ? fmtCost(totalCost) : '—'}</td></tr>`;
+      }).join('')}</tbody></table>` : '<p class="ce-empty">No pipeline runs yet.</p>';
     }
-    function render() { renderSummary(); renderDrafts(); renderSources(); renderItems(); renderClusters(); renderSettings(); }
+    function render() { renderScheduleInfo(); renderSummary(); renderDrafts(); renderSources(); renderItems(); renderClusters(); renderSettings(); }
     async function load() { setStatus('Loading content engine…'); state.data = await api('/api/admin/content-engine'); render(); setStatus('Ready. All generated content remains review-first.'); }
     function openPreview(id: string) {
       state.previewId = id;
@@ -286,11 +325,23 @@ import Layout from '../../layouts/Layout.astro';
     window.addEventListener('message',(event)=>{if(event.data?.source!=='content-engine-preview')return;if(event.data.type==='close')closePreview(true);else if(event.data.type==='updated')load().catch((error)=>setStatus(error.message))});
     document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&!$('ce-preview-backdrop').hidden)closePreview(true)});
     $('ce-refresh').addEventListener('click',()=>load().catch((error)=>setStatus(error.message)));
+    $('ce-pause').addEventListener('click',async()=>{
+      const button=$('ce-pause') as HTMLButtonElement;
+      button.disabled=true;
+      const wasPaused=state.data.settings.paused;
+      setStatus(wasPaused ? 'Resuming scheduled runs…' : 'Pausing scheduled runs…');
+      try{
+        const newSettings={...state.data.settings,paused:!wasPaused};
+        await api('/api/admin/content-engine/settings',{method:'PUT',body:JSON.stringify(newSettings)});
+        await load();
+        setStatus(wasPaused ? 'Engine resumed. Scheduled runs will execute.' : 'Engine paused. Scheduled runs will not execute until resumed.');
+      }catch(error:any){setStatus(error.message)}finally{button.disabled=false}
+    });
     $('ce-run').addEventListener('click',async()=>{const button=$('ce-run') as HTMLButtonElement;button.disabled=true;setStatus('Running discovery, clustering, and drafting…');try{const result=await api('/api/admin/content-engine/run',{method:'POST',body:'{}'});setStatus(`Run ${result.status}: ${result.itemsCreated} new, ${result.itemsMerged} merged, ${result.clustersCreated} clusters, ${result.draftsCreated} drafts.`);await load()}catch(error:any){setStatus(error.message)}finally{button.disabled=false}});
     $('ce-source-form').addEventListener('submit',async(event)=>{event.preventDefault();const form=event.currentTarget as HTMLFormElement;const data=new FormData(form);$('ce-source-error').textContent='';try{await api('/api/admin/content-engine/sources',{method:'POST',body:JSON.stringify({name:data.get('name'),kind:data.get('kind'),url:data.get('url'),trustScore:Number(data.get('trustScore')),imagePolicy:data.get('imagePolicy'),countyScoped:data.get('countyScoped')==='on',enabled:data.get('enabled')==='on',config:{includeKeywords:String(data.get('keywords')||'').split(',').map(v=>v.trim()).filter(Boolean)}})});form.reset();(form.elements.namedItem('enabled') as HTMLInputElement).checked=true;await load()}catch(error:any){$('ce-source-error').textContent=error.message}});
     $('ce-sources').addEventListener('click',async(event)=>{const card=(event.target as HTMLElement).closest<HTMLElement>('[data-source-id]');if(!card)return;const source=state.data.sources.find((item:any)=>item.id===card.dataset.sourceId);const errorEl=card.querySelector<HTMLElement>('.ce-error')!;try{if((event.target as HTMLElement).closest('[data-source-toggle]'))await api(`/api/admin/content-engine/sources/${source.id}`,{method:'PATCH',body:JSON.stringify({enabled:!source.enabled})});else if((event.target as HTMLElement).closest('[data-run-source]'))await api('/api/admin/content-engine/run',{method:'POST',body:JSON.stringify({sourceIds:[source.id]})});else return;await load()}catch(error:any){errorEl.textContent=error.message}});
     $('ce-drafts').addEventListener('click',(event)=>{const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button[data-action="preview"]');const card=button?.closest<HTMLElement>('[data-draft-id]');if(!button||!card)return;openPreview(card.dataset.draftId!)});
-    $('ce-settings-form').addEventListener('submit',async(event)=>{event.preventDefault();const form=event.currentTarget as HTMLFormElement;const data=new FormData(form);$('ce-settings-error').textContent='';try{await api('/api/admin/content-engine/settings',{method:'PUT',body:JSON.stringify({autoPublishEnabled:data.get('autoPublishEnabled')==='on',requireMultipleSources:data.get('requireMultipleSources')==='on',generateImages:data.get('generateImages')==='on',autoPublishMinQuality:Number(data.get('autoPublishMinQuality')),minItemConfidence:Number(data.get('minItemConfidence')),minClusterScore:Number(data.get('minClusterScore')),runSchedule:data.get('runSchedule')})});await load()}catch(error:any){$('ce-settings-error').textContent=error.message}});
+    $('ce-settings-form').addEventListener('submit',async(event)=>{event.preventDefault();const form=event.currentTarget as HTMLFormElement;const data=new FormData(form);$('ce-settings-error').textContent='';try{await api('/api/admin/content-engine/settings',{method:'PUT',body:JSON.stringify({paused:data.get('paused')==='on',autoPublishEnabled:data.get('autoPublishEnabled')==='on',requireMultipleSources:data.get('requireMultipleSources')==='on',generateImages:data.get('generateImages')==='on',autoPublishMinQuality:Number(data.get('autoPublishMinQuality')),minItemConfidence:Number(data.get('minItemConfidence')),minClusterScore:Number(data.get('minClusterScore')),runSchedule:data.get('runSchedule')})});await load()}catch(error:any){$('ce-settings-error').textContent=error.message}});
     (async()=>{try{const session=await api('/api/admin/me');if(!session.authenticated){$('ce-locked').hidden=false;return}$('ce-user').textContent=session.email;$('ce-app').hidden=false;await load()}catch{$('ce-locked').hidden=false}})();
   </script>
 </Layout>

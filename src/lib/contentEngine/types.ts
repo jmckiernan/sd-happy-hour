@@ -167,6 +167,7 @@ export interface GeneratedDraft {
 }
 
 export interface ContentEngineSettings {
+  paused: boolean;
   autoPublishEnabled: boolean;
   autoPublishMinQuality: number;
   minItemConfidence: number;

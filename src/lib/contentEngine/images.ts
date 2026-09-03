@@ -32,6 +32,7 @@ export async function resolveDraftImage(input: {
   draft: GeneratedDraft;
   allowGeneration: boolean;
   forceGenerate?: boolean;
+  contentRunId?: string;
 }): Promise<DraftImageResult> {
   const reusable = input.forceGenerate ? null : permittedSourceImage(input.cluster);
   if (reusable) {
@@ -62,7 +63,11 @@ export async function resolveDraftImage(input: {
     'Photorealistic candid editorial atmosphere, warm natural light, diverse adults enjoying a local night out.',
     'Landscape 16:9 composition with room for headline cropping. Do not show readable text, brand logos, venue names, or watermarks.',
   ].join(' ');
-  const generated = await callGeminiImage([{ text: prompt }]);
+  const generated = await callGeminiImage([{ text: prompt }], {
+    feature: 'content_engine_image',
+    contentRunId: input.contentRunId,
+    draftId: input.draft.id,
+  });
   const key = makeImageKey(input.draft.slug || 'content-engine', generated.contentType);
   await saveImage(key, generated.bytes, generated.contentType);
   await describeStoredImage({
