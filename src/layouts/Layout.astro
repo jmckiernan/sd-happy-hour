@@ -38,6 +38,7 @@ const {
 } = Astro.props;
 
 import { ClientRouter } from 'astro:transitions';
+import AdminStyles from '../components/AdminStyles.astro';
 import { organizationSchema, serializeJsonLd, SITE_NAME, websiteSchema } from '../lib/seo';
 import { getSession } from '../lib/session';
 import { isAdminEmail } from '../lib/admins';
@@ -321,17 +322,14 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
 
     /* Admin-only links (visible only to signed-in admin emails) get a
        distinct teal tint so they read as different from the regular nav. */
-    .site-nav .links a#admin-nav-link,
-    .site-nav .links a#blog-admin-nav-link {
+    .site-nav .links a#admin-nav-link {
       background: rgba(8, 145, 178, 0.14);
       color: var(--ocean-deep);
     }
-    .site-nav .links a#admin-nav-link:hover,
-    .site-nav .links a#blog-admin-nav-link:hover {
+    .site-nav .links a#admin-nav-link:hover {
       background: rgba(8, 145, 178, 0.26);
     }
-    .site-nav .links a#admin-nav-link[aria-current="page"],
-    .site-nav .links a#blog-admin-nav-link[aria-current="page"] {
+    .site-nav .links a#admin-nav-link[aria-current="page"] {
       background: var(--night);
       color: white;
     }
@@ -409,12 +407,12 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
       <a href="/restaurant/" id="restaurant-nav-link" aria-current={isRestaurantRoute ? 'page' : undefined}>For Restaurants</a>
       <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>{isAuthenticated ? 'My Stuff' : 'Sign In'}</a>
-      <a href="/admin/new-post/" id="blog-admin-nav-link" data-admin-only style={isAdmin ? '' : 'display:none;'} aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
       <a href="/admin/" id="admin-nav-link" data-admin-only style={isAdmin ? '' : 'display:none;'} aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>
     </div>
   </nav>
 
   <div class="page-content">
+    {(Astro.url.pathname === '/admin' || Astro.url.pathname.startsWith('/admin/')) && <AdminStyles />}
     <slot />
   </div>
 

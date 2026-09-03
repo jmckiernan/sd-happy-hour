@@ -1,0 +1,75 @@
+---
+/** Shared admin pill-button centering. Imported from Layout so every admin
+    page picks it up without duplicating the fix across a dozen Astro files. */
+---
+<style is:global>
+  /* Flex rows default to stretch, which leaves single-line labels pinned to
+     the top when a sibling wraps or a native <button> gets font: inherit. */
+  .admin-subnav,
+  .ce-nav,
+  .ai-nav {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .admin-subnav a,
+  .ce-nav a,
+  .ai-nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .preview-actions,
+  .draft-actions,
+  .admin-actions,
+  .admin-filters,
+  .actions,
+  .photo-actions,
+  .ai-actions,
+  .ce-actions,
+  .ce-tabs,
+  .ce-card-actions,
+  .ce-preview-chrome,
+  .edit-panel .edit-actions {
+    align-items: center;
+  }
+
+  .preview-actions button,
+  .preview-actions a,
+  .draft-actions a,
+  .draft-actions button,
+  .admin-filters button,
+  .actions button,
+  .photo-actions button,
+  .code-form button,
+  .edit-panel .edit-actions button,
+  .ai-actions button,
+  .ce-actions button,
+  .ce-button,
+  .ce-tabs button,
+  .ce-card-actions button,
+  .ce-preview-chrome button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  button.secondary,
+  .secondary,
+  .primary,
+  .danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+</style>
