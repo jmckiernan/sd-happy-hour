@@ -3,7 +3,7 @@ title: "Weekend Happy Hours in San Diego: What to Know Before You Go"
 description: "A local's guide to hunting down great weekend happy hours across San Diego, plus what to watch for since weekend deals work differently than weekday ones."
 pubDate: 2026-08-02
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["the-rose-wine-bar"]
@@ -41,6 +41,6 @@ Since weekend hours and specials shift so often (and vary so much venue to venue
 
 ## Let Us Do the Digging
 
-This is exactly the kind of thing we track in real time here at SD Happy Hours — which spots actually run weekend specials, what they include, and when they start and end. Rather than guessing based on last year's menu, it's worth pulling up current listings for the neighborhood you're headed to before you go.
+This is exactly the kind of thing we track in real time here at Happy Hour SD — which spots actually run weekend specials, what they include, and when they start and end. Rather than guessing based on last year's menu, it's worth pulling up current listings for the neighborhood you're headed to before you go.
 
 Whichever way you go this weekend, get there early, ask your server what's actually running that day, and enjoy the San Diego sunshine with a drink in hand.

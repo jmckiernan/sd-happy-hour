@@ -3,7 +3,7 @@ title: "Best Happy Hour Appetizers in San Diego: Local Guide"
 description: "Find San Diego happy hours with discounted appetizers and learn what to look for in shareable snacks, portions, and neighborhood bar menus."
 pubDate: 2026-07-30
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["craft-commerce", "rustic-root", "pacific-beach-alehouse"]
@@ -38,7 +38,7 @@ San Diego's happy hour scene is spread out, and each pocket of the city has its 
 
 Because happy hour deals shift constantly — new times, new menus, new specials — your best bet is always to check current, verified listings before you head out rather than relying on old reviews or outdated blog posts (yes, even ours, if it's been a minute). Deals change fast in this town, and the difference between "half-off apps" and "regular price" is worth confirming before you order a round for the table.
 
-We're actively building out our real-time venue database here at SD Happy Hours so you'll always have accurate hours, prices, and menus at your fingertips — no guessing, no showing up to find out the deal ended an hour ago.
+We're actively building out our real-time venue database here at Happy Hour SD so you'll always have accurate hours, prices, and menus at your fingertips — no guessing, no showing up to find out the deal ended an hour ago.
 
 ## The Bottom Line
 

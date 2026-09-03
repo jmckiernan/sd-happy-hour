@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ params, cookies, request }) => {
   const email = String(body.email || '').trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return errorJson(['Enter the new owner’s complete email.'], 422);
   const user = await getUserByEmail(email);
-  if (!user) return errorJson(['That email does not have an SD Happy Hours account yet.'], 404);
+  if (!user) return errorJson(['That email does not have an Happy Hour SD account yet.'], 404);
   const transferred = await transferVenueOwner(id, user.id);
   if (!transferred) return errorJson(['This venue does not have a verified owner to transfer.'], 409);
   return json({ owner: await getVenueOwner(id) });

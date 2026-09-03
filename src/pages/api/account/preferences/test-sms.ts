@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ cookies }) => {
   try {
     const result = await sendSms(
       user.phone,
-      'SD Happy Hours test: text alerts are working. Max 2/day. Reply STOP to opt out.',
+      'Happy Hour SD test: text alerts are working. Max 2/day. Reply STOP to opt out.',
       { awaitDeliveryStatus: true }
     );
     return json({

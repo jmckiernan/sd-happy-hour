@@ -2,7 +2,7 @@ import type { Venue } from './venues';
 import { formatTime, venuePath } from './venues';
 
 export const SITE_URL = 'https://happyhoursd.com';
-export const SITE_NAME = 'SD Happy Hours';
+export const SITE_NAME = 'Happy Hour SD';
 export const SITE_DESCRIPTION =
   'Find current happy hour times, food and drink deals, and local guides for restaurants and bars across San Diego.';
 
@@ -27,7 +27,7 @@ export const organizationSchema: JsonLd = {
   '@type': 'Organization',
   '@id': `${SITE_URL}/#organization`,
   name: SITE_NAME,
-  alternateName: 'San Diego Happy Hours',
+  alternateName: ['SD Happy Hours', 'San Diego Happy Hours'],
   url: SITE_URL,
   logo: {
     '@type': 'ImageObject',
@@ -48,7 +48,7 @@ export const websiteSchema: JsonLd = {
   '@id': `${SITE_URL}/#website`,
   url: SITE_URL,
   name: SITE_NAME,
-  alternateName: 'San Diego Happy Hours',
+  alternateName: ['SD Happy Hours', 'San Diego Happy Hours'],
   description: SITE_DESCRIPTION,
   inLanguage: 'en-US',
   publisher: { '@id': `${SITE_URL}/#organization` },

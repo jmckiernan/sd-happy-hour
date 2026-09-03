@@ -37,7 +37,7 @@ const {
   analyticsContentId,
 } = Astro.props;
 
-import { organizationSchema, serializeJsonLd, websiteSchema } from '../lib/seo';
+import { organizationSchema, serializeJsonLd, SITE_NAME, websiteSchema } from '../lib/seo';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const privatePathPrefixes = ['/account/', '/admin/', '/alerts/', '/lists/', '/restaurant/'];
@@ -68,10 +68,10 @@ const isHome = Astro.url.pathname === '/';
   />
   <link rel="canonical" href={canonicalURL} />
   <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-  <link rel="alternate" type="application/rss+xml" title="SD Happy Hours Blog" href="/rss.xml" />
+  <link rel="alternate" type="application/rss+xml" title={`${SITE_NAME} Blog`} href="/rss.xml" />
 
   <meta property="og:type" content={ogType} />
-  <meta property="og:site_name" content="SD Happy Hours" />
+  <meta property="og:site_name" content={SITE_NAME} />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content={ogTitle} />
   <meta property="og:description" content={ogDescription} />
@@ -353,7 +353,7 @@ const isHome = Astro.url.pathname === '/';
   {!isHome && <div class="sd-backdrop" aria-hidden="true"></div>}
 
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
-    <a class="brand" href="/">SD Happy Hours</a>
+    <a class="brand" href="/">{SITE_NAME}</a>
     <div class="links">
       <a href="/live-deals/" aria-current={Astro.url.pathname === '/live-deals/' ? 'page' : undefined}>Live Deals</a>
       <a href="/neighborhoods/" aria-current={Astro.url.pathname.startsWith('/neighborhoods/') ? 'page' : undefined}>Neighborhoods</a>

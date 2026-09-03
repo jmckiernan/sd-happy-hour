@@ -56,7 +56,7 @@ export async function resolveDraftImage(input: {
 
   const locations = input.draft.locations.slice(0, 3).join(', ');
   const prompt = [
-    `Create an original editorial hero image for an SD Happy Hours article titled "${input.draft.title}".`,
+    `Create an original editorial hero image for an Happy Hour SD article titled "${input.draft.title}".`,
     locations ? `San Diego County setting cues: ${locations}.` : 'The setting should feel unmistakably San Diego County.',
     `Story angle: ${input.cluster.angle}`,
     'Photorealistic candid editorial atmosphere, warm natural light, diverse adults enjoying a local night out.',

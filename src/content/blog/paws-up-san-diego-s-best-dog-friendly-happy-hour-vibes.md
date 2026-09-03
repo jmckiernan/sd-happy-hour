@@ -3,7 +3,7 @@ title: "Paws Up: San Diego's Best Dog-Friendly Happy Hour Vibes"
 description: "A local's guide to sniffing out San Diego's most pup-welcoming patios for happy hour, without the guesswork."
 pubDate: 2026-07-30
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["the-patio-on-lamont"]

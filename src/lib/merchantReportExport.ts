@@ -23,7 +23,7 @@ function csvCell(value: unknown): string {
 
 export function merchantReportCsv(report: MerchantReportData): string {
   const rows: unknown[][] = [
-    ['SD Happy Hours Merchant Report'],
+    ['Happy Hour SD Merchant Report'],
     ['Venue', report.venue.name],
     ['Range', report.range.label],
     ['Generated', report.generatedAt],
@@ -110,7 +110,7 @@ function metricCard(
 function pageHeader(doc: PDFKit.PDFDocument, report: MerchantReportData, subtitle: string) {
   doc.rect(0, 0, doc.page.width, 116).fill(COLORS.night);
   doc.fillColor(COLORS.gold).font('Helvetica-Bold').fontSize(9)
-    .text('SD HAPPY HOURS', 44, 30, { characterSpacing: 1.8 });
+    .text('HAPPY HOUR SD', 44, 30, { characterSpacing: 1.8 });
   doc.fillColor(COLORS.white).font('Helvetica-Bold').fontSize(24)
     .text(asciiPunctuation(report.venue.name), 44, 49, { width: 410, lineBreak: false, ellipsis: true });
   doc.fillColor('#D8D0E2').font('Helvetica').fontSize(9)
@@ -125,7 +125,7 @@ function pageFooter(doc: PDFKit.PDFDocument, pageNumber: number) {
   doc.strokeColor(COLORS.line).lineWidth(0.7).moveTo(44, 728).lineTo(568, 728).stroke();
   doc.fillColor(COLORS.nightSoft).font('Helvetica').fontSize(7.5)
     .text('Intent metrics are directional proxies, not attributed revenue.', 44, 736, { width: 390, lineBreak: false });
-  doc.text(`SD Happy Hours  |  Page ${pageNumber}`, 445, 736, { width: 123, align: 'right', lineBreak: false });
+  doc.text(`Happy Hour SD  |  Page ${pageNumber}`, 445, 736, { width: 123, align: 'right', lineBreak: false });
 }
 
 function drawTrendChart(doc: PDFKit.PDFDocument, report: MerchantReportData, x: number, y: number, width: number, height: number) {
@@ -197,7 +197,7 @@ export function merchantReportPdf(report: MerchantReportData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'LETTER', margins: { top: 36, left: 44, right: 44, bottom: 42 }, info: {
       Title: `${report.venue.name} - Merchant Analytics Report`,
-      Author: 'SD Happy Hours',
+      Author: 'Happy Hour SD',
       Subject: report.range.label,
     } });
     const chunks: Buffer[] = [];

@@ -6,7 +6,7 @@ import { venueSlug } from '../../lib/venues';
 
 export const prerender = false;
 
-const CONTENT_BRIEF = `You write for the SD Happy Hours blog, a real-time San Diego happy hour discovery site.
+const CONTENT_BRIEF = `You write for the Happy Hour SD blog, a real-time San Diego happy hour discovery site.
 
 Voice: clear, useful San Diego editor — specific and conversational, never a generic listicle, never overly salesy, and never pretending to have visited a place unless the editor's source material says so.
 Search intent: answer the exact question implied by the angle. Put the useful answer early, use natural San Diego and neighborhood language, and never repeat a phrase just to target a keyword.
@@ -166,7 +166,7 @@ Write the blog post now, following all rules in your instructions. Respond in th
     `title: ${JSON.stringify(parsed.title)}`,
     `description: ${JSON.stringify(parsed.description)}`,
     `pubDate: ${today}`,
-    `author: "SD Happy Hours"`,
+    `author: "Happy Hour SD"`,
     `draft: true`,
     `aiGenerated: true`,
     `venues: [${venues.map((v: string) => JSON.stringify(v)).join(', ')}]`,

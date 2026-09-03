@@ -29,7 +29,7 @@ export function buildPublishedMarkdown(input: {
     frontmatterLine('ogTitle', input.draft.seoMetadata.ogTitle),
     frontmatterLine('ogDescription', input.draft.seoMetadata.ogDescription),
     frontmatterLine('pubDate', input.publishDate || new Date().toISOString().slice(0, 10)),
-    frontmatterLine('author', 'SD Happy Hours'),
+    frontmatterLine('author', 'Happy Hour SD'),
     frontmatterLine('draft', false),
     frontmatterLine('aiGenerated', true),
     frontmatterLine('venues', []),

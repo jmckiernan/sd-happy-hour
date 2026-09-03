@@ -26,7 +26,7 @@ import {
 
 export { isCloudflareChallenge };
 
-export const USER_AGENT = 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)';
+export const USER_AGENT = 'HappyHourSDImport/1.0 (+https://happyhoursd.com)';
 
 /** Always guessed and sent to the model: home, menu, happy hour, specials. */
 /**

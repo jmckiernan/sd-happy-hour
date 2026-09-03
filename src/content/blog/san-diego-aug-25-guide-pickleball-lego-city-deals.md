@@ -5,7 +5,7 @@ metaDescription: "San Diego's Aug. 25 lineup: Gaslamp pickleball with Paddle Hou
 ogTitle: "San Diego Tuesday Guide: Pickleball, Lego City & More"
 ogDescription: "Plan your Aug. 25 in San Diego — Gaslamp pickleball and Paddle Hour deals, a for-a-cause cocktail week, free live music, and family fun."
 pubDate: "2026-08-26"
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: []
@@ -15,7 +15,7 @@ dates: ["2026-08-25", "2026-08-26"]
 locations: ["San Diego"]
 brands: ["North City", "Mabel's Gone Fishing", "Online Internet Events", "Gaslamp Quarter", "Carmel Valley Library"]
 eventTypes: ["community", "theater", "happy-hour", "live-music", "comedy"]
-hashtags: ["#SanDiego", "#GaslampQuarter", "#SDHappyHours", "#PaddleHour", "#NorthPark", "#SanMarcos", "#ThingsToDoSD"]
+hashtags: ["#SanDiego", "#GaslampQuarter", "#HappyHourSD", "#PaddleHour", "#NorthPark", "#SanMarcos", "#ThingsToDoSD"]
 sourceUrls: ["https://www.sandiegoreader.com/events/2026/aug/26/north-city-invites-san-diego-famili/?et=365054", "https://www.sandiegoreader.com/events/2026/aug/25/north-city-invites-san-diego-famili/?et=365053", "https://www.sandiegoreader.com/events/2026/aug/26/dirty-drinks-15b38940/?et=365081", "https://www.sandiegoreader.com/events/2026/aug/25/dirty-drinks-15b38940/?et=365080", "https://www.sandiegoreader.com/events/2026/aug/25/sneaking-in-the-backdoor-of-poetry-/?et=362158", "https://www.sandiegoreader.com/events/2026/aug/25/gaslamp-quarter-urban-pickleball/?et=364343", "https://www.sandiegoreader.com/events/2026/aug/25/book-marketing-for-authors/?et=360837", "https://www.sandiegoreader.com/events/2026/aug/25/alzheimers-association-communicatin-0876258a/?et=364756", "https://www.sandiegoreader.com/events/2026/aug/25/hybrid-waves-from-the-pacific-rim-a/?et=365032", "https://www.sandiegoreader.com/events/2026/aug/26/write-a-winning-nonfiction-book-pro/?et=361716"]
 contentEngineId: "ffe545e8-ff6f-4ea6-876b-d41ccf99fc58"
 updatedDate: "2026-08-26"

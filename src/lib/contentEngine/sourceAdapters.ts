@@ -2,7 +2,7 @@ import type { ContentSource, RawSourceItem } from './types';
 import { decodeHtmlEntities, normalizeText, stripHtml } from './normalize';
 import { lookup } from 'node:dns/promises';
 
-const USER_AGENT = 'SDHappyHours-ContentEngine/1.0 (+https://happyhoursd.com/about/)';
+const USER_AGENT = 'HappyHourSD-ContentEngine/1.0 (+https://happyhoursd.com/about/)';
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const MAX_REDIRECTS = 5;
 

@@ -21,7 +21,7 @@ Free and unlimited per user (no cap on the email side — see "Why text is cappe
 
 ```
 RESEND_API_KEY=
-RESEND_FROM_EMAIL="SD Happy Hours <alerts@happyhoursd.com>"
+RESEND_FROM_EMAIL="Happy Hour SD <alerts@happyhoursd.com>"
 ```
 
 ### 2. Text — Twilio

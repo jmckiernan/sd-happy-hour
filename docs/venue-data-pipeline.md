@@ -1,6 +1,6 @@
 # Venue data pipeline playbook
 
-This is the working description of how SD Happy Hours finds, verifies, stores, and displays happy hour listings. Update it whenever a gate, outcome, or display rule changes.
+This is the working description of how Happy Hour SD finds, verifies, stores, and displays happy hour listings. Update it whenever a gate, outcome, or display rule changes.
 
 The public site is a directory of **substantiated** happy hours. Every venue we know about stays in `public/data/happy-hours.json` so an owner can claim it. Only listings we can stand behind appear on the homepage, map, and neighborhood pages.
 

@@ -178,7 +178,7 @@ function sampleReport() {
 test('CSV and PDF exports are complete, safe, and branded', async () => {
   const report = sampleReport();
   const csv = merchantReportCsv(report);
-  assert.match(csv, /^\uFEFFSD Happy Hours Merchant Report/);
+  assert.match(csv, /^\uFEFFHappy Hour SD Merchant Report/);
   assert.match(csv, /'=Example Restaurant/);
   assert.match(csv, /'@Taco Tuesday/);
   assert.match(csv, /Campaign performance/);

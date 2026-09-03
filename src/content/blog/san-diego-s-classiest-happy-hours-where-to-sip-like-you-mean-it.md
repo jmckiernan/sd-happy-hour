@@ -3,7 +3,7 @@ title: "San Diego's Classiest Happy Hours: Where to Sip Like You Mean It"
 description: "A guide to San Diego's most polished happy hour spots — the ones with linen napkins, good wine lists, and zero plastic cups."
 pubDate: 2026-08-10
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["ironside-fish-oyster", "juniper-ivy", "herb-wood", "coasterra", "raised-by-wolves"]

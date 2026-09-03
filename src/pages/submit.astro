@@ -3,8 +3,8 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout
-  title="Submit a Happy Hour | SD Happy Hours"
-  description="Submit a San Diego restaurant happy hour for review by SD Happy Hours."
+  title="Submit a Happy Hour | Happy Hour SD"
+  description="Submit a San Diego restaurant happy hour for review by Happy Hour SD."
 >
   <style>
     .submit-main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
@@ -309,7 +309,7 @@ import Layout from '../layouts/Layout.astro';
         relationshipInput.required = true;
         form.dataset.updateMode = 'true';
         submitButton.textContent = 'Submit update for review';
-        document.title = `Update ${venue.name} Happy Hour | SD Happy Hours`;
+        document.title = `Update ${venue.name} Happy Hour | Happy Hour SD`;
         status.textContent = '';
         submitButton.disabled = false;
       } catch (error: any) {

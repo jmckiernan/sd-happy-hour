@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 
 const { venue } = Astro.props;
 ---
-<Layout title={`Edit ${venue.name} | SD Happy Hours Admin`} description="Edit a published happy hour listing.">
+<Layout title={`Edit ${venue.name} | Happy Hour SD Admin`} description="Edit a published happy hour listing.">
   <ListingFormStyles />
   <style is:global>
     .ve-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
@@ -111,7 +111,7 @@ const { venue } = Astro.props;
   <div class="ve-wrap">
     <div id="ve-locked" class="ve-locked ve-hidden">
       <h1>Edit Venue</h1>
-      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+      <p>This page is only available to authorized Happy Hour SD admins. Sign in with an authorized email to continue.</p>
       <a href="/account/?next=%2Fadmin%2Fvenues%2F">Sign In</a>
     </div>
 

@@ -3,7 +3,7 @@ title: "Best Craft Cocktail Happy Hours in San Diego"
 description: "A local's guide to hunting down San Diego's most creative, artisan-level cocktail happy hours—and what to look for when you find one."
 pubDate: 2026-07-30
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["craft-commerce", "raised-by-wolves", "false-idol", "polite-provisions", "kindred"]

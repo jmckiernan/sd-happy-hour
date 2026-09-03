@@ -60,7 +60,7 @@ function isPublished(venue) {
 
 function pageUrlFor(venue) {
   if (venue.website && /^https?:\/\//i.test(venue.website)) return venue.website;
-  return `https://sdhappyhours.com/venue/${venue.id}`;
+  return `https://happyhoursd.com/venue/${venue.id}`;
 }
 
 async function normalizeToJpeg(bytes) {

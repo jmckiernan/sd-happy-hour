@@ -89,7 +89,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "SD Happy Hours - real-time San Diego happy hour directory, blog, and venue pages.",
+  "description": "Happy Hour SD - real-time San Diego happy hour directory, blog, and venue pages.",
   "dependencies": {
     "@astrojs/netlify": "^8.1.3",
     "@astrojs/sitemap": "^3.7.3",

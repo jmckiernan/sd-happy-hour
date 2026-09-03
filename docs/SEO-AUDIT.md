@@ -1,4 +1,4 @@
-# SD Happy Hours SEO audit
+# Happy Hour SD SEO audit
 
 Audit date: August 24, 2026  
 Primary market: San Diego, California  
@@ -90,9 +90,9 @@ External validation is blocked until Netlify production access is public.
 
 ## Local authority work that code cannot manufacture
 
-- Do **not** create a Google Business Profile for an online-only directory. Google requires in-person customer contact. Only create one if SD Happy Hours operates a genuine staffed location customers can visit or an eligible service-area business.
+- Do **not** create a Google Business Profile for an online-only directory. Google requires in-person customer contact. Only create one if Happy Hour SD operates a genuine staffed location customers can visit or an eligible service-area business.
 - Build legitimate local citations and links through San Diego neighborhood associations, chambers, tourism resources, event partners, restaurant partners, and local publications. Avoid bulk directory packages and paid-link schemes.
-- Ask verified restaurant partners to link to their SD Happy Hours venue page from a press, specials, or local-partners page when it is genuinely useful.
+- Ask verified restaurant partners to link to their Happy Hour SD venue page from a press, specials, or local-partners page when it is genuinely useful.
 - Publish original assets competitors cannot reproduce: dated menu photos with permission, venue-owner confirmations, neighborhood maps, interviews, and transparent “last checked” notes.
 - Add real author biographies and profile links when John and Shane are ready to publish them. Do not invent credentials or first-person visits.
 

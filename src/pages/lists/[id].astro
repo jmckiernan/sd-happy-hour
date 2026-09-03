@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 const listId = Astro.params.id || '';
 ---
-<Layout title="Shared Happy Hour List | SD Happy Hours" description="Plan happy hour together with a live shared list.">
+<Layout title="Shared Happy Hour List | Happy Hour SD" description="Plan happy hour together with a live shared list.">
   <style is:global>
     .collab-main { max-width: 980px; margin: 0 auto; padding: 28px 24px 80px; }
     .collab-shell { display: grid; gap: 18px; }
@@ -449,7 +449,7 @@ const listId = Astro.params.id || '';
       document.getElementById('list-panel')!.classList.remove('hidden');
       document.getElementById('items-panel')!.classList.remove('hidden');
       document.getElementById('list-title')!.textContent = list.title;
-      document.getElementById('list-owner')!.textContent = `Created by ${list.ownerName || 'an SD Happy Hours member'}`;
+      document.getElementById('list-owner')!.textContent = `Created by ${list.ownerName || 'an Happy Hour SD member'}`;
       document.getElementById('list-description')!.textContent = list.description || 'No description yet.';
       document.getElementById('role-pill')!.textContent = roleLabel(list.role);
       document.getElementById('share-toggle')!.classList.toggle('hidden', !list.access.isMember);

@@ -6,7 +6,7 @@ This document is the source of truth for the redesign of regular happy hours, Li
 
 Agents working on this feature must read this entire document before planning or implementing changes. Do not selectively implement sections without considering the complete specification.
 
-# SD Happy Hours — Live Promotions & Alert Model Redesign
+# Happy Hour SD — Live Promotions & Alert Model Redesign
 
 ## Objective
 

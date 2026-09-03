@@ -315,7 +315,9 @@ test('menu gallery migration and application plumbing preserve checked-by-defaul
   assert.match(menuRoute, /showPhotoInGallery:\s*body\.showPhotoInGallery !== false/);
   assert.match(menuRoute, /showPhotoInGallery:\s*body\.showPhotoInGallery,/);
 
+  assert.match(managerPage, /data-action="edit-section">Edit<\/button>/);
   assert.match(managerPage, /data-action="edit-item">Edit<\/button>/);
+  assert.match(managerPage, /action: 'update-section'/);
   assert.match(managerPage, /<input type="checkbox" data-item-gallery checked>/);
   assert.match(managerPage, /photoId:\s*selectedPhotoId \|\| \(isEdit \? null : ''\)/);
   assert.match(managerPage, /showPhotoInGallery:\s*\(form\.querySelector\('\[data-item-gallery\]'\)/);

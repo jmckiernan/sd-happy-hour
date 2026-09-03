@@ -5,7 +5,7 @@
 import { isCloudflareChallenge } from './cloudflare-challenge.mjs';
 import { classifyUrl, scoreMediaUrl } from './media.mjs';
 
-const USER_AGENT = 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)';
+const USER_AGENT = 'HappyHourSDImport/1.0 (+https://happyhoursd.com)';
 
 function sameHostname(urlA, urlB) {
   try {

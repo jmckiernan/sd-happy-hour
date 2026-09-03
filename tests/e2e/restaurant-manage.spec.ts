@@ -36,7 +36,7 @@ const menu = [
     id: '22222222-2222-4222-8222-222222222222',
     venueId,
     title: 'Cocktails',
-    note: '',
+    note: 'Daily 3–6pm',
     sortOrder: 0,
     items: [
       {
@@ -99,7 +99,12 @@ test('restaurant manager shows the current image and can edit menu item gallery 
     if (route.request().method() === 'POST') {
       const action = route.request().postDataJSON();
       menuActions.push(action);
-      const item = currentMenu[0].items[0];
+      const section = currentMenu[0];
+      const item = section.items[0];
+      if (action.action === 'update-section') {
+        if (typeof action.title === 'string') section.title = action.title;
+        if (typeof action.note === 'string') section.note = action.note;
+      }
       if (typeof action.showPhotoInGallery === 'boolean') {
         item.showPhotoInGallery = action.showPhotoInGallery;
       }
@@ -126,12 +131,34 @@ test('restaurant manager shows the current image and can edit menu item gallery 
   );
   await expect(featuredPicker.getByText('No featured photo')).toHaveCount(0);
 
+  const section = page.locator('[data-section-id="22222222-2222-4222-8222-222222222222"]');
+  await expect(section.locator('[data-section-view] h3')).toHaveText('Cocktails');
+  await expect(section.locator('[data-section-view] .note')).toHaveText('Daily 3–6pm');
+  await section.locator('[data-section-view]').getByRole('button', { name: 'Edit' }).click();
+  await section.locator('[data-edit-section] [name="title"]').fill('Discard this section');
+  await section.locator('[data-edit-section]').getByRole('button', { name: 'Cancel' }).click();
+  await section.locator('[data-section-view]').getByRole('button', { name: 'Edit' }).click();
+  await expect(section.locator('[data-edit-section] [name="title"]')).toHaveValue('Cocktails');
+  await section.locator('[data-edit-section] [name="title"]').fill('Signature Cocktails');
+  await section.locator('[data-edit-section] [name="note"]').fill('Weekdays 4–7pm');
+  await section.getByRole('button', { name: 'Save section' }).click();
+
+  await expect.poll(() => menuActions.length).toBe(1);
+  expect(menuActions[0]).toMatchObject({
+    action: 'update-section',
+    sectionId: '22222222-2222-4222-8222-222222222222',
+    title: 'Signature Cocktails',
+    note: 'Weekdays 4–7pm',
+  });
+  await expect(section.locator('[data-section-view] h3')).toHaveText('Signature Cocktails');
+  await expect(section.locator('[data-section-view] .note')).toHaveText('Weekdays 4–7pm');
+
   const item = page.locator('[data-item-id="33333333-3333-4333-8333-333333333333"]');
   const galleryToggle = item.locator('[data-item-gallery-toggle]');
   await expect(galleryToggle).toBeChecked();
   await galleryToggle.uncheck();
-  await expect.poll(() => menuActions.length).toBe(1);
-  expect(menuActions[0]).toMatchObject({
+  await expect.poll(() => menuActions.length).toBe(2);
+  expect(menuActions[1]).toMatchObject({
     action: 'update-item',
     itemId: '33333333-3333-4333-8333-333333333333',
     showPhotoInGallery: false,
@@ -150,8 +177,8 @@ test('restaurant manager shows the current image and can edit menu item gallery 
   await expect(item.locator('[data-edit-item] [data-item-gallery]')).not.toBeChecked();
   await item.getByRole('button', { name: 'Save item' }).click();
 
-  await expect.poll(() => menuActions.length).toBe(2);
-  expect(menuActions[1]).toMatchObject({
+  await expect.poll(() => menuActions.length).toBe(3);
+  expect(menuActions[2]).toMatchObject({
     action: 'update-item',
     itemId: '33333333-3333-4333-8333-333333333333',
     name: 'Smoked Old Fashioned',

@@ -277,10 +277,10 @@ test('getBlogFile loads an already-published post so it can be edited', async ()
   // a live post exactly as it gets a draft — pubDate and slug included.
   const raw = [
     '---',
-    'title: "Welcome to SD Happy Hours"',
+    'title: "Welcome to Happy Hour SD"',
     'description: "The first post."',
     'pubDate: 2026-07-24',
-    'author: "SD Happy Hours"',
+    'author: "Happy Hour SD"',
     'draft: false',
     'aiGenerated: false',
     'venues: ["craft-and-commerce"]',
@@ -305,7 +305,7 @@ test('getBlogFile loads an already-published post so it can be edited', async ()
   assert.ok(file);
   assert.equal(file.data.draft, false);
   assert.equal(file.slug, 'welcome-to-sd-happy-hours');
-  assert.equal(file.data.title, 'Welcome to SD Happy Hours');
+  assert.equal(file.data.title, 'Welcome to Happy Hour SD');
   assert.equal(file.data.pubDate, '2026-07-24');
   assert.equal(file.sha, 'abc123');
   assert.match(file.body, /Live body copy\./);
@@ -321,7 +321,7 @@ test('editing a published post preserves its identity and stays published', () =
     'title: "Old Title"',
     'description: "Old description."',
     'pubDate: 2026-07-24',
-    'author: "SD Happy Hours"',
+    'author: "Happy Hour SD"',
     'draft: false',
     'aiGenerated: true',
     'venues: ["craft-and-commerce"]',

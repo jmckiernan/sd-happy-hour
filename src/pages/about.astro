@@ -6,39 +6,39 @@ import { breadcrumbSchema, SITE_URL } from '../lib/seo';
 
 const breadcrumbs = [
   { name: 'Home', path: '/' },
-  { name: 'About SD Happy Hours', path: '/about/' },
+  { name: 'About Happy Hour SD', path: '/about/' },
 ];
 const aboutSchema = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
   '@id': `${SITE_URL}/about/#page`,
   url: `${SITE_URL}/about/`,
-  name: 'About SD Happy Hours',
-  description: 'How SD Happy Hours sources, reviews, updates, corrects, and publishes San Diego happy hour information and local guides.',
+  name: 'About Happy Hour SD',
+  description: 'How Happy Hour SD sources, reviews, updates, corrects, and publishes San Diego happy hour information and local guides.',
   about: { '@id': `${SITE_URL}/#organization` },
 };
 ---
 <Layout
-  title="About & Editorial Policy | SD Happy Hours"
-  description="Learn who runs SD Happy Hours and how we source, review, update, correct, and publish San Diego happy hour listings and local guides."
+  title="About & Editorial Policy | Happy Hour SD"
+  description="Learn who runs Happy Hour SD and how we source, review, update, correct, and publish San Diego happy hour listings and local guides."
   structuredData={[aboutSchema, breadcrumbSchema(breadcrumbs)]}
 >
   <Breadcrumbs items={breadcrumbs} />
   <header class="page-header">
-    <h1>About SD Happy Hours</h1>
+    <h1>About Happy Hour SD</h1>
     <p>A focused local guide for answering one deceptively difficult question: where is happy hour happening in San Diego?</p>
   </header>
 
   <main class="about-main">
     <section>
       <h2>Why we built it</h2>
-      <p>Happy hour menus change faster than traditional roundups. SD Happy Hours brings schedules, deals, neighborhood discovery, and venue links into one place so people can compare options without relying on an old menu photo.</p>
+      <p>Happy hour menus change faster than traditional roundups. Happy Hour SD brings schedules, deals, neighborhood discovery, and venue links into one place so people can compare options without relying on an old menu photo.</p>
       <p>We are an independent directory, not a restaurant chain or booking service. Venue names and trademarks belong to their respective owners.</p>
     </section>
 
     <section id="authors">
       <h2>Who publishes the site</h2>
-      <p>SD Happy Hours was built by Shane and John in San Diego. Articles show an author or editorial byline, an original publication date, and an updated date when the substance of a guide changes.</p>
+      <p>Happy Hour SD was built by Shane and John in San Diego. Articles show an author or editorial byline, an original publication date, and an updated date when the substance of a guide changes.</p>
     </section>
 
     <section>

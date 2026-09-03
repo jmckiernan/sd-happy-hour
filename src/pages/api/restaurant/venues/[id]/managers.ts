@@ -76,7 +76,7 @@ export const POST: APIRoute = async ({ params, cookies, request, url }) => {
     result = await sendEmail(
       email,
       `${auth.owner.name || auth.owner.email} invited you to manage ${auth.venue.name}`,
-      `<p>${escapeHtml(auth.owner.name || auth.owner.email)} invited you to manage <strong>${escapeHtml(auth.venue.name)}</strong> on SD Happy Hours as <strong>${roleLabel}</strong>.</p><p><a href="${escapeHtml(invitationUrl)}">Accept invitation</a></p><p>This invitation expires in 7 days. You must sign in or create an account using ${escapeHtml(email)}.</p>`
+      `<p>${escapeHtml(auth.owner.name || auth.owner.email)} invited you to manage <strong>${escapeHtml(auth.venue.name)}</strong> on Happy Hour SD as <strong>${roleLabel}</strong>.</p><p><a href="${escapeHtml(invitationUrl)}">Accept invitation</a></p><p>This invitation expires in 7 days. You must sign in or create an account using ${escapeHtml(email)}.</p>`
     );
   } catch (error: any) {
     return errorJson([`The invitation was saved, but its email could not be sent: ${error.message}. Use Resend after checking the email configuration.`], 502);

@@ -23,7 +23,7 @@ export async function getStaticPaths() {
 
 const { venue } = Astro.props;
 ---
-<Layout title={`Manage ${venue.name} | SD Happy Hours`} description="Manage your happy hour listing, photos, and menu.">
+<Layout title={`Manage ${venue.name} | Happy Hour SD`} description="Manage your happy hour listing, photos, and menu.">
   <ListingFormStyles />
   <style is:global>
     .mg-wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 80px; }
@@ -88,6 +88,8 @@ const { venue } = Astro.props;
     .mn-section-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
     .mn-section-head h3 { font-family: var(--font-display); font-size: 1.02rem; }
     .mn-section-head .note { color: var(--night-soft); font-size: 0.8rem; }
+    .mn-section-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .mn-section > [data-edit-section] { margin-bottom: 10px; }
 
     .mn-item { background: white; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
     .mn-item img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--sand-warm); }
@@ -468,13 +470,28 @@ const { venue } = Astro.props;
     function sectionHTML(section: any) {
       return `
         <div class="mn-section" data-section-id="${esc(section.id)}">
-          <div class="mn-section-head">
+          <div class="mn-section-head" data-section-view>
             <div>
               <h3>${esc(section.title)}</h3>
               ${section.note ? `<span class="note">${esc(section.note)}</span>` : ''}
             </div>
-            <button type="button" class="mg-btn small danger" data-action="delete-section">Delete section</button>
+            <div class="mn-section-actions">
+              <button type="button" class="mg-btn small neutral" data-action="edit-section">Edit</button>
+              <button type="button" class="mg-btn small danger" data-action="delete-section">Delete section</button>
+            </div>
           </div>
+
+          <form class="mn-form mg-hidden" data-edit-section>
+            <div class="row">
+              <input name="title" value="${esc(section.title)}" placeholder="Section name" aria-label="Section name" maxlength="80" required>
+              <input name="note" value="${esc(section.note || '')}" placeholder="Optional note, e.g. served 3–6pm at the bar" aria-label="Section note" maxlength="200">
+            </div>
+            <div class="mn-section-actions">
+              <button type="submit" class="mg-btn small">Save section</button>
+              <button type="button" class="mg-btn small neutral" data-action="cancel-edit-section">Cancel</button>
+            </div>
+            <span class="mg-status" data-section-status aria-live="polite"></span>
+          </form>
 
           ${section.items.map(itemHTML).join('')}
 
@@ -540,12 +557,32 @@ const { venue } = Astro.props;
 
     menuBodyEl.addEventListener('submit', async (event) => {
       const form = event.target as HTMLFormElement;
+      const isEditSection = form.matches('[data-edit-section]');
       const isAdd = form.matches('[data-add-item]');
       const isEdit = form.matches('[data-edit-item]');
-      if (!isAdd && !isEdit) return;
+      if (!isEditSection && !isAdd && !isEdit) return;
       event.preventDefault();
 
       const section = form.closest('[data-section-id]') as HTMLElement;
+
+      if (isEditSection) {
+        const statusEl = form.querySelector('[data-section-status]') as HTMLElement;
+        setStatus(statusEl, 'Saving...');
+        try {
+          await menuAction({
+            action: 'update-section',
+            sectionId: section.dataset.sectionId,
+            title: (form.querySelector('[name="title"]') as HTMLInputElement).value.trim(),
+            note: (form.querySelector('[name="note"]') as HTMLInputElement).value.trim(),
+          });
+          setStatus(menuStatusEl, 'Section updated.', 'ok');
+          await loadMenu();
+        } catch (err: any) {
+          setStatus(statusEl, err.message, 'err');
+        }
+        return;
+      }
+
       const item = form.closest('[data-item-id]') as HTMLElement | null;
       const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
 
@@ -576,6 +613,19 @@ const { venue } = Astro.props;
       if (!button) return;
 
       const section = button.closest('[data-section-id]') as HTMLElement;
+
+      if (button.dataset.action === 'edit-section' || button.dataset.action === 'cancel-edit-section') {
+        const editing = button.dataset.action === 'edit-section';
+        if (!editing) {
+          // Repaint from the saved menu so Cancel discards unsaved title/note edits.
+          await loadMenu();
+          return;
+        }
+        section.querySelector<HTMLElement>('[data-section-view]')?.classList.add('mg-hidden');
+        section.querySelector<HTMLElement>('[data-edit-section]')?.classList.remove('mg-hidden');
+        section.querySelector<HTMLInputElement>('[data-edit-section] [name="title"]')?.focus();
+        return;
+      }
 
       if (button.dataset.action === 'edit-item' || button.dataset.action === 'cancel-edit-item') {
         const item = button.closest('[data-item-id]') as HTMLElement;

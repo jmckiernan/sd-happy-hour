@@ -67,7 +67,7 @@ export function parseFrontmatter(lines: string[]): ParsedFrontmatter {
     description: get('description') ?? '',
     pubDate: String(get('pubDate') ?? ''),
     updatedDate: get('updatedDate') ? String(get('updatedDate')) : undefined,
-    author: get('author') ?? 'SD Happy Hours',
+    author: get('author') ?? 'Happy Hour SD',
     draft: Boolean(get('draft')),
     aiGenerated: Boolean(get('aiGenerated')),
     venues: Array.isArray(venues) ? venues : [],

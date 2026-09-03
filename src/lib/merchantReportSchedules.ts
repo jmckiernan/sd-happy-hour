@@ -182,7 +182,7 @@ export function merchantReportEmailHtml(report: Awaited<ReturnType<typeof getMer
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 12px">
       <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%">
         <tr><td style="background:#201238;border-radius:18px 18px 0 0;padding:28px">
-          <div style="color:#f4c05c;font-size:11px;font-weight:800;letter-spacing:.14em">SD HAPPY HOURS</div>
+          <div style="color:#f4c05c;font-size:11px;font-weight:800;letter-spacing:.14em">HAPPY HOUR SD</div>
           <h1 style="color:#fff;font-size:27px;line-height:1.15;margin:8px 0">${escapeHtml(report.venue.name)}</h1>
           <div style="color:#ddd4e7;font-size:13px">Merchant performance - ${escapeHtml(report.range.label)}</div>
         </td></tr>

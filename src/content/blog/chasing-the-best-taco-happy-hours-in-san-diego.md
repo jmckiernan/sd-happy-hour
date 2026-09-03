@@ -3,7 +3,7 @@ title: "Chasing the Best Taco Happy Hours in San Diego"
 description: "A local's guide to what makes a taco happy hour worth chasing in San Diego, plus the neighborhoods where you're most likely to find one."
 pubDate: 2026-08-01
 updatedDate: 2026-08-24
-author: "SD Happy Hours"
+author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: ["bracero-cocina", "coasterra"]
@@ -35,7 +35,7 @@ San Diego's taco scene isn't confined to one part of town, but a few areas consi
 
 ## How to Actually Find the Deals Right Now
 
-Because taco happy hour specifics (days, times, prices) change so often, your best move is to check listings the same week you're planning to go. A spot that had a killer Taco Tuesday deal six months ago might've quietly dropped it, or moved it to Thursday, or swapped the protein. We keep our venue data updated in real time here at SD Happy Hours specifically because of this — so when we do have verified hours and prices for a taco spot, you can trust them to be current, not a guess pulled from an old menu photo.
+Because taco happy hour specifics (days, times, prices) change so often, your best move is to check listings the same week you're planning to go. A spot that had a killer Taco Tuesday deal six months ago might've quietly dropped it, or moved it to Thursday, or swapped the protein. We keep our venue data updated in real time here at Happy Hour SD specifically because of this — so when we do have verified hours and prices for a taco spot, you can trust them to be current, not a guess pulled from an old menu photo.
 
 If you've got a favorite taco happy hour you think deserves a shoutout, send it our way — we're always fact-checking new spots to add to the verified list.
 

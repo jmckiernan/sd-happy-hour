@@ -273,7 +273,7 @@ export async function fetchVenueImageCandidate(candidate, fetchImpl = fetch, opt
   try {
     const response = await fetchWithSafeRedirects(candidate.url, {
       headers: {
-        'User-Agent': 'SDHappyHoursImport/1.0 (+https://sdhappyhours.com)',
+        'User-Agent': 'HappyHourSDImport/1.0 (+https://happyhoursd.com)',
         Accept: 'image/avif,image/webp,image/png,image/jpeg,*/*;q=0.5',
         Referer: candidate.pageUrl,
       },

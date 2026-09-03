@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const {tag,posts}=Astro.props; const label=tag.replace(/-/g,' ').replace(/\b\w/g,(char:string)=>char.toUpperCase());
 const breadcrumbs=[{name:'Home',path:'/'},{name:'Blog',path:'/blog/'},{name:label,path:`/blog/tag/${tag}/`}];
 ---
-<Layout title={`${label} in San Diego | SD Happy Hours`} description={`Browse current and archived SD Happy Hours stories about ${label} across San Diego County.`} structuredData={[breadcrumbSchema(breadcrumbs),itemListSchema(`${label} articles`,posts.map((post)=>({name:post.data.title,path:`/blog/${post.id}/`})))]}>
+<Layout title={`${label} in San Diego | Happy Hour SD`} description={`Browse current and archived Happy Hour SD stories about ${label} across San Diego County.`} structuredData={[breadcrumbSchema(breadcrumbs),itemListSchema(`${label} articles`,posts.map((post)=>({name:post.data.title,path:`/blog/${post.id}/`})))]}>
   <Breadcrumbs items={breadcrumbs}/><header class="page-header"><h1>{label}</h1><p>Current and archived San Diego County stories organized by topic, location, venue, or event type.</p></header>
   <main class="archive-list">{posts.map((post)=><article><h2><a href={`/blog/${post.id}/`}>{post.data.title}</a></h2><p>{post.data.description}</p></article>)}</main>
   <style>.archive-list{max-width:820px;margin:28px auto 70px;padding:0 24px}.archive-list article{background:white;border-radius:14px;padding:20px;margin-bottom:12px}.archive-list a{text-decoration:none}.archive-list p{color:var(--night-soft);margin-top:7px}</style>

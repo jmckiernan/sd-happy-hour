@@ -9,7 +9,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     draft: z.boolean().default(false),
-    author: z.string().default('SD Happy Hours'),
+    author: z.string().default('Happy Hour SD'),
     // Slugs from data/happy-hours.json this post should link to, e.g. ["ironside-fish-oyster"]
     venues: z.array(z.string()).default([]),
     heroImage: z.string().optional(),

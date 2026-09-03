@@ -47,7 +47,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const expiresAt = new Date(Date.now() + CODE_EXPIRY_MS).toISOString();
   await setVenueClaimPhoneCode(claim.id, code, expiresAt, venue.phone);
 
-  const result = await sendSms(venue.phone, `Your SD Happy Hours verification code for ${venue.name} is ${code}. Expires in 10 minutes.`);
+  const result = await sendSms(venue.phone, `Your Happy Hour SD verification code for ${venue.name} is ${code}. Expires in 10 minutes.`);
 
   return json({
     sent: true,

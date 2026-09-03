@@ -40,7 +40,7 @@ const dateStr = draft?.data.pubDate
   : '';
 const isLive = Boolean(draft && !draft.data.draft);
 ---
-<Layout title={draft ? `${isLive ? 'Edit' : 'Preview'}: ${draft.data.title} | SD Happy Hours Admin` : 'Manage Post | SD Happy Hours Admin'} description="Preview, edit, publish, unpublish, or delete a blog post.">
+<Layout title={draft ? `${isLive ? 'Edit' : 'Preview'}: ${draft.data.title} | Happy Hour SD Admin` : 'Manage Post | Happy Hour SD Admin'} description="Preview, edit, publish, unpublish, or delete a blog post.">
   <style is:global>
     .admin-bar {
       background: white;
@@ -237,7 +237,7 @@ const isLive = Boolean(draft && !draft.data.draft);
   {!admin && (
     <div class="np-locked">
       <h1>Manage Post</h1>
-      <p>This page is only available to authorized SD Happy Hours admins. Sign in with an authorized email to continue.</p>
+      <p>This page is only available to authorized Happy Hour SD admins. Sign in with an authorized email to continue.</p>
       <a href="/account/?next=%2Fadmin%2Fdrafts%2F">Sign In</a>
     </div>
   )}
