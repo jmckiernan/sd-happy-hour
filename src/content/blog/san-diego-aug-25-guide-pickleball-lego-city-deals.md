@@ -9,7 +9,7 @@ author: "Happy Hour SD"
 draft: false
 aiGenerated: true
 venues: []
-heroImage: "/api/images/san-diego-aug-25-guide-pickleball-lego-city-deals-1788473579088-bfb879d6.png"
+heroImage: "/api/images/san-diego-aug-25-guide-pickleball-lego-city-deals-1788476242299-edd126f6.png"
 tags: ["san-diego-events", "gaslamp-quarter", "north-city-san-marcos", "happy-hour-deals", "pickleball", "live-music-san-diego", "carmel-valley", "north-park", "san-diego", "neighborhood-guide", "community", "theater", "happy-hour", "live-music", "comedy"]
 dates: ["2026-08-25", "2026-08-26"]
 locations: ["San Diego"]
