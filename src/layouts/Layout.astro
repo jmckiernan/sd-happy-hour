@@ -306,6 +306,19 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
     .site-nav .links a:hover { background: var(--sunset-end); }
     .site-nav .links a[aria-current="page"] { background: var(--night); color: white; }
 
+    /* Venue-owner link — distinct from the consumer-facing nav pills. */
+    .site-nav .links a#restaurant-nav-link {
+      background: rgba(255, 107, 53, 0.16);
+      color: #C2410C;
+    }
+    .site-nav .links a#restaurant-nav-link:hover {
+      background: rgba(255, 107, 53, 0.28);
+    }
+    .site-nav .links a#restaurant-nav-link[aria-current="page"] {
+      background: var(--night);
+      color: white;
+    }
+
     /* Admin-only links (visible only to signed-in admin emails) get a
        distinct teal tint so they read as different from the regular nav. */
     .site-nav .links a#admin-nav-link,
@@ -347,6 +360,17 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
 
     .site-nav.transparent .links a:hover { background: white; }
     .site-nav.transparent .links a[aria-current="page"] { background: var(--night); color: white; }
+    .site-nav.transparent .links a#restaurant-nav-link {
+      background: rgba(255, 107, 53, 0.92);
+      color: white;
+    }
+    .site-nav.transparent .links a#restaurant-nav-link:hover {
+      background: var(--sunset-start);
+    }
+    .site-nav.transparent .links a#restaurant-nav-link[aria-current="page"] {
+      background: var(--night);
+      color: white;
+    }
 
     @media (max-width: 720px) {
       .site-nav { align-items: flex-start; flex-direction: column; padding: 16px 20px; }
@@ -383,7 +407,7 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       <a href="/neighborhoods/" aria-current={Astro.url.pathname.startsWith('/neighborhoods/') ? 'page' : undefined}>Neighborhoods</a>
       <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
       <a href="/submit/" aria-current={Astro.url.pathname === '/submit/' ? 'page' : undefined}>Submit a Spot</a>
-      <a href="/restaurant/" aria-current={Astro.url.pathname === '/restaurant/' ? 'page' : undefined}>For Restaurants</a>
+      <a href="/restaurant/" id="restaurant-nav-link" aria-current={isRestaurantRoute ? 'page' : undefined}>For Restaurants</a>
       <a href="/account/" id="account-nav-link" aria-current={Astro.url.pathname === '/account/' ? 'page' : undefined}>{isAuthenticated ? 'My Stuff' : 'Sign In'}</a>
       <a href="/admin/new-post/" id="blog-admin-nav-link" data-admin-only style={isAdmin ? '' : 'display:none;'} aria-current={Astro.url.pathname === '/admin/new-post/' ? 'page' : undefined}>Add Blog Post</a>
       <a href="/admin/" id="admin-nav-link" data-admin-only style={isAdmin ? '' : 'display:none;'} aria-current={Astro.url.pathname === '/admin/' ? 'page' : undefined}>Admin</a>

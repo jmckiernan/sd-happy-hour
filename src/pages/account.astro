@@ -10,8 +10,18 @@ const returnPath = postAuthReturnPath(Astro.url.searchParams.get('next'));
 if (returnPath && await getSession(Astro.cookies)) {
   return Astro.redirect(returnPath);
 }
+
+function isRestaurantReturnPath(path: string | null | undefined): boolean {
+  return typeof path === 'string' && (path === '/restaurant' || path.startsWith('/restaurant/'));
+}
+const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
 ---
-<Layout title="My Stuff | Happy Hour SD" description="Shared lists, saved spots, alerts, and account preferences, all in one place.">
+<Layout
+  title={isRestaurantSignIn ? 'Restaurant Dashboard | Happy Hour SD' : 'My Stuff | Happy Hour SD'}
+  description={isRestaurantSignIn
+    ? 'Sign in to claim your venue listing, manage happy hours and deals, and run live promotions on Happy Hour SD.'
+    : 'Shared lists, saved spots, alerts, and account preferences, all in one place.'}
+>
   <style is:global>
     .account-main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 80px; }
 
@@ -26,10 +36,83 @@ if (returnPath && await getSession(Astro.cookies)) {
     .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
     .panel .hint { color: var(--night-soft); font-size: 0.85rem; margin-bottom: 14px; }
 
-    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; }
+    .auth-layout {
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+    }
+    .auth-layout.has-pitch {
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .auth-stack {
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; width: 100%; }
     .auth-grid.password-hidden { grid-template-columns: minmax(0, 420px); }
     .auth-grid .panel { padding: 32px 28px; }
     .auth-grid .panel h2 { font-size: 1.3rem; text-align: center; }
+
+    .restaurant-pitch { margin-bottom: 0; padding: 28px 26px; width: 100%; }
+    .restaurant-pitch-eyebrow {
+      color: var(--sunset-start);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin: 0 0 10px;
+      text-transform: uppercase;
+    }
+    .restaurant-pitch h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      line-height: 1.15;
+      margin: 0 0 12px;
+    }
+    .restaurant-pitch-lead {
+      color: var(--night-soft);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+    .restaurant-pitch-list {
+      display: grid;
+      gap: 14px;
+      list-style: none;
+      margin: 0 0 18px;
+      padding: 0;
+    }
+    .restaurant-pitch-list li {
+      display: grid;
+      gap: 3px;
+      padding-left: 22px;
+      position: relative;
+    }
+    .restaurant-pitch-list li::before {
+      color: var(--sunset-start);
+      content: '✓';
+      font-weight: 800;
+      left: 0;
+      position: absolute;
+      top: 1px;
+    }
+    .restaurant-pitch-list strong {
+      color: var(--night);
+      font-size: 0.92rem;
+    }
+    .restaurant-pitch-list span {
+      color: var(--night-soft);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+    .restaurant-pitch-footnote {
+      color: var(--night-soft);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      margin: 0;
+    }
 
     .google-box { display: grid; gap: 14px; justify-items: center; text-align: center; padding-top: 4px; }
     .google-note { color: var(--night-soft); font-size: 0.88rem; line-height: 1.5; }
@@ -201,8 +284,10 @@ if (returnPath && await getSession(Astro.cookies)) {
   </style>
 
   <header class="page-header hidden" id="page-header">
-    <h1 id="header-title">Sign In</h1>
-    <p id="header-subtitle">Sign in to build and share happy hour lists, save favorites, and manage alerts.</p>
+    <h1 id="header-title">{isRestaurantSignIn ? 'Restaurant Dashboard' : 'Sign In'}</h1>
+    <p id="header-subtitle">{isRestaurantSignIn
+      ? 'Sign in to claim your listing, keep your deals and hours current, and reach people looking to go out in San Diego.'
+      : 'Sign in to build and share happy hour lists, save favorites, and manage alerts.'}</p>
   </header>
 
   <main class="account-main">
@@ -211,34 +296,72 @@ if (returnPath && await getSession(Astro.cookies)) {
       <p aria-live="polite">Loading your stuff...</p>
     </section>
 
-    <section class="auth-grid password-hidden hidden" id="auth-section">
-      <div class="panel">
-        <h2>Sign in with Google</h2>
-        <div class="google-box">
-          <div id="google-signin"></div>
-          <p class="google-note" id="google-note">Loading Google sign-in...</p>
+    <section class={`auth-layout hidden${isRestaurantSignIn ? ' has-pitch' : ''}`} id="auth-section">
+      <aside class={`panel restaurant-pitch${isRestaurantSignIn ? '' : ' hidden'}`} id="restaurant-pitch" aria-label="Venue dashboard overview">
+        <p class="restaurant-pitch-eyebrow">For venue owners &amp; managers</p>
+        <h2>Your venue on San Diego's happy hour guide</h2>
+        <p class="restaurant-pitch-lead">
+          Happy Hour SD helps San Diego venues — restaurants, pubs, cafes, bowling alleys, and more — reach people actively looking for happy hours, food and drink deals, and live offers.
+          Claim your listing, keep it accurate, and turn slow hours into foot traffic.
+        </p>
+        <ul class="restaurant-pitch-list">
+          <li>
+            <strong>Claim your listing</strong>
+            <span>Verify ownership and take control of your venue page.</span>
+          </li>
+          <li>
+            <strong>Keep your listing current</strong>
+            <span>Update happy hour times, specials, photos, and details.</span>
+          </li>
+          <li>
+            <strong>Run live promotions</strong>
+            <span>Push time-limited deals to nearby customers when you need a boost.</span>
+          </li>
+          <li>
+            <strong>See what's working</strong>
+            <span>Track views, redemptions, and audience insights from your dashboard.</span>
+          </li>
+          <li>
+            <strong>Invite your team</strong>
+            <span>Add managers and staff with role-based access.</span>
+          </li>
+        </ul>
+        <p class="restaurant-pitch-footnote">
+          Free to claim and manage your listing. Sign in or create an account — you'll go straight to your venue dashboard.
+        </p>
+      </aside>
+
+      <div class="auth-stack">
+        <div class="auth-grid password-hidden" id="auth-panels">
+          <div class="panel">
+            <h2>Sign in with Google</h2>
+            <div class="google-box">
+              <div id="google-signin"></div>
+              <p class="google-note" id="google-note">Loading Google sign-in...</p>
+            </div>
+          </div>
+
+          <div class="panel hidden" id="password-auth-panel">
+            <h2>Log in</h2>
+            <form id="login-form">
+              <label>Email <input name="email" type="email" autocomplete="email" required></label>
+              <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+              <button type="submit">Log in</button>
+              <div class="status" id="login-status" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <div class="panel hidden" id="register-auth-panel">
+            <h2>Create account</h2>
+            <form id="register-form">
+              <label>Name <input name="name" autocomplete="name" required></label>
+              <label>Email <input name="email" type="email" autocomplete="email" required></label>
+              <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+              <button type="submit">Create account</button>
+              <div class="status" id="register-status" aria-live="polite"></div>
+            </form>
+          </div>
         </div>
-      </div>
-
-      <div class="panel hidden" id="password-auth-panel">
-        <h2>Log in</h2>
-        <form id="login-form">
-          <label>Email <input name="email" type="email" autocomplete="email" required></label>
-          <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-          <button type="submit">Log in</button>
-          <div class="status" id="login-status" aria-live="polite"></div>
-        </form>
-      </div>
-
-      <div class="panel hidden" id="register-auth-panel">
-        <h2>Create account</h2>
-        <form id="register-form">
-          <label>Name <input name="name" autocomplete="name" required></label>
-          <label>Email <input name="email" type="email" autocomplete="email" required></label>
-          <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-          <button type="submit">Create account</button>
-          <div class="status" id="register-status" aria-live="polite"></div>
-        </form>
       </div>
     </section>
 
@@ -524,8 +647,13 @@ if (returnPath && await getSession(Astro.cookies)) {
       }
     }
 
+    function isRestaurantSignIn(): boolean {
+      const next = postAuthReturnPath(new URLSearchParams(window.location.search).get('next'));
+      return typeof next === 'string' && (next === '/restaurant' || next.startsWith('/restaurant/'));
+    }
+
     function showPasswordFallback(message: string) {
-      document.getElementById('auth-section')!.classList.remove('password-hidden');
+      document.getElementById('auth-panels')!.classList.remove('password-hidden');
       document.getElementById('password-auth-panel')!.classList.remove('hidden');
       document.getElementById('register-auth-panel')!.classList.remove('hidden');
       document.getElementById('google-note')!.textContent = message;
@@ -585,7 +713,9 @@ if (returnPath && await getSession(Astro.cookies)) {
       google.accounts.id.renderButton(document.getElementById('google-signin'), {
         theme: 'outline', size: 'large', type: 'standard', text: 'signin_with', shape: 'pill',
       });
-      document.getElementById('google-note')!.textContent = 'Use Google to save and share your happy hour list.';
+      document.getElementById('google-note')!.textContent = isRestaurantSignIn()
+        ? 'Use Google to claim or manage your venue listing.'
+        : 'Use Google to save and share your happy hour list.';
     }
 
     document.getElementById('login-form')!.addEventListener('submit', async (event) => {
@@ -652,18 +782,26 @@ if (returnPath && await getSession(Astro.cookies)) {
       document.getElementById('loading-section')!.classList.add('hidden');
       document.getElementById('page-header')!.classList.remove('hidden');
       document.getElementById('auth-section')!.classList.toggle('hidden', Boolean(currentUser));
-      document.getElementById('account-section')!.classList.toggle('hidden', !currentUser);
+      document.getElementById('auth-section')!.classList.toggle('has-pitch', !currentUser && isRestaurantSignIn());
+      document.getElementById('restaurant-pitch')!.classList.toggle('hidden', Boolean(currentUser) || !isRestaurantSignIn());
 
       const headerTitle = document.getElementById('header-title')!;
       const headerSubtitle = document.getElementById('header-subtitle')!;
       if (!currentUser) {
-        headerTitle.textContent = 'Sign In';
-        headerSubtitle.textContent = 'Sign in to build and share happy hour lists, save favorites, and manage alerts.';
+        if (isRestaurantSignIn()) {
+          headerTitle.textContent = 'Restaurant Dashboard';
+          headerSubtitle.textContent = 'Sign in to claim your listing, keep your deals and hours current, and reach people looking to go out in San Diego.';
+        } else {
+          headerTitle.textContent = 'Sign In';
+          headerSubtitle.textContent = 'Sign in to build and share happy hour lists, save favorites, and manage alerts.';
+        }
         const statusEl = document.getElementById('sms-status')!;
         statusEl.textContent = '';
         statusEl.classList.remove('is-ready', 'is-pending');
         return;
       }
+
+      document.getElementById('account-section')!.classList.toggle('hidden', !currentUser);
 
       headerTitle.textContent = 'My Stuff';
       headerSubtitle.textContent = 'Shared lists, saved spots, alerts, and preferences, all in one place.';
