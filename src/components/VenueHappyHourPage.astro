@@ -226,6 +226,7 @@ function formatWindowLine(window: {
     }
     .share-menu :is(button, a):hover,
     .share-menu :is(button, a):focus-visible { background: var(--sand-warm); outline: none; }
+    .share-menu .share-fb-mark { flex-shrink: 0; }
     .share-menu-status { color: #047857; font-size: .75rem; font-weight: 700; padding: 2px 12px 7px; }
     .share-menu-title { font-size: .78rem; padding: 5px 12px 3px; }
     @keyframes venue-live-deal-glow {
@@ -1062,7 +1063,7 @@ function formatWindowLine(window: {
       <button type="button" data-share-action="copy">🔗 Copy link</button>
       <a data-share-action="email" href="#">✉️ Email</a>
       <a data-share-action="text" href="#">💬 Text message</a>
-      <a data-share-action="facebook" href="#" target="_blank" rel="noopener">↗ Share on Facebook</a>
+      <a data-share-action="facebook" href="#" target="_blank" rel="noopener"><svg class="share-fb-mark" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect width="16" height="16" rx="3" fill="#1877F2"></rect><path fill="#fff" d="M11.05 8.35H9.25v5.9H6.95v-5.9H5.85V6.55h1.1V5.4c0-1.55.72-2.45 2.5-2.45h1.45v1.85H9.7c-.52 0-.65.24-.65.72v1.03h1.95l-.25 1.8z"></path></svg>Share on Facebook</a>
       <span class="share-menu-status" id="share-menu-status" aria-live="polite"></span>
     </div>
   </div>

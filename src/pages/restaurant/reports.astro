@@ -270,10 +270,35 @@ const publicHref = selectedVenue?.venueSlug
 
   <script id="report-bootstrap" type="application/json" set:html={bootstrap}></script>
   <script>
+    import {
+      MERCHANT_VENUE_CHANGE_EVENT,
+      onMerchantPageLoad,
+      prefetchVisibleMerchantTabs,
+      replaceMerchantUrl,
+    } from '../../lib/merchantShellNav';
+    import {
+      getMerchantTabCache,
+      invalidateMerchantTabCache,
+      setMerchantTabCache,
+      swrMerchantTabCache,
+    } from '../../lib/merchantTabCache';
+
     interface VenueOption { venueId:number; venueName:string; venueSlug:string; paid:boolean; role:string }
     interface Bootstrap { venues:VenueOption[]; selectedVenueId:number|null; email:string }
-    const bootstrap: Bootstrap = JSON.parse(document.getElementById('report-bootstrap')?.textContent || '{}');
-    if (bootstrap.venues?.length) {
+
+    // ClientRouter skips already-executed module scripts on soft-nav revisit.
+    let pageAbort: AbortController | null = null;
+
+    function startReportsPage() {
+      if (!document.getElementById('report-bootstrap')) return;
+
+      pageAbort?.abort();
+      pageAbort = new AbortController();
+      const signal = pageAbort.signal;
+
+      const bootstrap: Bootstrap = JSON.parse(document.getElementById('report-bootstrap')?.textContent || '{}');
+      if (!bootstrap.venues?.length) return;
+
       const reportStatus = document.getElementById('report-status')!;
       const reportContent = document.getElementById('report-content')!;
       const paidGate = document.getElementById('paid-gate')!;
@@ -342,6 +367,7 @@ const publicHref = selectedVenue?.venueSlug
           else tab.removeAttribute('aria-disabled');
         }
         if (audienceLink) audienceLink.href = `/restaurant/audience/?venueId=${venue.venueId}`;
+        prefetchVisibleMerchantTabs();
       }
 
       function updateExports() {
@@ -445,10 +471,7 @@ const publicHref = selectedVenue?.venueSlug
       async function loadSchedule() {
         const emailStatus = document.getElementById('email-status')!;
         emailStatus.textContent = '';
-        try {
-          const response = await fetch(`/api/restaurant/reports/schedule?venueId=${selectedVenueId}`);
-          const data = await response.json();
-          if (!response.ok) throw new Error((data.errors||['Could not load schedule.']).join(' '));
+        const applySchedule = (data: any) => {
           if (!data.schedule) return;
           (document.getElementById('email-frequency') as HTMLSelectElement).value = data.schedule.frequency;
           (document.getElementById('email-weekday') as HTMLSelectElement).value = String(data.schedule.dayOfWeek);
@@ -456,14 +479,37 @@ const publicHref = selectedVenue?.venueSlug
           (document.getElementById('email-hour') as HTMLSelectElement).value = String(data.schedule.sendHourLocal);
           toggleScheduleDay();
           emailStatus.textContent = `Next report: ${new Date(data.schedule.nextSendAt).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} Pacific`;
-        } catch (error) { emailStatus.textContent = error instanceof Error ? error.message : 'Could not load schedule.'; }
+        };
+        const cached = getMerchantTabCache<any>(selectedVenueId, 'schedule');
+        if (cached) applySchedule(cached.data);
+        try {
+          await swrMerchantTabCache({
+            venueId: selectedVenueId,
+            resource: 'schedule',
+            signal,
+            fetcher: async () => {
+              const response = await fetch(`/api/restaurant/reports/schedule?venueId=${selectedVenueId}`, { signal });
+              const data = await response.json();
+              if (!response.ok) throw new Error((data.errors||['Could not load schedule.']).join(' '));
+              return data;
+            },
+            onFresh: (data, { changed, fromCache }) => {
+              if (signal.aborted) return;
+              if (!fromCache || changed) applySchedule(data);
+            },
+          });
+        } catch (error) {
+          if (signal.aborted) return;
+          if (cached) return;
+          emailStatus.textContent = error instanceof Error ? error.message : 'Could not load schedule.';
+        }
       }
 
       async function loadReport() {
         const version = ++requestVersion;
         const venue = selectedVenue();
         syncShellForVenue(venue);
-        history.replaceState(null,'',`/restaurant/reports/?venueId=${selectedVenueId}`);
+        replaceMerchantUrl(`/restaurant/reports/?venueId=${selectedVenueId}`);
         updateExports();
         paidGate.hidden = venue.paid;
         if (!venue.paid) {
@@ -479,39 +525,60 @@ const publicHref = selectedVenue?.venueSlug
         if (selectedRange === 'custom' && (!fromInput.value || !toInput.value)) {
           status('Choose both dates to build a custom report.'); return;
         }
-        status('Building your report...',true);
-        try {
-          const response = await fetch(`/api/restaurant/reports?venueId=${selectedVenueId}&${rangeQuery()}`,{cache:'no-store'});
-          const data = await response.json();
-          if (version !== requestVersion) return;
-          if (!response.ok) throw new Error((data.errors||['Could not load this report.']).join(' '));
-          render(data.report);
+        const rangeKey = rangeQuery();
+        const cached = getMerchantTabCache<any>(selectedVenueId, 'reports', { suffix: rangeKey });
+        if (cached) {
+          render(cached.data);
           void loadSchedule();
+        } else {
+          status('Building your report...',true);
+        }
+        try {
+          await swrMerchantTabCache({
+            venueId: selectedVenueId,
+            resource: 'reports',
+            suffix: rangeKey,
+            signal,
+            fetcher: async () => {
+              const response = await fetch(`/api/restaurant/reports?venueId=${selectedVenueId}&${rangeKey}`,{cache:'no-store', signal});
+              const data = await response.json();
+              if (!response.ok) throw new Error((data.errors||['Could not load this report.']).join(' '));
+              return data.report;
+            },
+            onFresh: (report, { changed, fromCache }) => {
+              if (signal.aborted || version !== requestVersion) return;
+              if (!fromCache || changed) render(report);
+              void loadSchedule();
+            },
+          });
         } catch (error) {
-          if (version !== requestVersion) return;
+          if (signal.aborted || version !== requestVersion) return;
+          if (cached) return;
           status(error instanceof Error ? error.message : 'Could not load this report.');
         }
       }
 
-      shellSwitcher?.addEventListener('change',()=>{
-        selectedVenueId=Number(shellSwitcher.value);
+      document.addEventListener('astro:before-swap', () => pageAbort?.abort(), { once: true });
+
+      window.addEventListener(MERCHANT_VENUE_CHANGE_EVENT, ((event: CustomEvent<{ venueId?: number | null }>) => {
+        selectedVenueId = Number(event.detail?.venueId);
         void loadReport();
-      });
+      }) as EventListener, { signal });
       document.querySelectorAll<HTMLButtonElement>('[data-range]').forEach((button)=>button.addEventListener('click',()=>{
         selectedRange=button.dataset.range || '30d';
         document.querySelectorAll('[data-range]').forEach((item)=>item.classList.toggle('active',item===button));
         customRange.hidden=selectedRange!=='custom';
         void loadReport();
-      }));
-      fromInput.addEventListener('change',()=>void loadReport());
-      toInput.addEventListener('change',()=>void loadReport());
+      }, { signal }));
+      fromInput.addEventListener('change',()=>void loadReport(), { signal });
+      toInput.addEventListener('change',()=>void loadReport(), { signal });
 
       function toggleScheduleDay() {
         const monthly=(document.getElementById('email-frequency') as HTMLSelectElement).value==='monthly';
         (document.getElementById('weekly-day-label') as HTMLElement).hidden=monthly;
         (document.getElementById('monthly-day-label') as HTMLElement).hidden=!monthly;
       }
-      document.getElementById('email-frequency')!.addEventListener('change',toggleScheduleDay);
+      document.getElementById('email-frequency')!.addEventListener('change',toggleScheduleDay, { signal });
       document.getElementById('email-form')!.addEventListener('submit',async(event)=>{
         event.preventDefault();
         const emailStatus=document.getElementById('email-status')!;
@@ -526,9 +593,10 @@ const publicHref = selectedVenue?.venueSlug
           })});
           const data=await response.json();
           if(!response.ok)throw new Error((data.errors||['Could not save schedule.']).join(' '));
+          setMerchantTabCache(selectedVenueId, 'schedule', data);
           emailStatus.textContent=`Saved. Next report: ${new Date(data.schedule.nextSendAt).toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} Pacific`;
         }catch(error){emailStatus.textContent=error instanceof Error?error.message:'Could not save schedule.';}
-      });
+      }, { signal });
 
       document.getElementById('access-form')!.addEventListener('submit',async(event)=>{
         event.preventDefault();
@@ -538,16 +606,22 @@ const publicHref = selectedVenue?.venueSlug
           const data=await response.json();
           if(!response.ok)throw new Error((data.errors||['Could not redeem code.']).join(' '));
           selectedVenue().paid=true;
+          invalidateMerchantTabCache(selectedVenueId, 'reports');
+          invalidateMerchantTabCache(selectedVenueId, 'schedule');
+          invalidateMerchantTabCache(selectedVenueId, 'audience');
+          invalidateMerchantTabCache(selectedVenueId, 'billing');
           accessStatus.textContent='Access unlocked. Loading your report...';
           void loadReport();
         }catch(error){accessStatus.textContent=error instanceof Error?error.message:'Could not redeem code.';}
-      });
+      }, { signal });
 
-      document.getElementById('export-csv')?.addEventListener('click', (event) => { event.preventDefault(); void downloadExport('csv'); });
-      document.getElementById('export-pdf')?.addEventListener('click', (event) => { event.preventDefault(); void downloadExport('pdf'); });
+      document.getElementById('export-csv')?.addEventListener('click', (event) => { event.preventDefault(); void downloadExport('csv'); }, { signal });
+      document.getElementById('export-pdf')?.addEventListener('click', (event) => { event.preventDefault(); void downloadExport('pdf'); }, { signal });
 
       updateExports();
       void loadReport();
     }
+
+    onMerchantPageLoad(startReportsPage);
   </script>
 </Layout>

@@ -14,6 +14,7 @@
  * - `verified` — show green verified check when true
  * - `publicHref` — Public page link; omit/null hides the button
  * - `venues` — switcher options `{ id, name, slug? }[]` (2+ shows switcher)
+ * - `venueImageUrl` — hero/featured thumbnail left of the venue name
  * - `primaryCtaLabel` / `primaryCtaHref` — optional header CTA (button or link)
  * - `hideTabs` — force-hide the tab row (claim/onboarding flows)
  *
@@ -27,6 +28,8 @@
  * - owner → all tabs
  *
  * Client pages may update `[data-merchant-shell-*]` nodes after claims load.
+ * Create Promotion is baked into the actions row (left of Public page) and
+ * shown only on the promotions route when `data-create-promotion-available`.
  */
 export type MerchantShellTab =
   | 'promotions'
@@ -56,6 +59,7 @@ interface Props {
   verified?: boolean;
   publicHref?: string | null;
   venues?: MerchantShellVenueOption[];
+  venueImageUrl?: string | null;
   primaryCtaLabel?: string | null;
   primaryCtaHref?: string | null;
   hideTabs?: boolean;
@@ -71,10 +75,13 @@ const {
   verified = false,
   publicHref = null,
   venues = [],
+  venueImageUrl = null,
   primaryCtaLabel = null,
   primaryCtaHref = null,
   hideTabs = false,
 } = Astro.props;
+
+const thumbUrl = venueImageUrl?.trim() || '';
 
 const displayName = venueName?.trim() || 'Your venue';
 const roleLabel =
@@ -147,7 +154,7 @@ const showTabs = !hideTabs && Boolean(role || venueId);
   }
 
   .merchant-shell-identity {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
     gap: 12px;
     min-width: 0;
@@ -155,15 +162,35 @@ const showTabs = !hideTabs && Boolean(role || venueId);
 
   .merchant-shell-mark {
     align-items: center;
-    background: rgba(8, 145, 178, 0.14);
-    border-radius: 12px;
-    color: var(--ocean-deep);
+    background: rgba(32, 18, 56, 0.06);
+    border-radius: 14px;
+    color: var(--night-soft);
     display: inline-flex;
-    flex: 0 0 44px;
-    font-size: 1.25rem;
-    height: 44px;
+    flex: 0 0 58px;
+    height: 58px;
     justify-content: center;
-    width: 44px;
+    /* Sit with the venue-name cap height, not flush to the box top. */
+    margin-top: 2px;
+    overflow: hidden;
+    position: relative;
+    width: 58px;
+  }
+  .merchant-shell-mark img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+  .merchant-shell-mark img[hidden],
+  .merchant-shell-mark-fallback[hidden] {
+    display: none !important;
+  }
+  .merchant-shell-mark-fallback {
+    align-items: center;
+    display: inline-flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
   }
 
   .merchant-shell-identity-copy { min-width: 0; }
@@ -339,93 +366,140 @@ const showTabs = !hideTabs && Boolean(role || venueId);
   data-venue-id={venueId ?? undefined}
   data-active-tab={activeTab}
 >
-  <header class="merchant-shell-header">
-    <div class="merchant-shell-identity">
-      <span class="merchant-shell-mark" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 4h14l-7 8v5h3v2H9v-2h3v-5L5 4z" fill="currentColor"/>
-          <path d="M4.5 4h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <div class="merchant-shell-identity-copy">
-        <div class="merchant-shell-title-row">
-          <h1 class="merchant-shell-venue-name" data-merchant-shell-venue-name>{displayName}</h1>
-          <span
-            class="merchant-shell-verified"
-            data-merchant-shell-verified
-            title="Verified"
-            hidden={!verified}
-          >✓</span>
+  {/* Header + tabs persist across ClientRouter swaps; only .merchant-shell-body replaces. */}
+  <div class="merchant-shell-chrome" transition:persist="merchant-shell-chrome">
+    <header class="merchant-shell-header">
+      <div class="merchant-shell-identity">
+        <span class="merchant-shell-mark" aria-hidden="true">
+          <img
+            data-merchant-shell-thumb
+            src={thumbUrl || undefined}
+            alt=""
+            width="58"
+            height="58"
+            decoding="async"
+            hidden={!thumbUrl}
+          />
+          <span class="merchant-shell-mark-fallback" data-merchant-shell-thumb-fallback hidden={Boolean(thumbUrl)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="9" cy="10.5" r="1.7" fill="currentColor"/>
+              <path d="M5.5 17.5 10 13l2.2 2.2L16 11.5l2.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </span>
+        <div class="merchant-shell-identity-copy">
+          <div class="merchant-shell-title-row">
+            <h1 class="merchant-shell-venue-name" data-merchant-shell-venue-name>{displayName}</h1>
+            <span
+              class="merchant-shell-verified"
+              data-merchant-shell-verified
+              title="Verified"
+              hidden={!verified}
+            >✓</span>
+          </div>
+          <p class="merchant-shell-meta">
+            <span data-merchant-shell-role>{roleLabel || ''}</span>
+            <span data-merchant-shell-role-sep hidden={!roleLabel || !email}> · </span>
+            <span data-merchant-shell-email>{email || ''}</span>
+          </p>
+          <label class="hidden" for="merchant-shell-venue-switcher">Switch venue</label>
+          <select
+            id="merchant-shell-venue-switcher"
+            class="merchant-shell-switcher"
+            data-merchant-shell-switcher
+            hidden={!showSwitcher}
+          >
+            {venues.map((venue) => (
+              <option value={venue.id} data-slug={venue.slug || undefined} selected={venue.id === venueId}>
+                {venue.name}
+              </option>
+            ))}
+          </select>
         </div>
-        <p class="merchant-shell-meta">
-          <span data-merchant-shell-role>{roleLabel || ''}</span>
-          <span data-merchant-shell-role-sep hidden={!roleLabel || !email}> · </span>
-          <span data-merchant-shell-email>{email || ''}</span>
-        </p>
-        <label class="hidden" for="merchant-shell-venue-switcher">Switch venue</label>
-        <select
-          id="merchant-shell-venue-switcher"
-          class="merchant-shell-switcher"
-          data-merchant-shell-switcher
-          hidden={!showSwitcher}
-        >
-          {venues.map((venue) => (
-            <option value={venue.id} selected={venue.id === venueId}>
-              {venue.name}
-            </option>
-          ))}
-        </select>
       </div>
-    </div>
 
-    <div class="merchant-shell-actions" data-merchant-shell-actions>
-      <a
-        class="merchant-shell-btn merchant-shell-btn--secondary"
-        data-merchant-shell-public
-        href={publicHref || '#'}
-        target="_blank"
-        rel="noopener noreferrer"
-        hidden={!publicHref}
-      >
-        Public page
-        <span aria-hidden="true">↗</span>
-      </a>
-      <slot name="primary-cta">
-        {primaryCtaHref && primaryCtaLabel ? (
-          <a class="merchant-shell-btn" data-merchant-shell-primary-cta href={primaryCtaHref}>
-            {primaryCtaLabel}
-          </a>
-        ) : primaryCtaLabel ? (
-          <button class="merchant-shell-btn" type="button" data-merchant-shell-primary-cta>
-            {primaryCtaLabel}
-          </button>
-        ) : null}
-      </slot>
-    </div>
-  </header>
-
-  <nav class="merchant-shell-tabs" data-merchant-shell-tabs aria-label="Venue workspace" hidden={!showTabs}>
-    {tabs.map((tab) => {
-      const href = tabHref(tab.id);
-      const needsSlug = tab.id === 'listing' || tab.id === 'photos' || tab.id === 'menu' || tab.id === 'team';
-      const disabled = needsSlug && !venueSlug;
-      const visible = canSeeTab(tab.id);
-      return (
-        <a
-          class:list={['merchant-shell-tab', { 'is-active': activeTab === tab.id }]}
-          href={disabled ? '#' : href}
-          data-merchant-shell-tab={tab.id}
-          aria-current={activeTab === tab.id ? 'page' : undefined}
-          aria-disabled={disabled ? 'true' : undefined}
-          hidden={!visible}
+      <div class="merchant-shell-actions" data-merchant-shell-actions>
+        {/*
+          Create Promotion stays in persisted chrome (left of Public page) so
+          soft-nav does not remount it. Visibility is route + readiness gated
+          via merchantShellNav / promotions page.
+        */}
+        <button
+          class="merchant-shell-btn"
+          type="button"
+          data-merchant-shell-create-promotion
+          id="shell-create-promotion"
+          data-promotion-action="create"
+          hidden
         >
-          {tab.label}
+          Create Promotion
+        </button>
+        <a
+          class="merchant-shell-btn merchant-shell-btn--secondary"
+          data-merchant-shell-public
+          href={publicHref || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden={!publicHref}
+        >
+          Public page
+          <span aria-hidden="true">↗</span>
         </a>
-      );
-    })}
-  </nav>
+        <slot name="primary-cta">
+          {primaryCtaHref && primaryCtaLabel ? (
+            <a class="merchant-shell-btn" data-merchant-shell-primary-cta href={primaryCtaHref}>
+              {primaryCtaLabel}
+            </a>
+          ) : primaryCtaLabel ? (
+            <button class="merchant-shell-btn" type="button" data-merchant-shell-primary-cta>
+              {primaryCtaLabel}
+            </button>
+          ) : null}
+        </slot>
+      </div>
+    </header>
 
-  <div class="merchant-shell-body">
+    <nav class="merchant-shell-tabs" data-merchant-shell-tabs aria-label="Venue workspace" hidden={!showTabs}>
+      {tabs.map((tab) => {
+        const href = tabHref(tab.id);
+        const needsSlug = tab.id === 'listing' || tab.id === 'photos' || tab.id === 'menu' || tab.id === 'team';
+        const disabled = needsSlug && !venueSlug;
+        const visible = canSeeTab(tab.id);
+        return (
+          <a
+            class:list={['merchant-shell-tab', { 'is-active': activeTab === tab.id }]}
+            href={disabled ? '#' : href}
+            data-merchant-shell-tab={tab.id}
+            data-astro-prefetch="hover"
+            aria-current={activeTab === tab.id ? 'page' : undefined}
+            aria-disabled={disabled ? 'true' : undefined}
+            hidden={!visible}
+          >
+            {tab.label}
+          </a>
+        );
+      })}
+    </nav>
+  </div>
+
+  <div class="merchant-shell-body" transition:animate="none">
     <slot />
   </div>
 </section>
+
+<script>
+  import { initMerchantShellNav } from '../lib/merchantShellNav';
+  initMerchantShellNav();
+
+  // Broken featured/vibe URL → neutral placeholder instead of a blank mark.
+  document.addEventListener('error', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLImageElement)) return;
+    if (!target.matches('[data-merchant-shell-thumb]')) return;
+    target.removeAttribute('src');
+    target.hidden = true;
+    const fallback = target.parentElement?.querySelector<HTMLElement>('[data-merchant-shell-thumb-fallback]');
+    if (fallback) fallback.hidden = false;
+  }, true);
+</script>

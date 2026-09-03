@@ -556,9 +556,10 @@ test('home card saves to the default or selected list from one compact row', asy
   await expect(picker).toHaveAttribute('data-save-list-value', 'favorites');
   await saveButton.click();
   await expect.poll(() => mutations).toEqual(['PUT /api/lists/favorites/items/1']);
-  await expect(card.locator('.save-list-chip')).toHaveText('Favorites');
 
   await expect(card.locator('select[data-list-picker]')).toHaveCount(0);
+  await expect(card.locator('.save-list-chip')).toHaveCount(0);
+  await expect(card.getByRole('link', { name: /Ratings, comments/ })).toHaveCount(0);
   const managePicker = card.getByRole('button', { name: 'Manage lists for Sunset Patio' });
   await managePicker.click();
   const manageListbox = card.getByRole('listbox', { name: 'Manage lists for Sunset Patio' });
@@ -569,30 +570,8 @@ test('home card saves to the default or selected list from one compact row', asy
     'PUT /api/lists/favorites/items/1',
     'PUT /api/lists/list-three/items/1',
   ]);
-  await expect(card.locator('.save-list-chip')).toHaveText(['Favorites', longListTitle]);
-  await expect(card.locator('.save-list-chip').last()).toHaveAttribute('title', longListTitle);
-  const chipOverflow = await card.locator('.save-list-chips').evaluate((container) => {
-    const chips = [...container.querySelectorAll<HTMLElement>('.save-list-chip')];
-    const longChip = chips.at(-1)!;
-    const style = getComputedStyle(longChip);
-    return {
-      priorChips: chips.slice(0, -1).map((chip) => ({
-        isTruncated: chip.scrollWidth > chip.clientWidth,
-        flexShrink: getComputedStyle(chip).flexShrink,
-      })),
-      whiteSpace: style.whiteSpace,
-      overflow: style.overflow,
-      textOverflow: style.textOverflow,
-      isTruncated: longChip.scrollWidth > longChip.clientWidth,
-      rows: Math.round(container.getBoundingClientRect().height / Math.max(...chips.map((chip) => chip.getBoundingClientRect().height))),
-    };
-  });
-  expect(chipOverflow).toEqual({
-    priorChips: [{ isTruncated: false, flexShrink: '0' }],
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    isTruncated: true,
-    rows: 1,
-  });
+  await managePicker.click();
+  await expect(manageListbox).toBeVisible();
+  await expect(manageListbox.getByRole('option', { name: 'Favorites' })).toHaveAttribute('aria-selected', 'true');
+  await expect(manageListbox.getByRole('option', { name: longListTitle })).toHaveAttribute('aria-selected', 'true');
 });

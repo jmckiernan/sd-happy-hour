@@ -45,7 +45,7 @@ const bootstrap = JSON.stringify({
 
     .audience-intro {
       margin: 0 0 22px;
-      max-width: 640px;
+      max-width: none;
     }
     .audience-intro h2 {
       font-family: var(--font-display);
@@ -57,6 +57,7 @@ const bootstrap = JSON.stringify({
       font-size: 0.9rem;
       line-height: 1.5;
       margin: 0;
+      max-width: 640px;
     }
 
     .audience-status {
@@ -311,8 +312,6 @@ const bootstrap = JSON.stringify({
         name: venue.venueName,
         slug: venue.venueSlug,
       }))}
-      primaryCtaLabel="View reports"
-      primaryCtaHref={selectedVenue ? `/restaurant/reports/?venueId=${selectedVenue.venueId}` : '/restaurant/reports/'}
     >
       {venues.length === 0 ? (
         <div class="audience-empty">
@@ -370,6 +369,18 @@ const bootstrap = JSON.stringify({
 
   <script id="audience-bootstrap" type="application/json" set:html={bootstrap}></script>
   <script>
+    import {
+      MERCHANT_VENUE_CHANGE_EVENT,
+      onMerchantPageLoad,
+      prefetchVisibleMerchantTabs,
+      replaceMerchantUrl,
+    } from '../../lib/merchantShellNav';
+    import {
+      getMerchantTabCache,
+      invalidateMerchantTabCache,
+      swrMerchantTabCache,
+    } from '../../lib/merchantTabCache';
+
     interface VenueOption {
       venueId: number;
       venueName: string;
@@ -399,12 +410,24 @@ const bootstrap = JSON.stringify({
       followers: { total: number };
     }
 
-    const bootstrap: Bootstrap = JSON.parse(
-      document.getElementById('audience-bootstrap')?.textContent || '{"venues":[],"selectedVenueId":null,"email":""}'
-    );
-    if (!bootstrap.venues.length) {
-      // Empty state already rendered server-side.
-    } else {
+    // ClientRouter skips already-executed module scripts on soft-nav revisit.
+    let pageAbort: AbortController | null = null;
+
+    function startAudiencePage() {
+      if (!document.getElementById('audience-bootstrap')) return;
+
+      pageAbort?.abort();
+      pageAbort = new AbortController();
+      const signal = pageAbort.signal;
+
+      const bootstrap: Bootstrap = JSON.parse(
+        document.getElementById('audience-bootstrap')?.textContent || '{"venues":[],"selectedVenueId":null,"email":""}'
+      );
+      if (!bootstrap.venues.length) {
+        // Empty state already rendered server-side.
+        return;
+      }
+
       const format = new Intl.NumberFormat('en-US');
       const statusEl = document.getElementById('audience-status')!;
       const contentEl = document.getElementById('audience-content')!;
@@ -466,7 +489,6 @@ const bootstrap = JSON.stringify({
         const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
         const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
         const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
-        const cta = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-primary-cta]');
 
         if (nameEl) nameEl.textContent = venue.venueName;
         if (emailEl) emailEl.textContent = bootstrap.email || '';
@@ -485,10 +507,6 @@ const bootstrap = JSON.stringify({
             publicEl.hidden = true;
             publicEl.href = '#';
           }
-        }
-
-        if (cta && cta.tagName === 'A') {
-          cta.href = `/restaurant/reports/?venueId=${venue.venueId}`;
         }
 
         if (tabsEl) {
@@ -518,7 +536,7 @@ const bootstrap = JSON.stringify({
             switcher.innerHTML = bootstrap.venues
               .map(
                 (entry) => `
-              <option value="${entry.venueId}" ${entry.venueId === venue.venueId ? 'selected' : ''}>
+              <option value="${entry.venueId}" data-slug="${escapeHTML(entry.venueSlug || '')}" ${entry.venueId === venue.venueId ? 'selected' : ''}>
                 ${escapeHTML(entry.venueName)}
               </option>`
               )
@@ -528,6 +546,7 @@ const bootstrap = JSON.stringify({
             switcher.innerHTML = '';
           }
         }
+        prefetchVisibleMerchantTabs();
       }
 
       function status(message: string, loading = false): void {
@@ -620,7 +639,7 @@ const bootstrap = JSON.stringify({
         const version = ++requestVersion;
         const venue = selectedVenue();
         selectedVenueId = venue.venueId;
-        history.replaceState(null, '', `/restaurant/audience/?venueId=${selectedVenueId}`);
+        replaceMerchantUrl(`/restaurant/audience/?venueId=${selectedVenueId}`);
         syncMerchantShell(venue);
         billingLink.href = `/restaurant/billing/?venueId=${selectedVenueId}`;
 
@@ -640,18 +659,49 @@ const bootstrap = JSON.stringify({
         }
 
         paidGate.hidden = true;
-        status('Loading audience…', true);
+        const cached = getMerchantTabCache<AudienceDetail>(selectedVenueId, 'audience');
+        if (cached) {
+          render(cached.data);
+        } else {
+          status('Loading audience…', true);
+        }
+
         try {
-          const response = await fetch(
-            `/api/restaurant/audience?venueId=${encodeURIComponent(selectedVenueId)}`,
-            { cache: 'no-store', credentials: 'same-origin' }
-          );
-          const data = await response.json();
-          if (version !== requestVersion) return;
-          if (response.status === 402 || data.code === 'paid_required') {
+          await swrMerchantTabCache<AudienceDetail>({
+            venueId: selectedVenueId,
+            resource: 'audience',
+            signal,
+            fetcher: async () => {
+              const response = await fetch(
+                `/api/restaurant/audience?venueId=${encodeURIComponent(selectedVenueId)}`,
+                { cache: 'no-store', credentials: 'same-origin', signal }
+              );
+              const data = await response.json();
+              if (response.status === 402 || data.code === 'paid_required') {
+                const err = new Error('paid_required') as Error & {
+                  code?: string;
+                  venues?: VenueOption[];
+                };
+                err.code = 'paid_required';
+                err.venues = Array.isArray(data.venues) ? data.venues : undefined;
+                throw err;
+              }
+              if (!response.ok) throw new Error((data.errors || ['Could not load audience.']).join(' '));
+              return data.audience as AudienceDetail;
+            },
+            onFresh: (audience, { changed, fromCache }) => {
+              if (signal.aborted || version !== requestVersion) return;
+              if (!fromCache || changed) render(audience);
+            },
+          });
+        } catch (error) {
+          if (signal.aborted || version !== requestVersion) return;
+          const paidErr = error as Error & { code?: string; venues?: VenueOption[] };
+          if (paidErr?.code === 'paid_required') {
+            invalidateMerchantTabCache(selectedVenueId, 'audience');
             venue.paid = false;
-            if (Array.isArray(data.venues)) {
-              for (const item of data.venues as VenueOption[]) {
+            if (Array.isArray(paidErr.venues)) {
+              for (const item of paidErr.venues) {
                 const match = bootstrap.venues.find((entry) => entry.venueId === item.venueId);
                 if (match) match.paid = Boolean(item.paid);
               }
@@ -659,19 +709,19 @@ const bootstrap = JSON.stringify({
             void loadAudience();
             return;
           }
-          if (!response.ok) throw new Error((data.errors || ['Could not load audience.']).join(' '));
-          render(data.audience as AudienceDetail);
-        } catch (error) {
-          if (version !== requestVersion) return;
+          if (cached) return;
           status(error instanceof Error ? error.message : 'Could not load audience.');
         }
       }
 
-      const switcher = document.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
-      switcher?.addEventListener('change', () => {
-        selectedVenueId = Number(switcher.value);
+      document.addEventListener('astro:before-swap', () => pageAbort?.abort(), { once: true });
+
+      window.addEventListener(MERCHANT_VENUE_CHANGE_EVENT, ((event: CustomEvent<{ venueId?: number | null }>) => {
+        const next = Number(event.detail?.venueId);
+        if (!Number.isSafeInteger(next) || next <= 0) return;
+        selectedVenueId = next;
         void loadAudience();
-      });
+      }) as EventListener, { signal });
 
       accessForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -688,14 +738,19 @@ const bootstrap = JSON.stringify({
           const data = await response.json();
           if (!response.ok) throw new Error((data.errors || ['Could not redeem code.']).join(' '));
           selectedVenue().paid = true;
+          invalidateMerchantTabCache(selectedVenueId, 'audience');
+          invalidateMerchantTabCache(selectedVenueId, 'reports');
+          invalidateMerchantTabCache(selectedVenueId, 'billing');
           accessStatus.textContent = 'Access unlocked. Loading audience…';
           void loadAudience();
         } catch (error) {
           accessStatus.textContent = error instanceof Error ? error.message : 'Could not redeem code.';
         }
-      });
+      }, { signal });
 
       void loadAudience();
     }
+
+    onMerchantPageLoad(startAudiencePage);
   </script>
 </Layout>

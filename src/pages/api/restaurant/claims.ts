@@ -3,7 +3,7 @@ import { listVenueClaimsByUser } from '../../../lib/store';
 import { getSession } from '../../../lib/session';
 import { json } from '../../../lib/api';
 import { getMergedVenues } from '../../../lib/venueContent';
-import { getVenues, venueSlug } from '../../../lib/venues';
+import { getListingImage, getVenues, venueSlug } from '../../../lib/venues';
 import { listManagedVenueAccessByUser } from '../../../lib/venueUsers';
 
 export const prerender = false;
@@ -45,6 +45,9 @@ export const GET: APIRoute = async ({ cookies }) => {
   const enriched = claims.map((claim) => {
     const venue = baseVenues.find((v) => v.id === claim.venueId);
     const scheduleVenue = mergedVenues.find((v) => v.id === claim.venueId);
+    // Prefer the merged listing so owner-chosen featured photos win over the
+    // deploy-time JSON image / vibe stock photo.
+    const imageVenue = scheduleVenue || venue;
     return {
       ...claim,
       venueName: venue?.name ?? null,
@@ -53,6 +56,7 @@ export const GET: APIRoute = async ({ cookies }) => {
       venueSlug: venue ? venueSlug(venue) : null,
       venueNeighborhood: venue?.neighborhood ?? null,
       venuePhoneAvailable: Boolean(venue?.phone),
+      venueImageUrl: imageVenue ? getListingImage(imageVenue, 'card') : null,
       // The dashboard's informational recurring-hours block must reflect the
       // owner's latest listing override, not just the deploy-time JSON record.
       happyHourSchedule: scheduleVenue ? {

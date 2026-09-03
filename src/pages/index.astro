@@ -366,7 +366,50 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .save-panel { background: var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 8px; margin: 0 0 14px; padding: 10px; }
     .save-panel.compact { align-items: center; display: flex; justify-content: space-between; gap: 10px; }
     .save-panel-row { align-items: center; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; }
-    .save-panel select, .save-panel input { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
+    .save-panel-trailing { align-items: center; display: inline-flex; flex-shrink: 0; gap: 8px; }
+    .card-action-icons { align-items: center; display: inline-flex; flex-shrink: 0; gap: 6px; position: relative; }
+    .card-icon-btn {
+      align-items: center; appearance: none; background: white; border: 2px solid rgba(15, 23, 42, .12);
+      border-radius: 50%; color: var(--night); cursor: pointer; display: inline-flex; flex-shrink: 0;
+      height: 36px; justify-content: center; padding: 0; width: 36px;
+    }
+    .card-icon-btn svg { height: 16px; width: 16px; }
+    .card-icon-btn:hover { border-color: rgba(15, 23, 42, .24); color: var(--sunset-start); }
+    .card-icon-btn:focus-visible { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+    .card-notify-btn.is-following { background: var(--ocean); border-color: var(--ocean); color: white; }
+    .card-notify-btn.is-following:hover { background: var(--ocean-deep, #0c4a6e); border-color: var(--ocean-deep, #0c4a6e); color: white; }
+    .card-popover {
+      background: white; border: 1px solid rgba(15, 23, 42, .1); border-radius: var(--radius-sm);
+      box-shadow: 0 18px 44px rgba(15, 23, 42, .24); display: grid; gap: 2px; padding: 8px;
+      position: absolute; right: 0; top: calc(100% + 8px); width: min(220px, calc(100vw - 48px)); z-index: 40;
+    }
+    .card-popover[hidden] { display: none; }
+    .card-popover-title { font-size: .78rem; padding: 6px 10px 4px; }
+    .card-popover-status { color: #047857; font-size: .75rem; font-weight: 700; padding: 2px 10px 6px; }
+    .card-popover-status.is-error { color: #B91C1C; }
+    .card-share-menu button, .card-share-menu a {
+      align-items: center; appearance: none; background: transparent; border: 0; border-radius: 9px;
+      color: var(--night); cursor: pointer; display: flex; font: inherit; font-size: .86rem; font-weight: 700;
+      gap: 10px; padding: 10px 12px; text-align: left; text-decoration: none; width: 100%;
+    }
+    .card-share-menu :is(button, a):hover,
+    .card-share-menu :is(button, a):focus-visible { background: var(--sand-warm); outline: none; }
+    .card-share-menu .share-fb-mark { flex-shrink: 0; }
+    .card-notify-pref {
+      align-items: center; border-radius: 9px; color: var(--night); cursor: pointer;
+      display: grid; font-size: .86rem; font-weight: 700; gap: 10px; grid-template-columns: 16px minmax(0, 1fr);
+      padding: 8px 10px;
+    }
+    .card-notify-pref:hover { background: var(--sand-warm); }
+    .card-notify-pref.is-disabled { color: var(--night-soft); cursor: not-allowed; opacity: .72; }
+    .card-notify-pref.is-disabled:hover { background: transparent; }
+    .card-notify-pref-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; line-height: 1.25; min-width: 0; }
+    .card-notify-pref em { color: var(--night-soft); font-size: .72rem; font-style: normal; font-weight: 650; }
+    .card-notify-pref input[type="checkbox"] {
+      accent-color: var(--ocean); align-self: center; flex-shrink: 0; height: 16px; justify-self: center;
+      margin: 0; padding: 0; width: 16px;
+    }
+    .save-panel select, .save-panel input:not([type="checkbox"]) { border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 10px; color: var(--night); font: inherit; font-size: 0.82rem; padding: 8px 10px; width: 100%; }
     .save-list-combobox { min-width: 0; position: relative; }
     .save-list-trigger { align-items: center; background: white; border: 2px solid rgba(15, 23, 42, .12); border-radius: 10px; color: var(--night); cursor: pointer; display: grid; font: inherit; font-size: .82rem; font-weight: 650; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; padding: 8px 10px; text-align: left; width: 100%; }
     .save-list-trigger:hover { border-color: rgba(15, 23, 42, .24); }
@@ -385,10 +428,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .save-list-option[aria-selected="true"] .save-list-option-check { visibility: visible; }
     .save-list-option.create { color: var(--ocean); }
     .save-panel-row .save-action { white-space: nowrap; }
-    .save-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .save-action { border: 0; border-radius: 100px; background: var(--night); color: white; cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 700; padding: 8px 12px; }
+    .save-action {
+      align-items: center; border: 0; border-radius: 100px; background: var(--night); color: white;
+      cursor: pointer; display: inline-flex; font: inherit; font-size: 0.78rem; font-weight: 700;
+      justify-content: center; min-height: 36px; padding: 8px 12px;
+    }
     .save-action:hover { background: var(--sunset-start); }
-    .save-action.secondary { background: white; color: var(--night); }
     .save-confirm { align-items: center; color: #047857; display: inline-flex; font-size: 0.78rem; font-weight: 700; gap: 4px; }
     .save-confirm.is-loading { color: var(--night-soft); }
     .save-confirm.is-loading::before {
@@ -400,9 +445,6 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       height: 18px;
       width: 15px;
     }
-    .save-list-chips { display: flex; gap: 5px; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
-    .save-list-chip { background: white; border-radius: 100px; color: var(--night-soft); display: block; flex: 0 0 auto; font-size: .7rem; font-weight: 750; padding: 5px 8px; white-space: nowrap; }
-    .save-list-chip:last-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
     .week-row { display: flex; gap: 4px; margin-bottom: 16px; }
     .week-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; background: var(--sand-warm); color: var(--night-soft); }
@@ -653,6 +695,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     } from '../lib/directoryFilters';
     import { accountSignInHref, currentReturnPath } from '../lib/authRedirect';
     import { fetchBrowserSession } from '../lib/browserSession';
+    import {
+      bindCardShareNotify,
+      hydrateCardFollows,
+      renderCardShareNotifyIcons,
+      type CardFollowState,
+    } from '../lib/cardShareNotify';
 
     let baseHappyHours: any[] = [];
     let happyHours: any[] = [];
@@ -664,6 +712,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     let accountUser: any = null;
     let saveConfirmation: { spotId: number; text: string } | null = null;
     const pendingSaveListSelections = new Map<number, string>();
+    const cardFollows = new Map<number, CardFollowState>();
     let dayFilterInitialized = false;
     let dayFilterTouched = false;
     let automaticDayFilter = '';
@@ -1049,6 +1098,12 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         accountUser = session.authenticated ? session.user : null;
       } catch {
         accountUser = null;
+      }
+
+      if (accountUser) {
+        await hydrateCardFollows(cardFollows);
+      } else {
+        cardFollows.clear();
       }
 
       updateAlertTextNote();
@@ -1668,11 +1723,24 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     function renderSavePanel(h: any) {
+      const slug = venueSlug(h);
+      const follow = cardFollows.get(h.id);
+      const actionIcons = renderCardShareNotifyIcons({
+        venueId: h.id,
+        venueName: h.name,
+        slug,
+        following: Boolean(follow),
+        promotionAlertsEnabled: follow?.promotionAlertsEnabled,
+      });
+
       if (!accountUser) {
         return `
           <div class="save-panel compact">
             <span>Save notes and lists</span>
-            <button class="save-action" data-save-login>Log in</button>
+            <div class="save-panel-trailing">
+              <button class="save-action" data-save-login>Log in</button>
+              ${actionIcons}
+            </div>
           </div>
         `;
       }
@@ -1729,7 +1797,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
                   <button class="save-list-option create${selectedListId === '__create' ? ' active' : ''}" type="button" role="option" aria-selected="${selectedListId === '__create'}" data-list-menu-option data-save-list-option="__create" data-save-list-option-label="Create a new list…"><span class="save-list-option-check" aria-hidden="true">✓</span><span>+ Create a new list…</span></button>
                 </div>
               </div>
-              <button class="save-action" data-save-spot="${h.id}">Save</button>
+              <div class="save-panel-trailing">
+                <button class="save-action" data-save-spot="${h.id}">Save</button>
+                ${actionIcons}
+              </div>
             </div>
             <span class="save-confirm" data-list-action-status aria-live="polite"></span>
           </div>
@@ -1742,39 +1813,35 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       return `
         <div class="save-panel" data-saved-spot="${h.id}">
-          <div class="save-list-chips">
-            ${saved.lists.map((list: any) => {
-              const label = `${list.title}${list.role === 'viewer' ? ' · view only' : ''}`;
-              return `<span class="save-list-chip" title="${escapeHTML(label)}">${escapeHTML(label)}</span>`;
-            }).join('')}
-          </div>
-          <div class="save-list-combobox" data-list-menu-combobox data-manage-list-combobox="${h.id}">
-            <button
-              class="save-list-trigger"
-              type="button"
-              data-list-menu-trigger
-              data-manage-list-trigger="${h.id}"
-              aria-label="Manage lists for ${escapeHTML(h.name)}"
-              aria-haspopup="listbox"
-              aria-expanded="false"
-              aria-controls="manage-list-options-${h.id}"
-            >
-              <span class="save-list-trigger-label">Add or remove a list…</span>
-              <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="save-list-options" id="manage-list-options-${h.id}" role="listbox" aria-label="Manage lists for ${escapeHTML(h.name)}" aria-multiselectable="true" data-list-menu data-manage-list-menu hidden>
-              ${lists.map((list: any) => {
-                const membership = saved.lists.find((entry: any) => entry.listId === list.id);
-                const label = `${pickerLabel(list)}${!list.canEdit ? ' · view only' : ''}`;
-                return `<button class="save-list-option${membership ? ' active' : ''}" type="button" role="option" aria-selected="${Boolean(membership)}" ${!list.canEdit ? 'disabled' : ''} data-list-menu-option data-manage-list-option="${escapeHTML(list.id)}"><span class="save-list-option-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></button>`;
-              }).join('')}
-              <button class="save-list-option create" type="button" role="option" aria-selected="false" data-list-menu-option data-manage-list-option="__create"><span class="save-list-option-check" aria-hidden="true">✓</span><span>+ Create a new list…</span></button>
+          <div class="save-panel-row">
+            <div class="save-list-combobox" data-list-menu-combobox data-manage-list-combobox="${h.id}">
+              <button
+                class="save-list-trigger"
+                type="button"
+                data-list-menu-trigger
+                data-manage-list-trigger="${h.id}"
+                aria-label="Manage lists for ${escapeHTML(h.name)}"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-controls="manage-list-options-${h.id}"
+              >
+                <span class="save-list-trigger-label">Add or remove a list…</span>
+                <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="save-list-options" id="manage-list-options-${h.id}" role="listbox" aria-label="Manage lists for ${escapeHTML(h.name)}" aria-multiselectable="true" data-list-menu data-manage-list-menu hidden>
+                ${lists.map((list: any) => {
+                  const membership = saved.lists.find((entry: any) => entry.listId === list.id);
+                  const label = `${pickerLabel(list)}${!list.canEdit ? ' · view only' : ''}`;
+                  return `<button class="save-list-option${membership ? ' active' : ''}" type="button" role="option" aria-selected="${Boolean(membership)}" ${!list.canEdit ? 'disabled' : ''} data-list-menu-option data-manage-list-option="${escapeHTML(list.id)}"><span class="save-list-option-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></button>`;
+                }).join('')}
+                <button class="save-list-option create" type="button" role="option" aria-selected="false" data-list-menu-option data-manage-list-option="__create"><span class="save-list-option-check" aria-hidden="true">✓</span><span>+ Create a new list…</span></button>
+              </div>
+            </div>
+            <div class="save-panel-trailing">
+              ${actionIcons}
             </div>
           </div>
-          <div class="save-actions">
-            <a class="save-action secondary" href="/account/#section-spots" style="text-decoration:none;">Ratings, comments &amp; details</a>
-            <span class="save-confirm" data-list-action-status aria-live="polite">${confirmation}</span>
-          </div>
+          <span class="save-confirm" data-list-action-status aria-live="polite">${confirmation}</span>
         </div>
       `;
     }
@@ -1808,6 +1875,15 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     document.getElementById('grid')!.addEventListener('error', restoreListingImage, true);
+
+    bindCardShareNotify({
+      root: document.getElementById('grid')!,
+      follows: cardFollows,
+      isSignedIn: () => Boolean(accountUser),
+      onSignInRequired: () => {
+        window.location.href = accountSignInHref(currentReturnPath());
+      },
+    });
 
     document.getElementById('live-counter-button')!.addEventListener('click', () => {
       const now = getServerNow();

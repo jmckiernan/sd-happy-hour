@@ -30,6 +30,13 @@ export default defineConfig({
   devToolbar: { enabled: false },
   output: 'server',
   adapter: netlify(),
+  // Explicit hover prefetch for merchant tab links (and any other
+  // data-astro-prefetch markers). ClientRouter on /restaurant/* also enables
+  // prefetch; this keeps non-router pages from prefetching every link.
+  prefetch: {
+    prefetchAll: false,
+    defaultStrategy: 'hover',
+  },
   integrations: [sitemap({
     filter: (page) => {
       const pathname = new URL(page).pathname;

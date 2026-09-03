@@ -274,190 +274,251 @@ const publicHref = `/venues/${encodeURIComponent(slug)}/`;
   </div>
 
   <script>
-    const root = document.querySelector<HTMLElement>('.mu-workspace')!;
-    const venueId = Number(root.dataset.venueId);
-    const search = document.getElementById('mu-search') as HTMLInputElement;
-    const newRole = document.getElementById('mu-new-role') as HTMLSelectElement;
-    const results = document.getElementById('mu-results')!;
-    const current = document.getElementById('mu-current')!;
-    const addStatus = document.getElementById('mu-add-status')!;
-    const listStatus = document.getElementById('mu-list-status')!;
-    let searchTimer = 0;
-    let searchVersion = 0;
+    import {
+      MERCHANT_VENUE_CHANGE_EVENT,
+      onMerchantPageLoad,
+      prefetchVisibleMerchantTabs,
+    } from '../../../../lib/merchantShellNav';
+    import {
+      getMerchantTabCache,
+      invalidateMerchantTabCache,
+      swrMerchantTabCache,
+    } from '../../../../lib/merchantTabCache';
 
-    function escapeHTML(value: unknown) {
-      return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string,string>)[char]);
-    }
-    function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'error' = '') {
-      el.className = `mu-status${kind ? ` ${kind}` : ''}`;
-      el.textContent = message;
-    }
-    async function api(path: string, options: RequestInit = {}) {
-      const headers = new Headers(options.headers || {});
-      headers.set('Accept', 'application/json');
-      if (options.body) headers.set('Content-Type', 'application/json');
-      const response = await fetch(path, { ...options, headers, credentials: 'same-origin', cache: 'no-store' });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error((data.errors || ['Something went wrong.']).join(' '));
-      return data;
-    }
-    function roleOptions(selected: string) {
-      return `<option value="full_admin"${selected === 'full_admin' ? ' selected' : ''}>Full Admin</option><option value="promotions"${selected === 'promotions' ? ' selected' : ''}>Promotions Only</option>`;
-    }
+    // ClientRouter skips already-executed module scripts on soft-nav revisit.
+    let pageAbort: AbortController | null = null;
 
-    function syncMerchantShell(claims: Array<{
-      venueId: number;
-      venueName?: string | null;
-      venueSlug?: string | null;
-      accessRole?: string;
-      status?: string;
-    }>, email: string): void {
-      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
-      if (!shell) return;
-      const claim = claims.find((entry) => entry.venueId === venueId) || null;
-      const emailEl = shell.querySelector('[data-merchant-shell-email]');
-      const roleEl = shell.querySelector('[data-merchant-shell-role]');
-      const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
-      const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
-      const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+    function startTeamPage() {
+      const root = document.querySelector<HTMLElement>('.mu-workspace');
+      if (!root) return;
 
-      if (emailEl) emailEl.textContent = email;
-      const roleText = claim?.accessRole === 'owner' ? 'Owner'
-        : claim?.accessRole === 'full_admin' ? 'Full Admin'
-        : claim?.accessRole === 'promotions' ? 'Promotions'
-        : 'Owner';
-      if (roleEl) roleEl.textContent = roleText;
-      if (roleSep) roleSep.hidden = !(roleText && email);
+      pageAbort?.abort();
+      pageAbort = new AbortController();
+      const signal = pageAbort.signal;
 
-      const ownerClaims = claims.filter((entry) => entry.status === 'verified' && entry.accessRole === 'owner' && entry.venueSlug);
-      if (switcher) {
-        if (ownerClaims.length > 1) {
-          switcher.hidden = false;
-          switcher.innerHTML = ownerClaims.map((entry) => `
-            <option value="${entry.venueId}" data-slug="${escapeHTML(entry.venueSlug || '')}" ${entry.venueId === venueId ? 'selected' : ''}>
-              ${escapeHTML(entry.venueName || `Venue #${entry.venueId}`)}
-            </option>
-          `).join('');
-        } else {
-          switcher.hidden = true;
-          switcher.innerHTML = '';
+      const venueId = Number(root.dataset.venueId);
+      const search = document.getElementById('mu-search') as HTMLInputElement;
+      const newRole = document.getElementById('mu-new-role') as HTMLSelectElement;
+      const results = document.getElementById('mu-results')!;
+      const current = document.getElementById('mu-current')!;
+      const addStatus = document.getElementById('mu-add-status')!;
+      const listStatus = document.getElementById('mu-list-status')!;
+      let searchTimer = 0;
+      let searchVersion = 0;
+
+      function escapeHTML(value: unknown) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string,string>)[char]);
+      }
+      function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'error' = '') {
+        el.className = `mu-status${kind ? ` ${kind}` : ''}`;
+        el.textContent = message;
+      }
+      async function api(path: string, options: RequestInit = {}) {
+        const headers = new Headers(options.headers || {});
+        headers.set('Accept', 'application/json');
+        if (options.body) headers.set('Content-Type', 'application/json');
+        const response = await fetch(path, { ...options, headers, credentials: 'same-origin', cache: 'no-store', signal });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error((data.errors || ['Something went wrong.']).join(' '));
+        return data;
+      }
+      function roleOptions(selected: string) {
+        return `<option value="full_admin"${selected === 'full_admin' ? ' selected' : ''}>Full Admin</option><option value="promotions"${selected === 'promotions' ? ' selected' : ''}>Promotions Only</option>`;
+      }
+
+      function syncMerchantShell(claims: Array<{
+        venueId: number;
+        venueName?: string | null;
+        venueSlug?: string | null;
+        accessRole?: string;
+        status?: string;
+      }>, email: string): void {
+        const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+        if (!shell) return;
+        const claim = claims.find((entry) => entry.venueId === venueId) || null;
+        const emailEl = shell.querySelector('[data-merchant-shell-email]');
+        const roleEl = shell.querySelector('[data-merchant-shell-role]');
+        const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+        const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+        const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+
+        if (emailEl) emailEl.textContent = email;
+        const roleText = claim?.accessRole === 'owner' ? 'Owner'
+          : claim?.accessRole === 'full_admin' ? 'Full Admin'
+          : claim?.accessRole === 'promotions' ? 'Promotions'
+          : 'Owner';
+        if (roleEl) roleEl.textContent = roleText;
+        if (roleSep) roleSep.hidden = !(roleText && email);
+
+        const ownerClaims = claims.filter((entry) => entry.status === 'verified' && entry.accessRole === 'owner' && entry.venueSlug);
+        if (switcher) {
+          if (ownerClaims.length > 1) {
+            switcher.hidden = false;
+            switcher.innerHTML = ownerClaims.map((entry) => `
+              <option value="${entry.venueId}" data-slug="${escapeHTML(entry.venueSlug || '')}" ${entry.venueId === venueId ? 'selected' : ''}>
+                ${escapeHTML(entry.venueName || `Venue #${entry.venueId}`)}
+              </option>
+            `).join('');
+          } else {
+            switcher.hidden = true;
+            switcher.innerHTML = '';
+          }
+        }
+
+        if (tabsEl) tabsEl.hidden = false;
+        const active = claim || { venueId, venueSlug: root.dataset.venueSlug || '', venueName: root.dataset.venueName || '' };
+        const id = String(active.venueId);
+        const slug = active.venueSlug ? encodeURIComponent(active.venueSlug) : '';
+        for (const tab of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+          const tabId = tab.dataset.merchantShellTab || '';
+          let href = '#';
+          if (tabId === 'promotions') href = `/restaurant/?venueId=${id}`;
+          else if (tabId === 'listing') href = slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+          else if (tabId === 'photos') href = slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+          else if (tabId === 'menu') href = slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+          else if (tabId === 'audience') href = `/restaurant/audience/?venueId=${id}`;
+          else if (tabId === 'reports') href = `/restaurant/reports/?venueId=${id}`;
+          else if (tabId === 'billing') href = `/restaurant/billing/?venueId=${id}`;
+          else if (tabId === 'team') href = slug ? `/restaurant/manage/${slug}/users/` : '#';
+          tab.href = href;
+        }
+        prefetchVisibleMerchantTabs();
+      }
+
+      async function hydrateShell() {
+        try {
+          const [me, claimsData] = await Promise.all([
+            api('/api/account/me'),
+            api('/api/restaurant/claims'),
+          ]);
+          if (signal.aborted) return;
+          const email = me.authenticated ? (me.user?.email || '') : '';
+          syncMerchantShell(claimsData.claims || [], email);
+        } catch {
+          /* Team page still works; shell meta is best-effort. */
         }
       }
 
-      if (tabsEl) tabsEl.hidden = false;
-      const active = claim || { venueId, venueSlug: root.dataset.venueSlug || '', venueName: root.dataset.venueName || '' };
-      const id = String(active.venueId);
-      const slug = active.venueSlug ? encodeURIComponent(active.venueSlug) : '';
-      for (const tab of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
-        const tabId = tab.dataset.merchantShellTab || '';
-        let href = '#';
-        if (tabId === 'promotions') href = `/restaurant/?venueId=${id}`;
-        else if (tabId === 'listing') href = slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
-        else if (tabId === 'photos') href = slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
-        else if (tabId === 'menu') href = slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
-        else if (tabId === 'audience') href = `/restaurant/audience/?venueId=${id}`;
-        else if (tabId === 'reports') href = `/restaurant/reports/?venueId=${id}`;
-        else if (tabId === 'billing') href = `/restaurant/billing/?venueId=${id}`;
-        else if (tabId === 'team') href = slug ? `/restaurant/manage/${slug}/users/` : '#';
-        tab.href = href;
-      }
-    }
+      document.addEventListener('astro:before-swap', () => pageAbort?.abort(), { once: true });
 
-    async function hydrateShell() {
-      try {
-        const [me, claimsData] = await Promise.all([
-          api('/api/account/me'),
-          api('/api/restaurant/claims'),
-        ]);
-        const email = me.authenticated ? (me.user?.email || '') : '';
-        syncMerchantShell(claimsData.claims || [], email);
-      } catch {
-        /* Team page still works; shell meta is best-effort. */
-      }
-    }
+      window.addEventListener(MERCHANT_VENUE_CHANGE_EVENT, ((event: CustomEvent<{ venueSlug?: string | null; option?: HTMLOptionElement }>) => {
+        const nextSlug = event.detail?.venueSlug || event.detail?.option?.dataset.slug;
+        if (!nextSlug) return;
+        window.location.assign(`/restaurant/manage/${encodeURIComponent(nextSlug)}/users/`);
+      }) as EventListener, { signal });
 
-    document.querySelector('[data-merchant-shell-switcher]')?.addEventListener('change', (event) => {
-      const select = event.currentTarget as HTMLSelectElement;
-      const option = select.selectedOptions[0];
-      const nextSlug = option?.dataset.slug;
-      if (!nextSlug) return;
-      window.location.assign(`/restaurant/manage/${encodeURIComponent(nextSlug)}/users/`);
-    });
-
-    async function load() {
-      try {
-        const data = await api(`/api/restaurant/venues/${venueId}/managers`);
+      function paintManagers(data: any) {
         const rows = [
           `<div class="mu-person mu-owner"><div class="mu-person-copy"><strong>${escapeHTML(data.owner?.name || 'Restaurant owner')}</strong><span>${escapeHTML(data.owner?.email || '')}</span></div><span class="mu-role-badge">Owner</span></div>`,
           ...data.managers.map((person: any) => `<div class="mu-person" data-kind="manager" data-id="${escapeHTML(person.id)}"><div class="mu-person-copy"><strong>${escapeHTML(person.name || person.email)}</strong><span>${escapeHTML(person.email)}</span></div><div class="mu-actions"><select aria-label="Role for ${escapeHTML(person.name || person.email)}">${roleOptions(person.role)}</select><button class="mu-btn danger" data-action="remove">Remove</button></div></div>`),
           ...data.invites.map((invite: any) => `<div class="mu-person" data-kind="invite" data-id="${escapeHTML(invite.id)}" data-email="${escapeHTML(invite.email)}"><div class="mu-person-copy"><strong>${escapeHTML(invite.email)}</strong><span>Invitation pending · expires ${escapeHTML(new Date(invite.expiresAt).toLocaleDateString())}</span></div><div class="mu-actions"><select aria-label="Role for ${escapeHTML(invite.email)}">${roleOptions(invite.role)}</select><button class="mu-btn secondary" data-action="resend">Resend</button><button class="mu-btn danger" data-action="remove">Revoke</button></div></div>`),
         ];
         current.innerHTML = rows.join('');
-      } catch (error: any) {
-        current.innerHTML = '';
-        setStatus(listStatus, error.message, 'error');
       }
-    }
-    async function add(input: { userId?: string; email?: string; role?: string }) {
-      setStatus(addStatus, input.userId ? 'Adding user…' : 'Sending invitation…');
-      try {
-        const data = await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'POST', body: JSON.stringify({ ...input, role: input.role || newRole.value }) });
-        setStatus(addStatus, data.kind === 'invite'
-          ? data.email?.simulated ? 'Invitation created. Email delivery is currently simulated.' : 'Invitation sent.'
-          : 'Managing user added.', 'ok');
-        search.value = '';
-        results.innerHTML = '';
-        await load();
-      } catch (error: any) { setStatus(addStatus, error.message, 'error'); }
-    }
-    async function runSearch() {
-      const query = search.value.trim();
-      const isEmail = query.includes('@');
-      const completeEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(query);
-      if ((!isEmail && query.length < 3) || (isEmail && !completeEmail)) { results.innerHTML = ''; return; }
-      const version = ++searchVersion;
-      try {
-        const data = await api(`/api/restaurant/venues/${venueId}/manager-search?q=${encodeURIComponent(query)}`);
-        if (version !== searchVersion) return;
-        if (data.results.length) {
-          results.innerHTML = data.results.map((user: any) => `<div class="mu-result"><div class="mu-person-copy"><strong>${escapeHTML(user.name || user.email)}</strong><span>${escapeHTML(user.email)}</span></div><button class="mu-btn" data-add-user="${escapeHTML(user.id)}" data-email="${escapeHTML(data.exactEmail ? user.email : '')}">Add</button></div>`).join('');
-        } else if (completeEmail) {
-          results.innerHTML = `<div class="mu-result"><div class="mu-person-copy"><strong>${escapeHTML(query.toLowerCase())}</strong><span>No account yet — send a 7-day invitation</span></div><button class="mu-btn" data-invite-email="${escapeHTML(query.toLowerCase())}">Send Invite</button></div>`;
-        } else results.innerHTML = '<p class="mu-empty">No matching users.</p>';
-      } catch (error: any) { setStatus(addStatus, error.message, 'error'); }
-    }
-    search.addEventListener('input', () => { window.clearTimeout(searchTimer); searchTimer = window.setTimeout(runSearch, 250); });
-    results.addEventListener('click', (event) => {
-      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
-      if (!button) return;
-      if (button.dataset.addUser) void add({ userId: button.dataset.addUser });
-      else if (button.dataset.inviteEmail) void add({ email: button.dataset.inviteEmail });
-    });
-    current.addEventListener('change', async (event) => {
-      const select = (event.target as HTMLElement).closest<HTMLSelectElement>('select');
-      const row = select?.closest<HTMLElement>('[data-id]');
-      if (!select || !row) return;
-      try {
-        await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'PATCH', body: JSON.stringify({ id: row.dataset.id, kind: row.dataset.kind, role: select.value }) });
-        setStatus(listStatus, 'Access updated.', 'ok');
-      } catch (error: any) { setStatus(listStatus, error.message, 'error'); await load(); }
-    });
-    current.addEventListener('click', async (event) => {
-      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
-      const row = button?.closest<HTMLElement>('[data-id]');
-      if (!button || !row) return;
-      if (button.dataset.action === 'resend') {
-        await add({ email: row.dataset.email || '', role: row.querySelector('select')?.value });
-        return;
+
+      async function load() {
+        const cached = getMerchantTabCache<any>(venueId, 'team');
+        if (cached) paintManagers(cached.data);
+        else setStatus(listStatus, 'Loading team…');
+        try {
+          await swrMerchantTabCache({
+            venueId,
+            resource: 'team',
+            signal,
+            fetcher: async () => api(`/api/restaurant/venues/${venueId}/managers`),
+            onFresh: (data, { changed, fromCache }) => {
+              if (signal.aborted) return;
+              if (!fromCache || changed) paintManagers(data);
+              if (!fromCache) setStatus(listStatus, '');
+            },
+          });
+          if (!signal.aborted && cached) setStatus(listStatus, '');
+        } catch (error: any) {
+          if (signal.aborted) return;
+          if (cached) return;
+          current.innerHTML = '';
+          setStatus(listStatus, error.message, 'error');
+        }
       }
-      if (!confirm(row.dataset.kind === 'invite' ? 'Revoke this invitation?' : 'Remove this managing user?')) return;
-      try {
-        await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'DELETE', body: JSON.stringify({ id: row.dataset.id, kind: row.dataset.kind }) });
-        setStatus(listStatus, row.dataset.kind === 'invite' ? 'Invitation revoked.' : 'Managing user removed.', 'ok');
-        await load();
-      } catch (error: any) { setStatus(listStatus, error.message, 'error'); }
-    });
-    void hydrateShell();
-    void load();
+      async function add(input: { userId?: string; email?: string; role?: string }) {
+        setStatus(addStatus, input.userId ? 'Adding user…' : 'Sending invitation…');
+        try {
+          const data = await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'POST', body: JSON.stringify({ ...input, role: input.role || newRole.value }) });
+          setStatus(addStatus, data.kind === 'invite'
+            ? data.email?.simulated ? 'Invitation created. Email delivery is currently simulated.' : 'Invitation sent.'
+            : 'Managing user added.', 'ok');
+          search.value = '';
+          results.innerHTML = '';
+          invalidateMerchantTabCache(venueId, 'team');
+          await load();
+        } catch (error: any) {
+          if (signal.aborted) return;
+          setStatus(addStatus, error.message, 'error');
+        }
+      }
+      async function runSearch() {
+        const query = search.value.trim();
+        const isEmail = query.includes('@');
+        const completeEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(query);
+        if ((!isEmail && query.length < 3) || (isEmail && !completeEmail)) { results.innerHTML = ''; return; }
+        const version = ++searchVersion;
+        try {
+          const data = await api(`/api/restaurant/venues/${venueId}/manager-search?q=${encodeURIComponent(query)}`);
+          if (signal.aborted || version !== searchVersion) return;
+          if (data.results.length) {
+            results.innerHTML = data.results.map((user: any) => `<div class="mu-result"><div class="mu-person-copy"><strong>${escapeHTML(user.name || user.email)}</strong><span>${escapeHTML(user.email)}</span></div><button class="mu-btn" data-add-user="${escapeHTML(user.id)}" data-email="${escapeHTML(data.exactEmail ? user.email : '')}">Add</button></div>`).join('');
+          } else if (completeEmail) {
+            results.innerHTML = `<div class="mu-result"><div class="mu-person-copy"><strong>${escapeHTML(query.toLowerCase())}</strong><span>No account yet — send a 7-day invitation</span></div><button class="mu-btn" data-invite-email="${escapeHTML(query.toLowerCase())}">Send Invite</button></div>`;
+          } else results.innerHTML = '<p class="mu-empty">No matching users.</p>';
+        } catch (error: any) {
+          if (signal.aborted) return;
+          setStatus(addStatus, error.message, 'error');
+        }
+      }
+      search.addEventListener('input', () => { window.clearTimeout(searchTimer); searchTimer = window.setTimeout(runSearch, 250); }, { signal });
+      results.addEventListener('click', (event) => {
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
+        if (!button) return;
+        if (button.dataset.addUser) void add({ userId: button.dataset.addUser });
+        else if (button.dataset.inviteEmail) void add({ email: button.dataset.inviteEmail });
+      }, { signal });
+      current.addEventListener('change', async (event) => {
+        const select = (event.target as HTMLElement).closest<HTMLSelectElement>('select');
+        const row = select?.closest<HTMLElement>('[data-id]');
+        if (!select || !row) return;
+        try {
+          await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'PATCH', body: JSON.stringify({ id: row.dataset.id, kind: row.dataset.kind, role: select.value }) });
+          setStatus(listStatus, 'Access updated.', 'ok');
+          invalidateMerchantTabCache(venueId, 'team');
+        } catch (error: any) {
+          if (signal.aborted) return;
+          setStatus(listStatus, error.message, 'error');
+          await load();
+        }
+      }, { signal });
+      current.addEventListener('click', async (event) => {
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
+        const row = button?.closest<HTMLElement>('[data-id]');
+        if (!button || !row) return;
+        if (button.dataset.action === 'resend') {
+          await add({ email: row.dataset.email || '', role: row.querySelector('select')?.value });
+          return;
+        }
+        if (!confirm(row.dataset.kind === 'invite' ? 'Revoke this invitation?' : 'Remove this managing user?')) return;
+        try {
+          await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'DELETE', body: JSON.stringify({ id: row.dataset.id, kind: row.dataset.kind }) });
+          setStatus(listStatus, row.dataset.kind === 'invite' ? 'Invitation revoked.' : 'Managing user removed.', 'ok');
+          invalidateMerchantTabCache(venueId, 'team');
+          await load();
+        } catch (error: any) {
+          if (signal.aborted) return;
+          setStatus(listStatus, error.message, 'error');
+        }
+      }, { signal });
+      void hydrateShell();
+      void load();
+    }
+
+    onMerchantPageLoad(startTeamPage);
   </script>
 </Layout>

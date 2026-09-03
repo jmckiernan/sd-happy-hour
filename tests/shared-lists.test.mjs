@@ -276,14 +276,6 @@ async function main() {
   assert.doesNotMatch(listPage, />comment here</);
   assert.doesNotMatch(listPage, />note here</);
 
-  // Saved-list labels on directory cards stay to one row. Long names keep
-  // their full text in the DOM/title while CSS clips the visual pill.
-  const homepage = await readFile(path.join(process.cwd(), 'src', 'pages', 'index.astro'), 'utf8');
-  assert.match(homepage, /\.save-list-chips\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*overflow:\s*hidden;/s);
-  assert.match(homepage, /\.save-list-chip\s*\{[^}]*flex:\s*0 0 auto;[^}]*white-space:\s*nowrap;/s);
-  assert.match(homepage, /\.save-list-chip:last-child\s*\{[^}]*flex:\s*0 1 auto;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;/s);
-  assert.match(homepage, /<span class="save-list-chip" title="\$\{escapeHTML\(label\)\}">\$\{escapeHTML\(label\)\}<\/span>/);
-
   console.log('shared lists: permission, API, link-access, collaborator-mutation, and migration tests passed');
 }
 

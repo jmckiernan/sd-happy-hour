@@ -3,7 +3,7 @@ export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
 import ListingFormStyles from '../../../components/ListingFormStyles.astro';
 import MerchantShell from '../../../components/MerchantShell.astro';
-import { getVenues, venueSlug, venuePath } from '../../../lib/venues';
+import { getListingImage, getVenues, venueSlug, venuePath } from '../../../lib/venues';
 
 // The management screen a verified restaurant owner gets for their own listing:
 // hours and deals, a photo album, and a menu.
@@ -28,6 +28,7 @@ export async function getStaticPaths() {
 const { venue } = Astro.props;
 const slug = venueSlug(venue);
 const publicHref = venuePath(venue);
+const venueImageUrl = getListingImage(venue, 'card');
 ---
 <Layout title={`Manage ${venue.name} | Happy Hour SD`} description="Manage your happy hour listing, photos, and menu.">
   <ListingFormStyles />
@@ -137,6 +138,7 @@ const publicHref = venuePath(venue);
     venueName={venue.name}
     venueSlug={slug}
     venueId={venue.id}
+    venueImageUrl={venueImageUrl}
     publicHref={publicHref}
     hideTabs={true}
   >
@@ -209,8 +211,23 @@ const publicHref = venuePath(venue);
 
   <script>
     import { listingFormHTML, readListingForm, wireListingPhotoPicker } from '../../../lib/listingForm';
+    import {
+      MERCHANT_TAB_EVENT,
+      MERCHANT_VENUE_CHANGE_EVENT,
+      onMerchantPageLoad,
+      prefetchVisibleMerchantTabs,
+      readManageTabFromUrl,
+      setMerchantShellVenueImage,
+      type MerchantInstantTab,
+    } from '../../../lib/merchantShellNav';
+    import {
+      getMerchantTabCache,
+      invalidateMerchantTabCache,
+      setMerchantTabCache,
+      swrMerchantTabCache,
+    } from '../../../lib/merchantTabCache';
 
-    type ManageTab = 'listing' | 'photos' | 'menu';
+    type ManageTab = MerchantInstantTab;
     type ShellRole = 'owner' | 'full_admin' | 'promotions';
 
     interface ManageClaim {
@@ -219,786 +236,964 @@ const publicHref = venuePath(venue);
       accessRole?: ShellRole | string | null;
       venueName?: string | null;
       venueSlug?: string | null;
+      venueImageUrl?: string | null;
     }
 
-    const editorEl = document.getElementById('mg-editor')!;
-    const lockedEl = document.getElementById('mg-locked')!;
-    const venueId = Number(editorEl.dataset.venueId);
-    const venueSlug = editorEl.dataset.venueSlug || '';
+    // ClientRouter skips already-executed module scripts on soft-nav revisit.
+    let pageAbort: AbortController | null = null;
 
-    const formEl = document.getElementById('mg-form')!;
-    const saveBtn = document.getElementById('mg-save') as HTMLButtonElement;
-    const saveStatusEl = document.getElementById('mg-save-status')!;
-    const photoGridEl = document.getElementById('ph-grid')!;
-    const photoStatusEl = document.getElementById('ph-upload-status')!;
-    const menuBodyEl = document.getElementById('mn-body')!;
-    const menuStatusEl = document.getElementById('mn-status')!;
+    function startManagePage() {
+      const editorEl = document.getElementById('mg-editor');
+      const lockedEl = document.getElementById('mg-locked');
+      if (!editorEl || !lockedEl) return;
 
-    let currentEmail = '';
-    let claims: ManageClaim[] = [];
+      pageAbort?.abort();
+      pageAbort = new AbortController();
+      const signal = pageAbort.signal;
 
-    function esc(value: unknown) {
-      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-      } as Record<string, string>)[char]);
-    }
+      const venueId = Number(editorEl.dataset.venueId);
+      const venueSlug = editorEl.dataset.venueSlug || '';
 
-    function readActiveTab(): ManageTab {
-      const tab = new URLSearchParams(window.location.search).get('tab');
-      if (tab === 'photos' || tab === 'menu' || tab === 'listing') return tab;
-      return 'listing';
-    }
+      const formEl = document.getElementById('mg-form')!;
+      const saveBtn = document.getElementById('mg-save') as HTMLButtonElement;
+      const saveStatusEl = document.getElementById('mg-save-status')!;
+      const photoGridEl = document.getElementById('ph-grid')!;
+      const photoStatusEl = document.getElementById('ph-upload-status')!;
+      const menuBodyEl = document.getElementById('mn-body')!;
+      const menuStatusEl = document.getElementById('mn-status')!;
 
-    function applyActiveTab(tab: ManageTab) {
-      for (const panel of document.querySelectorAll<HTMLElement>('[data-mg-panel]')) {
-        panel.classList.toggle('mg-hidden', panel.dataset.mgPanel !== tab);
+      let currentEmail = '';
+      let claims: ManageClaim[] = [];
+
+      function esc(value: unknown) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        } as Record<string, string>)[char]);
       }
-      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
-      if (!shell) return;
-      shell.dataset.activeTab = tab;
-      for (const tabEl of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
-        const id = tabEl.dataset.merchantShellTab || '';
-        const isActive = id === tab;
-        tabEl.classList.toggle('is-active', isActive);
-        if (isActive) tabEl.setAttribute('aria-current', 'page');
-        else tabEl.removeAttribute('aria-current');
+
+      function readActiveTab(): ManageTab {
+        return readManageTabFromUrl();
       }
-    }
 
-    function roleLabel(role: string | null | undefined): string {
-      if (role === 'owner' || role === 'site_admin') return 'Owner';
-      if (role === 'full_admin') return 'Full Admin';
-      if (role === 'promotions') return 'Promotions';
-      return '';
-    }
-
-    function shellTabHref(tab: string, claim: ManageClaim): string {
-      const id = claim.venueId;
-      const slug = claim.venueSlug ? encodeURIComponent(claim.venueSlug) : '';
-      switch (tab) {
-        case 'promotions':
-          return `/restaurant/?venueId=${id}`;
-        case 'listing':
-          return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
-        case 'photos':
-          return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
-        case 'menu':
-          return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
-        case 'audience':
-          return `/restaurant/audience/?venueId=${id}`;
-        case 'reports':
-          return `/restaurant/reports/?venueId=${id}`;
-        case 'billing':
-          return `/restaurant/billing/?venueId=${id}`;
-        case 'team':
-          return slug ? `/restaurant/manage/${slug}/users/` : '#';
-        default:
-          return '#';
-      }
-    }
-
-    function syncMerchantShell(claim: ManageClaim | null) {
-      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
-      if (!shell) return;
-      const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
-      const emailEl = shell.querySelector('[data-merchant-shell-email]');
-      const roleEl = shell.querySelector('[data-merchant-shell-role]');
-      const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
-      const verifiedEl = shell.querySelector<HTMLElement>('[data-merchant-shell-verified]');
-      const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
-      const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
-      const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
-      const activeTab = readActiveTab();
-
-      if (emailEl) emailEl.textContent = currentEmail;
-
-      if (!claim) {
-        if (roleEl) roleEl.textContent = '';
-        if (roleSep) roleSep.hidden = true;
-        if (verifiedEl) verifiedEl.hidden = true;
-        if (tabsEl) tabsEl.hidden = true;
-        if (switcher) {
-          switcher.hidden = true;
-          switcher.innerHTML = '';
+      function applyActiveTab(tab: ManageTab) {
+        for (const panel of document.querySelectorAll<HTMLElement>('[data-mg-panel]')) {
+          panel.classList.toggle('mg-hidden', panel.dataset.mgPanel !== tab);
         }
-        return;
-      }
-
-      if (nameEl) nameEl.textContent = claim.venueName || `Venue #${claim.venueId}`;
-      const roleText = roleLabel(claim.accessRole);
-      if (roleEl) roleEl.textContent = roleText;
-      if (roleSep) roleSep.hidden = !(roleText && currentEmail);
-      if (verifiedEl) verifiedEl.hidden = claim.status !== 'verified' && claim.accessRole !== 'site_admin';
-      shell.dataset.venueId = String(claim.venueId);
-
-      if (publicEl) {
-        if (claim.venueSlug) {
-          publicEl.hidden = false;
-          publicEl.href = `/venues/${encodeURIComponent(claim.venueSlug)}/`;
-        } else {
-          publicEl.hidden = true;
-          publicEl.href = '#';
+        const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+        if (!shell) return;
+        shell.dataset.activeTab = tab;
+        for (const tabEl of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+          const id = tabEl.dataset.merchantShellTab || '';
+          const isActive = id === tab;
+          tabEl.classList.toggle('is-active', isActive);
+          if (isActive) tabEl.setAttribute('aria-current', 'page');
+          else tabEl.removeAttribute('aria-current');
         }
       }
 
-      if (tabsEl) {
-        tabsEl.hidden = false;
-        const role = claim.accessRole === 'site_admin' ? 'owner' : (claim.accessRole || 'owner');
-        for (const tab of tabsEl.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
-          const tabId = tab.dataset.merchantShellTab || '';
-          let visible = true;
-          if (role === 'promotions') visible = tabId === 'promotions';
-          else if (role === 'full_admin') visible = tabId !== 'team';
-          else visible = true;
-          tab.hidden = !visible;
-          const isActive = tabId === activeTab;
-          tab.classList.toggle('is-active', isActive);
-          if (isActive) tab.setAttribute('aria-current', 'page');
-          else tab.removeAttribute('aria-current');
-          const href = shellTabHref(tabId, claim);
-          const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
-          const disabled = needsSlug && !claim.venueSlug;
-          tab.href = disabled ? '#' : href;
-          if (disabled) tab.setAttribute('aria-disabled', 'true');
-          else tab.removeAttribute('aria-disabled');
+      function roleLabel(role: string | null | undefined): string {
+        if (role === 'owner' || role === 'site_admin') return 'Owner';
+        if (role === 'full_admin') return 'Full Admin';
+        if (role === 'promotions') return 'Promotions';
+        return '';
+      }
+
+      function shellTabHref(tab: string, claim: ManageClaim): string {
+        const id = claim.venueId;
+        const slug = claim.venueSlug ? encodeURIComponent(claim.venueSlug) : '';
+        switch (tab) {
+          case 'promotions':
+            return `/restaurant/?venueId=${id}`;
+          case 'listing':
+            return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+          case 'photos':
+            return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+          case 'menu':
+            return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+          case 'audience':
+            return `/restaurant/audience/?venueId=${id}`;
+          case 'reports':
+            return `/restaurant/reports/?venueId=${id}`;
+          case 'billing':
+            return `/restaurant/billing/?venueId=${id}`;
+          case 'team':
+            return slug ? `/restaurant/manage/${slug}/users/` : '#';
+          default:
+            return '#';
         }
       }
 
-      if (switcher) {
-        const switchable = claims.filter((entry) => entry.status === 'verified' && entry.venueSlug);
-        if (switchable.length > 1) {
-          switcher.hidden = false;
-          switcher.innerHTML = switchable.map((entry) => `
-            <option value="${esc(entry.venueSlug)}" ${entry.venueId === claim.venueId ? 'selected' : ''}>
-              ${esc(entry.venueName || `Venue #${entry.venueId}`)}
-            </option>
-          `).join('');
-        } else {
-          switcher.hidden = true;
-          switcher.innerHTML = '';
-        }
-      }
+      function syncMerchantShell(claim: ManageClaim | null) {
+        const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+        if (!shell) return;
+        const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
+        const emailEl = shell.querySelector('[data-merchant-shell-email]');
+        const roleEl = shell.querySelector('[data-merchant-shell-role]');
+        const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+        const verifiedEl = shell.querySelector<HTMLElement>('[data-merchant-shell-verified]');
+        const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
+        const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+        const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+        const activeTab = readActiveTab();
 
-      applyActiveTab(activeTab);
-    }
+        if (emailEl) emailEl.textContent = currentEmail;
 
-    function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'err' = '') {
-      el.className = `mg-status${kind ? ` ${kind}` : ''}`;
-      el.textContent = message;
-    }
-
-    async function api(path: string, options: RequestInit = {}) {
-      const res = await fetch(path, {
-        ...options,
-        headers: options.body instanceof FormData
-          ? (options.headers || {})
-          : { 'Content-Type': 'application/json', ...(options.headers || {}) },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data.errors || ['Something went wrong.']).join('\n'));
-      return data;
-    }
-
-    async function syncShellAfterAuth() {
-      try {
-        const [me, claimsData] = await Promise.all([
-          api('/api/account/me'),
-          api('/api/restaurant/claims'),
-        ]);
-        currentEmail = me.authenticated && me.user?.email ? me.user.email : '';
-        claims = (claimsData.claims || []) as ManageClaim[];
-        const claim = claims.find((entry) => entry.venueId === venueId) || null;
-        if (claim) {
-          syncMerchantShell(claim);
+        if (!claim) {
+          if (roleEl) roleEl.textContent = '';
+          if (roleSep) roleSep.hidden = true;
+          if (verifiedEl) verifiedEl.hidden = true;
+          if (tabsEl) tabsEl.hidden = true;
+          if (switcher) {
+            switcher.hidden = true;
+            switcher.innerHTML = '';
+          }
           return;
         }
-        // Site admins can open manage without a claim row — still show workspace chrome.
-        syncMerchantShell({
-          venueId,
-          status: 'verified',
-          accessRole: me.isAdmin ? 'site_admin' : 'owner',
-          venueName: document.querySelector('[data-merchant-shell-venue-name]')?.textContent || null,
-          venueSlug,
-        });
-      } catch {
-        // Listing already authorized; leave SSR shell identity in place.
-        applyActiveTab(readActiveTab());
-      }
-    }
 
-    document.querySelector('[data-merchant-shell-switcher]')?.addEventListener('change', (event) => {
-      const select = event.target as HTMLSelectElement;
-      const nextSlug = select.value;
-      if (!nextSlug || nextSlug === venueSlug) return;
-      const tab = readActiveTab();
-      window.location.href = `/restaurant/manage/${encodeURIComponent(nextSlug)}/?tab=${tab}`;
-    });
+        if (nameEl) nameEl.textContent = claim.venueName || `Venue #${claim.venueId}`;
+        const roleText = roleLabel(claim.accessRole);
+        if (roleEl) roleEl.textContent = roleText;
+        if (roleSep) roleSep.hidden = !(roleText && currentEmail);
+        if (verifiedEl) verifiedEl.hidden = claim.status !== 'verified' && claim.accessRole !== 'site_admin';
+        shell.dataset.venueId = String(claim.venueId);
+        setMerchantShellVenueImage(claim.venueImageUrl);
 
-    applyActiveTab(readActiveTab());
-
-    // Uploaded photos double as the featured-image options and the menu item
-    // photo options, so both panels read this one list.
-    let approvedPhotos: Array<{
-      id: string;
-      url: string;
-      caption: string;
-      photoType?: 'venue' | 'menu_item';
-    }> = [];
-
-    // ---------------------------------------------------------------------
-    // Listing
-    // ---------------------------------------------------------------------
-    function paintListingForm(listing: any) {
-      formEl.innerHTML = listingFormHTML(listing, { ownerMode: true, photoOptions: approvedPhotos });
-    }
-
-    async function loadListing() {
-      const data = await api(`/api/restaurant/venues/${venueId}/listing`);
-      approvedPhotos = data.photoOptions || [];
-      paintListingForm(data.listing);
-      return data;
-    }
-
-    saveBtn.addEventListener('click', async () => {
-      saveBtn.disabled = true;
-      setStatus(saveStatusEl, 'Saving...');
-      try {
-        await api(`/api/restaurant/venues/${venueId}/listing`, {
-          method: 'PUT',
-          body: JSON.stringify({ listing: readListingForm(formEl) }),
-        });
-        setStatus(saveStatusEl, 'Saved — your page is updated.', 'ok');
-      } catch (err: any) {
-        setStatus(saveStatusEl, err.message, 'err');
-      } finally {
-        saveBtn.disabled = false;
-      }
-    });
-
-    wireListingPhotoPicker(formEl);
-
-    // ---------------------------------------------------------------------
-    // Photos
-    // ---------------------------------------------------------------------
-    const STATUS_LABEL: Record<string, string> = {
-      published: 'On your page',
-      in_review: 'Being checked',
-      rejected: 'Not approved',
-    };
-
-    function photoCardHTML(photo: any) {
-      return `
-        <div class="ph-card" data-photo-id="${esc(photo.id)}">
-          <img src="${esc(photo.url)}" alt="${esc(photo.caption || 'Your photo')}" loading="lazy">
-          <div class="ph-body">
-            <span class="ph-tag ${esc(photo.status)}">${esc(STATUS_LABEL[photo.status] || photo.status)}</span>
-            ${photo.status !== 'published' && photo.reason ? `<p class="ph-reason">${esc(photo.reason)}</p>` : ''}
-            <input type="text" data-caption placeholder="Add a caption (optional)" maxlength="200" value="${esc(photo.caption)}">
-            <div class="ph-row">
-              <button type="button" class="mg-btn small neutral" data-action="save-caption">Save caption</button>
-              <button type="button" class="mg-btn small danger" data-action="delete-photo">Delete</button>
-            </div>
-            <span class="mg-status" data-photo-status aria-live="polite"></span>
-          </div>
-        </div>
-      `;
-    }
-
-    async function loadPhotos() {
-      const { photos } = await api(`/api/restaurant/venues/${venueId}/photos`);
-      // Filter to only show venue gallery photos in the Photos section
-      const venuePhotos = photos.filter((photo: any) => photo.photoType === 'venue');
-      photoGridEl.innerHTML = venuePhotos.length
-        ? venuePhotos.map(photoCardHTML).join('')
-        : '<p class="mg-status">No photos yet.</p>';
-
-      // Keep the featured-photo picker and the menu photo dropdowns in step
-      // with what's actually approved right now.
-      approvedPhotos = photos
-        .filter((photo: any) => photo.status === 'published')
-        .map((photo: any) => ({ id: photo.id, url: photo.url, caption: photo.caption, photoType: photo.photoType }));
-    }
-
-    document.getElementById('ph-file')!.addEventListener('change', async (event) => {
-      const input = event.target as HTMLInputElement;
-      const file = input.files?.[0];
-      if (!file) return;
-
-      setStatus(photoStatusEl, `Uploading and checking ${file.name}…`);
-      const form = new FormData();
-      form.append('file', file);
-      form.append('photoType', 'venue');
-
-      try {
-        const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: form });
-        setStatus(
-          photoStatusEl,
-          'Uploaded and live on your page.',
-          'ok'
-        );
-        await loadPhotos();
-        // Repaint so a photo that cleared screening is immediately available as
-        // the featured one, without losing edits already typed into the form.
-        paintListingForm(readListingForm(formEl));
-      } catch (err: any) {
-        setStatus(photoStatusEl, err.message, 'err');
-      } finally {
-        input.value = '';
-      }
-    });
-
-    photoGridEl.addEventListener('click', async (event) => {
-      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
-      if (!button) return;
-
-      const card = button.closest('.ph-card') as HTMLElement;
-      const photoId = card.dataset.photoId!;
-      const statusEl = card.querySelector('[data-photo-status]') as HTMLElement;
-
-      if (button.dataset.action === 'save-caption') {
-        const caption = (card.querySelector('[data-caption]') as HTMLInputElement).value;
-        setStatus(statusEl, 'Saving...');
-        try {
-          await api(`/api/restaurant/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify({ caption }) });
-          setStatus(statusEl, 'Caption saved.', 'ok');
-        } catch (err: any) {
-          setStatus(statusEl, err.message, 'err');
+        if (publicEl) {
+          if (claim.venueSlug) {
+            publicEl.hidden = false;
+            publicEl.href = `/venues/${encodeURIComponent(claim.venueSlug)}/`;
+          } else {
+            publicEl.hidden = true;
+            publicEl.href = '#';
+          }
         }
-        return;
+
+        if (tabsEl) {
+          tabsEl.hidden = false;
+          const role = claim.accessRole === 'site_admin' ? 'owner' : (claim.accessRole || 'owner');
+          for (const tab of tabsEl.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+            const tabId = tab.dataset.merchantShellTab || '';
+            let visible = true;
+            if (role === 'promotions') visible = tabId === 'promotions';
+            else if (role === 'full_admin') visible = tabId !== 'team';
+            else visible = true;
+            tab.hidden = !visible;
+            const isActive = tabId === activeTab;
+            tab.classList.toggle('is-active', isActive);
+            if (isActive) tab.setAttribute('aria-current', 'page');
+            else tab.removeAttribute('aria-current');
+            const href = shellTabHref(tabId, claim);
+            const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
+            const disabled = needsSlug && !claim.venueSlug;
+            tab.href = disabled ? '#' : href;
+            if (disabled) tab.setAttribute('aria-disabled', 'true');
+            else tab.removeAttribute('aria-disabled');
+          }
+        }
+
+        if (switcher) {
+          const switchable = claims.filter((entry) => entry.status === 'verified' && entry.venueSlug);
+          if (switchable.length > 1) {
+            switcher.hidden = false;
+            switcher.innerHTML = switchable.map((entry) => `
+              <option value="${esc(entry.venueSlug)}" data-slug="${esc(entry.venueSlug)}" data-venue-id="${entry.venueId}" ${entry.venueId === claim.venueId ? 'selected' : ''}>
+                ${esc(entry.venueName || `Venue #${entry.venueId}`)}
+              </option>
+            `).join('');
+          } else {
+            switcher.hidden = true;
+            switcher.innerHTML = '';
+          }
+        }
+
+        applyActiveTab(activeTab);
+        prefetchVisibleMerchantTabs();
       }
 
-      if (button.dataset.action === 'delete-photo') {
-        if (!confirm('Delete this photo?')) return;
-        setStatus(statusEl, 'Deleting...');
+      function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'err' = '') {
+        el.className = `mg-status${kind ? ` ${kind}` : ''}`;
+        el.textContent = message;
+      }
+
+      async function api(path: string, options: RequestInit = {}) {
+        const res = await fetch(path, {
+          ...options,
+          headers: options.body instanceof FormData
+            ? (options.headers || {})
+            : { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error((data.errors || ['Something went wrong.']).join('\n'));
+        return data;
+      }
+
+      async function syncShellAfterAuth() {
         try {
-          await api(`/api/restaurant/photos/${photoId}`, { method: 'DELETE' });
+          const [me, claimsData] = await Promise.all([
+            api('/api/account/me'),
+            api('/api/restaurant/claims'),
+          ]);
+          currentEmail = me.authenticated && me.user?.email ? me.user.email : '';
+          claims = (claimsData.claims || []) as ManageClaim[];
+          const claim = claims.find((entry) => entry.venueId === venueId) || null;
+          if (claim) {
+            syncMerchantShell(claim);
+            return;
+          }
+          // Site admins can open manage without a claim row — still show workspace chrome.
+          syncMerchantShell({
+            venueId,
+            status: 'verified',
+            accessRole: me.isAdmin ? 'site_admin' : 'owner',
+            venueName: document.querySelector('[data-merchant-shell-venue-name]')?.textContent || null,
+            venueSlug,
+          });
+        } catch {
+          // Listing already authorized; leave SSR shell identity in place.
+          applyActiveTab(readActiveTab());
+        }
+      }
+
+      document.addEventListener('astro:before-swap', () => pageAbort?.abort(), { once: true });
+
+      window.addEventListener(MERCHANT_TAB_EVENT, ((event: CustomEvent<{ tab: ManageTab }>) => {
+        const tab = event.detail?.tab;
+        if (tab === 'listing' || tab === 'photos' || tab === 'menu') {
+          applyActiveTab(tab);
+          void ensurePanel(tab);
+        }
+      }) as EventListener, { signal });
+
+      window.addEventListener(MERCHANT_VENUE_CHANGE_EVENT, ((event: CustomEvent<{ venueSlug?: string | null; value?: string }>) => {
+        const nextSlug = event.detail?.venueSlug || event.detail?.value || '';
+        if (!nextSlug || nextSlug === venueSlug) return;
+        const tab = readActiveTab();
+        window.location.href = `/restaurant/manage/${encodeURIComponent(nextSlug)}/?tab=${tab}`;
+      }) as EventListener, { signal });
+
+      applyActiveTab(readActiveTab());
+
+      // Uploaded photos double as the featured-image options and the menu item
+      // photo options, so both panels read this one list.
+      let approvedPhotos: Array<{
+        id: string;
+        url: string;
+        caption: string;
+        photoType?: 'venue' | 'menu_item';
+      }> = [];
+      let listingPayload: any = null;
+      let photosPayload: any = null;
+      let menuPayload: any = null;
+      let listingReady = false;
+      let photosReady = false;
+      let menuReady = false;
+      let photosInflight: Promise<void> | null = null;
+      let menuInflight: Promise<void> | null = null;
+
+      // ---------------------------------------------------------------------
+      // Listing
+      // ---------------------------------------------------------------------
+      function paintListingForm(listing: any) {
+        formEl.innerHTML = listingFormHTML(listing, { ownerMode: true, photoOptions: approvedPhotos });
+        if (listing?.image) setMerchantShellVenueImage(listing.image);
+      }
+
+      function applyListingPayload(data: any) {
+        listingPayload = data;
+        if (Array.isArray(data.photoOptions) && data.photoOptions.length && !photosReady) {
+          approvedPhotos = data.photoOptions;
+        }
+        paintListingForm(data.listing);
+        listingReady = true;
+      }
+
+      async function loadListing(options: { showLoader?: boolean } = {}) {
+        const cached = getMerchantTabCache<any>(venueId, 'listing');
+        if (cached) applyListingPayload(cached.data);
+        else if (options.showLoader !== false) setStatus(saveStatusEl, 'Loading listing…');
+
+        await swrMerchantTabCache({
+          venueId,
+          resource: 'listing',
+          signal,
+          fetcher: async () => api(`/api/restaurant/venues/${venueId}/listing`),
+          onFresh: (data, { changed, fromCache }) => {
+            if (signal.aborted) return;
+            if (!fromCache || changed || !listingReady) applyListingPayload(data);
+            if (!fromCache) setStatus(saveStatusEl, '');
+          },
+        });
+        if (cached) setStatus(saveStatusEl, '');
+      }
+
+      saveBtn.addEventListener('click', async () => {
+        saveBtn.disabled = true;
+        setStatus(saveStatusEl, 'Saving...');
+        try {
+          const listing = readListingForm(formEl);
+          await api(`/api/restaurant/venues/${venueId}/listing`, {
+            method: 'PUT',
+            body: JSON.stringify({ listing }),
+          });
+          if (listingPayload) {
+            listingPayload = { ...listingPayload, listing };
+            setMerchantTabCache(venueId, 'listing', listingPayload);
+          } else {
+            invalidateMerchantTabCache(venueId, 'listing');
+          }
+          setStatus(saveStatusEl, 'Saved — your page is updated.', 'ok');
+        } catch (err: any) {
+          setStatus(saveStatusEl, err.message, 'err');
+        } finally {
+          saveBtn.disabled = false;
+        }
+      }, { signal });
+
+      wireListingPhotoPicker(formEl);
+
+      // ---------------------------------------------------------------------
+      // Photos
+      // ---------------------------------------------------------------------
+      const STATUS_LABEL: Record<string, string> = {
+        published: 'On your page',
+        in_review: 'Being checked',
+        rejected: 'Not approved',
+      };
+
+      function photoCardHTML(photo: any) {
+        return `
+          <div class="ph-card" data-photo-id="${esc(photo.id)}">
+            <img src="${esc(photo.url)}" alt="${esc(photo.caption || 'Your photo')}" loading="lazy">
+            <div class="ph-body">
+              <span class="ph-tag ${esc(photo.status)}">${esc(STATUS_LABEL[photo.status] || photo.status)}</span>
+              ${photo.status !== 'published' && photo.reason ? `<p class="ph-reason">${esc(photo.reason)}</p>` : ''}
+              <input type="text" data-caption placeholder="Add a caption (optional)" maxlength="200" value="${esc(photo.caption)}">
+              <div class="ph-row">
+                <button type="button" class="mg-btn small neutral" data-action="save-caption">Save caption</button>
+                <button type="button" class="mg-btn small danger" data-action="delete-photo">Delete</button>
+              </div>
+              <span class="mg-status" data-photo-status aria-live="polite"></span>
+            </div>
+          </div>
+        `;
+      }
+
+      function applyPhotosPayload(photos: any[]) {
+        photosPayload = { photos };
+        const venuePhotos = photos.filter((photo: any) => photo.photoType === 'venue');
+        photoGridEl.innerHTML = venuePhotos.length
+          ? venuePhotos.map(photoCardHTML).join('')
+          : '<p class="mg-status">No photos yet.</p>';
+        approvedPhotos = photos
+          .filter((photo: any) => photo.status === 'published')
+          .map((photo: any) => ({ id: photo.id, url: photo.url, caption: photo.caption, photoType: photo.photoType }));
+        photosReady = true;
+      }
+
+      async function loadPhotos(options: { silent?: boolean } = {}) {
+        if (photosInflight) return photosInflight;
+        photosInflight = (async () => {
+          const cached = getMerchantTabCache<{ photos: any[] }>(venueId, 'photos');
+          if (cached?.data?.photos) {
+            applyPhotosPayload(cached.data.photos);
+            if (listingReady) paintListingForm(readListingForm(formEl));
+          } else if (!options.silent) {
+            setStatus(photoStatusEl, 'Loading photos…');
+          }
+          try {
+            await swrMerchantTabCache({
+              venueId,
+              resource: 'photos',
+              signal,
+              fetcher: async () => {
+                const data = await api(`/api/restaurant/venues/${venueId}/photos`);
+                return { photos: data.photos || [] };
+              },
+              onFresh: (payload, { changed, fromCache }) => {
+                if (signal.aborted) return;
+                if (!fromCache || changed || !photosReady) {
+                  applyPhotosPayload(payload.photos);
+                  if (listingReady) paintListingForm(readListingForm(formEl));
+                }
+                if (!fromCache && !options.silent) setStatus(photoStatusEl, '');
+              },
+            });
+            if (cached && !options.silent) setStatus(photoStatusEl, '');
+          } catch (err: any) {
+            if (signal.aborted) return;
+            if (cached) return;
+            if (!options.silent) setStatus(photoStatusEl, err.message, 'err');
+            throw err;
+          } finally {
+            photosInflight = null;
+          }
+        })();
+        return photosInflight;
+      }
+
+      document.getElementById('ph-file')!.addEventListener('change', async (event) => {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        setStatus(photoStatusEl, `Uploading and checking ${file.name}…`);
+        const form = new FormData();
+        form.append('file', file);
+        form.append('photoType', 'venue');
+
+        try {
+          const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: form });
+          setStatus(
+            photoStatusEl,
+            'Uploaded and live on your page.',
+            'ok'
+          );
+          invalidateMerchantTabCache(venueId, 'photos');
+          invalidateMerchantTabCache(venueId, 'listing');
           await loadPhotos();
-          await loadMenu();
+          // Repaint so a photo that cleared screening is immediately available as
+          // the featured one, without losing edits already typed into the form.
           paintListingForm(readListingForm(formEl));
         } catch (err: any) {
-          setStatus(statusEl, err.message, 'err');
-        }
-      }
-    });
-
-    // ---------------------------------------------------------------------
-    // Menu
-    // ---------------------------------------------------------------------
-    function photoSelectHTML(selectedId: string | null) {
-      // Separate photos by type - menu_item photos first, then venue photos
-      const menuPhotos = approvedPhotos.filter((p: any) => p.photoType === 'menu_item');
-      const venuePhotos = approvedPhotos.filter((p: any) => p.photoType === 'venue');
-
-      let options = '<option value="">No photo</option>';
-
-      if (menuPhotos.length > 0) {
-        options += '<optgroup label="Menu Item Photos">';
-        options += menuPhotos
-          .map((photo: any, index: number) =>
-            `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Menu photo ${index + 1}`)}</option>`
-          )
-          .join('');
-        options += '</optgroup>';
-      }
-
-      if (venuePhotos.length > 0) {
-        options += '<optgroup label="Venue Gallery Photos">';
-        options += venuePhotos
-          .map((photo: any, index: number) =>
-            `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Venue photo ${index + 1}`)}</option>`
-          )
-          .join('');
-        options += '</optgroup>';
-      }
-
-      return `<select data-item-photo aria-label="Menu item photo">${options}</select>`;
-    }
-
-    function itemHTML(item: any) {
-      const photo = approvedPhotos.find((candidate) => candidate.id === item.photoId);
-      return `
-        <div class="mn-item" data-item-id="${esc(item.id)}">
-          ${photo ? `
-            <div class="mn-item-photo" data-item-view>
-              <img src="${esc(photo.url)}" alt="${esc(item.name)}" loading="lazy">
-              <label class="mn-gallery-check">
-                <input type="checkbox" data-item-gallery-toggle ${item.showPhotoInGallery !== false ? 'checked' : ''}>
-                Show in venue gallery
-              </label>
-            </div>
-          ` : ''}
-          <div class="mn-item-main" data-item-view>
-            <div class="nm">${esc(item.name)} ${item.price ? `<span class="pr">· ${esc(item.price)}</span>` : ''}</div>
-            ${item.description ? `<div class="ds">${esc(item.description)}</div>` : ''}
-          </div>
-          <div class="mn-item-actions" data-item-view>
-            <button type="button" class="mg-btn small neutral" data-action="edit-item">Edit</button>
-            <button type="button" class="mg-btn small danger" data-action="delete-item">Remove</button>
-          </div>
-
-          <form class="mn-form mn-edit-form mg-hidden" data-edit-item>
-            <div class="row">
-              <input name="name" value="${esc(item.name)}" placeholder="Item name" aria-label="Menu item name" maxlength="120" required>
-              <input name="price" value="${esc(item.price)}" placeholder="$8" aria-label="Menu item price" maxlength="40">
-              <div class="photo-picker">
-                ${photoSelectHTML(item.photoId)}
-                <label class="mg-btn small" style="margin: 0;">
-                  Upload photo
-                  <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
-                </label>
-              </div>
-            </div>
-            <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400">${esc(item.description)}</textarea>
-            <label class="mn-gallery-check">
-              <input type="checkbox" data-item-gallery ${item.showPhotoInGallery !== false ? 'checked' : ''}>
-              Show the selected menu item photo in the venue gallery
-            </label>
-            <div class="mn-item-actions">
-              <button type="submit" class="mg-btn small">Save item</button>
-              <button type="button" class="mg-btn small neutral" data-action="cancel-edit-item">Cancel</button>
-            </div>
-            <span class="mg-status" data-item-status aria-live="polite"></span>
-            <div data-photo-preview style="margin-top: 0.5rem; display: ${photo ? 'block' : 'none'};">
-              <img src="${photo ? esc(photo.url) : ''}" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
-              <span style="margin-left: 0.5rem; color: #28a745;">${photo ? esc(photo.caption || 'Selected photo') : ''}</span>
-            </div>
-          </form>
-        </div>
-      `;
-    }
-
-    function sectionHTML(section: any) {
-      return `
-        <div class="mn-section" data-section-id="${esc(section.id)}">
-          <div class="mn-section-head" data-section-view>
-            <div>
-              <h3>${esc(section.title)}</h3>
-              ${section.note ? `<span class="note">${esc(section.note)}</span>` : ''}
-            </div>
-            <div class="mn-section-actions">
-              <button type="button" class="mg-btn small neutral" data-action="edit-section">Edit</button>
-              <button type="button" class="mg-btn small danger" data-action="delete-section">Delete section</button>
-            </div>
-          </div>
-
-          <form class="mn-form mg-hidden" data-edit-section>
-            <div class="row">
-              <input name="title" value="${esc(section.title)}" placeholder="Section name" aria-label="Section name" maxlength="80" required>
-              <input name="note" value="${esc(section.note || '')}" placeholder="Optional note, e.g. served 3–6pm at the bar" aria-label="Section note" maxlength="200">
-            </div>
-            <div class="mn-section-actions">
-              <button type="submit" class="mg-btn small">Save section</button>
-              <button type="button" class="mg-btn small neutral" data-action="cancel-edit-section">Cancel</button>
-            </div>
-            <span class="mg-status" data-section-status aria-live="polite"></span>
-          </form>
-
-          ${section.items.map(itemHTML).join('')}
-
-          <form class="mn-form" data-add-item>
-            <div class="row">
-              <input name="name" placeholder="Item, e.g. Street tacos" aria-label="Menu item name" maxlength="120" required>
-              <input name="price" placeholder="$8" aria-label="Menu item price" maxlength="40">
-              <div class="photo-picker">
-                ${photoSelectHTML(null)}
-                <label class="mg-btn small" style="margin: 0;">
-                  Upload photo
-                  <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
-                </label>
-              </div>
-              <button type="submit" class="mg-btn small">Add item</button>
-            </div>
-            <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400"></textarea>
-            <label class="mn-gallery-check">
-              <input type="checkbox" data-item-gallery checked>
-              Show the selected menu item photo in the venue gallery
-            </label>
-            <span class="mg-status" data-item-status aria-live="polite"></span>
-            <div data-photo-preview style="margin-top: 0.5rem; display: none;">
-              <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
-              <span style="margin-left: 0.5rem; color: #28a745;"></span>
-            </div>
-          </form>
-        </div>
-      `;
-    }
-
-    function paintMenu(menu: any[]) {
-      menuBodyEl.innerHTML = menu.length
-        ? menu.map(sectionHTML).join('')
-        : '<p class="mg-status">No menu sections yet — add one below.</p>';
-    }
-
-    async function loadMenu() {
-      const { menu } = await api(`/api/restaurant/venues/${venueId}/menu`);
-      paintMenu(menu);
-    }
-
-    async function menuAction(payload: Record<string, unknown>) {
-      return api(`/api/restaurant/venues/${venueId}/menu`, { method: 'POST', body: JSON.stringify(payload) });
-    }
-
-    document.getElementById('mn-add-section')!.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const form = event.target as HTMLFormElement;
-      const title = (form.querySelector('[name="title"]') as HTMLInputElement).value.trim();
-      const note = (form.querySelector('[name="note"]') as HTMLInputElement).value.trim();
-
-      setStatus(menuStatusEl, 'Adding...');
-      try {
-        await menuAction({ action: 'create-section', title, note });
-        form.reset();
-        setStatus(menuStatusEl, 'Section added.', 'ok');
-        await loadMenu();
-      } catch (err: any) {
-        setStatus(menuStatusEl, err.message, 'err');
-      }
-    });
-
-    menuBodyEl.addEventListener('submit', async (event) => {
-      const form = event.target as HTMLFormElement;
-      const isEditSection = form.matches('[data-edit-section]');
-      const isAdd = form.matches('[data-add-item]');
-      const isEdit = form.matches('[data-edit-item]');
-      if (!isEditSection && !isAdd && !isEdit) return;
-      event.preventDefault();
-
-      const section = form.closest('[data-section-id]') as HTMLElement;
-
-      if (isEditSection) {
-        const statusEl = form.querySelector('[data-section-status]') as HTMLElement;
-        setStatus(statusEl, 'Saving...');
-        try {
-          await menuAction({
-            action: 'update-section',
-            sectionId: section.dataset.sectionId,
-            title: (form.querySelector('[name="title"]') as HTMLInputElement).value.trim(),
-            note: (form.querySelector('[name="note"]') as HTMLInputElement).value.trim(),
-          });
-          setStatus(menuStatusEl, 'Section updated.', 'ok');
-          await loadMenu();
-        } catch (err: any) {
-          setStatus(statusEl, err.message, 'err');
-        }
-        return;
-      }
-
-      const item = form.closest('[data-item-id]') as HTMLElement | null;
-      const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
-
-      setStatus(statusEl, isEdit ? 'Saving...' : 'Adding...');
-      try {
-        const selectedPhotoId = (form.querySelector('[data-item-photo]') as HTMLSelectElement).value;
-        await menuAction({
-          action: isEdit ? 'update-item' : 'create-item',
-          sectionId: section.dataset.sectionId,
-          ...(isEdit ? { itemId: item?.dataset.itemId } : {}),
-          name: (form.querySelector('[name="name"]') as HTMLInputElement).value.trim(),
-          price: (form.querySelector('[name="price"]') as HTMLInputElement).value.trim(),
-          description: (form.querySelector('[name="description"]') as HTMLTextAreaElement).value.trim(),
-          // The update route distinguishes an omitted photo from an explicit
-          // clear, so the edit form sends null for "No photo".
-          photoId: selectedPhotoId || (isEdit ? null : ''),
-          showPhotoInGallery: (form.querySelector('[data-item-gallery]') as HTMLInputElement).checked,
-        });
-        setStatus(menuStatusEl, isEdit ? 'Menu item updated.' : 'Menu item added.', 'ok');
-        await loadMenu();
-      } catch (err: any) {
-        setStatus(statusEl, err.message, 'err');
-      }
-    });
-
-    menuBodyEl.addEventListener('click', async (event) => {
-      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
-      if (!button) return;
-
-      const section = button.closest('[data-section-id]') as HTMLElement;
-
-      if (button.dataset.action === 'edit-section' || button.dataset.action === 'cancel-edit-section') {
-        const editing = button.dataset.action === 'edit-section';
-        if (!editing) {
-          // Repaint from the saved menu so Cancel discards unsaved title/note edits.
-          await loadMenu();
-          return;
-        }
-        section.querySelector<HTMLElement>('[data-section-view]')?.classList.add('mg-hidden');
-        section.querySelector<HTMLElement>('[data-edit-section]')?.classList.remove('mg-hidden');
-        section.querySelector<HTMLInputElement>('[data-edit-section] [name="title"]')?.focus();
-        return;
-      }
-
-      if (button.dataset.action === 'edit-item' || button.dataset.action === 'cancel-edit-item') {
-        const item = button.closest('[data-item-id]') as HTMLElement;
-        if (item.dataset.gallerySaving === 'true') return;
-        const editing = button.dataset.action === 'edit-item';
-        if (!editing) {
-          // Repaint from the saved menu so Cancel truly discards text, photo,
-          // preview, and checkbox edits rather than hiding stale form values.
-          await loadMenu();
-          return;
-        }
-        item.querySelectorAll<HTMLElement>('[data-item-view]').forEach((element) => {
-          element.classList.toggle('mg-hidden', editing);
-        });
-        item.querySelector<HTMLElement>('[data-edit-item]')?.classList.toggle('mg-hidden', !editing);
-        if (editing) item.querySelector<HTMLInputElement>('[data-edit-item] [name="name"]')?.focus();
-        return;
-      }
-
-      if (button.dataset.action === 'delete-section') {
-        if (!confirm('Delete this section and everything in it?')) return;
-        try {
-          await menuAction({ action: 'delete-section', sectionId: section.dataset.sectionId });
-          await loadMenu();
-        } catch (err: any) {
-          setStatus(menuStatusEl, err.message, 'err');
-        }
-        return;
-      }
-
-      if (button.dataset.action === 'delete-item') {
-        const item = button.closest('[data-item-id]') as HTMLElement;
-        try {
-          await menuAction({ action: 'delete-item', itemId: item.dataset.itemId });
-          await loadMenu();
-        } catch (err: any) {
-          setStatus(menuStatusEl, err.message, 'err');
-        }
-      }
-    });
-
-    // Persist the gallery choice beside an existing item's thumbnail without
-    // making the owner open the full editor.
-    menuBodyEl.addEventListener('change', async (event) => {
-      const toggle = (event.target as HTMLElement).closest('[data-item-gallery-toggle]') as HTMLInputElement | null;
-      if (toggle) {
-        const item = toggle.closest('[data-item-id]') as HTMLElement;
-        toggle.disabled = true;
-        item.dataset.gallerySaving = 'true';
-        try {
-          await menuAction({
-            action: 'update-item',
-            itemId: item.dataset.itemId,
-            showPhotoInGallery: toggle.checked,
-          });
-          const editToggle = item.querySelector<HTMLInputElement>('[data-edit-item] [data-item-gallery]');
-          if (editToggle) editToggle.checked = toggle.checked;
-          setStatus(menuStatusEl, toggle.checked ? 'Photo added to the venue gallery.' : 'Photo removed from the venue gallery.', 'ok');
-        } catch (err: any) {
-          toggle.checked = !toggle.checked;
-          setStatus(menuStatusEl, err.message, 'err');
+          setStatus(photoStatusEl, err.message, 'err');
         } finally {
-          toggle.disabled = false;
-          delete item.dataset.gallerySaving;
+          input.value = '';
         }
-        return;
+      }, { signal });
+
+      photoGridEl.addEventListener('click', async (event) => {
+        const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+        if (!button) return;
+
+        const card = button.closest('.ph-card') as HTMLElement;
+        const photoId = card.dataset.photoId!;
+        const statusEl = card.querySelector('[data-photo-status]') as HTMLElement;
+
+        if (button.dataset.action === 'save-caption') {
+          const caption = (card.querySelector('[data-caption]') as HTMLInputElement).value;
+          setStatus(statusEl, 'Saving...');
+          try {
+            await api(`/api/restaurant/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify({ caption }) });
+            invalidateMerchantTabCache(venueId, 'photos');
+            setStatus(statusEl, 'Caption saved.', 'ok');
+          } catch (err: any) {
+            setStatus(statusEl, err.message, 'err');
+          }
+          return;
+        }
+
+        if (button.dataset.action === 'delete-photo') {
+          if (!confirm('Delete this photo?')) return;
+          setStatus(statusEl, 'Deleting...');
+          try {
+            await api(`/api/restaurant/photos/${photoId}`, { method: 'DELETE' });
+            invalidateMerchantTabCache(venueId, 'photos');
+            invalidateMerchantTabCache(venueId, 'listing');
+            invalidateMerchantTabCache(venueId, 'menu');
+            await loadPhotos();
+            await loadMenu();
+            paintListingForm(readListingForm(formEl));
+          } catch (err: any) {
+            setStatus(statusEl, err.message, 'err');
+          }
+        }
+      }, { signal });
+
+      // ---------------------------------------------------------------------
+      // Menu
+      // ---------------------------------------------------------------------
+      function photoSelectHTML(selectedId: string | null) {
+        // Separate photos by type - menu_item photos first, then venue photos
+        const menuPhotos = approvedPhotos.filter((p: any) => p.photoType === 'menu_item');
+        const venuePhotos = approvedPhotos.filter((p: any) => p.photoType === 'venue');
+
+        let options = '<option value="">No photo</option>';
+
+        if (menuPhotos.length > 0) {
+          options += '<optgroup label="Menu Item Photos">';
+          options += menuPhotos
+            .map((photo: any, index: number) =>
+              `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Menu photo ${index + 1}`)}</option>`
+            )
+            .join('');
+          options += '</optgroup>';
+        }
+
+        if (venuePhotos.length > 0) {
+          options += '<optgroup label="Venue Gallery Photos">';
+          options += venuePhotos
+            .map((photo: any, index: number) =>
+              `<option value="${esc(photo.id)}" ${photo.id === selectedId ? 'selected' : ''}>${esc(photo.caption || `Venue photo ${index + 1}`)}</option>`
+            )
+            .join('');
+          options += '</optgroup>';
+        }
+
+        return `<select data-item-photo aria-label="Menu item photo">${options}</select>`;
       }
 
-      const select = event.target as HTMLSelectElement;
-      if (!select.matches('[data-item-photo]')) return;
+      function itemHTML(item: any) {
+        const photo = approvedPhotos.find((candidate) => candidate.id === item.photoId);
+        return `
+          <div class="mn-item" data-item-id="${esc(item.id)}">
+            ${photo ? `
+              <div class="mn-item-photo" data-item-view>
+                <img src="${esc(photo.url)}" alt="${esc(item.name)}" loading="lazy">
+                <label class="mn-gallery-check">
+                  <input type="checkbox" data-item-gallery-toggle ${item.showPhotoInGallery !== false ? 'checked' : ''}>
+                  Show in venue gallery
+                </label>
+              </div>
+            ` : ''}
+            <div class="mn-item-main" data-item-view>
+              <div class="nm">${esc(item.name)} ${item.price ? `<span class="pr">· ${esc(item.price)}</span>` : ''}</div>
+              ${item.description ? `<div class="ds">${esc(item.description)}</div>` : ''}
+            </div>
+            <div class="mn-item-actions" data-item-view>
+              <button type="button" class="mg-btn small neutral" data-action="edit-item">Edit</button>
+              <button type="button" class="mg-btn small danger" data-action="delete-item">Remove</button>
+            </div>
 
-      const form = select.closest('.mn-form') as HTMLFormElement;
-      const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
-      const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
-      const previewText = previewContainer.querySelector('span') as HTMLElement;
-
-      const photoId = select.value;
-      if (!photoId) {
-        previewContainer.style.display = 'none';
-        return;
+            <form class="mn-form mn-edit-form mg-hidden" data-edit-item>
+              <div class="row">
+                <input name="name" value="${esc(item.name)}" placeholder="Item name" aria-label="Menu item name" maxlength="120" required>
+                <input name="price" value="${esc(item.price)}" placeholder="$8" aria-label="Menu item price" maxlength="40">
+                <div class="photo-picker">
+                  ${photoSelectHTML(item.photoId)}
+                  <label class="mg-btn small" style="margin: 0;">
+                    Upload photo
+                    <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
+                  </label>
+                </div>
+              </div>
+              <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400">${esc(item.description)}</textarea>
+              <label class="mn-gallery-check">
+                <input type="checkbox" data-item-gallery ${item.showPhotoInGallery !== false ? 'checked' : ''}>
+                Show the selected menu item photo in the venue gallery
+              </label>
+              <div class="mn-item-actions">
+                <button type="submit" class="mg-btn small">Save item</button>
+                <button type="button" class="mg-btn small neutral" data-action="cancel-edit-item">Cancel</button>
+              </div>
+              <span class="mg-status" data-item-status aria-live="polite"></span>
+              <div data-photo-preview style="margin-top: 0.5rem; display: ${photo ? 'block' : 'none'};">
+                <img src="${photo ? esc(photo.url) : ''}" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                <span style="margin-left: 0.5rem; color: #28a745;">${photo ? esc(photo.caption || 'Selected photo') : ''}</span>
+              </div>
+            </form>
+          </div>
+        `;
       }
 
-      const photo = approvedPhotos.find((p: any) => p.id === photoId);
-      if (photo) {
-        previewImg.src = photo.url;
-        previewText.textContent = photo.caption || 'Selected photo';
-        previewContainer.style.display = 'block';
+      function sectionHTML(section: any) {
+        return `
+          <div class="mn-section" data-section-id="${esc(section.id)}">
+            <div class="mn-section-head" data-section-view>
+              <div>
+                <h3>${esc(section.title)}</h3>
+                ${section.note ? `<span class="note">${esc(section.note)}</span>` : ''}
+              </div>
+              <div class="mn-section-actions">
+                <button type="button" class="mg-btn small neutral" data-action="edit-section">Edit</button>
+                <button type="button" class="mg-btn small danger" data-action="delete-section">Delete section</button>
+              </div>
+            </div>
+
+            <form class="mn-form mg-hidden" data-edit-section>
+              <div class="row">
+                <input name="title" value="${esc(section.title)}" placeholder="Section name" aria-label="Section name" maxlength="80" required>
+                <input name="note" value="${esc(section.note || '')}" placeholder="Optional note, e.g. served 3–6pm at the bar" aria-label="Section note" maxlength="200">
+              </div>
+              <div class="mn-section-actions">
+                <button type="submit" class="mg-btn small">Save section</button>
+                <button type="button" class="mg-btn small neutral" data-action="cancel-edit-section">Cancel</button>
+              </div>
+              <span class="mg-status" data-section-status aria-live="polite"></span>
+            </form>
+
+            ${section.items.map(itemHTML).join('')}
+
+            <form class="mn-form" data-add-item>
+              <div class="row">
+                <input name="name" placeholder="Item, e.g. Street tacos" aria-label="Menu item name" maxlength="120" required>
+                <input name="price" placeholder="$8" aria-label="Menu item price" maxlength="40">
+                <div class="photo-picker">
+                  ${photoSelectHTML(null)}
+                  <label class="mg-btn small" style="margin: 0;">
+                    Upload photo
+                    <input type="file" accept="image/jpeg,image/png" data-item-photo-upload style="display: none;">
+                  </label>
+                </div>
+                <button type="submit" class="mg-btn small">Add item</button>
+              </div>
+              <textarea name="description" placeholder="Optional description" aria-label="Menu item description" maxlength="400"></textarea>
+              <label class="mn-gallery-check">
+                <input type="checkbox" data-item-gallery checked>
+                Show the selected menu item photo in the venue gallery
+              </label>
+              <span class="mg-status" data-item-status aria-live="polite"></span>
+              <div data-photo-preview style="margin-top: 0.5rem; display: none;">
+                <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                <span style="margin-left: 0.5rem; color: #28a745;"></span>
+              </div>
+            </form>
+          </div>
+        `;
       }
-    });
 
-    // Handle menu item photo uploads
-    menuBodyEl.addEventListener('change', async (event) => {
-      const input = (event.target as HTMLElement).closest('[data-item-photo-upload]') as HTMLInputElement | null;
-      if (!input || !input.files?.[0]) return;
+      function paintMenu(menu: any[]) {
+        menuPayload = { menu };
+        menuBodyEl.innerHTML = menu.length
+          ? menu.map(sectionHTML).join('')
+          : '<p class="mg-status">No menu sections yet — add one below.</p>';
+        menuReady = true;
+      }
 
-      const file = input.files[0];
-      const form = input.closest('.mn-form') as HTMLFormElement;
-      const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
-      const photoSelect = form.querySelector('[data-item-photo]') as HTMLSelectElement;
-      const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
-      const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
-      const previewText = previewContainer.querySelector('span') as HTMLElement;
+      async function loadMenu(options: { silent?: boolean } = {}) {
+        if (menuInflight) return menuInflight;
+        menuInflight = (async () => {
+          const cached = getMerchantTabCache<{ menu: any[] }>(venueId, 'menu');
+          if (cached?.data?.menu) paintMenu(cached.data.menu);
+          else if (!options.silent) setStatus(menuStatusEl, 'Loading menu…');
+          try {
+            await swrMerchantTabCache({
+              venueId,
+              resource: 'menu',
+              signal,
+              fetcher: async () => {
+                const data = await api(`/api/restaurant/venues/${venueId}/menu`);
+                return { menu: data.menu || [] };
+              },
+              onFresh: (payload, { changed, fromCache }) => {
+                if (signal.aborted) return;
+                if (!fromCache || changed || !menuReady) paintMenu(payload.menu);
+                if (!fromCache && !options.silent) setStatus(menuStatusEl, '');
+              },
+            });
+            if (cached && !options.silent) setStatus(menuStatusEl, '');
+          } catch (err: any) {
+            if (signal.aborted) return;
+            if (cached) return;
+            if (!options.silent) setStatus(menuStatusEl, err.message, 'err');
+            throw err;
+          } finally {
+            menuInflight = null;
+          }
+        })();
+        return menuInflight;
+      }
 
-      setStatus(statusEl, `Uploading ${file.name}...`);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('photoType', 'menu_item');
-      formData.append('caption', ''); // Menu item photos don't need captions
+      async function ensurePanel(tab: ManageTab) {
+        if (tab === 'listing') {
+          if (!listingReady) await loadListing({ showLoader: true });
+          return;
+        }
+        if (tab === 'photos') {
+          if (!photosReady) {
+            const hit = getMerchantTabCache<{ photos: any[] }>(venueId, 'photos');
+            if (hit?.data?.photos) applyPhotosPayload(hit.data.photos);
+          }
+          await loadPhotos({ silent: photosReady });
+          return;
+        }
+        if (tab === 'menu') {
+          if (!photosReady) await loadPhotos({ silent: true });
+          if (!menuReady) {
+            const hit = getMerchantTabCache<{ menu: any[] }>(venueId, 'menu');
+            if (hit?.data?.menu) paintMenu(hit.data.menu);
+          }
+          await loadMenu({ silent: menuReady });
+        }
+      }
 
-      try {
-        const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: formData });
+      async function menuAction(payload: Record<string, unknown>) {
+        const result = await api(`/api/restaurant/venues/${venueId}/menu`, { method: 'POST', body: JSON.stringify(payload) });
+        invalidateMerchantTabCache(venueId, 'menu');
+        return result;
+      }
 
-        // Add the new photo to approvedPhotos if it's published
-        if (result.photo.status === 'published') {
-          approvedPhotos.push({
-            id: result.photo.id,
-            url: result.photo.url,
-            caption: result.photo.caption || 'Menu item photo',
-            photoType: result.photo.photoType
+      document.getElementById('mn-add-section')!.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const title = (form.querySelector('[name="title"]') as HTMLInputElement).value.trim();
+        const note = (form.querySelector('[name="note"]') as HTMLInputElement).value.trim();
+
+        setStatus(menuStatusEl, 'Adding...');
+        try {
+          await menuAction({ action: 'create-section', title, note });
+          form.reset();
+          setStatus(menuStatusEl, 'Section added.', 'ok');
+          await loadMenu();
+        } catch (err: any) {
+          setStatus(menuStatusEl, err.message, 'err');
+        }
+      }, { signal });
+
+      menuBodyEl.addEventListener('submit', async (event) => {
+        const form = event.target as HTMLFormElement;
+        const isEditSection = form.matches('[data-edit-section]');
+        const isAdd = form.matches('[data-add-item]');
+        const isEdit = form.matches('[data-edit-item]');
+        if (!isEditSection && !isAdd && !isEdit) return;
+        event.preventDefault();
+
+        const section = form.closest('[data-section-id]') as HTMLElement;
+
+        if (isEditSection) {
+          const statusEl = form.querySelector('[data-section-status]') as HTMLElement;
+          setStatus(statusEl, 'Saving...');
+          try {
+            await menuAction({
+              action: 'update-section',
+              sectionId: section.dataset.sectionId,
+              title: (form.querySelector('[name="title"]') as HTMLInputElement).value.trim(),
+              note: (form.querySelector('[name="note"]') as HTMLInputElement).value.trim(),
+            });
+            setStatus(menuStatusEl, 'Section updated.', 'ok');
+            await loadMenu();
+          } catch (err: any) {
+            setStatus(statusEl, err.message, 'err');
+          }
+          return;
+        }
+
+        const item = form.closest('[data-item-id]') as HTMLElement | null;
+        const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
+
+        setStatus(statusEl, isEdit ? 'Saving...' : 'Adding...');
+        try {
+          const selectedPhotoId = (form.querySelector('[data-item-photo]') as HTMLSelectElement).value;
+          await menuAction({
+            action: isEdit ? 'update-item' : 'create-item',
+            sectionId: section.dataset.sectionId,
+            ...(isEdit ? { itemId: item?.dataset.itemId } : {}),
+            name: (form.querySelector('[name="name"]') as HTMLInputElement).value.trim(),
+            price: (form.querySelector('[name="price"]') as HTMLInputElement).value.trim(),
+            description: (form.querySelector('[name="description"]') as HTMLTextAreaElement).value.trim(),
+            // The update route distinguishes an omitted photo from an explicit
+            // clear, so the edit form sends null for "No photo".
+            photoId: selectedPhotoId || (isEdit ? null : ''),
+            showPhotoInGallery: (form.querySelector('[data-item-gallery]') as HTMLInputElement).checked,
           });
-
-          // Update the dropdown to include the new photo
-          const newOption = document.createElement('option');
-          newOption.value = result.photo.id;
-          newOption.textContent = 'Menu item photo';
-          newOption.selected = true;
-          photoSelect.appendChild(newOption);
-
-          // Show preview
-          previewImg.src = result.photo.url;
-          previewText.textContent = result.pendingReview
-            ? 'Photo uploaded, pending review'
-            : 'Photo uploaded';
-          previewContainer.style.display = 'block';
-
-          setStatus(statusEl, result.pendingReview
-            ? 'Photo uploaded — pending review'
-            : 'Photo uploaded and ready', 'ok');
-        } else {
-          setStatus(statusEl, 'Photo uploaded but needs review before use', 'ok');
+          setStatus(menuStatusEl, isEdit ? 'Menu item updated.' : 'Menu item added.', 'ok');
+          await loadMenu();
+        } catch (err: any) {
+          setStatus(statusEl, err.message, 'err');
         }
-      } catch (err: any) {
-        setStatus(statusEl, err.message, 'err');
-      } finally {
-        input.value = '';
-      }
-    });
+      }, { signal });
 
-    // ---------------------------------------------------------------------
-    // Boot. The listing request is also the access check: it 403s unless this
-    // account holds a verified claim on this venue (or is an admin), so a
-    // failure here is what reveals the locked panel instead of the editor.
-    // ---------------------------------------------------------------------
-    (async () => {
-      try {
-        await loadListing();
-      } catch {
-        lockedEl.classList.remove('mg-hidden');
-        return;
-      }
+      menuBodyEl.addEventListener('click', async (event) => {
+        const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+        if (!button) return;
 
-      editorEl.classList.remove('mg-hidden');
-      void syncShellAfterAuth();
-      // Photos load after the listing so the featured-photo picker is painted
-      // from a fresh list, and the menu last since its photo dropdowns depend
-      // on it.
-      try {
-        await loadPhotos();
-        paintListingForm(readListingForm(formEl));
-        await loadMenu();
-      } catch (err: any) {
-        setStatus(photoStatusEl, err.message, 'err');
-      }
-    })();
+        const section = button.closest('[data-section-id]') as HTMLElement;
+
+        if (button.dataset.action === 'edit-section' || button.dataset.action === 'cancel-edit-section') {
+          const editing = button.dataset.action === 'edit-section';
+          if (!editing) {
+            // Repaint from the saved menu so Cancel discards unsaved title/note edits.
+            await loadMenu();
+            return;
+          }
+          section.querySelector<HTMLElement>('[data-section-view]')?.classList.add('mg-hidden');
+          section.querySelector<HTMLElement>('[data-edit-section]')?.classList.remove('mg-hidden');
+          section.querySelector<HTMLInputElement>('[data-edit-section] [name="title"]')?.focus();
+          return;
+        }
+
+        if (button.dataset.action === 'edit-item' || button.dataset.action === 'cancel-edit-item') {
+          const item = button.closest('[data-item-id]') as HTMLElement;
+          if (item.dataset.gallerySaving === 'true') return;
+          const editing = button.dataset.action === 'edit-item';
+          if (!editing) {
+            // Repaint from the saved menu so Cancel truly discards text, photo,
+            // preview, and checkbox edits rather than hiding stale form values.
+            await loadMenu();
+            return;
+          }
+          item.querySelectorAll<HTMLElement>('[data-item-view]').forEach((element) => {
+            element.classList.toggle('mg-hidden', editing);
+          });
+          item.querySelector<HTMLElement>('[data-edit-item]')?.classList.toggle('mg-hidden', !editing);
+          if (editing) item.querySelector<HTMLInputElement>('[data-edit-item] [name="name"]')?.focus();
+          return;
+        }
+
+        if (button.dataset.action === 'delete-section') {
+          if (!confirm('Delete this section and everything in it?')) return;
+          try {
+            await menuAction({ action: 'delete-section', sectionId: section.dataset.sectionId });
+            await loadMenu();
+          } catch (err: any) {
+            setStatus(menuStatusEl, err.message, 'err');
+          }
+          return;
+        }
+
+        if (button.dataset.action === 'delete-item') {
+          const item = button.closest('[data-item-id]') as HTMLElement;
+          try {
+            await menuAction({ action: 'delete-item', itemId: item.dataset.itemId });
+            await loadMenu();
+          } catch (err: any) {
+            setStatus(menuStatusEl, err.message, 'err');
+          }
+        }
+      }, { signal });
+
+      // Persist the gallery choice beside an existing item's thumbnail without
+      // making the owner open the full editor.
+      menuBodyEl.addEventListener('change', async (event) => {
+        const toggle = (event.target as HTMLElement).closest('[data-item-gallery-toggle]') as HTMLInputElement | null;
+        if (toggle) {
+          const item = toggle.closest('[data-item-id]') as HTMLElement;
+          toggle.disabled = true;
+          item.dataset.gallerySaving = 'true';
+          try {
+            await menuAction({
+              action: 'update-item',
+              itemId: item.dataset.itemId,
+              showPhotoInGallery: toggle.checked,
+            });
+            const editToggle = item.querySelector<HTMLInputElement>('[data-edit-item] [data-item-gallery]');
+            if (editToggle) editToggle.checked = toggle.checked;
+            setStatus(menuStatusEl, toggle.checked ? 'Photo added to the venue gallery.' : 'Photo removed from the venue gallery.', 'ok');
+          } catch (err: any) {
+            toggle.checked = !toggle.checked;
+            setStatus(menuStatusEl, err.message, 'err');
+          } finally {
+            toggle.disabled = false;
+            delete item.dataset.gallerySaving;
+          }
+          return;
+        }
+
+        const select = event.target as HTMLSelectElement;
+        if (!select.matches('[data-item-photo]')) return;
+
+        const form = select.closest('.mn-form') as HTMLFormElement;
+        const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
+        const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
+        const previewText = previewContainer.querySelector('span') as HTMLElement;
+
+        const photoId = select.value;
+        if (!photoId) {
+          previewContainer.style.display = 'none';
+          return;
+        }
+
+        const photo = approvedPhotos.find((p: any) => p.id === photoId);
+        if (photo) {
+          previewImg.src = photo.url;
+          previewText.textContent = photo.caption || 'Selected photo';
+          previewContainer.style.display = 'block';
+        }
+      }, { signal });
+
+      // Handle menu item photo uploads
+      menuBodyEl.addEventListener('change', async (event) => {
+        const input = (event.target as HTMLElement).closest('[data-item-photo-upload]') as HTMLInputElement | null;
+        if (!input || !input.files?.[0]) return;
+
+        const file = input.files[0];
+        const form = input.closest('.mn-form') as HTMLFormElement;
+        const statusEl = form.querySelector('[data-item-status]') as HTMLElement;
+        const photoSelect = form.querySelector('[data-item-photo]') as HTMLSelectElement;
+        const previewContainer = form.querySelector('[data-photo-preview]') as HTMLElement;
+        const previewImg = previewContainer.querySelector('img') as HTMLImageElement;
+        const previewText = previewContainer.querySelector('span') as HTMLElement;
+
+        setStatus(statusEl, `Uploading ${file.name}...`);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('photoType', 'menu_item');
+        formData.append('caption', ''); // Menu item photos don't need captions
+
+        try {
+          const result = await api(`/api/restaurant/venues/${venueId}/photos`, { method: 'POST', body: formData });
+          invalidateMerchantTabCache(venueId, 'photos');
+          invalidateMerchantTabCache(venueId, 'listing');
+
+          // Add the new photo to approvedPhotos if it's published
+          if (result.photo.status === 'published') {
+            approvedPhotos.push({
+              id: result.photo.id,
+              url: result.photo.url,
+              caption: result.photo.caption || 'Menu item photo',
+              photoType: result.photo.photoType
+            });
+
+            // Update the dropdown to include the new photo
+            const newOption = document.createElement('option');
+            newOption.value = result.photo.id;
+            newOption.textContent = 'Menu item photo';
+            newOption.selected = true;
+            photoSelect.appendChild(newOption);
+
+            // Show preview
+            previewImg.src = result.photo.url;
+            previewText.textContent = result.pendingReview
+              ? 'Photo uploaded, pending review'
+              : 'Photo uploaded';
+            previewContainer.style.display = 'block';
+
+            setStatus(statusEl, result.pendingReview
+              ? 'Photo uploaded — pending review'
+              : 'Photo uploaded and ready', 'ok');
+          } else {
+            setStatus(statusEl, 'Photo uploaded but needs review before use', 'ok');
+          }
+        } catch (err: any) {
+          setStatus(statusEl, err.message, 'err');
+        } finally {
+          input.value = '';
+        }
+      }, { signal });
+
+      // ---------------------------------------------------------------------
+      // Boot. The listing request is also the access check: it 403s unless this
+      // account holds a verified claim on this venue (or is an admin), so a
+      // failure here is what reveals the locked panel instead of the editor.
+      // ---------------------------------------------------------------------
+      (async () => {
+        try {
+          await loadListing();
+        } catch {
+          if (signal.aborted) return;
+          lockedEl.classList.remove('mg-hidden');
+          return;
+        }
+
+        if (signal.aborted) return;
+        editorEl.classList.remove('mg-hidden');
+        void syncShellAfterAuth();
+
+        const active = readActiveTab();
+        try {
+          await ensurePanel(active);
+          if (signal.aborted) return;
+          // Warm sibling panels into cache so instant tab switches stay instant.
+          if (active !== 'photos') void loadPhotos({ silent: true });
+          if (active !== 'menu') {
+            void (async () => {
+              try {
+                if (!photosReady) await loadPhotos({ silent: true });
+                if (signal.aborted) return;
+                await loadMenu({ silent: true });
+              } catch {
+                /* warm is best-effort */
+              }
+            })();
+          }
+        } catch (err: any) {
+          if (signal.aborted) return;
+          if (active === 'photos') setStatus(photoStatusEl, err.message, 'err');
+          else if (active === 'menu') setStatus(menuStatusEl, err.message, 'err');
+          else setStatus(saveStatusEl, err.message, 'err');
+        }
+      })();
+    }
+
+    onMerchantPageLoad(startManagePage);
   </script>
 </Layout>

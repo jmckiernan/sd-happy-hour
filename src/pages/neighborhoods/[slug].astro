@@ -4,9 +4,10 @@ import Layout from '../../layouts/Layout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getNeighborhoodProfiles } from '../../lib/neighborhoods';
 import { breadcrumbSchema, itemListSchema } from '../../lib/seo';
-import { formatTime, getListingImage, getVenueImage, venuePath } from '../../lib/venues';
+import { formatTime, getListingImage, getVenueImage, venuePath, venueSlug } from '../../lib/venues';
 import { listingImageStyle } from '../../lib/imageCrop';
 import { cardSpecials } from '../../lib/listingCopy';
+import { renderCardShareNotifyIcons } from '../../lib/cardShareNotify';
 
 export function getStaticPaths() {
   return getNeighborhoodProfiles().map((profile) => ({
@@ -56,9 +57,9 @@ const nearby = profile.nearby
     <section aria-labelledby="area-listings">
       <h2 id="area-listings">Current {profile.name} happy hour listings</h2>
       <p class="freshness-note">Deals can change. Open a venue to review its details and use the official website link to confirm before visiting.</p>
-      <div class="venue-grid">
+      <div class="venue-grid" id="neighborhood-venue-grid">
         {profile.venues.map((venue: any) => (
-          <article class="venue-result">
+          <article class="venue-result" data-venue-card={venue.id}>
             <a class="venue-image" href={venuePath(venue)} tabindex="-1" aria-hidden="true">
               <img
                 src={getListingImage(venue, 'card')}
@@ -77,6 +78,11 @@ const nearby = profile.nearby
               <ul>
                 {cardSpecials(venue).map((deal: string) => <li>{deal}</li>)}
               </ul>
+              <div class="card-actions-row" set:html={renderCardShareNotifyIcons({
+                venueId: venue.id,
+                venueName: venue.name,
+                slug: venueSlug(venue),
+              })} />
               <a class="details" href={venuePath(venue)}>View {venue.name} details →</a>
             </div>
           </article>
@@ -92,6 +98,15 @@ const nearby = profile.nearby
     )}
   </main>
   <script>
+    import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
+    import { fetchBrowserSession } from '../../lib/browserSession';
+    import {
+      applyFollowStateToRoot,
+      bindCardShareNotify,
+      hydrateCardFollows,
+      type CardFollowState,
+    } from '../../lib/cardShareNotify';
+
     for (const image of document.querySelectorAll<HTMLImageElement>('img[data-fallback-src]')) {
       const useFallback = () => {
         const fallback = image.dataset.fallbackSrc;
@@ -100,6 +115,34 @@ const nearby = profile.nearby
       };
       image.addEventListener('error', useFallback, { once: true });
       if (image.complete && image.naturalWidth === 0) useFallback();
+    }
+
+    const grid = document.getElementById('neighborhood-venue-grid');
+    if (grid) {
+      const follows = new Map<number, CardFollowState>();
+      let signedIn = false;
+
+      bindCardShareNotify({
+        root: grid,
+        follows,
+        isSignedIn: () => signedIn,
+        onSignInRequired: () => {
+          window.location.href = accountSignInHref(currentReturnPath());
+        },
+      });
+
+      void (async () => {
+        try {
+          const session = await fetchBrowserSession();
+          signedIn = session.authenticated;
+          if (signedIn) {
+            await hydrateCardFollows(follows);
+            applyFollowStateToRoot(grid, follows);
+          }
+        } catch {
+          signedIn = false;
+        }
+      })();
     }
   </script>
 </Layout>
@@ -122,6 +165,49 @@ const nearby = profile.nearby
   .venue-copy h3 a { text-decoration: none; }
   .address { color: var(--night-soft); font-size: .86rem; margin-bottom: 14px; }
   .venue-copy ul { margin: 0 0 16px 20px; line-height: 1.55; }
+  .card-actions-row { align-items: center; display: flex; justify-content: flex-end; margin: 0 0 14px; }
+  :global(.card-action-icons) { align-items: center; display: inline-flex; flex-shrink: 0; gap: 6px; position: relative; }
+  :global(.card-icon-btn) {
+    align-items: center; appearance: none; background: var(--sand-warm); border: 2px solid rgba(15, 23, 42, .12);
+    border-radius: 50%; color: var(--night); cursor: pointer; display: inline-flex; flex-shrink: 0;
+    height: 36px; justify-content: center; padding: 0; width: 36px;
+  }
+  :global(.card-icon-btn svg) { height: 16px; width: 16px; }
+  :global(.card-icon-btn:hover) { border-color: rgba(15, 23, 42, .24); color: var(--sunset-start); }
+  :global(.card-icon-btn:focus-visible) { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,.12); outline: none; }
+  :global(.card-notify-btn.is-following) { background: var(--ocean); border-color: var(--ocean); color: white; }
+  :global(.card-notify-btn.is-following:hover) { background: var(--ocean-deep, #0c4a6e); border-color: var(--ocean-deep, #0c4a6e); color: white; }
+  :global(.card-popover) {
+    background: white; border: 1px solid rgba(15, 23, 42, .1); border-radius: var(--radius-sm);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .24); display: grid; gap: 2px; padding: 8px;
+    position: absolute; right: 0; top: calc(100% + 8px); width: min(220px, calc(100vw - 48px)); z-index: 40;
+  }
+  :global(.card-popover[hidden]) { display: none; }
+  :global(.card-popover-title) { font-size: .78rem; padding: 6px 10px 4px; }
+  :global(.card-popover-status) { color: #047857; font-size: .75rem; font-weight: 700; padding: 2px 10px 6px; }
+  :global(.card-popover-status.is-error) { color: #B91C1C; }
+  :global(.card-share-menu button), :global(.card-share-menu a) {
+    align-items: center; appearance: none; background: transparent; border: 0; border-radius: 9px;
+    color: var(--night); cursor: pointer; display: flex; font: inherit; font-size: .86rem; font-weight: 700;
+    gap: 10px; padding: 10px 12px; text-align: left; text-decoration: none; width: 100%;
+  }
+  :global(.card-share-menu :is(button, a):hover),
+  :global(.card-share-menu :is(button, a):focus-visible) { background: var(--sand-warm); outline: none; }
+  :global(.card-share-menu .share-fb-mark) { flex-shrink: 0; }
+  :global(.card-notify-pref) {
+    align-items: center; border-radius: 9px; color: var(--night); cursor: pointer;
+    display: grid; font-size: .86rem; font-weight: 700; gap: 10px; grid-template-columns: 16px minmax(0, 1fr);
+    padding: 8px 10px;
+  }
+  :global(.card-notify-pref:hover) { background: var(--sand-warm); }
+  :global(.card-notify-pref.is-disabled) { color: var(--night-soft); cursor: not-allowed; opacity: .72; }
+  :global(.card-notify-pref.is-disabled:hover) { background: transparent; }
+  :global(.card-notify-pref-label) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; line-height: 1.25; min-width: 0; }
+  :global(.card-notify-pref em) { color: var(--night-soft); font-size: .72rem; font-style: normal; font-weight: 650; }
+  :global(.card-notify-pref input[type="checkbox"]) {
+    accent-color: var(--ocean); align-self: center; flex-shrink: 0; height: 16px; justify-self: center;
+    margin: 0; padding: 0; width: 16px;
+  }
   .details { color: var(--ocean-deep); font-weight: 750; }
   .nearby { background: var(--sand-warm); border-radius: var(--radius); margin-top: 42px; padding: 24px; }
   .nearby div { display: flex; flex-wrap: wrap; gap: 10px; }

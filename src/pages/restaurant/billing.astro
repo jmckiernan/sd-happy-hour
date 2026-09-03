@@ -365,6 +365,18 @@ const bootstrap = JSON.stringify({
 
   <script id="billing-bootstrap" type="application/json" set:html={bootstrap}></script>
   <script>
+    import {
+      MERCHANT_VENUE_CHANGE_EVENT,
+      onMerchantPageLoad,
+      prefetchVisibleMerchantTabs,
+      replaceMerchantUrl,
+    } from '../../lib/merchantShellNav';
+    import {
+      getMerchantTabCache,
+      invalidateMerchantTabCache,
+      swrMerchantTabCache,
+    } from '../../lib/merchantTabCache';
+
     interface VenueOption {
       venueId: number;
       venueName: string;
@@ -438,11 +450,24 @@ const bootstrap = JSON.stringify({
       };
     }
 
-    const bootstrap: Bootstrap = JSON.parse(
-      document.getElementById('billing-bootstrap')?.textContent || '{}'
-    );
-    const billingStatus = document.getElementById('billing-status');
-    if (billingStatus && bootstrap.venues?.length) {
+    // ClientRouter skips already-executed module scripts on soft-nav revisit.
+    // Re-query the DOM and fetch on every astro:page-load so the SSR loader
+    // never sticks after returning to Billing.
+    let pageAbort: AbortController | null = null;
+
+    function startBillingPage() {
+      if (!document.getElementById('billing-bootstrap')) return;
+
+      pageAbort?.abort();
+      pageAbort = new AbortController();
+      const signal = pageAbort.signal;
+
+      const bootstrap: Bootstrap = JSON.parse(
+        document.getElementById('billing-bootstrap')?.textContent || '{}'
+      );
+      const billingStatus = document.getElementById('billing-status');
+      if (!billingStatus || !bootstrap.venues?.length) return;
+
       const billingContent = document.getElementById('billing-content')!;
       const metricsEl = document.getElementById('billing-metrics')!;
       const planFeaturesEl = document.getElementById('plan-features')!;
@@ -610,6 +635,7 @@ const bootstrap = JSON.stringify({
             tab.setAttribute('aria-disabled', needsSlug && !slug ? 'true' : 'false');
           }
         }
+        prefetchVisibleMerchantTabs();
       }
 
       function render(billing: BillingSummary) {
@@ -708,36 +734,58 @@ const bootstrap = JSON.stringify({
         billingContent.hidden = false;
       }
 
+      type BillingPayload = { billing: BillingSummary; venues?: VenueOption[] };
+
       async function loadBilling() {
         const version = ++requestVersion;
-        history.replaceState(null, '', `/restaurant/billing/?venueId=${selectedVenueId}`);
-        status('Loading billing…', true);
+        replaceMerchantUrl(`/restaurant/billing/?venueId=${selectedVenueId}`);
+        const cached = getMerchantTabCache<BillingPayload>(selectedVenueId, 'billing');
+        if (cached) {
+          if (Array.isArray(cached.data.venues)) bootstrap.venues = cached.data.venues;
+          render(cached.data.billing);
+        } else {
+          status('Loading billing…', true);
+        }
         try {
-          const response = await fetch(`/api/restaurant/billing?venueId=${selectedVenueId}`, {
-            cache: 'no-store',
+          await swrMerchantTabCache<BillingPayload>({
+            venueId: selectedVenueId,
+            resource: 'billing',
+            signal,
+            fetcher: async () => {
+              const response = await fetch(`/api/restaurant/billing?venueId=${selectedVenueId}`, {
+                cache: 'no-store',
+                signal,
+              });
+              const data = await response.json();
+              if (!response.ok) {
+                throw new Error((data.errors || ['Could not load billing.']).join(' '));
+              }
+              return {
+                billing: data.billing as BillingSummary,
+                venues: Array.isArray(data.venues) ? (data.venues as VenueOption[]) : undefined,
+              };
+            },
+            onFresh: (payload, { changed, fromCache }) => {
+              if (signal.aborted || version !== requestVersion) return;
+              if (Array.isArray(payload.venues)) bootstrap.venues = payload.venues;
+              if (!fromCache || changed) render(payload.billing);
+            },
           });
-          const data = await response.json();
-          if (version !== requestVersion) return;
-          if (!response.ok) {
-            throw new Error((data.errors || ['Could not load billing.']).join(' '));
-          }
-          if (Array.isArray(data.venues)) {
-            bootstrap.venues = data.venues;
-          }
-          render(data.billing as BillingSummary);
         } catch (error) {
-          if (version !== requestVersion) return;
+          if (signal.aborted || version !== requestVersion) return;
+          if (cached) return;
           status(error instanceof Error ? error.message : 'Could not load billing.');
         }
       }
 
-      document
-        .querySelector('[data-merchant-shell-switcher]')
-        ?.addEventListener('change', (event) => {
-          const target = event.target as HTMLSelectElement;
-          selectedVenueId = Number(target.value);
-          void loadBilling();
-        });
+      document.addEventListener('astro:before-swap', () => pageAbort?.abort(), { once: true });
+
+      window.addEventListener(MERCHANT_VENUE_CHANGE_EVENT, ((event: CustomEvent<{ venueId?: number | null }>) => {
+        const next = Number(event.detail?.venueId);
+        if (!Number.isSafeInteger(next) || next <= 0) return;
+        selectedVenueId = next;
+        void loadBilling();
+      }) as EventListener, { signal });
 
       accessForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -758,6 +806,9 @@ const bootstrap = JSON.stringify({
           }
           const venue = bootstrap.venues.find((item) => item.venueId === selectedVenueId);
           if (venue) venue.paid = true;
+          invalidateMerchantTabCache(selectedVenueId, 'billing');
+          invalidateMerchantTabCache(selectedVenueId, 'audience');
+          invalidateMerchantTabCache(selectedVenueId, 'reports');
           accessStatus.textContent = 'Access unlocked. Refreshing billing…';
           (document.getElementById('access-code') as HTMLInputElement).value = '';
           void loadBilling();
@@ -766,9 +817,11 @@ const bootstrap = JSON.stringify({
           accessStatus.textContent =
             error instanceof Error ? error.message : 'Could not redeem code.';
         }
-      });
+      }, { signal });
 
       void loadBilling();
     }
+
+    onMerchantPageLoad(startBillingPage);
   </script>
 </Layout>
