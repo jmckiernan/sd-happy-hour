@@ -1,0 +1,640 @@
+---
+export const prerender = true;
+import Layout from '../../../layouts/Layout.astro';
+---
+<Layout title="Venues | Happy Hour SD Admin" description="Browse venues, review claims, and manage access codes.">
+  <style is:global>
+    .admin-bar {
+      background: white;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .admin-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; }
+    .admin-actions { display: flex; gap: 8px; align-items: center; }
+    .admin-user { color: var(--night-soft); font-size: 0.85rem; font-weight: 700; }
+    button.secondary {
+      background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night);
+      cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px;
+    }
+    button.secondary:hover { background: var(--sunset-end); }
+
+    .admin-subnav { display: flex; gap: 8px; max-width: 1100px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
+    .admin-status { margin-bottom: 16px; color: var(--night-soft); font-weight: 600; }
+
+    .venue-search {
+      display: block; width: 100%; max-width: 520px;
+      border: 2px solid var(--sand-warm); border-radius: 100px;
+      font: inherit; font-size: 0.9rem; margin-bottom: 14px; padding: 11px 18px;
+    }
+    .venue-search:focus { border-color: var(--sunset-start); outline: none; }
+
+    .admin-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .admin-filters button {
+      background: white; border: 2px solid var(--sand-warm); border-radius: 100px;
+      color: var(--night-soft); cursor: pointer; font: inherit; font-size: 0.85rem;
+      font-weight: 700; padding: 8px 16px;
+    }
+    .admin-filters button:hover { border-color: var(--sunset-end); color: var(--night); }
+    .admin-filters button[aria-pressed="true"] { background: var(--night); border-color: var(--night); color: white; }
+    .admin-filters .count { opacity: 0.7; font-weight: 600; }
+
+    .venue-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .venue-card.pending { box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 3px 0 0 var(--sunset-start); }
+    .venue-card.denied { box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 3px 0 0 #B91C1C; }
+
+    .venue-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+    .venue-head h2 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 4px; }
+    .venue-head p { color: var(--night-soft); font-size: 0.85rem; }
+    .venue-head-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+    .venue-links { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; margin-bottom: 12px; }
+    .venue-links a { color: var(--night); font-weight: 700; }
+
+    .pill { align-self: flex-start; border-radius: 100px; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pill.pending { background: #FEF3C7; color: #92400E; }
+    .pill.verified { background: #DCFCE7; color: #166534; }
+    .pill.denied { background: #FEE2E2; color: #991B1B; }
+    .pill.unverified { background: #F3F4F6; color: #4B5563; }
+
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 14px; color: var(--night-soft); font-size: 0.85rem; }
+    .meta > div { min-width: 0; overflow-wrap: anywhere; }
+    .meta a { overflow-wrap: anywhere; }
+    .meta .full { grid-column: 1 / -1; }
+    .deals-list { color: var(--night); line-height: 1.45; }
+    .timing { color: var(--night); font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; }
+    .claim-note { background: var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font-size: 0.85rem; padding: 12px; margin-bottom: 12px; white-space: pre-wrap; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .actions button { border: 0; border-radius: 100px; padding: 10px 16px; cursor: pointer; font: inherit; font-weight: 700; }
+    .actions button.good { background: var(--palm); color: white; }
+    .actions button.bad { background: #B91C1C; color: white; }
+    .actions button.report { background: var(--night); color: white; }
+    .actions button.report-revoke { background: var(--sand-warm); color: #991B1B; }
+
+    .code-card { background: linear-gradient(145deg,#201238,#3c2457); border-radius: var(--radius-sm); color: white; margin-bottom: 20px; padding: 20px; }
+    .code-card h2 { color: white; font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 5px; }
+    .code-card p { color: rgba(255,255,255,.7); font-size: .82rem; margin-bottom: 14px; }
+    .code-form { align-items: end; display: flex; flex-wrap: wrap; gap: 10px; }
+    .code-form label { color: rgba(255,255,255,.75); font-size: .7rem; font-weight: 700; }
+    .code-form input { border: 0; border-radius: 9px; display: block; font: inherit; margin-top: 4px; padding: 9px 10px; width: 130px; }
+    .code-form button { background: var(--sunset-start); border: 0; border-radius: 999px; color: white; cursor: pointer; font: inherit; font-weight: 800; padding: 10px 16px; }
+    .generated-code { background: rgba(255,255,255,.12); border-radius: 10px; color: var(--sunset-end); font-family: ui-monospace,monospace; font-size: 1rem; font-weight: 800; margin-top: 14px; min-height: 20px; padding: 11px; word-break: break-all; }
+
+    .code-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 16px; }
+    .code-table th, .code-table td { border-bottom: 1px solid rgba(255,255,255,.12); padding: 10px 8px; text-align: left; vertical-align: middle; }
+    .code-table th { color: rgba(255,255,255,.65); font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .code-table .mono { font-family: ui-monospace,monospace; font-weight: 700; }
+    .code-table button { background: rgba(255,255,255,.14); border: 0; border-radius: 999px; color: white; cursor: pointer; font: inherit; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; }
+    .code-table button:disabled { cursor: not-allowed; opacity: 0.45; }
+    .code-status { border-radius: 999px; display: inline-block; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.04em; padding: 4px 8px; text-transform: uppercase; }
+    .code-status.active { background: #DCFCE7; color: #166534; }
+    .code-status.inactive { background: rgba(255,255,255,.15); color: rgba(255,255,255,.75); }
+    .code-status.expired { background: #FEE2E2; color: #991B1B; }
+
+    .error { color: #B91C1C; font-weight: 600; margin-top: 10px; white-space: pre-wrap; font-size: 0.85rem; }
+
+    @media (max-width: 760px) {
+      .admin-bar-inner, .venue-head { flex-direction: column; align-items: stretch; }
+      .venue-head-side { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+  </style>
+
+  <div class="admin-bar">
+    <div class="admin-bar-inner">
+      <div>
+        <h1>Venues</h1>
+        <p>Review claims, browse unverified listings, and manage restaurant access codes.</p>
+      </div>
+      <div class="admin-actions">
+        <span class="admin-user" id="admin-user"></span>
+        <button class="secondary" id="refresh">Refresh</button>
+        <button class="secondary" id="logout">Log out</button>
+      </div>
+    </div>
+    <nav class="admin-subnav">
+      <a href="/admin/">Submissions</a>
+      <a href="/admin/users/">Users</a>
+      <a href="/admin/analytics/">Analytics</a>
+      <a href="/admin/venues/" aria-current="page">Venues</a>
+      <a href="/admin/photos/">Photo Review</a>
+      <a href="/admin/drafts/">Posts</a>
+      <a href="/admin/new-post/">Add Blog Post</a>
+      <a href="/admin/content-engine/">Content Engine</a>
+      <a href="/admin/ai-costs/">AI Costs</a>
+    </nav>
+  </div>
+
+  <main class="admin-main">
+    <div class="admin-status" id="status">Checking login...</div>
+
+    <label for="venue-search" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Search venues</label>
+    <input class="venue-search" id="venue-search" type="search" placeholder="Search by name, website, address, phone, or type…" autocomplete="off">
+
+    <div class="admin-filters" id="filters" role="tablist" aria-label="Venue views" hidden>
+      <button type="button" role="tab" data-tab="pending" aria-pressed="true">Pending <span class="count" data-count="pending"></span></button>
+      <button type="button" role="tab" data-tab="verified" aria-pressed="false">Verified <span class="count" data-count="verified"></span></button>
+      <button type="button" role="tab" data-tab="unverified" aria-pressed="false">Unverified <span class="count" data-count="unverified"></span></button>
+      <button type="button" role="tab" data-tab="denied" aria-pressed="false">Denied <span class="count" data-count="denied"></span></button>
+      <button type="button" role="tab" data-tab="access-codes" aria-pressed="false">Access codes</button>
+    </div>
+
+    <div id="venue-list"></div>
+    <section id="access-codes-panel" hidden>
+      <div class="code-card">
+        <h2>Restaurant access codes</h2>
+        <p>Generate a unique, time-limited code. The plaintext code is shown once and cannot be recovered later.</p>
+        <form class="code-form" id="code-form">
+          <label>Free months<input id="code-months" type="number" min="1" max="36" value="3" required></label>
+          <label>Expires on<input id="code-expires" type="date"></label>
+          <button type="submit">Generate code</button>
+        </form>
+        <div class="generated-code" id="generated-code" role="status">No code generated yet.</div>
+        <table class="code-table" id="code-table" hidden>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Months</th>
+              <th>Redemptions</th>
+              <th>Expires</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="code-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { accountSignInHref, currentReturnPath } from '../../../lib/authRedirect';
+
+    type VenueTab = 'pending' | 'verified' | 'unverified' | 'denied' | 'access-codes';
+
+    const statusEl = document.getElementById('status')!;
+    const listEl = document.getElementById('venue-list')!;
+    const adminUserEl = document.getElementById('admin-user')!;
+    const filtersEl = document.getElementById('filters')!;
+    const searchEl = document.getElementById('venue-search') as HTMLInputElement;
+    const accessPanel = document.getElementById('access-codes-panel')!;
+
+    let activeTab: VenueTab = 'pending';
+    let searchQuery = '';
+    let allVenues: any[] = [];
+    let accessCodes: any[] = [];
+
+    function escapeHTML(value: unknown) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      } as Record<string, string>)[char]);
+    }
+
+    function externalHref(url: string) {
+      const trimmed = String(url || '').trim();
+      if (!trimmed) return null;
+      return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    }
+
+    function formatDuration(ms: number) {
+      const abs = Math.max(0, ms);
+      const days = Math.floor(abs / 86400000);
+      if (days >= 365) {
+        const years = Math.floor(days / 365);
+        const months = Math.floor((days % 365) / 30);
+        return months ? `${years} yr ${months} mo` : `${years} yr`;
+      }
+      if (days >= 30) {
+        const months = Math.floor(days / 30);
+        const rem = days % 30;
+        return rem ? `${months} mo ${rem} d` : `${months} mo`;
+      }
+      if (days >= 1) return `${days} d`;
+      const hours = Math.floor(abs / 3600000);
+      if (hours >= 1) return `${hours} hr`;
+      const minutes = Math.floor(abs / 60000);
+      return minutes >= 1 ? `${minutes} min` : 'just now';
+    }
+
+    function formatWhen(iso: string | null | undefined) {
+      if (!iso) return 'unknown date';
+      return new Date(iso).toLocaleString();
+    }
+
+    function matchesSearch(venue: any) {
+      if (!searchQuery.trim()) return true;
+      const haystack = [
+        venue.name,
+        venue.website,
+        venue.address,
+        venue.phone,
+        venue.vibe,
+        venue.neighborhood,
+      ].join(' ').toLowerCase();
+      return haystack.includes(searchQuery.trim().toLowerCase());
+    }
+
+    function pendingEntries() {
+      const rows: Array<{ venue: any; claim: any }> = [];
+      for (const venue of allVenues) {
+        for (const claim of venue.claims.filter((c: any) => c.status === 'pending')) {
+          rows.push({ venue, claim });
+        }
+      }
+      return rows.sort((a, b) => new Date(a.claim.createdAt).getTime() - new Date(b.claim.createdAt).getTime());
+    }
+
+    function deniedEntries() {
+      const rows: Array<{ venue: any; claim: any }> = [];
+      for (const venue of allVenues) {
+        for (const claim of venue.claims.filter((c: any) => c.status === 'denied')) {
+          rows.push({ venue, claim });
+        }
+      }
+      return rows.sort((a, b) => new Date(b.claim.createdAt).getTime() - new Date(a.claim.createdAt).getTime());
+    }
+
+    function verifiedVenues() {
+      return allVenues
+        .filter((venue) => venue.ownerVerified)
+        .sort((a, b) => {
+          const aAt = a.claims.find((c: any) => c.status === 'verified')?.verifiedAt || '';
+          const bAt = b.claims.find((c: any) => c.status === 'verified')?.verifiedAt || '';
+          return new Date(bAt).getTime() - new Date(aAt).getTime();
+        });
+    }
+
+    function unverifiedVenues() {
+      return allVenues
+        .filter((venue) => !venue.ownerVerified)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function tabCounts() {
+      return {
+        pending: pendingEntries().length,
+        verified: verifiedVenues().length,
+        unverified: unverifiedVenues().length,
+        denied: deniedEntries().length,
+      };
+    }
+
+    function dealsHTML(deals: string[]) {
+      if (!deals?.length) return '<span class="deals-list">No deals listed</span>';
+      const preview = deals.slice(0, 4).join(' · ');
+      const suffix = deals.length > 4 ? ` · +${deals.length - 4} more` : '';
+      return `<span class="deals-list">${escapeHTML(preview)}${suffix ? escapeHTML(suffix) : ''}</span>`;
+    }
+
+    function venueLinksHTML(venue: any) {
+      const website = externalHref(venue.website);
+      return `
+        <div class="venue-links">
+          ${website ? `<a href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer">Website ↗</a>` : ''}
+          <a href="/venues/${escapeHTML(venue.slug)}/">Public page</a>
+          <a href="/admin/venues/${escapeHTML(venue.slug)}/">Edit listing</a>
+        </div>
+      `;
+    }
+
+    function listingStatusHTML(venue: any) {
+      if (venue.listingStatus === 'unlisted' && !venue.publishedByClaim) {
+        return 'Not on the site — approving a claim publishes it';
+      }
+      if (venue.publishedByClaim) return 'Live (published by claim)';
+      return 'Live';
+    }
+
+    function claimTimingHTML(claim: any) {
+      if (claim.status === 'pending') {
+        const ms = Date.now() - new Date(claim.createdAt).getTime();
+        return `<div class="timing">Pending for ${escapeHTML(formatDuration(ms))} · submitted ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
+      }
+      if (claim.status === 'verified' && claim.verifiedAt) {
+        const ms = Date.now() - new Date(claim.verifiedAt).getTime();
+        return `<div class="timing">Verified ${escapeHTML(formatWhen(claim.verifiedAt))} · verified for ${escapeHTML(formatDuration(ms))}</div>`;
+      }
+      if (claim.status === 'denied') {
+        return `<div class="timing">Denied · last attempt ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
+      }
+      return '';
+    }
+
+    function claimActionsHTML(venue: any, claim: any) {
+      if (claim.status === 'pending') {
+        return `
+          <div class="actions">
+            <button class="good" data-action="approve" data-claim-id="${escapeHTML(claim.id)}">Approve</button>
+            <button class="bad" data-action="deny" data-claim-id="${escapeHTML(claim.id)}">Deny</button>
+          </div>
+        `;
+      }
+      if (claim.status === 'verified') {
+        return `
+          <div class="actions">
+            <button class="report" data-report-action="grant" data-claim-id="${escapeHTML(claim.id)}" data-venue-id="${venue.id}">Grant reporting</button>
+            ${claim.reportingEntitlement?.active ? `<button class="report-revoke" data-report-action="revoke" data-claim-id="${escapeHTML(claim.id)}" data-venue-id="${venue.id}">Revoke reporting</button>` : ''}
+            ${venue.publishedByClaim ? `<button class="bad" data-action="unpublish" data-claim-id="${escapeHTML(claim.id)}">Unpublish venue</button>` : ''}
+          </div>
+        `;
+      }
+      return '';
+    }
+
+    function venueCardHTML(venue: any, claim: any | null, cardClass: string, pillLabel: string, pillClass: string) {
+      const website = externalHref(venue.website);
+      return `
+        <article class="venue-card ${cardClass}" data-venue-id="${venue.id}" ${claim ? `data-claim-id="${escapeHTML(claim.id)}"` : ''}>
+          <div class="venue-head">
+            <div>
+              <h2>${escapeHTML(venue.name)}</h2>
+              <p>${escapeHTML(venue.neighborhood)}${venue.vibe ? ` · ${escapeHTML(venue.vibe)}` : ''}</p>
+            </div>
+            <div class="venue-head-side">
+              <span class="pill ${pillClass}">${escapeHTML(pillLabel)}</span>
+            </div>
+          </div>
+          ${venueLinksHTML(venue)}
+          ${claim ? claimTimingHTML(claim) : ''}
+          <div class="meta">
+            <div><strong>Address:</strong> ${escapeHTML(venue.address || 'unknown')}</div>
+            <div><strong>Phone:</strong> ${venue.phone ? escapeHTML(venue.phone) : 'unknown'}</div>
+            <div class="full"><strong>Website:</strong> ${website ? `<a href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer">${escapeHTML(venue.website)}</a>` : 'unknown'}</div>
+            <div class="full"><strong>Listing:</strong> ${escapeHTML(listingStatusHTML(venue))}</div>
+            ${claim ? `<div><strong>Claimant:</strong> ${escapeHTML(claim.userName)} · ${escapeHTML(claim.userEmail)}</div>` : ''}
+            ${claim ? `<div><strong>Verification:</strong> ${escapeHTML(claim.verificationMethod || 'none yet')}</div>` : ''}
+            ${claim?.status === 'verified' ? `<div><strong>Reports:</strong> ${claim.reportingEntitlement?.active ? `Active${claim.reportingEntitlement.accessEndsAt ? ` until ${new Date(claim.reportingEntitlement.accessEndsAt).toLocaleDateString()}` : ' (ongoing)'}` : 'No paid access'}</div>` : ''}
+            ${claim?.status === 'denied' && claim.denialReason ? `<div class="full"><strong>Denial reason:</strong> ${escapeHTML(claim.denialReason)}</div>` : ''}
+            <div class="full"><strong>Happy hour deals:</strong> ${dealsHTML(venue.deals)}</div>
+          </div>
+          ${claim?.claimNote ? `<div class="claim-note">${escapeHTML(claim.claimNote)}</div>` : ''}
+          ${claim ? claimActionsHTML(venue, claim) : ''}
+          <div class="error" aria-live="polite"></div>
+        </article>
+      `;
+    }
+
+    function renderAccessCodes() {
+      const table = document.getElementById('code-table')!;
+      const body = document.getElementById('code-table-body')!;
+      table.hidden = !accessCodes.length;
+      body.innerHTML = accessCodes.map((code) => {
+        const statusClass = code.expired ? 'expired' : code.active ? 'active' : 'inactive';
+        const statusLabel = code.expired ? 'Expired' : code.active ? 'Active' : 'Inactive';
+        const canDeactivate = code.active && !code.expired;
+        const canActivate = !code.active && !code.expired;
+        return `
+          <tr data-code-id="${escapeHTML(code.id)}">
+            <td class="mono">···${escapeHTML(code.codeHint)}</td>
+            <td>${code.durationMonths}</td>
+            <td>${code.redemptionCount} / ${code.maxRedemptions}</td>
+            <td>${code.expiresAt ? escapeHTML(new Date(code.expiresAt).toLocaleDateString()) : '—'}</td>
+            <td><span class="code-status ${statusClass}">${statusLabel}</span></td>
+            <td>
+              ${canDeactivate ? '<button type="button" data-code-action="deactivate">Deactivate</button>' : ''}
+              ${canActivate ? '<button type="button" data-code-action="activate">Activate</button>' : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function render() {
+      const counts = tabCounts();
+      filtersEl.querySelectorAll('[data-count]').forEach((el) => {
+        el.textContent = `(${counts[(el as HTMLElement).dataset.count as keyof typeof counts]})`;
+      });
+      filtersEl.querySelectorAll('[data-tab]').forEach((el) => {
+        el.setAttribute('aria-pressed', String((el as HTMLElement).dataset.tab === activeTab));
+      });
+      filtersEl.hidden = !allVenues.length && activeTab !== 'access-codes';
+
+      const showingCodes = activeTab === 'access-codes';
+      listEl.hidden = showingCodes;
+      accessPanel.hidden = !showingCodes;
+      searchEl.hidden = showingCodes;
+
+      if (showingCodes) {
+        setStatus(`${accessCodes.length} access code${accessCodes.length === 1 ? '' : 's'}`);
+        renderAccessCodes();
+        return;
+      }
+
+      let html = '';
+      if (activeTab === 'pending') {
+        const rows = pendingEntries().filter(({ venue }) => matchesSearch(venue));
+        setStatus(`${counts.pending} pending · showing ${rows.length}`);
+        html = rows.length
+          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'pending', 'pending', 'pending')).join('')
+          : '<p>No pending claims match your search.</p>';
+      } else if (activeTab === 'verified') {
+        const rows = verifiedVenues().filter(matchesSearch);
+        setStatus(`${counts.verified} verified · showing ${rows.length}`);
+        html = rows.length
+          ? rows.map((venue) => {
+              const claim = venue.claims.find((c: any) => c.status === 'verified');
+              return venueCardHTML(venue, claim, 'verified', 'verified', 'verified');
+            }).join('')
+          : '<p>No verified venues match your search.</p>';
+      } else if (activeTab === 'unverified') {
+        const rows = unverifiedVenues().filter(matchesSearch);
+        setStatus(`${counts.unverified} without verified owner · showing ${rows.length}`);
+        html = rows.length
+          ? rows.map((venue) => {
+              const pending = venue.claims.find((c: any) => c.status === 'pending');
+              const denied = venue.claims.find((c: any) => c.status === 'denied');
+              const claim = pending || denied || null;
+              const label = pending ? 'pending claim' : denied ? 'denied claim' : 'unverified';
+              const pillClass = pending ? 'pending' : denied ? 'denied' : 'unverified';
+              return venueCardHTML(venue, claim, pending ? 'pending' : denied ? 'denied' : '', label, pillClass);
+            }).join('')
+          : '<p>No unverified venues match your search.</p>';
+      } else if (activeTab === 'denied') {
+        const rows = deniedEntries().filter(({ venue }) => matchesSearch(venue));
+        setStatus(`${counts.denied} denied · showing ${rows.length}`);
+        html = rows.length
+          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'denied', 'denied', 'denied')).join('')
+          : '<p>No denied claims match your search.</p>';
+      }
+
+      listEl.innerHTML = html;
+    }
+
+    function setStatus(message: string) {
+      statusEl.textContent = message;
+    }
+
+    async function api(path: string, options: RequestInit = {}) {
+      const res = await fetch(path, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      });
+      let data: any = {};
+      try { data = await res.json(); } catch { data = {}; }
+      if (!res.ok) {
+        const error = new Error((data.errors || ['Request failed.']).join('\n')) as Error & { status?: number };
+        error.status = res.status;
+        throw error;
+      }
+      return data;
+    }
+
+    async function loadAccessCodes() {
+      const data = await api('/api/admin/merchant-access-codes');
+      accessCodes = data.codes || [];
+    }
+
+    async function loadVenues() {
+      setStatus('Loading venues...');
+      try {
+        const data = await api('/api/admin/venues');
+        allVenues = data.venues || [];
+        await loadAccessCodes();
+        render();
+      } catch (err: any) {
+        if (err?.status === 401) {
+          window.location.href = accountSignInHref(currentReturnPath());
+          return;
+        }
+        setStatus(err?.message || 'Could not load venues.');
+      }
+    }
+
+    async function requireLogin() {
+      const res = await fetch('/api/admin/me');
+      const session = await res.json();
+      if (!session.authenticated) {
+        window.location.href = accountSignInHref(currentReturnPath());
+        return;
+      }
+      adminUserEl.textContent = `Logged in as ${session.email}`;
+      await loadVenues();
+    }
+
+    async function logout() {
+      await fetch('/api/account/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    async function handleClaimAction(event: MouseEvent) {
+      const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!button) return;
+      const card = button.closest('.venue-card') as HTMLElement;
+      const errorEl = card.querySelector('.error') as HTMLElement;
+      const action = button.dataset.action;
+      const claimId = button.dataset.claimId!;
+      errorEl.textContent = '';
+
+      const body: Record<string, any> = { action };
+      if (action === 'deny') body.denialReason = prompt('Reason for denial?') || '';
+      if (action === 'unpublish' && !confirm('Take this venue off the public site? It stays claimable.')) return;
+
+      try {
+        await api(`/api/admin/restaurants/${encodeURIComponent(claimId)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(body),
+        });
+        await loadVenues();
+      } catch (err: any) {
+        errorEl.textContent = err.message;
+      }
+    }
+
+    async function handleReportingAction(event: MouseEvent) {
+      const button = (event.target as HTMLElement).closest('button[data-report-action]') as HTMLButtonElement | null;
+      if (!button) return;
+      event.stopPropagation();
+      const card = button.closest('.venue-card') as HTMLElement;
+      const errorEl = card.querySelector('.error') as HTMLElement;
+      const venueId = button.dataset.venueId!;
+      errorEl.textContent = '';
+      try {
+        if (button.dataset.reportAction === 'revoke') {
+          if (!confirm('Revoke reporting access for this venue?')) return;
+          await api(`/api/admin/venues/${venueId}/reporting-access`, { method: 'DELETE' });
+        } else {
+          const answer = prompt('How many months? Leave blank for ongoing access.', '');
+          if (answer === null) return;
+          const durationMonths = answer.trim() ? Number(answer) : null;
+          await api(`/api/admin/venues/${venueId}/reporting-access`, {
+            method: 'PUT', body: JSON.stringify({ durationMonths }),
+          });
+        }
+        await loadVenues();
+      } catch (err: any) { errorEl.textContent = err.message; }
+    }
+
+    async function handleCodeAction(event: MouseEvent) {
+      const button = (event.target as HTMLElement).closest('button[data-code-action]') as HTMLButtonElement | null;
+      if (!button) return;
+      const row = button.closest('tr') as HTMLElement;
+      const active = button.dataset.codeAction === 'activate';
+      try {
+        await api(`/api/admin/merchant-access-codes/${encodeURIComponent(row.dataset.codeId!)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ active }),
+        });
+        await loadAccessCodes();
+        render();
+      } catch (err: any) {
+        alert(err.message);
+      }
+    }
+
+    document.getElementById('code-form')!.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const output = document.getElementById('generated-code')!;
+      output.textContent = 'Generating...';
+      try {
+        const generated = await api('/api/admin/merchant-access-codes', {
+          method: 'POST',
+          body: JSON.stringify({
+            durationMonths: Number((document.getElementById('code-months') as HTMLInputElement).value),
+            expiresAt: (document.getElementById('code-expires') as HTMLInputElement).value || null,
+          }),
+        });
+        output.textContent = `${generated.generated.code} - ${generated.generated.durationMonths} free months (copy this now)`;
+        await loadAccessCodes();
+        render();
+      } catch (err: any) { output.textContent = err.message; }
+    });
+
+    document.getElementById('refresh')!.addEventListener('click', loadVenues);
+    document.getElementById('logout')!.addEventListener('click', logout);
+    listEl.addEventListener('click', handleClaimAction);
+    listEl.addEventListener('click', handleReportingAction);
+    accessPanel.addEventListener('click', handleCodeAction);
+
+    filtersEl.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest('[data-tab]') as HTMLElement | null;
+      if (!button) return;
+      activeTab = button.dataset.tab as VenueTab;
+      render();
+    });
+
+    searchEl.addEventListener('input', () => {
+      searchQuery = searchEl.value;
+      render();
+    });
+
+    requireLogin();
+  </script>
+</Layout>

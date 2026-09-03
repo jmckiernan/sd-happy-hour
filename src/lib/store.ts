@@ -461,6 +461,7 @@ export interface VenueClaim {
   verificationMethod: 'domain' | 'phone' | 'manual' | null;
   phone: string;
   phoneVerifiedAt: string | null;
+  verifiedAt: string | null;
   claimNote: string;
   denialReason?: string;
   plan: 'free' | 'paid';
@@ -477,6 +478,7 @@ interface VenueClaimRow {
   verification_method: 'domain' | 'phone' | 'manual' | null;
   phone: string;
   phone_verified_at: string | null;
+  verified_at: string | null;
   claim_note: string;
   denial_reason: string | null;
   plan: 'free' | 'paid';
@@ -494,6 +496,7 @@ function mapVenueClaim(row: VenueClaimRow): VenueClaim {
     verificationMethod: row.verification_method,
     phone: row.phone,
     phoneVerifiedAt: row.phone_verified_at,
+    verifiedAt: row.verified_at,
     claimNote: row.claim_note,
     denialReason: row.denial_reason ?? undefined,
     plan: row.plan,
@@ -611,8 +614,11 @@ export interface CreateVenueClaimInput {
 // resubmitted rather than duplicated).
 export async function createVenueClaim(input: CreateVenueClaimInput): Promise<VenueClaim> {
   const rows = await sql<VenueClaimRow>`
-    INSERT INTO venue_claims (user_id, venue_id, status, verification_method, claim_note)
-    VALUES (${input.userId}, ${input.venueId}, ${input.status}, ${input.verificationMethod}, ${input.claimNote ?? ''})
+    INSERT INTO venue_claims (user_id, venue_id, status, verification_method, claim_note, verified_at)
+    VALUES (
+      ${input.userId}, ${input.venueId}, ${input.status}, ${input.verificationMethod}, ${input.claimNote ?? ''},
+      ${input.status === 'verified' ? new Date() : null}
+    )
     RETURNING *`;
   return mapVenueClaim(rows[0]);
 }
@@ -633,7 +639,12 @@ export async function updateVenueClaim(id: string, input: UpdateVenueClaimInput)
       status               = COALESCE(${input.status ?? null}, status),
       verification_method  = CASE WHEN ${input.verificationMethod !== undefined} THEN ${input.verificationMethod ?? null} ELSE verification_method END,
       claim_note           = COALESCE(${input.claimNote ?? null}, claim_note),
-      denial_reason        = CASE WHEN ${input.denialReason !== undefined} THEN ${input.denialReason ?? null} ELSE denial_reason END
+      denial_reason        = CASE WHEN ${input.denialReason !== undefined} THEN ${input.denialReason ?? null} ELSE denial_reason END,
+      verified_at          = CASE
+        WHEN ${input.status === 'verified'} THEN COALESCE(verified_at, now())
+        WHEN ${input.status !== undefined && input.status !== 'verified'} THEN NULL
+        ELSE verified_at
+      END
     WHERE id = ${id}
     RETURNING *`;
   return rows[0] ? mapVenueClaim(rows[0]) : null;
@@ -673,7 +684,8 @@ export async function verifyVenueClaimPhoneCode(claimId: string, code: string): 
       status = 'verified',
       phone_code = NULL,
       phone_code_expires_at = NULL,
-      phone_verified_at = now()
+      phone_verified_at = now(),
+      verified_at = COALESCE(verified_at, now())
     WHERE id = ${claimId} AND phone_code = ${code} AND phone_code_expires_at > now()
     RETURNING *`;
   return rows[0] ? mapVenueClaim(rows[0]) : null;

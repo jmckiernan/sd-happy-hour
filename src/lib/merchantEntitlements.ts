@@ -257,16 +257,50 @@ export async function listMerchantAccessCodes(executor: QueryExecutor = sql) {
     redemption_count: number; active: boolean; expires_at: Date | string | null; created_at: Date | string;
   }>`SELECT id, code_hint, duration_months, max_redemptions, redemption_count, active, expires_at, created_at
       FROM merchant_access_codes ORDER BY created_at DESC LIMIT 100`;
-  return rows.map((row) => ({
-    id: row.id,
-    codeHint: row.code_hint,
-    durationMonths: row.duration_months,
-    maxRedemptions: row.max_redemptions,
-    redemptionCount: row.redemption_count,
-    active: row.active,
-    expiresAt: iso(row.expires_at),
-    createdAt: iso(row.created_at),
-  }));
+  const now = Date.now();
+  return rows.map((row) => {
+    const expiresAt = iso(row.expires_at);
+    const expired = expiresAt ? new Date(expiresAt).getTime() <= now : false;
+    return {
+      id: row.id,
+      codeHint: row.code_hint,
+      durationMonths: row.duration_months,
+      maxRedemptions: row.max_redemptions,
+      redemptionCount: row.redemption_count,
+      active: row.active,
+      expired,
+      expiresAt,
+      createdAt: iso(row.created_at),
+    };
+  });
+}
+
+export async function updateMerchantAccessCodeActive(id: string, active: boolean) {
+  const rows = await sql<{
+    id: string; code_hint: string; duration_months: number; max_redemptions: number;
+    redemption_count: number; active: boolean; expires_at: Date | string | null; created_at: Date | string;
+  }>`SELECT id, code_hint, duration_months, max_redemptions, redemption_count, active, expires_at, created_at
+      FROM merchant_access_codes WHERE id = ${id}`;
+  const row = rows[0];
+  if (!row) throw new RangeError('Access code not found.');
+  const expiresAt = iso(row.expires_at);
+  const expired = expiresAt ? new Date(expiresAt).getTime() <= Date.now() : false;
+  if (active && expired) throw new RangeError('Expired codes cannot be reactivated.');
+  const updated = await sql<typeof row>`
+    UPDATE merchant_access_codes SET active = ${active} WHERE id = ${id}
+    RETURNING id, code_hint, duration_months, max_redemptions, redemption_count, active, expires_at, created_at`;
+  const next = updated[0];
+  return {
+    id: next.id,
+    codeHint: next.code_hint,
+    durationMonths: next.duration_months,
+    maxRedemptions: next.max_redemptions,
+    redemptionCount: next.redemption_count,
+    active: next.active,
+    expired,
+    expiresAt: iso(next.expires_at),
+    createdAt: iso(next.created_at),
+  };
 }
 
 export async function redeemMerchantAccessCode(input: {

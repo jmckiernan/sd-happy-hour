@@ -11,11 +11,32 @@ const bingWebmasterUrl = 'https://www.bing.com/webmasters/about';
 const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
 ---
 <Layout title="Analytics & SEO | Happy Hour SD Admin" description="Open the reporting tools for Happy Hour SD.">
-  <style>
-    .analytics-admin { max-width:1100px; margin:0 auto; padding:36px 24px 80px; }
-    .analytics-admin h1 { font-family:var(--font-display); font-size:clamp(2rem,5vw,3rem); margin-bottom:8px; }
-    .intro { color:var(--night-soft); line-height:1.6; max-width:760px; }
-    .tool-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:28px; }
+  <style is:global>
+    .admin-bar {
+      background: white; border-bottom: 1px solid rgba(15,23,42,0.08);
+      padding: 20px 24px; position: sticky; top: 0; z-index: 5;
+    }
+    .admin-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .admin-bar h1 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 2px; }
+    .admin-bar p { color: var(--night-soft); font-size: 0.85rem; max-width: 760px; line-height: 1.5; }
+    .admin-actions { display: flex; gap: 8px; align-items: center; }
+    .admin-user { color: var(--night-soft); font-size: 0.85rem; font-weight: 700; }
+    button.secondary {
+      background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night);
+      cursor: pointer; font: inherit; font-weight: 700; padding: 9px 16px;
+    }
+    button.secondary:hover { background: var(--sunset-end); }
+
+    .admin-subnav { display: flex; gap: 8px; max-width: 1100px; margin: 12px auto 0; padding: 0 24px; font-size: 0.85rem; flex-wrap: wrap; }
+    .admin-subnav a {
+      text-decoration: none; font-weight: 600; color: var(--night-soft);
+      padding: 6px 14px; border-radius: 100px; background: var(--sand-warm);
+    }
+    .admin-subnav a:hover { background: var(--sunset-end); color: var(--night); }
+    .admin-subnav a[aria-current="page"] { background: var(--night); color: white; }
+
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 80px; }
+    .tool-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
     .tool-card { background:white; border:1px solid rgba(15,23,42,.1); border-radius:22px; padding:22px; }
     .tool-card h2 { font-family:var(--font-display); font-size:1.35rem; margin-bottom:7px; }
     .tool-card p { color:var(--night-soft); line-height:1.55; margin-bottom:14px; }
@@ -29,10 +50,31 @@ const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
     @media (max-width:700px) { .tool-grid { grid-template-columns:1fr; } .event-list ul { columns:1; } }
   </style>
 
-  <main class="analytics-admin">
-    <h1>Analytics &amp; SEO</h1>
-    <p class="intro">PostHog explains what readers do after reaching the site. Google Search Console explains which Google searches showed or sent readers to each page.</p>
+  <div class="admin-bar">
+    <div class="admin-bar-inner">
+      <div>
+        <h1>Analytics &amp; SEO</h1>
+        <p>PostHog explains what readers do after reaching the site. Google Search Console explains which Google searches showed or sent readers to each page.</p>
+      </div>
+      <div class="admin-actions">
+        <span class="admin-user" id="admin-user"></span>
+        <button class="secondary" id="logout">Log out</button>
+      </div>
+    </div>
+    <nav class="admin-subnav" aria-label="Admin sections">
+      <a href="/admin/">Submissions</a>
+      <a href="/admin/users/">Users</a>
+      <a href="/admin/analytics/" aria-current="page">Analytics</a>
+      <a href="/admin/venues/">Venues</a>
+      <a href="/admin/photos/">Photo Review</a>
+      <a href="/admin/drafts/">Posts</a>
+      <a href="/admin/new-post/">Add Blog Post</a>
+      <a href="/admin/content-engine/">Content Engine</a>
+      <a href="/admin/ai-costs/">AI Costs</a>
+    </nav>
+  </div>
 
+  <main class="admin-main">
     <div class="tool-grid">
       <section class="tool-card">
         <h2>PostHog Web Analytics</h2>
@@ -84,10 +126,23 @@ const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
 
   <script>
     import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
+    const adminUserEl = document.getElementById('admin-user')!;
+
+    async function logout() {
+      await fetch('/api/account/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
     (async () => {
       const session = await fetch('/api/admin/me', { headers:{ 'cache-control':'no-cache' } })
         .then((response) => response.json()).catch(() => ({ authenticated:false }));
-      if (!session.authenticated) window.location.href = accountSignInHref(currentReturnPath());
+      if (!session.authenticated) {
+        window.location.href = accountSignInHref(currentReturnPath());
+        return;
+      }
+      adminUserEl.textContent = `Logged in as ${session.email}`;
     })();
+
+    document.getElementById('logout')!.addEventListener('click', logout);
   </script>
 </Layout>

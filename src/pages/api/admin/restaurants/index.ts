@@ -7,7 +7,7 @@ import { getMerchantEntitlement } from '../../../../lib/merchantEntitlements';
 
 export const prerender = false;
 
-// List of venue claims for admin review at /admin/restaurants/ — includes
+// List of venue claims for admin review at /admin/venues/ — includes
 // verified/denied too (not just pending) so admins have context, but the UI
 // leads with pending since that's the actionable queue. Joins in the
 // claiming user's name/email and the venue's name (venue_claims only stores
@@ -39,6 +39,7 @@ export const GET: APIRoute = async ({ cookies }) => {
       }
       return {
         ...claim,
+        verifiedAt: claim.verifiedAt,
         venueName: venue?.name ?? `Venue #${claim.venueId}`,
         venueWebsite: venue?.website ?? null,
         // Whether the venue is on the public site, and whether it's there

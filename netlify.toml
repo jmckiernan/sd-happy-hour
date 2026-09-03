@@ -6,6 +6,16 @@
 [build.environment]
   NODE_VERSION = "22.18.0"
 
+[[redirects]]
+  from = "/admin/restaurants"
+  to = "/admin/venues/"
+  status = 301
+
+[[redirects]]
+  from = "/admin/restaurants/"
+  to = "/admin/venues/"
+  status = 301
+
 # Standalone function (not part of the Astro app) that checks for live
 # happy hours and dispatches matching alerts. See
 # netlify/functions/dispatch-alerts.mts and README-NOTIFICATIONS-SETUP.md.

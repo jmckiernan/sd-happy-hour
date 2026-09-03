@@ -14,7 +14,7 @@ import { publishVenue, unpublishVenue, type VenuePublicationSource } from './sto
 //   phone  — claimant entered a code texted to the venue's listed number
 //            (api/restaurant/claim/verify-code)
 //   admin  — someone here approved a manually submitted claim
-//            (api/admin/restaurants/[id])
+//            (api/admin/restaurants/[id] — claim approve/deny from /admin/venues/)
 //
 // The first two publish immediately without waiting for a human. Only manual
 // claims sit in the review queue.
