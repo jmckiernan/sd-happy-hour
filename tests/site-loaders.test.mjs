@@ -118,6 +118,8 @@ for (const relative of [
   'src/pages/live-deals.astro',
   'src/pages/restaurant.astro',
   'src/pages/restaurant/reports.astro',
+  'src/pages/restaurant/audience.astro',
+  'src/pages/restaurant/billing.astro',
 ]) {
   const source = await readFile(path.join(projectRoot, relative), 'utf8');
   assert.match(source, /\bdrink-loader(?:--|\s)/, `${relative} does not use the shared drink loader`);

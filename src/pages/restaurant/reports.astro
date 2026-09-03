@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
+import MerchantShell from '../../components/MerchantShell.astro';
 import { isAdminEmail } from '../../lib/adminIdentity';
 import { listMerchantReportVenues } from '../../lib/merchantEntitlements';
 import { getSession } from '../../lib/session';
@@ -17,6 +18,23 @@ const selectedVenue = venues.find((venue) => venue.venueId === requestedVenueId)
 const publicVenues = venues.map(({ ownerUserId: _ownerUserId, ...venue }) => venue);
 const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: selectedVenue?.venueId ?? null, email: user.email })
   .replace(/</g, '\\u003c');
+
+function shellRole(role: string | null | undefined): 'owner' | 'full_admin' | 'promotions' | null {
+  if (role === 'owner' || role === 'site_admin') return 'owner';
+  if (role === 'full_admin') return 'full_admin';
+  if (role === 'promotions') return 'promotions';
+  return null;
+}
+
+const shellVenues = venues.map((venue) => ({
+  id: venue.venueId,
+  name: venue.venueName,
+  slug: venue.venueSlug,
+}));
+const activeRole = shellRole(selectedVenue?.role);
+const publicHref = selectedVenue?.venueSlug
+  ? `/venues/${encodeURIComponent(selectedVenue.venueSlug)}/`
+  : null;
 ---
 <Layout
   title="Restaurant Reports | Happy Hour SD"
@@ -24,19 +42,14 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
   noindex={true}
 >
   <style is:global>
-    .reports-page { max-width: 1240px; margin: 0 auto; padding: 38px 24px 90px; }
-    .reports-page .reports-topline { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 28px; }
-    .reports-page .reports-eyebrow { color: var(--sunset-start); font-size: .72rem; font-weight: 850; letter-spacing: .15em; margin-bottom: 8px; text-transform: uppercase; }
-    .reports-page .reports-topline h1 { font-family: var(--font-display); font-size: clamp(2.15rem, 5vw, 3.6rem); line-height: 1; margin: 0 0 10px; }
-    .reports-page .reports-topline p { color: var(--night-soft); margin: 0; max-width: 670px; }
-    .reports-page .dashboard-link { border: 2px solid var(--night); border-radius: 999px; color: var(--night); flex: 0 0 auto; font-size: .85rem; font-weight: 800; padding: 10px 17px; text-decoration: none; }
-    .reports-page .dashboard-link:hover { background: var(--night); color: white; }
-    .reports-page .report-toolbar { align-items: end; background: white; border: 1px solid rgba(32,18,56,.08); border-radius: 18px; box-shadow: 0 14px 40px rgba(32,18,56,.07); display: grid; gap: 18px; grid-template-columns: minmax(220px, 1.2fr) minmax(390px, 2fr) auto; margin-bottom: 24px; padding: 18px; }
+    .reports-page { margin: 0 auto; padding: 28px 24px 0; }
+    .reports-page .reports-intro { margin-bottom: 18px; }
+    .reports-page .reports-intro h2 { color: var(--night); font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 6px; }
+    .reports-page .reports-intro p { color: var(--night-soft); margin: 0; max-width: 640px; }
+    .reports-page .report-toolbar { align-items: end; background: var(--sand-warm); border: 1px solid rgba(32,18,56,.06); border-radius: 14px; display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) auto; margin-bottom: 24px; padding: 16px; }
     .reports-page .control-label { color: var(--night-soft); display: block; font-size: .7rem; font-weight: 800; letter-spacing: .08em; margin-bottom: 7px; text-transform: uppercase; }
-    .reports-page .venue-select { appearance: none; background: var(--sand-warm); border: 2px solid transparent; border-radius: 12px; color: var(--night); font: inherit; font-size: .9rem; font-weight: 750; padding: 11px 36px 11px 12px; width: 100%; }
-    .reports-page .venue-select:focus { border-color: var(--sunset-start); outline: none; }
     .reports-page .range-pills { display: flex; flex-wrap: wrap; gap: 7px; }
-    .reports-page .range-pill { background: var(--sand-warm); border: 0; border-radius: 999px; color: var(--night-soft); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 750; padding: 9px 13px; }
+    .reports-page .range-pill { background: white; border: 0; border-radius: 999px; color: var(--night-soft); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 750; padding: 9px 13px; }
     .reports-page .range-pill.active { background: var(--night); color: white; }
     .reports-page .custom-range { display: flex; gap: 7px; margin-top: 8px; }
     .reports-page .custom-range[hidden] { display: none; }
@@ -45,18 +58,18 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
     .reports-page .export-button { align-items: center; background: var(--night); border: 0; border-radius: 11px; color: white; display: inline-flex; font-size: .8rem; font-weight: 800; justify-content: center; min-height: 40px; padding: 0 14px; text-decoration: none; white-space: nowrap; }
     .reports-page .export-button.pdf { background: var(--sunset-start); }
     .reports-page .export-button:hover { transform: translateY(-1px); }
-    .reports-page .report-status { align-items: center; background: white; border-radius: 16px; color: var(--night-soft); display: flex; font-weight: 650; gap: 10px; justify-content: center; min-height: 120px; padding: 30px; text-align: center; }
+    .reports-page .report-status { align-items: center; background: var(--sand-warm); border-radius: 16px; color: var(--night-soft); display: flex; font-weight: 650; gap: 10px; justify-content: center; min-height: 120px; padding: 30px; text-align: center; }
     .reports-page .report-status[hidden] { display: none; }
     .reports-page .report-content[hidden] { display: none; }
     .reports-page .summary-grid { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0,1fr)); margin-bottom: 22px; }
-    .reports-page .metric-card { background: white; border: 1px solid rgba(32,18,56,.07); border-radius: 16px; min-height: 92px; overflow: hidden; padding: 15px 17px 14px 20px; position: relative; }
+    .reports-page .metric-card { background: var(--sand-warm); border: 1px solid rgba(32,18,56,.06); border-radius: 16px; min-height: 92px; overflow: hidden; padding: 15px 17px 14px 20px; position: relative; }
     .reports-page .metric-card::before { background: var(--metric-accent, var(--sunset-start)); content: ''; inset: 0 auto 0 0; position: absolute; width: 5px; }
     .reports-page .metric-head { align-items: baseline; display: flex; gap: 12px; justify-content: space-between; }
     .reports-page .metric-card .label { color: var(--night-soft); flex: 1 1 auto; font-size: .72rem; font-weight: 850; letter-spacing: .06em; line-height: 1.35; text-transform: uppercase; }
     .reports-page .metric-card .value { color: var(--night); flex: 0 0 auto; font-family: var(--font-display); font-size: 1.85rem; font-weight: 700; line-height: 1; }
     .reports-page .metric-card .detail { color: var(--night-soft); font-size: .75rem; margin-top: 8px; }
     .reports-page .report-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.65fr) minmax(300px, .85fr); margin-bottom: 22px; }
-    .reports-page .report-panel { background: white; border: 1px solid rgba(32,18,56,.07); border-radius: 18px; padding: 20px; }
+    .reports-page .report-panel { background: var(--sand-warm); border: 1px solid rgba(32,18,56,.06); border-radius: 18px; padding: 20px; }
     .reports-page .panel-head { align-items: start; display: flex; gap: 16px; justify-content: space-between; margin-bottom: 17px; }
     .reports-page .panel-head h2 { font-family: var(--font-display); font-size: 1.35rem; margin: 0 0 3px; }
     .reports-page .panel-head p { color: var(--night-soft); font-size: .78rem; margin: 0; }
@@ -68,32 +81,33 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
     .reports-page .trend-bar.unique { background: var(--ocean); }
     .reports-page .trend-day .date { bottom: -20px; color: var(--night-soft); font-size: .58rem; left: 50%; position: absolute; transform: translateX(-50%); white-space: nowrap; }
     .reports-page .intent-list { display: grid; gap: 0; }
-    .reports-page .intent-row { align-items: center; border-bottom: 1px solid var(--sand-warm); display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) 56px 72px; padding: 11px 0; }
+    .reports-page .intent-row { align-items: center; border-bottom: 1px solid rgba(32,18,56,.08); display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) 56px 72px; padding: 11px 0; }
     .reports-page .intent-row:last-child { border-bottom: 0; }
     .reports-page .intent-row strong { font-size: .83rem; font-weight: 750; }
     .reports-page .intent-count { color: var(--night-soft); font-size: .78rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
     .reports-page .rate { background: rgba(14,116,144,.1); border-radius: 999px; color: var(--ocean); display: inline-block; font-size: .72rem; font-variant-numeric: tabular-nums; font-weight: 850; justify-self: end; min-width: 52px; padding: 5px 8px; text-align: center; white-space: nowrap; }
-    .reports-page .rate.empty { background: var(--sand-warm); color: var(--night-soft); font-weight: 700; }
-    .reports-page .audience-strip { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; }
-    .reports-page .audience-card { background: var(--night); border-radius: 16px; color: white; padding: 18px; }
-    .reports-page .audience-card .value { color: var(--sunset-end); font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; }
-    .reports-page .audience-card .label { color: rgba(255,255,255,.72); font-size: .75rem; margin-top: 3px; }
+    .reports-page .rate.empty { background: white; color: var(--night-soft); font-weight: 700; }
+    .reports-page .audience-link-row { margin: 0 0 22px; }
+    .reports-page .audience-link {
+      color: var(--night); display: inline-flex; font-size: .9rem; font-weight: 800; gap: 6px; text-decoration: none;
+    }
+    .reports-page .audience-link:hover { color: var(--sunset-start); }
     .reports-page .table-wrap { overflow-x: auto; }
     .reports-page .report-table { border-collapse: collapse; font-size: .8rem; width: 100%; }
     .reports-page .report-table th { color: var(--night-soft); font-size: .68rem; letter-spacing: .06em; padding: 9px; text-align: left; text-transform: uppercase; }
     .reports-page .report-table th:not(:first-child), .reports-page .report-table td:not(:first-child) { text-align: right; }
-    .reports-page .report-table td { border-top: 1px solid var(--sand-warm); padding: 12px 9px; }
+    .reports-page .report-table td { border-top: 1px solid rgba(32,18,56,.08); padding: 12px 9px; }
     .reports-page .report-table td:first-child { font-weight: 750; min-width: 190px; }
-    .reports-page .state-pill { background: var(--sand-warm); border-radius: 999px; display: inline-block; font-size: .68rem; font-weight: 750; padding: 4px 7px; text-transform: capitalize; }
+    .reports-page .state-pill { background: white; border-radius: 999px; display: inline-block; font-size: .68rem; font-weight: 750; padding: 4px 7px; text-transform: capitalize; }
     .reports-page .comparison-list { display: grid; gap: 13px; }
     .reports-page .comparison-row { align-items: center; display: grid; gap: 5px; grid-template-columns: minmax(110px, .8fr) minmax(160px, 2fr) auto; }
     .reports-page .comparison-name { font-size: .78rem; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .reports-page .comparison-track { background: var(--sand-warm); border-radius: 999px; height: 9px; overflow: hidden; }
+    .reports-page .comparison-track { background: white; border-radius: 999px; height: 9px; overflow: hidden; }
     .reports-page .comparison-fill { background: linear-gradient(90deg,var(--sunset-start),var(--sunset-end)); border-radius: inherit; height: 100%; min-width: 2px; }
     .reports-page .comparison-value { color: var(--night-soft); font-size: .7rem; min-width: 78px; text-align: right; white-space: nowrap; }
     .reports-page .bottom-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; margin-top: 22px; }
     .reports-page .activity-list { list-style: none; margin: 0; padding: 0; }
-    .reports-page .activity-list li { align-items: center; border-bottom: 1px solid var(--sand-warm); display: grid; gap: 10px; grid-template-columns: minmax(0, 1.2fr) minmax(120px, .9fr) 72px; padding: 11px 0; }
+    .reports-page .activity-list li { align-items: center; border-bottom: 1px solid rgba(32,18,56,.08); display: grid; gap: 10px; grid-template-columns: minmax(0, 1.2fr) minmax(120px, .9fr) 72px; padding: 11px 0; }
     .reports-page .activity-list li:last-child { border: 0; }
     .reports-page .activity-event { font-size: .8rem; font-weight: 750; text-transform: capitalize; }
     .reports-page .activity-time { color: var(--night-soft); font-size: .76rem; white-space: nowrap; }
@@ -101,8 +115,9 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
     .reports-page .email-form { display: grid; gap: 12px; }
     .reports-page .email-row { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
     .reports-page .email-form label { color: var(--night-soft); font-size: .7rem; font-weight: 800; }
-    .reports-page .email-form select, .reports-page .email-form input { background: var(--sand-warm); border: 1px solid transparent; border-radius: 10px; color: var(--night); font: inherit; margin-top: 5px; padding: 10px; width: 100%; }
-    .reports-page .email-form button, .reports-page .access-form button { background: var(--sunset-start); border: 0; border-radius: 999px; color: white; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 850; padding: 11px 17px; }
+    .reports-page .email-form select, .reports-page .email-form input { background: white; border: 1px solid transparent; border-radius: 10px; color: var(--night); font: inherit; margin-top: 5px; padding: 10px; width: 100%; }
+    .reports-page .email-form button, .reports-page .access-form button { background: var(--night); border: 0; border-radius: 999px; color: white; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 850; padding: 11px 17px; }
+    .reports-page .email-form button:hover, .reports-page .access-form button:hover { background: var(--sunset-start); }
     .reports-page .email-status, .reports-page .access-status { color: var(--night-soft); font-size: .75rem; min-height: 1em; }
     .reports-page .definition-note { background: var(--sand-warm); border-radius: 13px; color: var(--night-soft); font-size: .75rem; line-height: 1.55; margin-top: 22px; padding: 15px; }
     .reports-page .paid-gate { background: linear-gradient(145deg,#201238,#3e225e); border-radius: 20px; color: white; margin-top: 10px; padding: clamp(25px,5vw,48px); text-align: center; }
@@ -114,152 +129,151 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
     .reports-page .access-form input { border: 2px solid transparent; border-radius: 999px; flex: 1; font: inherit; font-weight: 750; padding: 11px 16px; text-transform: uppercase; }
     .reports-page .empty-note { color: var(--night-soft); font-size: .82rem; padding: 18px 0; text-align: center; }
     @media (max-width: 940px) {
-      .reports-page .report-toolbar { grid-template-columns: 1fr 1.4fr; }
-      .reports-page .export-actions { grid-column: 1 / -1; }
+      .reports-page .report-toolbar { grid-template-columns: 1fr; }
       .reports-page .summary-grid { grid-template-columns: repeat(2,1fr); }
       .reports-page .report-grid, .reports-page .bottom-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 620px) {
-      .reports-page { padding: 28px 14px 70px; }
-      .reports-page .reports-topline { display: block; }
-      .reports-page .dashboard-link { display: inline-block; margin-top: 18px; }
-      .reports-page .report-toolbar { grid-template-columns: 1fr; }
-      .reports-page .export-actions { grid-column: auto; }
-      .reports-page .summary-grid, .reports-page .audience-strip { grid-template-columns: 1fr; }
+      .reports-page { padding: 20px 14px 0; }
+      .reports-page .summary-grid { grid-template-columns: 1fr; }
       .reports-page .metric-card { min-height: 104px; }
       .reports-page .email-row { grid-template-columns: 1fr; }
       .reports-page .access-form { flex-direction: column; }
     }
   </style>
 
-  <main class="reports-page">
-    <header class="reports-topline">
-      <div>
-        <div class="reports-eyebrow">Merchant intelligence</div>
-        <h1>Restaurant reports</h1>
-        <p>See which visits turn into calls, website traffic, directions, saves, and campaign engagement.</p>
-      </div>
-      <a class="dashboard-link" href="/restaurant/">Merchant dashboard</a>
-    </header>
+  <div class="reports-page">
+    <MerchantShell
+      activeTab="reports"
+      venueName={selectedVenue?.venueName || 'Restaurant reports'}
+      venueSlug={selectedVenue?.venueSlug || null}
+      venueId={selectedVenue?.venueId ?? null}
+      email={user.email}
+      role={activeRole}
+      verified={Boolean(selectedVenue)}
+      publicHref={publicHref}
+      venues={shellVenues}
+      hideTabs={!selectedVenue}
+    >
+      <header class="reports-intro">
+        <h2>Reports</h2>
+        <p>Historical views, clicks, saves, and campaign engagement for the selected date range.</p>
+      </header>
 
-    {venues.length === 0 ? (
-      <section class="report-status">
-        <div>You need a verified owner or full-admin restaurant role before reports are available.</div>
-      </section>
-    ) : (
-      <>
-        <section class="report-toolbar" aria-label="Report filters">
-          <label>
-            <span class="control-label">Restaurant</span>
-            <select class="venue-select" id="report-venue">
-              {venues.map((venue) => (
-                <option value={venue.venueId} selected={venue.venueId === selectedVenue?.venueId}>
-                  {venue.venueName}{venue.paid ? '' : ' - access required'}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div>
-            <span class="control-label">Time range</span>
-            <div class="range-pills" role="group" aria-label="Time range">
-              <button class="range-pill" data-range="7d">7 days</button>
-              <button class="range-pill active" data-range="30d">30 days</button>
-              <button class="range-pill" data-range="90d">90 days</button>
-              <button class="range-pill" data-range="custom">Custom</button>
-            </div>
-            <div class="custom-range" id="custom-range" hidden>
-              <input id="range-from" type="date" aria-label="Report start date">
-              <input id="range-to" type="date" aria-label="Report end date">
-            </div>
-          </div>
-          <div>
-            <span class="control-label">Export</span>
-            <div class="export-actions">
-              <a class="export-button" id="export-csv" href="#">CSV</a>
-              <a class="export-button pdf" id="export-pdf" href="#">PDF report</a>
-            </div>
-          </div>
+      {venues.length === 0 ? (
+        <section class="report-status">
+          <div>You need a verified owner or full-admin restaurant role before reports are available.</div>
         </section>
-
-        <section class="paid-gate" id="paid-gate" hidden>
-          <h2>Reporting access required</h2>
-          <p id="paid-gate-copy">Analytics, exports, and automatic email reports are part of the paid merchant experience. If you received a restaurant access code, redeem it here.</p>
-          <form class="access-form" id="access-form">
-            <input id="access-code" name="code" autocomplete="off" placeholder="SDHH-XXXX-XXXX-XXXX" aria-label="Restaurant access code" required>
-            <button type="submit">Redeem code</button>
-          </form>
-          <div class="access-status" id="access-status" role="status"></div>
-        </section>
-
-        <section class="report-status" id="report-status">
-          <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true"><span>Building your report...</span>
-        </section>
-
-        <div class="report-content" id="report-content" hidden>
-          <section class="summary-grid" id="summary-grid"></section>
-
-          <div class="report-grid">
-            <section class="report-panel">
-              <div class="panel-head">
-                <div><h2>Visit trend</h2><p>Daily venue discovery and unique 30-minute visits</p></div>
-                <div class="trend-legend"><span style="--legend:var(--sunset-start)">Views</span><span style="--legend:var(--ocean)">Unique</span></div>
+      ) : (
+        <>
+          <section class="report-toolbar" aria-label="Report filters">
+            <div>
+              <span class="control-label">Time range</span>
+              <div class="range-pills" role="group" aria-label="Time range">
+                <button class="range-pill" data-range="7d">7 days</button>
+                <button class="range-pill active" data-range="30d">30 days</button>
+                <button class="range-pill" data-range="90d">90 days</button>
+                <button class="range-pill" data-range="custom">Custom</button>
               </div>
-              <div class="trend-chart" id="trend-chart" aria-label="Daily visit trend chart"></div>
-            </section>
-            <section class="report-panel">
-              <div class="panel-head"><div><h2>High-intent actions</h2><p>Unique action visits divided by unique venue visits</p></div></div>
-              <div class="intent-list" id="intent-list"></div>
-            </section>
-          </div>
+              <div class="custom-range" id="custom-range" hidden>
+                <input id="range-from" type="date" aria-label="Report start date">
+                <input id="range-to" type="date" aria-label="Report end date">
+              </div>
+            </div>
+            <div>
+              <span class="control-label">Export</span>
+              <div class="export-actions">
+                <a class="export-button" id="export-csv" href="#">CSV</a>
+                <a class="export-button pdf" id="export-pdf" href="#">PDF report</a>
+              </div>
+            </div>
+          </section>
 
-          <section class="audience-strip" id="audience-strip"></section>
+          <section class="paid-gate" id="paid-gate" hidden>
+            <h2>Reporting access required</h2>
+            <p id="paid-gate-copy">Analytics, exports, and automatic email reports are part of the paid merchant experience. If you received a restaurant access code, redeem it here.</p>
+            <form class="access-form" id="access-form">
+              <input id="access-code" name="code" autocomplete="off" placeholder="SDHH-XXXX-XXXX-XXXX" aria-label="Restaurant access code" required>
+              <button type="submit">Redeem code</button>
+            </form>
+            <div class="access-status" id="access-status" role="status"></div>
+          </section>
 
-          <div class="report-grid">
-            <section class="report-panel">
-              <div class="panel-head"><div><h2>Campaign performance</h2><p>Promotion views, clicks, and unique-visit engagement</p></div></div>
-              <div class="table-wrap"><table class="report-table"><thead><tr><th>Campaign</th><th>Status</th><th>Views</th><th>Clicks</th><th>Unique</th><th>Rate</th></tr></thead><tbody id="campaign-body"></tbody></table></div>
-            </section>
-            <section class="report-panel">
-              <div class="panel-head"><div><h2>Restaurant comparison</h2><p>Performance across restaurants you control</p></div></div>
-              <div class="comparison-list" id="comparison-list"></div>
-            </section>
-          </div>
+          <section class="report-status" id="report-status">
+            <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true"><span>Building your report...</span>
+          </section>
 
-          <div class="bottom-grid">
-            <section class="report-panel">
-              <div class="panel-head"><div><h2>Recent activity</h2><p>Latest merchant-value actions in this range</p></div></div>
-              <ul class="activity-list" id="activity-list"></ul>
-            </section>
-            <section class="report-panel">
-              <div class="panel-head"><div><h2>Email this report</h2><p>Delivered to the signed-in account email</p></div></div>
-              <form class="email-form" id="email-form">
-                <div class="email-row">
-                  <label>Frequency<select id="email-frequency"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
-                  <label id="weekly-day-label">Send on<select id="email-weekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option></select></label>
-                  <label id="monthly-day-label" hidden>Day of month<input id="email-monthday" type="number" min="1" max="28" value="1"></label>
+          <div class="report-content" id="report-content" hidden>
+            <section class="summary-grid" id="summary-grid"></section>
+
+            <div class="report-grid">
+              <section class="report-panel">
+                <div class="panel-head">
+                  <div><h2>Visit trend</h2><p>Daily venue discovery and unique 30-minute visits</p></div>
+                  <div class="trend-legend"><span style="--legend:var(--sunset-start)">Views</span><span style="--legend:var(--ocean)">Unique</span></div>
                 </div>
-                <div class="email-row">
-                  <label>Delivery time<select id="email-hour"><option value="8">8:00 AM Pacific</option><option value="9">9:00 AM Pacific</option><option value="12">12:00 PM Pacific</option><option value="17">5:00 PM Pacific</option></select></label>
-                  <label>Recipient<input value={user.email} disabled></label>
-                </div>
-                <div><button type="submit">Save email schedule</button></div>
-                <div class="email-status" id="email-status" role="status"></div>
-              </form>
-            </section>
+                <div class="trend-chart" id="trend-chart" aria-label="Daily visit trend chart"></div>
+              </section>
+              <section class="report-panel">
+                <div class="panel-head"><div><h2>High-intent actions</h2><p>Unique action visits divided by unique venue visits</p></div></div>
+                <div class="intent-list" id="intent-list"></div>
+              </section>
+            </div>
+
+            <p class="audience-link-row">
+              <a
+                class="audience-link"
+                id="audience-link"
+                href={selectedVenue ? `/restaurant/audience/?venueId=${selectedVenue.venueId}` : '/restaurant/audience/'}
+              >See Audience →</a>
+            </p>
+
+            <div class="report-grid">
+              <section class="report-panel">
+                <div class="panel-head"><div><h2>Campaign performance</h2><p>Promotion views, clicks, and unique-visit engagement</p></div></div>
+                <div class="table-wrap"><table class="report-table"><thead><tr><th>Campaign</th><th>Status</th><th>Views</th><th>Clicks</th><th>Unique</th><th>Rate</th></tr></thead><tbody id="campaign-body"></tbody></table></div>
+              </section>
+              <section class="report-panel">
+                <div class="panel-head"><div><h2>Restaurant comparison</h2><p>Performance across restaurants you control</p></div></div>
+                <div class="comparison-list" id="comparison-list"></div>
+              </section>
+            </div>
+
+            <div class="bottom-grid">
+              <section class="report-panel">
+                <div class="panel-head"><div><h2>Recent activity</h2><p>Latest merchant-value actions in this range</p></div></div>
+                <ul class="activity-list" id="activity-list"></ul>
+              </section>
+              <section class="report-panel">
+                <div class="panel-head"><div><h2>Email this report</h2><p>Delivered to the signed-in account email</p></div></div>
+                <form class="email-form" id="email-form">
+                  <div class="email-row">
+                    <label>Frequency<select id="email-frequency"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+                    <label id="weekly-day-label">Send on<select id="email-weekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option></select></label>
+                    <label id="monthly-day-label" hidden>Day of month<input id="email-monthday" type="number" min="1" max="28" value="1"></label>
+                  </div>
+                  <div class="email-row">
+                    <label>Delivery time<select id="email-hour"><option value="8">8:00 AM Pacific</option><option value="9">9:00 AM Pacific</option><option value="12">12:00 PM Pacific</option><option value="17">5:00 PM Pacific</option></select></label>
+                    <label>Recipient<input value={user.email} disabled></label>
+                  </div>
+                  <div><button type="submit">Save email schedule</button></div>
+                  <div class="email-status" id="email-status" role="status"></div>
+                </form>
+              </section>
+            </div>
+            <div class="definition-note" id="definition-note"></div>
           </div>
-          <div class="definition-note" id="definition-note"></div>
-        </div>
-      </>
-    )}
-  </main>
+        </>
+      )}
+    </MerchantShell>
+  </div>
 
   <script id="report-bootstrap" type="application/json" set:html={bootstrap}></script>
   <script>
-    interface VenueOption { venueId:number; venueName:string; paid:boolean; role:string }
+    interface VenueOption { venueId:number; venueName:string; venueSlug:string; paid:boolean; role:string }
     interface Bootstrap { venues:VenueOption[]; selectedVenueId:number|null; email:string }
     const bootstrap: Bootstrap = JSON.parse(document.getElementById('report-bootstrap')?.textContent || '{}');
-    const venueSelect = document.getElementById('report-venue') as HTMLSelectElement | null;
-    if (venueSelect) {
+    if (bootstrap.venues?.length) {
       const reportStatus = document.getElementById('report-status')!;
       const reportContent = document.getElementById('report-content')!;
       const paidGate = document.getElementById('paid-gate')!;
@@ -269,8 +283,11 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
       const customRange = document.getElementById('custom-range')!;
       const fromInput = document.getElementById('range-from') as HTMLInputElement;
       const toInput = document.getElementById('range-to') as HTMLInputElement;
+      const audienceLink = document.getElementById('audience-link') as HTMLAnchorElement | null;
+      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+      const shellSwitcher = document.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
       const format = new Intl.NumberFormat('en-US');
-      let selectedVenueId = Number(venueSelect.value || bootstrap.selectedVenueId);
+      let selectedVenueId = Number(bootstrap.selectedVenueId || bootstrap.venues[0]?.venueId);
       let selectedRange = '30d';
       let requestVersion = 0;
 
@@ -285,6 +302,47 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
       const rangeQuery = () => selectedRange === 'custom'
         ? `range=custom&from=${encodeURIComponent(fromInput.value)}&to=${encodeURIComponent(toInput.value)}`
         : `range=${selectedRange}`;
+
+      function shellTabHref(tab: string, venue: VenueOption): string {
+        const id = String(venue.venueId);
+        const slug = venue.venueSlug ? encodeURIComponent(venue.venueSlug) : '';
+        switch (tab) {
+          case 'promotions': return `/restaurant/?venueId=${id}`;
+          case 'listing': return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+          case 'photos': return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+          case 'menu': return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+          case 'audience': return `/restaurant/audience/?venueId=${id}`;
+          case 'reports': return `/restaurant/reports/?venueId=${id}`;
+          case 'billing': return `/restaurant/billing/?venueId=${id}`;
+          case 'team': return slug ? `/restaurant/manage/${slug}/users/` : '#';
+          default: return '#';
+        }
+      }
+
+      function syncShellForVenue(venue: VenueOption): void {
+        if (!shell) return;
+        shell.dataset.venueId = String(venue.venueId);
+        const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
+        if (nameEl) nameEl.textContent = venue.venueName;
+        const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
+        if (publicEl && venue.venueSlug) {
+          publicEl.hidden = false;
+          publicEl.href = `/venues/${encodeURIComponent(venue.venueSlug)}/`;
+        }
+        if (shellSwitcher) {
+          shellSwitcher.value = String(venue.venueId);
+        }
+        for (const tab of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+          const tabId = tab.dataset.merchantShellTab || '';
+          const href = shellTabHref(tabId, venue);
+          const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
+          const disabled = needsSlug && !venue.venueSlug;
+          tab.href = disabled ? '#' : href;
+          if (disabled) tab.setAttribute('aria-disabled', 'true');
+          else tab.removeAttribute('aria-disabled');
+        }
+        if (audienceLink) audienceLink.href = `/restaurant/audience/?venueId=${venue.venueId}`;
+      }
 
       function updateExports() {
         const base = `/api/restaurant/reports/export?venueId=${selectedVenueId}&${rangeQuery()}`;
@@ -363,9 +421,7 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
         document.getElementById('intent-list')!.innerHTML = actions.map(([label,count,rate])=>`
           <div class="intent-row"><strong>${label}</strong><span class="intent-count">${format.format(Number(count))}</span><span class="rate${!s.uniqueVisits || !Number(rate) ? ' empty' : ''}">${percent(Number(rate), s.uniqueVisits)}</span></div>`).join('');
 
-        document.getElementById('audience-strip')!.innerHTML = [
-          ['Current savers',report.audience.currentSavers],['Current followers',report.audience.currentFollowers],['Alert subscribers',report.audience.currentAlertSubscribers],
-        ].map(([label,value])=>`<article class="audience-card"><div class="value">${format.format(Number(value))}</div><div class="label">${label}</div></article>`).join('');
+        if (audienceLink) audienceLink.href = `/restaurant/audience/?venueId=${selectedVenueId}`;
 
         const campaignBody = document.getElementById('campaign-body')!;
         campaignBody.innerHTML = report.campaigns.length ? report.campaigns.map((campaign:any)=>`
@@ -405,9 +461,10 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
 
       async function loadReport() {
         const version = ++requestVersion;
+        const venue = selectedVenue();
+        syncShellForVenue(venue);
         history.replaceState(null,'',`/restaurant/reports/?venueId=${selectedVenueId}`);
         updateExports();
-        const venue = selectedVenue();
         paidGate.hidden = venue.paid;
         if (!venue.paid) {
           const canRedeem = venue.role === 'owner';
@@ -436,7 +493,10 @@ const bootstrap = JSON.stringify({ venues: publicVenues, selectedVenueId: select
         }
       }
 
-      venueSelect.addEventListener('change',()=>{selectedVenueId=Number(venueSelect.value);void loadReport();});
+      shellSwitcher?.addEventListener('change',()=>{
+        selectedVenueId=Number(shellSwitcher.value);
+        void loadReport();
+      });
       document.querySelectorAll<HTMLButtonElement>('[data-range]').forEach((button)=>button.addEventListener('click',()=>{
         selectedRange=button.dataset.range || '30d';
         document.querySelectorAll('[data-range]').forEach((item)=>item.classList.toggle('active',item===button));

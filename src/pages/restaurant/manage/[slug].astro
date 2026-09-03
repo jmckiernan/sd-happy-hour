@@ -2,6 +2,7 @@
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
 import ListingFormStyles from '../../../components/ListingFormStyles.astro';
+import MerchantShell from '../../../components/MerchantShell.astro';
 import { getVenues, venueSlug, venuePath } from '../../../lib/venues';
 
 // The management screen a verified restaurant owner gets for their own listing:
@@ -14,6 +15,9 @@ import { getVenues, venueSlug, venuePath } from '../../../lib/venues';
 // of those routes re-authorizes independently (src/lib/venueManager.ts). A
 // prerendered page can't be a security boundary, so it isn't one: the page
 // shell is public, the data behind it is not.
+//
+// Tabs: ?tab=listing|photos|menu shows one panel (default listing). Auth and
+// shell meta (email, role, switcher) sync client-side after claims load.
 export async function getStaticPaths() {
   return getVenues().map((venue) => ({
     params: { slug: venueSlug(venue) },
@@ -22,52 +26,56 @@ export async function getStaticPaths() {
 }
 
 const { venue } = Astro.props;
+const slug = venueSlug(venue);
+const publicHref = venuePath(venue);
 ---
 <Layout title={`Manage ${venue.name} | Happy Hour SD`} description="Manage your happy hour listing, photos, and menu.">
   <ListingFormStyles />
   <style is:global>
-    .mg-wrap { max-width: 880px; margin: 0 auto; padding: 28px 24px 80px; }
-    .mg-wrap h1 { font-family: var(--font-display); font-size: 1.7rem; margin-bottom: 4px; }
-    .mg-sub { color: var(--night-soft); font-size: 0.9rem; margin-bottom: 20px; }
-
     .mg-panel {
-      background: white; border-radius: var(--radius);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-      padding: 22px; margin-bottom: 18px;
+      background: var(--sand);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 0;
     }
-    .mg-panel > h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
+    .mg-panel > h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; color: var(--night); }
     .mg-panel > p.why { color: var(--night-soft); font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px; }
 
     .mg-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
     .mg-btn {
-      background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer;
-      font: inherit; font-weight: 700; padding: 11px 20px; text-decoration: none; display: inline-flex; align-items: center;
+      background: var(--night); border: 2px solid var(--night); border-radius: 10px; color: white; cursor: pointer;
+      font: inherit; font-weight: 800; padding: 10px 16px; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
     }
-    .mg-btn:hover { background: var(--sunset-start); }
-    .mg-btn.neutral { background: var(--sand-warm); color: var(--night); }
-    .mg-btn.neutral:hover { background: var(--sunset-end); }
-    .mg-btn.small { font-size: 0.82rem; padding: 8px 14px; }
-    .mg-btn.danger { background: #FEE2E2; color: #991B1B; }
+    .mg-btn:hover { background: var(--sunset-start); border-color: var(--sunset-start); }
+    .mg-btn.neutral {
+      background: white; border-color: rgba(32, 18, 56, 0.16); color: var(--night);
+    }
+    .mg-btn.neutral:hover { background: var(--sand-warm); border-color: var(--sand-warm); }
+    .mg-btn.small { font-size: 0.82rem; padding: 8px 12px; min-height: 36px; }
+    .mg-btn.danger { background: #FEE2E2; border-color: #FEE2E2; color: #991B1B; }
+    .mg-btn.danger:hover { background: #FECACA; border-color: #FECACA; }
     .mg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .mg-status { color: var(--night-soft); font-weight: 600; font-size: 0.88rem; white-space: pre-wrap; }
     .mg-status.ok { color: #166534; }
     .mg-status.err { color: #B91C1C; }
 
-    .mg-locked { text-align: center; padding: 60px 24px; }
+    .mg-locked { text-align: center; padding: 48px 16px; }
+    .mg-locked h2 { font-family: var(--font-display); font-size: 1.35rem; color: var(--night); margin-bottom: 8px; }
     .mg-locked p { color: var(--night-soft); margin-bottom: 20px; line-height: 1.55; }
 
     /* --- photos --- */
     .ph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-    .ph-card { background: var(--sand); border-radius: var(--radius-sm); overflow: hidden; }
+    .ph-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid rgba(32, 18, 56, 0.08); }
     .ph-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--sand-warm); }
     .ph-body { padding: 10px; display: grid; gap: 8px; }
     .ph-body input {
-      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); font: inherit;
+      border: 2px solid var(--sand-warm); border-radius: 8px; font: inherit;
       font-size: 0.85rem; padding: 8px 10px; width: 100%;
     }
     .ph-tag {
-      border-radius: 100px; font-size: 0.65rem; font-weight: 700; padding: 4px 9px;
+      border-radius: 6px; font-size: 0.65rem; font-weight: 700; padding: 4px 8px;
       text-transform: uppercase; letter-spacing: 0.04em; justify-self: start;
     }
     .ph-tag.published { background: #DCFCE7; color: #166534; }
@@ -84,15 +92,15 @@ const { venue } = Astro.props;
     .file-btn { cursor: pointer; }
 
     /* --- menu --- */
-    .mn-section { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 14px; }
+    .mn-section { background: white; border: 1px solid rgba(32, 18, 56, 0.08); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
     .mn-section-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
-    .mn-section-head h3 { font-family: var(--font-display); font-size: 1.02rem; }
+    .mn-section-head h3 { font-family: var(--font-display); font-size: 1.02rem; color: var(--night); }
     .mn-section-head .note { color: var(--night-soft); font-size: 0.8rem; }
     .mn-section-actions { display: flex; flex-wrap: wrap; gap: 6px; }
     .mn-section > [data-edit-section] { margin-bottom: 10px; }
 
-    .mn-item { background: white; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
-    .mn-item img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--sand-warm); }
+    .mn-item { background: var(--sand); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+    .mn-item img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: var(--sand-warm); }
     .mn-item-photo { display: grid; flex: 0 0 132px; gap: 7px; }
     .mn-item-photo img { width: 100%; height: 92px; }
     .mn-item-main { flex: 1; min-width: 0; }
@@ -103,7 +111,7 @@ const { venue } = Astro.props;
     .mn-form { display: grid; gap: 8px; margin-top: 10px; }
     .mn-form .row { display: flex; gap: 8px; flex-wrap: wrap; }
     .mn-form input, .mn-form select, .mn-form textarea {
-      border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); font: inherit;
+      border: 2px solid var(--sand-warm); border-radius: 8px; font: inherit;
       font-size: 0.88rem; padding: 9px 11px; flex: 1 1 160px; min-width: 0;
     }
     .mn-form textarea { min-height: 60px; resize: vertical; width: 100%; }
@@ -124,9 +132,16 @@ const { venue } = Astro.props;
     .mg-hidden { display: none; }
   </style>
 
-  <div class="mg-wrap">
+  <MerchantShell
+    activeTab="listing"
+    venueName={venue.name}
+    venueSlug={slug}
+    venueId={venue.id}
+    publicHref={publicHref}
+    hideTabs={true}
+  >
     <div id="mg-locked" class="mg-locked mg-hidden">
-      <h1>Manage this listing</h1>
+      <h2>Manage this listing</h2>
       <p id="mg-locked-note">
         This page is for the restaurant that has claimed <strong>{venue.name}</strong>.
         Sign in and claim the listing to manage it.
@@ -134,15 +149,9 @@ const { venue } = Astro.props;
       <a class="mg-btn" href="/restaurant/">Go to the restaurant dashboard</a>
     </div>
 
-    <div id="mg-editor" class="mg-hidden" data-venue-id={venue.id}>
-      <h1>Manage listing: {venue.name}</h1>
-      <p class="mg-sub">
-        {venue.neighborhood} · <a href={venuePath(venue)}>view your public page</a> ·
-        <a href="/restaurant/">manage promotions</a>
-      </p>
-
+    <div id="mg-editor" class="mg-hidden" data-venue-id={venue.id} data-venue-slug={slug}>
       <!-- Listing -->
-      <section class="mg-panel">
+      <section class="mg-panel" data-mg-panel="listing">
         <h2>Venue details</h2>
         <p class="why">
           Your changes go live on your page right away. Your restaurant name, neighbourhood and map
@@ -156,7 +165,7 @@ const { venue } = Astro.props;
       </section>
 
       <!-- Photos -->
-      <section class="mg-panel">
+      <section class="mg-panel mg-hidden" data-mg-panel="photos">
         <h2>Photos</h2>
         <p class="why">
           These appear as a photo album on your venue page, and are what you can choose a featured photo
@@ -177,7 +186,7 @@ const { venue } = Astro.props;
       </section>
 
       <!-- Menu -->
-      <section class="mg-panel">
+      <section class="mg-panel mg-hidden" data-mg-panel="menu">
         <h2>Menu</h2>
         <p class="why">
           Group items into sections — "Happy Hour Food", "Cocktails", whatever matches your menu. Prices are
@@ -196,14 +205,26 @@ const { venue } = Astro.props;
         </form>
       </section>
     </div>
-  </div>
+  </MerchantShell>
 
   <script>
     import { listingFormHTML, readListingForm, wireListingPhotoPicker } from '../../../lib/listingForm';
 
+    type ManageTab = 'listing' | 'photos' | 'menu';
+    type ShellRole = 'owner' | 'full_admin' | 'promotions';
+
+    interface ManageClaim {
+      venueId: number;
+      status: string;
+      accessRole?: ShellRole | string | null;
+      venueName?: string | null;
+      venueSlug?: string | null;
+    }
+
     const editorEl = document.getElementById('mg-editor')!;
     const lockedEl = document.getElementById('mg-locked')!;
     const venueId = Number(editorEl.dataset.venueId);
+    const venueSlug = editorEl.dataset.venueSlug || '';
 
     const formEl = document.getElementById('mg-form')!;
     const saveBtn = document.getElementById('mg-save') as HTMLButtonElement;
@@ -213,10 +234,152 @@ const { venue } = Astro.props;
     const menuBodyEl = document.getElementById('mn-body')!;
     const menuStatusEl = document.getElementById('mn-status')!;
 
+    let currentEmail = '';
+    let claims: ManageClaim[] = [];
+
     function esc(value: unknown) {
       return String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
       } as Record<string, string>)[char]);
+    }
+
+    function readActiveTab(): ManageTab {
+      const tab = new URLSearchParams(window.location.search).get('tab');
+      if (tab === 'photos' || tab === 'menu' || tab === 'listing') return tab;
+      return 'listing';
+    }
+
+    function applyActiveTab(tab: ManageTab) {
+      for (const panel of document.querySelectorAll<HTMLElement>('[data-mg-panel]')) {
+        panel.classList.toggle('mg-hidden', panel.dataset.mgPanel !== tab);
+      }
+      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+      if (!shell) return;
+      shell.dataset.activeTab = tab;
+      for (const tabEl of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+        const id = tabEl.dataset.merchantShellTab || '';
+        const isActive = id === tab;
+        tabEl.classList.toggle('is-active', isActive);
+        if (isActive) tabEl.setAttribute('aria-current', 'page');
+        else tabEl.removeAttribute('aria-current');
+      }
+    }
+
+    function roleLabel(role: string | null | undefined): string {
+      if (role === 'owner' || role === 'site_admin') return 'Owner';
+      if (role === 'full_admin') return 'Full Admin';
+      if (role === 'promotions') return 'Promotions';
+      return '';
+    }
+
+    function shellTabHref(tab: string, claim: ManageClaim): string {
+      const id = claim.venueId;
+      const slug = claim.venueSlug ? encodeURIComponent(claim.venueSlug) : '';
+      switch (tab) {
+        case 'promotions':
+          return `/restaurant/?venueId=${id}`;
+        case 'listing':
+          return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+        case 'photos':
+          return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+        case 'menu':
+          return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+        case 'audience':
+          return `/restaurant/audience/?venueId=${id}`;
+        case 'reports':
+          return `/restaurant/reports/?venueId=${id}`;
+        case 'billing':
+          return `/restaurant/billing/?venueId=${id}`;
+        case 'team':
+          return slug ? `/restaurant/manage/${slug}/users/` : '#';
+        default:
+          return '#';
+      }
+    }
+
+    function syncMerchantShell(claim: ManageClaim | null) {
+      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+      if (!shell) return;
+      const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
+      const emailEl = shell.querySelector('[data-merchant-shell-email]');
+      const roleEl = shell.querySelector('[data-merchant-shell-role]');
+      const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+      const verifiedEl = shell.querySelector<HTMLElement>('[data-merchant-shell-verified]');
+      const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
+      const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+      const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+      const activeTab = readActiveTab();
+
+      if (emailEl) emailEl.textContent = currentEmail;
+
+      if (!claim) {
+        if (roleEl) roleEl.textContent = '';
+        if (roleSep) roleSep.hidden = true;
+        if (verifiedEl) verifiedEl.hidden = true;
+        if (tabsEl) tabsEl.hidden = true;
+        if (switcher) {
+          switcher.hidden = true;
+          switcher.innerHTML = '';
+        }
+        return;
+      }
+
+      if (nameEl) nameEl.textContent = claim.venueName || `Venue #${claim.venueId}`;
+      const roleText = roleLabel(claim.accessRole);
+      if (roleEl) roleEl.textContent = roleText;
+      if (roleSep) roleSep.hidden = !(roleText && currentEmail);
+      if (verifiedEl) verifiedEl.hidden = claim.status !== 'verified' && claim.accessRole !== 'site_admin';
+      shell.dataset.venueId = String(claim.venueId);
+
+      if (publicEl) {
+        if (claim.venueSlug) {
+          publicEl.hidden = false;
+          publicEl.href = `/venues/${encodeURIComponent(claim.venueSlug)}/`;
+        } else {
+          publicEl.hidden = true;
+          publicEl.href = '#';
+        }
+      }
+
+      if (tabsEl) {
+        tabsEl.hidden = false;
+        const role = claim.accessRole === 'site_admin' ? 'owner' : (claim.accessRole || 'owner');
+        for (const tab of tabsEl.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+          const tabId = tab.dataset.merchantShellTab || '';
+          let visible = true;
+          if (role === 'promotions') visible = tabId === 'promotions';
+          else if (role === 'full_admin') visible = tabId !== 'team';
+          else visible = true;
+          tab.hidden = !visible;
+          const isActive = tabId === activeTab;
+          tab.classList.toggle('is-active', isActive);
+          if (isActive) tab.setAttribute('aria-current', 'page');
+          else tab.removeAttribute('aria-current');
+          const href = shellTabHref(tabId, claim);
+          const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
+          const disabled = needsSlug && !claim.venueSlug;
+          tab.href = disabled ? '#' : href;
+          if (disabled) tab.setAttribute('aria-disabled', 'true');
+          else tab.removeAttribute('aria-disabled');
+        }
+      }
+
+      if (switcher) {
+        const switchable = claims.filter((entry) => entry.status === 'verified' && entry.venueSlug);
+        if (switchable.length > 1) {
+          switcher.hidden = false;
+          switcher.innerHTML = switchable.map((entry) => `
+            <option value="${esc(entry.venueSlug)}" ${entry.venueId === claim.venueId ? 'selected' : ''}>
+              ${esc(entry.venueName || `Venue #${entry.venueId}`)}
+            </option>
+          `).join('');
+        } else {
+          switcher.hidden = true;
+          switcher.innerHTML = '';
+        }
+      }
+
+      applyActiveTab(activeTab);
     }
 
     function setStatus(el: HTMLElement, message: string, kind: '' | 'ok' | 'err' = '') {
@@ -235,6 +398,43 @@ const { venue } = Astro.props;
       if (!res.ok) throw new Error((data.errors || ['Something went wrong.']).join('\n'));
       return data;
     }
+
+    async function syncShellAfterAuth() {
+      try {
+        const [me, claimsData] = await Promise.all([
+          api('/api/account/me'),
+          api('/api/restaurant/claims'),
+        ]);
+        currentEmail = me.authenticated && me.user?.email ? me.user.email : '';
+        claims = (claimsData.claims || []) as ManageClaim[];
+        const claim = claims.find((entry) => entry.venueId === venueId) || null;
+        if (claim) {
+          syncMerchantShell(claim);
+          return;
+        }
+        // Site admins can open manage without a claim row — still show workspace chrome.
+        syncMerchantShell({
+          venueId,
+          status: 'verified',
+          accessRole: me.isAdmin ? 'site_admin' : 'owner',
+          venueName: document.querySelector('[data-merchant-shell-venue-name]')?.textContent || null,
+          venueSlug,
+        });
+      } catch {
+        // Listing already authorized; leave SSR shell identity in place.
+        applyActiveTab(readActiveTab());
+      }
+    }
+
+    document.querySelector('[data-merchant-shell-switcher]')?.addEventListener('change', (event) => {
+      const select = event.target as HTMLSelectElement;
+      const nextSlug = select.value;
+      if (!nextSlug || nextSlug === venueSlug) return;
+      const tab = readActiveTab();
+      window.location.href = `/restaurant/manage/${encodeURIComponent(nextSlug)}/?tab=${tab}`;
+    });
+
+    applyActiveTab(readActiveTab());
 
     // Uploaded photos double as the featured-image options and the menu item
     // photo options, so both panels read this one list.
@@ -788,6 +988,7 @@ const { venue } = Astro.props;
       }
 
       editorEl.classList.remove('mg-hidden');
+      void syncShellAfterAuth();
       // Photos load after the listing so the featured-photo picker is painted
       // from a fresh list, and the menu last since its photo dropdowns depend
       // on it.

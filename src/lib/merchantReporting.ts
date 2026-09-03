@@ -1,7 +1,13 @@
 import { sql, type QueryExecutor } from './db';
+import {
+  getMerchantAudienceSnapshot,
+  type MerchantAudienceSnapshot,
+} from './merchantAudience';
 import { getPromotionState, type PromotionState } from './promotionState';
 import { parseSanDiegoLocalDateTime } from './sanDiegoTime';
 import { getVenues } from './venues';
+
+export type { MerchantAudienceSnapshot } from './merchantAudience';
 
 export type MerchantReportPreset = '7d' | '30d' | '90d' | 'custom';
 
@@ -339,35 +345,6 @@ function isoValue(value: Date | string | null): string | null {
   return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : null;
 }
 
-export interface MerchantAudienceSnapshot {
-  currentSavers: number;
-  currentFollowers: number;
-  currentAlertSubscribers: number;
-}
-
-async function audienceSnapshot(venueId: number, executor: QueryExecutor): Promise<MerchantAudienceSnapshot> {
-  const rows = await executor<any>`
-    SELECT
-      (SELECT count(DISTINCT l.owner_user_id)
-       FROM happy_hour_list_items i JOIN happy_hour_lists l ON l.id = i.list_id
-       WHERE i.venue_id = ${venueId}) AS current_savers,
-      (SELECT count(*) FROM venue_follows WHERE venue_id = ${venueId}) AS current_followers,
-      (SELECT count(DISTINCT subscriber_id) FROM (
-        SELECT user_id AS subscriber_id FROM venue_follows
-        WHERE venue_id = ${venueId} AND (happy_hour_alerts_enabled OR promotion_alerts_enabled)
-        UNION
-        SELECT s.user_id AS subscriber_id
-        FROM happy_hour_list_subscriptions s
-        JOIN happy_hour_list_items i ON i.list_id = s.list_id
-        WHERE i.venue_id = ${venueId}
-      ) subscribers) AS current_alert_subscribers`;
-  return {
-    currentSavers: numberValue(rows[0]?.current_savers),
-    currentFollowers: numberValue(rows[0]?.current_followers),
-    currentAlertSubscribers: numberValue(rows[0]?.current_alert_subscribers),
-  };
-}
-
 export interface MerchantVenueComparison {
   venueId: number;
   venueName: string;
@@ -483,7 +460,7 @@ export async function getMerchantReportData(input: {
   const executor = input.executor ?? sql;
   const [summary, audience, trend, campaigns, comparison, activity] = await Promise.all([
     reportSummary(input.venueId, input.ownerUserId, input.range, executor),
-    audienceSnapshot(input.venueId, executor),
+    getMerchantAudienceSnapshot(input.venueId, executor),
     reportTrend(input.venueId, input.ownerUserId, input.range, executor),
     reportCampaigns(input.venueId, input.ownerUserId, input.range, executor),
     venueComparison(input.accessibleVenues, input.range, executor),

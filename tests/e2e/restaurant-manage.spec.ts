@@ -53,7 +53,7 @@ const menu = [
   },
 ];
 
-test('restaurant manager shows the current image and can edit menu item gallery behavior', async ({ page }) => {
+test('restaurant manager shows listing by default and menu edits under ?tab=menu', async ({ page }) => {
   const menuActions: any[] = [];
   const currentMenu = structuredClone(menu);
 
@@ -65,7 +65,7 @@ test('restaurant manager shows the current image and can edit menu item gallery 
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ authenticated: true, user: { id: 'owner-1' } }),
+      body: JSON.stringify({ authenticated: true, user: { id: 'owner-1', email: 'owner@example.com' } }),
     })
   );
   await page.route('**/api/admin/me', (route) =>
@@ -73,6 +73,22 @@ test('restaurant manager shows the current image and can edit menu item gallery 
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({ authenticated: false, admin: null }),
+    })
+  );
+  await page.route('**/api/restaurant/claims', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        claims: [{
+          venueId,
+          status: 'verified',
+          accessRole: 'owner',
+          venueName: 'Craft & Commerce',
+          venueSlug: 'craft-commerce',
+        }],
+      }),
     })
   );
   await page.route(`**/api/restaurant/venues/${venueId}/listing`, async (route) => {
@@ -118,6 +134,9 @@ test('restaurant manager shows the current image and can edit menu item gallery 
 
   await page.goto('/restaurant/manage/craft-commerce/');
 
+  await expect(page.locator('[data-merchant-shell]')).toBeVisible();
+  await expect(page.locator('[data-mg-panel="listing"]')).toBeVisible();
+  await expect(page.locator('[data-mg-panel="menu"]')).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Venue details' })).toBeVisible();
   await expect(page.getByText('Open Time', { exact: true })).toBeVisible();
   await expect(page.getByText('Close Time', { exact: true })).toBeVisible();
@@ -130,6 +149,11 @@ test('restaurant manager shows the current image and can edit menu item gallery 
     currentFeaturedImage
   );
   await expect(featuredPicker.getByText('No featured photo')).toHaveCount(0);
+
+  await page.goto('/restaurant/manage/craft-commerce/?tab=menu');
+  await expect(page.locator('[data-mg-panel="menu"]')).toBeVisible();
+  await expect(page.locator('[data-mg-panel="listing"]')).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Menu' })).toBeVisible();
 
   const section = page.locator('[data-section-id="22222222-2222-4222-8222-222222222222"]');
   await expect(section.locator('[data-section-view] h3')).toHaveText('Cocktails');

@@ -200,6 +200,28 @@ async function mockDashboard(
   });
 }
 
+function claimCard(page: Page) {
+  return page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
+}
+
+function createPromotionButton(page: Page) {
+  return page.locator('#shell-create-promotion');
+}
+
+function shellTab(page: Page, name: string) {
+  return page.locator(`[data-merchant-shell-tab="${name}"]`);
+}
+
+function promotionRow(page: Page, promotionId: string) {
+  return claimCard(page).locator(`[data-promotion-id="${promotionId}"]`);
+}
+
+function monthlyAllowance(page: Page) {
+  return claimCard(page)
+    .locator('.merchant-metric-card')
+    .filter({ hasText: 'Monthly allowance' });
+}
+
 test('Promotions Only access shows promotion controls without listing or user administration', async ({ page }) => {
   await mockDashboard(page, {
     claimsPayload: {
@@ -208,10 +230,15 @@ test('Promotions Only access shows promotion controls without listing or user ad
     },
   });
   await page.goto('/restaurant/');
-  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.locator('.pill.verified')).toHaveText('Promotions Only');
-  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeVisible();
-  await expect(claim.getByRole('link', { name: 'View public page' })).toBeVisible();
+  const claim = claimCard(page);
+  await expect(page.locator('[data-merchant-shell-role]')).toHaveText('Promotions');
+  await expect(createPromotionButton(page)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Public page' })).toBeVisible();
+  await expect(shellTab(page, 'promotions')).toBeVisible();
+  await expect(shellTab(page, 'listing')).toBeHidden();
+  await expect(shellTab(page, 'audience')).toBeHidden();
+  await expect(shellTab(page, 'billing')).toBeHidden();
+  await expect(shellTab(page, 'team')).toBeHidden();
   await expect(claim.getByRole('link', { name: 'Manage listing, photos & menu' })).toHaveCount(0);
   await expect(claim.getByRole('link', { name: 'Managing users' })).toHaveCount(0);
 });
@@ -231,57 +258,62 @@ test('verified venue separates recurring happy hour and offers rerun only for en
 
   await page.goto('/restaurant/');
 
-  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.locator('.pill.verified')).toHaveText('Owner');
-  await expect(claim.getByRole('link', { name: 'Managing users' })).toBeVisible();
-
-  const command = claim.locator('[data-promotion-command]');
-  const today = command.locator('section[aria-label="Today\'s Happy Hour"]');
-  const promotionsHeader = command.locator('section[aria-label="Promotions"]');
-  await expect(today).toContainText("Today's Happy Hour");
-  await expect(today).toContainText('4:00 PM–7:00 PM');
-  await expect(today).toContainText('Recurring listing schedule · informational only');
-  await expect(today).not.toContainText('Sunset Oyster Hour');
-  await expect(promotionsHeader).toContainText('Promotions');
-  await expect(promotionsHeader).toContainText(
-    'Allowance: 1 included promotion remaining this month · 1 scheduled promotion reserved'
+  const claim = claimCard(page);
+  await expect(page.locator('[data-merchant-shell-role]')).toHaveText('Owner');
+  await expect(shellTab(page, 'team')).toBeVisible();
+  await expect(shellTab(page, 'audience')).toBeVisible();
+  await expect(shellTab(page, 'billing')).toBeVisible();
+  await expect(shellTab(page, 'audience')).toHaveAttribute(
+    'href',
+    `/restaurant/audience/?venueId=${VENUE_ID}`
+  );
+  await expect(shellTab(page, 'billing')).toHaveAttribute(
+    'href',
+    `/restaurant/billing/?venueId=${VENUE_ID}`
   );
 
-  const active = command.locator('section[aria-label="Active promotions"]');
-  const scheduled = command.locator('section[aria-label="Scheduled promotions"]');
-  const drafts = command.locator('section[aria-label="Drafts promotions"]');
-  const past = command.locator('section[aria-label="Past promotions"]');
+  const metrics = claim.locator('[aria-label="Promotion metrics"]');
+  await expect(metrics).toContainText('4:00 PM–7:00 PM');
+  await expect(metrics).toContainText('HAPPY HOUR NOW');
+  await expect(metrics).toContainText('1 active · 1 scheduled');
+  await expect(metrics).toContainText('1 of 3 left');
 
-  const activeCard = active.locator('[data-promotion-id="promotion-live"]');
-  await expect(active.locator('.merchant-promotion-count')).toHaveText('1');
-  await expect(activeCard).toContainText('Sunset Oyster Hour');
-  await expect(activeCard.locator('.merchant-state-badge.live')).toHaveText('Live promotion');
-  await expect(activeCard.getByRole('button', { name: 'End promotion' })).toBeVisible();
-  await expect(activeCard.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+  const chips = claim.locator('[aria-label="Filter promotions"]');
+  await expect(chips.getByRole('tab', { name: /All · 5/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(chips.getByRole('tab', { name: /Active · 1/ })).toBeVisible();
+  await expect(chips.getByRole('tab', { name: /Past · 2/ })).toBeVisible();
 
-  const scheduledCard = scheduled.locator('[data-promotion-id="promotion-scheduled"]');
-  await expect(scheduledCard).toContainText('Sunday Brunch Preview');
-  await expect(scheduledCard.getByRole('button', { name: 'Edit' })).toBeVisible();
-  await expect(scheduledCard.getByRole('button', { name: 'Start Now' })).toBeVisible();
-  await expect(scheduledCard.getByRole('button', { name: 'Cancel' })).toBeVisible();
+  const liveRow = promotionRow(page, 'promotion-live');
+  await expect(liveRow).toContainText('Sunset Oyster Hour');
+  await expect(liveRow.locator('.merchant-state-badge.live')).toHaveText('Live');
+  await expect(liveRow.getByRole('button', { name: 'End' })).toBeVisible();
+  await expect(liveRow.getByRole('button', { name: 'Edit' })).toHaveCount(0);
 
-  const draftCard = drafts.locator('[data-promotion-id="promotion-draft"]');
-  await expect(draftCard).toContainText('Draft Taco Drop');
-  await expect(draftCard.getByRole('button', { name: 'Edit' })).toBeVisible();
-  await expect(draftCard.getByRole('button', { name: 'Schedule' })).toBeVisible();
-  await expect(draftCard.getByRole('button', { name: 'Start Now' })).toBeVisible();
-  await expect(draftCard.getByRole('button', { name: 'Delete draft' })).toBeVisible();
+  const scheduledRow = promotionRow(page, 'promotion-scheduled');
+  await expect(scheduledRow).toContainText('Sunday Brunch Preview');
+  await expect(scheduledRow.getByRole('button', { name: 'Edit' })).toBeVisible();
+  await expect(scheduledRow.getByRole('button', { name: 'Start Now' })).toBeVisible();
+  await expect(scheduledRow.getByRole('button', { name: 'Cancel' })).toBeVisible();
 
-  const terminalCard = past.locator('[data-promotion-id="promotion-ended"]');
-  await expect(terminalCard).toHaveClass(/is-terminal/);
-  await expect(terminalCard.locator('.merchant-state-badge.ended')).toHaveText('Ended');
-  await expect(terminalCard).toContainText('Historical promotion');
-  await expect(terminalCard.getByRole('button', { name: 'Rerun' })).toBeVisible();
+  const draftRow = promotionRow(page, 'promotion-draft');
+  await expect(draftRow).toContainText('Draft Taco Drop');
+  await expect(draftRow.getByRole('button', { name: 'Edit' })).toBeVisible();
+  await expect(draftRow.getByRole('button', { name: 'Schedule' })).toBeVisible();
+  await expect(draftRow.getByRole('button', { name: 'Start Now' })).toBeVisible();
+  await expect(draftRow.getByRole('button', { name: 'Delete' })).toBeVisible();
+
+  const terminalRow = promotionRow(page, 'promotion-ended');
+  await expect(terminalRow.locator('.merchant-state-badge.ended')).toHaveText('Ended');
+  await expect(terminalRow.getByRole('button', { name: 'Rerun' })).toBeVisible();
   await expect(
-    past.locator('[data-promotion-id="promotion-cancelled"]').getByRole('button', { name: 'Rerun' })
+    promotionRow(page, 'promotion-cancelled').getByRole('button', { name: 'Rerun' })
   ).toHaveCount(0);
 
-  await terminalCard.getByRole('button', { name: 'Rerun' }).click();
+  await chips.getByRole('tab', { name: /Past · 2/ }).click();
+  await expect(promotionRow(page, 'promotion-live')).toHaveCount(0);
+  await expect(promotionRow(page, 'promotion-ended')).toBeVisible();
+
+  await terminalRow.getByRole('button', { name: 'Rerun' }).click();
   const rerunDialog = page.getByRole('dialog', { name: 'Create Promotion' });
   await expect(rerunDialog.getByLabel('Headline')).toHaveValue('Expired Chef Special');
   await expect(rerunDialog.getByLabel('Details')).toHaveValue('A merchant promotion fixture.');
@@ -366,16 +398,14 @@ test('Create Promotion defaults to Start Now, creates an untimed draft, starts i
   });
 
   await page.goto('/restaurant/');
-  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.locator('.merchant-entitlement')).toContainText(
-    '3 included promotions remaining this month'
-  );
-  await claim.getByRole('button', { name: 'Create Promotion' }).click();
+  const claim = claimCard(page);
+  await expect(monthlyAllowance(page)).toContainText('3 of 3 left');
+  await createPromotionButton(page).click();
 
   const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
-  await expect(dialog).toHaveCSS('border-radius', '20px');
+  await expect(dialog).toHaveCSS('border-radius', '18px');
   await expect(dialog).toHaveCSS('overflow', 'hidden');
-  await expect(dialog.locator('.merchant-dialog-surface')).toHaveCSS('border-radius', '20px');
+  await expect(dialog.locator('.merchant-dialog-surface')).toHaveCSS('border-radius', '18px');
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeEnabled();
   await expect(dialog.getByRole('radio', { name: 'Schedule' })).toBeEnabled();
@@ -399,11 +429,7 @@ test('Create Promotion defaults to Start Now, creates an untimed draft, starts i
   await dialog.getByRole('button', { name: 'GO LIVE' }).click();
 
   await expect(dialog).not.toBeVisible();
-  await expect(
-    claim
-      .locator('section[aria-label="Active promotions"]')
-      .locator('[data-promotion-id="promotion-created"]')
-  ).toContainText('$5 Margaritas + $2 Tacos');
+  await expect(promotionRow(page, 'promotion-created')).toContainText('$5 Margaritas + $2 Tacos');
 
   const createIndex = calls.findIndex(
     (call) => call.method === 'POST' && call.pathname === '/api/restaurant/promotions'
@@ -495,12 +521,12 @@ test('quota conflict reports the canonical target month, preserves the draft, an
   });
 
   await page.goto('/restaurant/');
-  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeEnabled();
+  const claim = claimCard(page);
+  await expect(createPromotionButton(page)).toBeEnabled();
   await expect(claim.getByRole('button', { name: 'Launch Live Promotion' })).toHaveCount(0);
   await expect(claim.getByRole('button', { name: 'Schedule Promotion' })).toHaveCount(0);
 
-  await claim.getByRole('button', { name: 'Create Promotion' }).click();
+  await createPromotionButton(page).click();
   const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeChecked();
   await expect(dialog.getByRole('radio', { name: 'Start Now' })).toBeDisabled();
@@ -523,10 +549,8 @@ test('quota conflict reports the canonical target month, preserves the draft, an
   );
   await expect(status).toContainText('drafts remain available');
   await expect(status).not.toContainText(/upgrade|billing|paid/i);
-  await expect(
-    claim.locator('[data-promotion-id="promotion-quota-draft"]')
-  ).toContainText('September sunset menu');
-  await expect(claim.getByRole('button', { name: 'Create Promotion' })).toBeEnabled();
+  await expect(promotionRow(page, 'promotion-quota-draft')).toContainText('September sunset menu');
+  await expect(createPromotionButton(page)).toBeEnabled();
 
   expect(calls.filter((call) =>
     call.method === 'POST' && call.pathname === '/api/restaurant/promotions'
@@ -541,9 +565,7 @@ test('silent canonical refresh preserves keyboard focus on a promotion action', 
   await mockDashboard(page, { promotions: [], entitlement: entitlement(0, 0, 3) });
   await page.goto('/restaurant/');
 
-  const create = page
-    .locator(`.claim-card[data-venue-id="${VENUE_ID}"]`)
-    .getByRole('button', { name: 'Create Promotion' });
+  const create = createPromotionButton(page);
   await create.focus();
   await expect(create).toBeFocused();
 
@@ -586,7 +608,7 @@ test('merchant deal codes clear before bfcache and on claim authorization failur
   });
 
   await page.goto('/restaurant/');
-  await expect(page.getByText('Deal code: OWNER-ONLY')).toBeVisible();
+  await expect(promotionRow(page, 'promotion-private-draft')).toContainText('OWNER-ONLY');
 
   const cachedState = await page.evaluate(() => {
     window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
@@ -600,7 +622,7 @@ test('merchant deal codes clear before bfcache and on claim authorization failur
   await page.evaluate(() =>
     window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))
   );
-  await expect(page.getByText('Deal code: OWNER-ONLY')).toBeVisible();
+  await expect(promotionRow(page, 'promotion-private-draft')).toContainText('OWNER-ONLY');
 
   authorized = false;
   await Promise.all([
@@ -610,7 +632,7 @@ test('merchant deal codes clear before bfcache and on claim authorization failur
     ),
     page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow'))),
   ]);
-  await expect(page.getByText('Deal code: OWNER-ONLY')).toHaveCount(0);
+  await expect(page.getByText('OWNER-ONLY')).toHaveCount(0);
   await expect(page.locator('.merchant-promotion-load-status')).toContainText(
     'Verified claim required.'
   );
@@ -620,11 +642,8 @@ test('San Diego DST gap is rejected and fall-back fold offers both occurrences',
   await mockDashboard(page, { promotions: [], entitlement: entitlement(0, 0, 3) });
   await page.goto('/restaurant/');
 
-  const claim = page.locator(`.claim-card[data-venue-id="${VENUE_ID}"]`);
-  await expect(claim.locator('.merchant-entitlement')).toContainText(
-    '3 included promotions remaining this month'
-  );
-  await claim.getByRole('button', { name: 'Create Promotion' }).click();
+  await expect(monthlyAllowance(page)).toContainText('3 of 3 left');
+  await createPromotionButton(page).click();
 
   const dialog = page.getByRole('dialog', { name: 'Create Promotion' });
   await dialog.getByRole('radio', { name: 'Schedule' }).check();

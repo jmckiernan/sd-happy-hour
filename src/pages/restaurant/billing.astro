@@ -1,0 +1,774 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import MerchantShell from '../../components/MerchantShell.astro';
+import { isAdminEmail } from '../../lib/adminIdentity';
+import { listMerchantReportVenues } from '../../lib/merchantEntitlements';
+import { getSession } from '../../lib/session';
+import { getUserById } from '../../lib/store';
+import { accountSignInHref } from '../../lib/authRedirect';
+
+const session = await getSession(Astro.cookies);
+if (!session) return Astro.redirect(accountSignInHref('/restaurant/billing/'));
+const user = await getUserById(session.userId);
+if (!user) return Astro.redirect(accountSignInHref('/restaurant/billing/'));
+
+const venues = await listMerchantReportVenues(user.id, isAdminEmail(user.email));
+const requestedVenueId = Number(Astro.url.searchParams.get('venueId'));
+const selectedVenue = venues.find((venue) => venue.venueId === requestedVenueId) || venues[0] || null;
+const publicVenues = venues.map(({ ownerUserId: _ownerUserId, ...venue }) => venue);
+
+const shellRole =
+  selectedVenue?.role === 'full_admin'
+    ? 'full_admin'
+    : selectedVenue
+      ? 'owner'
+      : null;
+
+const shellVenues = publicVenues.map((venue) => ({
+  id: venue.venueId,
+  name: venue.venueName,
+  slug: venue.venueSlug,
+}));
+
+const bootstrap = JSON.stringify({
+  venues: publicVenues,
+  selectedVenueId: selectedVenue?.venueId ?? null,
+  email: user.email,
+}).replace(/</g, '\\u003c');
+---
+<Layout
+  title="Restaurant Billing | Happy Hour SD"
+  description="Plan, promotion credits, and reporting access for your restaurant."
+  noindex={true}
+>
+  <style is:global>
+    .billing-page {
+      padding: 28px 24px 0;
+    }
+    .billing-workspace {
+      display: grid;
+      gap: 18px;
+    }
+    .billing-status {
+      align-items: center;
+      color: var(--night-soft);
+      display: flex;
+      font-weight: 650;
+      gap: 10px;
+      justify-content: center;
+      min-height: 120px;
+      padding: 30px 12px;
+      text-align: center;
+    }
+    .billing-status[hidden],
+    .billing-content[hidden] {
+      display: none;
+    }
+
+    .billing-metrics {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .billing-metric-card {
+      background: var(--sand);
+      border: 1px solid rgba(32, 18, 56, 0.06);
+      border-radius: 14px;
+      display: grid;
+      gap: 6px;
+      min-height: 104px;
+      padding: 16px 17px;
+    }
+    .billing-metric-card .label {
+      color: var(--night-soft);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .billing-metric-card .value {
+      color: var(--night);
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+    .billing-metric-card .meta {
+      color: var(--night-soft);
+      font-size: 0.8rem;
+      font-weight: 650;
+    }
+
+    .billing-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .billing-panel {
+      background: var(--sand);
+      border: 1px solid rgba(32, 18, 56, 0.06);
+      border-radius: 16px;
+      padding: 18px 20px;
+    }
+    .billing-panel h2 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin: 0 0 4px;
+    }
+    .billing-panel .panel-copy {
+      color: var(--night-soft);
+      font-size: 0.78rem;
+      margin: 0 0 14px;
+    }
+    .billing-feature-list,
+    .billing-usage-list {
+      display: grid;
+      gap: 10px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .billing-feature-list li,
+    .billing-usage-list li {
+      align-items: baseline;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      font-size: 0.88rem;
+    }
+    .billing-feature-list li span,
+    .billing-usage-list li span {
+      color: var(--night-soft);
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .billing-feature-list li strong,
+    .billing-usage-list li strong {
+      font-weight: 750;
+    }
+
+    .billing-access-badge {
+      align-items: center;
+      border-radius: 999px;
+      display: inline-flex;
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      padding: 6px 11px;
+      text-transform: uppercase;
+    }
+    .billing-access-badge.is-active {
+      background: #DCFCE7;
+      color: #166534;
+    }
+    .billing-access-badge.is-inactive {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .billing-access-meta {
+      color: var(--night-soft);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 0 0 14px;
+    }
+
+    .billing-access-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .billing-access-form[hidden] {
+      display: none;
+    }
+    .billing-access-form input {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      color: var(--night);
+      flex: 1 1 180px;
+      font: inherit;
+      font-weight: 750;
+      min-height: 44px;
+      padding: 10px 16px;
+      text-transform: uppercase;
+    }
+    .billing-access-form input:focus {
+      border-color: var(--sunset-start);
+      outline: none;
+    }
+    .billing-access-form button {
+      background: var(--night);
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 850;
+      min-height: 44px;
+      padding: 10px 17px;
+    }
+    .billing-access-form button:hover {
+      background: var(--sunset-start);
+    }
+    .billing-access-status {
+      color: var(--night-soft);
+      font-size: 0.75rem;
+      min-height: 1em;
+      margin-top: 10px;
+    }
+    .billing-access-status.is-error {
+      color: #B91C1C;
+    }
+
+    .billing-empty {
+      color: var(--night-soft);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      margin: 0;
+      padding: 8px 0 2px;
+    }
+
+    .billing-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .billing-cta {
+      align-items: center;
+      border-radius: 999px;
+      display: inline-flex;
+      font-size: 0.82rem;
+      font-weight: 800;
+      min-height: 40px;
+      padding: 0 16px;
+      text-decoration: none;
+    }
+    .billing-cta--secondary {
+      background: white;
+      border: 2px solid var(--night);
+      color: var(--night);
+    }
+    .billing-cta--secondary:hover {
+      background: var(--night);
+      color: white;
+    }
+    .billing-cta[hidden] {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .billing-metrics,
+      .billing-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .billing-page {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .billing-access-form {
+        flex-direction: column;
+      }
+      .billing-access-form input,
+      .billing-access-form button {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div class="billing-page">
+    <MerchantShell
+      activeTab="billing"
+      venueName={selectedVenue?.venueName ?? 'Restaurant billing'}
+      venueSlug={selectedVenue?.venueSlug ?? null}
+      venueId={selectedVenue?.venueId ?? null}
+      email={user.email}
+      role={shellRole}
+      verified={Boolean(selectedVenue)}
+      publicHref={selectedVenue?.venueSlug ? `/venues/${selectedVenue.venueSlug}/` : null}
+      venues={shellVenues}
+      primaryCtaLabel={null}
+    >
+      <div class="billing-workspace">
+        {venues.length === 0 ? (
+          <section class="billing-status">
+            <div>You need a verified owner or full-admin restaurant role before billing is available.</div>
+          </section>
+        ) : (
+          <>
+            <section class="billing-status" id="billing-status" role="status" aria-live="polite">
+              <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">
+              <span>Loading billing…</span>
+            </section>
+
+            <div class="billing-content" id="billing-content" hidden>
+              <section class="billing-metrics" id="billing-metrics" aria-label="Billing summary"></section>
+
+              <div class="billing-grid">
+                <section class="billing-panel">
+                  <h2>Plan features</h2>
+                  <p class="panel-copy">What’s included with your current promotion plan.</p>
+                  <ul class="billing-feature-list" id="plan-features"></ul>
+                  <div class="billing-cta-row">
+                    <a
+                      class="billing-cta billing-cta--secondary"
+                      id="upgrade-cta"
+                      href="mailto:hello@happyhoursd.com?subject=Restaurant%20plan%20upgrade"
+                      hidden
+                    >Contact us to upgrade</a>
+                  </div>
+                </section>
+
+                <section class="billing-panel">
+                  <h2>Promotion usage</h2>
+                  <p class="panel-copy">Monthly Live promotion allowance for the current San Diego calendar month.</p>
+                  <ul class="billing-usage-list" id="promotion-usage"></ul>
+                </section>
+
+                <section class="billing-panel">
+                  <h2>Reporting access</h2>
+                  <p class="panel-copy">Analytics, exports, and scheduled email reports.</p>
+                  <div id="reporting-access"></div>
+                  <form class="billing-access-form" id="access-form" hidden>
+                    <input
+                      id="access-code"
+                      name="code"
+                      autocomplete="off"
+                      placeholder="SDHH-XXXX-XXXX-XXXX"
+                      aria-label="Restaurant access code"
+                      required
+                    >
+                    <button type="submit">Redeem code</button>
+                  </form>
+                  <div class="billing-access-status" id="access-status" role="status"></div>
+                </section>
+
+                <section class="billing-panel">
+                  <h2>Billing history</h2>
+                  <p class="panel-copy">Invoices and charges for this restaurant.</p>
+                  <div id="billing-history"></div>
+                </section>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </MerchantShell>
+  </div>
+
+  <script id="billing-bootstrap" type="application/json" set:html={bootstrap}></script>
+  <script>
+    interface VenueOption {
+      venueId: number;
+      venueName: string;
+      venueSlug: string;
+      neighborhood: string;
+      paid: boolean;
+      role: string;
+      entitlementEndsAt: string | null;
+    }
+    interface Bootstrap {
+      venues: VenueOption[];
+      selectedVenueId: number | null;
+      email: string;
+    }
+    interface BillingPlan {
+      id: 'free' | 'pro' | 'founding_partner';
+      label: string;
+      claimPlan: 'free' | 'paid' | null;
+    }
+    interface PromotionEntitlement {
+      plan: string;
+      allowance: number | null;
+      baseAllowance: number | null;
+      additionalAllowance: number;
+      monthlyAllowance: number | null;
+      monthKey: string;
+      consumed: number;
+      reserved: number;
+      usedThisMonth: number;
+      remainingThisMonth: number | null;
+      freePromotionsRemaining: number | null;
+      canLaunchPromotion: boolean;
+      isUnlimited: boolean;
+    }
+    interface BillingSummary {
+      venueId: number;
+      venueName: string;
+      venueSlug: string;
+      neighborhood: string;
+      serverNow: string;
+      plan: BillingPlan;
+      spend: {
+        amountCents: number;
+        amountDisplay: string;
+        currency: 'USD';
+        periodMonthKey: string;
+        message: string;
+        invoices: Array<{
+          id: string;
+          amountCents: number;
+          amountDisplay: string;
+          status: string;
+          billedAt: string | null;
+          description: string;
+        }>;
+      };
+      promotionEntitlement: PromotionEntitlement;
+      promotionalCredits: {
+        monthKey: string;
+        additionalAllowance: number;
+      };
+      reportingAccess: {
+        active: boolean;
+        source: string | null;
+        accessStartsAt: string | null;
+        accessEndsAt: string | null;
+      };
+      actions: {
+        canRedeemAccessCode: boolean;
+        contactUpgradeAvailable: boolean;
+      };
+    }
+
+    const bootstrap: Bootstrap = JSON.parse(
+      document.getElementById('billing-bootstrap')?.textContent || '{}'
+    );
+    const billingStatus = document.getElementById('billing-status');
+    if (billingStatus && bootstrap.venues?.length) {
+      const billingContent = document.getElementById('billing-content')!;
+      const metricsEl = document.getElementById('billing-metrics')!;
+      const planFeaturesEl = document.getElementById('plan-features')!;
+      const promotionUsageEl = document.getElementById('promotion-usage')!;
+      const reportingAccessEl = document.getElementById('reporting-access')!;
+      const billingHistoryEl = document.getElementById('billing-history')!;
+      const accessForm = document.getElementById('access-form') as HTMLFormElement;
+      const accessStatus = document.getElementById('access-status')!;
+      const upgradeCta = document.getElementById('upgrade-cta') as HTMLAnchorElement;
+      const format = new Intl.NumberFormat('en-US');
+      let selectedVenueId = Number(bootstrap.selectedVenueId);
+      let requestVersion = 0;
+
+      const escapeHTML = (value: unknown) =>
+        String(value ?? '').replace(/[&<>"']/g, (char) =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[char]
+        );
+
+      const formatMonthKey = (monthKey: string) => {
+        const [year, month] = monthKey.split('-').map(Number);
+        if (!year || !month) return monthKey;
+        return new Date(Date.UTC(year, month - 1, 1)).toLocaleString('en-US', {
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC',
+        });
+      };
+
+      const formatInstant = (value: string | null) => {
+        if (!value) return null;
+        return new Date(value).toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+      };
+
+      const sourceLabel = (source: string | null) => {
+        switch (source) {
+          case 'access_code':
+            return 'Access code';
+          case 'admin_grant':
+            return 'Admin grant';
+          case 'legacy_paid':
+            return 'Legacy paid access';
+          case 'billing':
+            return 'Subscription';
+          default:
+            return 'Not activated';
+        }
+      };
+
+      function status(message: string, loading = false) {
+        billingStatus.innerHTML = `${
+          loading
+            ? '<img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">'
+            : ''
+        }<span>${escapeHTML(message)}</span>`;
+        billingStatus.hidden = false;
+        billingContent.hidden = true;
+      }
+
+      function metricCard(label: string, value: string, meta: string) {
+        return `<article class="billing-metric-card">
+          <span class="label">${escapeHTML(label)}</span>
+          <span class="value">${escapeHTML(value)}</span>
+          <span class="meta">${escapeHTML(meta)}</span>
+        </article>`;
+      }
+
+      function planFeatures(plan: BillingPlan, entitlement: PromotionEntitlement): string[] {
+        const allowance =
+          entitlement.isUnlimited || entitlement.allowance === null
+            ? 'Unlimited Live promotions each month'
+            : `${entitlement.allowance} included Live ${entitlement.allowance === 1 ? 'promotion' : 'promotions'} per month`;
+        const rows = [
+          ['Promotion plan', plan.label],
+          ['Monthly Live promotions', allowance],
+          [
+            'Listing tools',
+            'Edit listing, photos, and menu from the workspace',
+          ],
+        ];
+        if (plan.id === 'founding_partner') {
+          rows.push(['Partner status', 'Founding Partner venue benefits']);
+        } else if (plan.id === 'pro') {
+          rows.push(['Plan notes', 'Pro promotion entitlement for this venue']);
+        } else {
+          rows.push(['Upgrade path', 'Contact us for Pro or partner plans']);
+        }
+        return rows.map(
+          ([label, value]) =>
+            `<li><strong>${escapeHTML(label)}</strong><span>${escapeHTML(value)}</span></li>`
+        );
+      }
+
+      function syncShell(billing: BillingSummary, venue: VenueOption) {
+        const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+        if (!shell) return;
+        const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
+        const emailEl = shell.querySelector('[data-merchant-shell-email]');
+        const roleEl = shell.querySelector('[data-merchant-shell-role]');
+        const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+        const verifiedEl = shell.querySelector<HTMLElement>('[data-merchant-shell-verified]');
+        const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
+        const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+
+        shell.dataset.venueId = String(billing.venueId);
+        if (nameEl) nameEl.textContent = billing.venueName;
+        if (emailEl) emailEl.textContent = bootstrap.email || '';
+        const roleText =
+          venue.role === 'full_admin'
+            ? 'Full Admin'
+            : venue.role === 'site_admin'
+              ? 'Site Admin'
+              : 'Owner';
+        if (roleEl) roleEl.textContent = roleText;
+        if (roleSep) roleSep.hidden = !(roleText && bootstrap.email);
+        if (verifiedEl) verifiedEl.hidden = false;
+        if (publicEl) {
+          if (billing.venueSlug) {
+            publicEl.hidden = false;
+            publicEl.href = `/venues/${encodeURIComponent(billing.venueSlug)}/`;
+          } else {
+            publicEl.hidden = true;
+            publicEl.href = '#';
+          }
+        }
+        if (switcher) {
+          switcher.value = String(billing.venueId);
+          for (const tab of document.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+            const tabId = tab.dataset.merchantShellTab || '';
+            const id = billing.venueId;
+            const slug = billing.venueSlug ? encodeURIComponent(billing.venueSlug) : '';
+            let href = '#';
+            switch (tabId) {
+              case 'promotions':
+                href = `/restaurant/?venueId=${id}`;
+                break;
+              case 'listing':
+                href = slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+                break;
+              case 'photos':
+                href = slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+                break;
+              case 'menu':
+                href = slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+                break;
+              case 'audience':
+                href = `/restaurant/audience/?venueId=${id}`;
+                break;
+              case 'reports':
+                href = `/restaurant/reports/?venueId=${id}`;
+                break;
+              case 'billing':
+                href = `/restaurant/billing/?venueId=${id}`;
+                break;
+              case 'team':
+                href = slug ? `/restaurant/manage/${slug}/users/` : '#';
+                break;
+            }
+            const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
+            tab.href = needsSlug && !slug ? '#' : href;
+            tab.setAttribute('aria-disabled', needsSlug && !slug ? 'true' : 'false');
+          }
+        }
+      }
+
+      function render(billing: BillingSummary) {
+        const venue = bootstrap.venues.find((item) => item.venueId === billing.venueId);
+        if (!venue) {
+          status('Restaurant not found in your workspace.');
+          return;
+        }
+
+        const entitlement = billing.promotionEntitlement;
+        const monthLabel = formatMonthKey(entitlement.monthKey);
+        const remainingValue =
+          entitlement.isUnlimited || entitlement.remainingThisMonth === null
+            ? 'Unlimited'
+            : String(entitlement.remainingThisMonth);
+        const creditsMeta =
+          billing.promotionalCredits.additionalAllowance > 0
+            ? `${billing.promotionalCredits.additionalAllowance} bonus credit${
+                billing.promotionalCredits.additionalAllowance === 1 ? '' : 's'
+              } this month`
+            : `Remaining for ${monthLabel}`;
+
+        metricsEl.innerHTML = [
+          metricCard('Plan', billing.plan.label, billing.plan.claimPlan === 'paid' ? 'Paid claim' : 'Promotion plan'),
+          metricCard('Spend this period', billing.spend.amountDisplay, billing.spend.message),
+          metricCard('Credits / remaining', remainingValue, creditsMeta),
+        ].join('');
+
+        planFeaturesEl.innerHTML = planFeatures(billing.plan, entitlement).join('');
+        upgradeCta.hidden = !billing.actions.contactUpgradeAvailable;
+        upgradeCta.href = `mailto:hello@happyhoursd.com?subject=${encodeURIComponent(
+          `Restaurant plan upgrade — ${billing.venueName}`
+        )}`;
+
+        const allowanceDisplay =
+          entitlement.isUnlimited || entitlement.allowance === null
+            ? 'Unlimited'
+            : format.format(entitlement.allowance);
+        promotionUsageEl.innerHTML = [
+          ['Month', monthLabel],
+          ['Included allowance', allowanceDisplay],
+          ['Bonus credits', format.format(billing.promotionalCredits.additionalAllowance)],
+          ['Used', format.format(entitlement.consumed)],
+          ['Reserved (scheduled)', format.format(entitlement.reserved)],
+          [
+            'Remaining',
+            entitlement.isUnlimited || entitlement.remainingThisMonth === null
+              ? 'Unlimited'
+              : format.format(entitlement.remainingThisMonth),
+          ],
+        ]
+          .map(
+            ([label, value]) =>
+              `<li><strong>${escapeHTML(label)}</strong><span>${escapeHTML(value)}</span></li>`
+          )
+          .join('');
+
+        const ends = formatInstant(billing.reportingAccess.accessEndsAt);
+        const starts = formatInstant(billing.reportingAccess.accessStartsAt);
+        reportingAccessEl.innerHTML = `
+          <div class="billing-access-badge ${billing.reportingAccess.active ? 'is-active' : 'is-inactive'}">
+            ${billing.reportingAccess.active ? 'Active' : 'Inactive'}
+          </div>
+          <p class="billing-access-meta">
+            Source: ${escapeHTML(sourceLabel(billing.reportingAccess.source))}
+            ${starts ? `<br>Starts: ${escapeHTML(starts)}` : ''}
+            ${ends ? `<br>Ends: ${escapeHTML(ends)}` : billing.reportingAccess.active ? '<br>No end date on file.' : ''}
+            ${
+              !billing.reportingAccess.active && !billing.actions.canRedeemAccessCode
+                ? '<br>Ask the restaurant owner to redeem an access code if you received one.'
+                : ''
+            }
+          </p>
+        `;
+        accessForm.hidden = !billing.actions.canRedeemAccessCode;
+        accessStatus.textContent = '';
+        accessStatus.classList.remove('is-error');
+
+        if (billing.spend.invoices.length === 0) {
+          billingHistoryEl.innerHTML = `<p class="billing-empty">${escapeHTML(
+            billing.spend.message || 'No charges this period'
+          )}. Invoice history will appear here once billing is connected.</p>`;
+        } else {
+          billingHistoryEl.innerHTML = `<ul class="billing-usage-list">${billing.spend.invoices
+            .map(
+              (invoice) =>
+                `<li><strong>${escapeHTML(invoice.description || invoice.status)}</strong><span>${escapeHTML(
+                  invoice.amountDisplay
+                )}</span></li>`
+            )
+            .join('')}</ul>`;
+        }
+
+        syncShell(billing, venue);
+        billingStatus.hidden = true;
+        billingContent.hidden = false;
+      }
+
+      async function loadBilling() {
+        const version = ++requestVersion;
+        history.replaceState(null, '', `/restaurant/billing/?venueId=${selectedVenueId}`);
+        status('Loading billing…', true);
+        try {
+          const response = await fetch(`/api/restaurant/billing?venueId=${selectedVenueId}`, {
+            cache: 'no-store',
+          });
+          const data = await response.json();
+          if (version !== requestVersion) return;
+          if (!response.ok) {
+            throw new Error((data.errors || ['Could not load billing.']).join(' '));
+          }
+          if (Array.isArray(data.venues)) {
+            bootstrap.venues = data.venues;
+          }
+          render(data.billing as BillingSummary);
+        } catch (error) {
+          if (version !== requestVersion) return;
+          status(error instanceof Error ? error.message : 'Could not load billing.');
+        }
+      }
+
+      document
+        .querySelector('[data-merchant-shell-switcher]')
+        ?.addEventListener('change', (event) => {
+          const target = event.target as HTMLSelectElement;
+          selectedVenueId = Number(target.value);
+          void loadBilling();
+        });
+
+      accessForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        accessStatus.classList.remove('is-error');
+        accessStatus.textContent = 'Checking code…';
+        try {
+          const response = await fetch('/api/restaurant/reports/redeem', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              venueId: selectedVenueId,
+              code: (document.getElementById('access-code') as HTMLInputElement).value,
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error((data.errors || ['Could not redeem code.']).join(' '));
+          }
+          const venue = bootstrap.venues.find((item) => item.venueId === selectedVenueId);
+          if (venue) venue.paid = true;
+          accessStatus.textContent = 'Access unlocked. Refreshing billing…';
+          (document.getElementById('access-code') as HTMLInputElement).value = '';
+          void loadBilling();
+        } catch (error) {
+          accessStatus.classList.add('is-error');
+          accessStatus.textContent =
+            error instanceof Error ? error.message : 'Could not redeem code.';
+        }
+      });
+
+      void loadBilling();
+    }
+  </script>
+</Layout>

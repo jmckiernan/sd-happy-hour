@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import MerchantShell from '../components/MerchantShell.astro';
 import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
 ---
 <Layout
@@ -8,46 +9,39 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
   description="Manage your restaurant listing and launch or schedule limited-time promotions."
 >
   <style is:global>
-    .restaurant-main { max-width: 820px; margin: 0 auto; padding: 28px 24px 80px; }
-
-    .panel {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-      margin-bottom: 18px;
-      padding: 22px;
-    }
-    .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 14px; }
-
-    .restaurant-main form { display: grid; gap: 12px; }
-    .restaurant-main label {
+    .restaurant-page { padding: 28px 24px 0; }
+    .restaurant-workspace form { display: grid; gap: 12px; }
+    .restaurant-workspace label {
       color: var(--night-soft); display: grid; font-size: 0.72rem; font-weight: 700;
       gap: 6px; letter-spacing: 0.05em; text-transform: uppercase;
     }
-    .restaurant-main input,
-    .restaurant-main textarea {
+    .restaurant-workspace input,
+    .restaurant-workspace textarea {
       border: 2px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night);
       font: inherit; min-height: 44px; padding: 11px 12px; width: 100%;
     }
-    .restaurant-main input:focus,
-    .restaurant-main textarea:focus {
+    .restaurant-workspace input:focus,
+    .restaurant-workspace textarea:focus {
       border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none;
     }
     .claim-listing-help { margin-bottom: 16px; }
-    .restaurant-main textarea { min-height: 90px; resize: vertical; }
+    .restaurant-workspace textarea { min-height: 90px; resize: vertical; }
 
-    .restaurant-main button {
+    .restaurant-workspace button:not(.merchant-promotion-button):not(.merchant-shell-btn):not(.merchant-filter-chip):not(.merchant-dialog-close) {
       background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer;
       font: inherit; font-weight: 700; min-height: 44px; padding: 11px 18px;
     }
-    .restaurant-main button:hover { background: var(--sunset-start); }
-    .restaurant-main button.secondary { background: var(--sand-warm); color: var(--night); }
-    .restaurant-main button.secondary:hover { background: var(--sunset-end); }
-    .restaurant-main button:disabled { cursor: default; opacity: 0.6; }
-    .restaurant-main button:focus-visible,
-    .restaurant-main a:focus-visible,
-    .restaurant-main input:focus-visible,
-    .restaurant-main textarea:focus-visible {
+    .restaurant-workspace button:not(.merchant-promotion-button):not(.merchant-shell-btn):not(.merchant-filter-chip):not(.merchant-dialog-close):hover {
+      background: var(--sunset-start);
+    }
+    .restaurant-workspace button.secondary { background: var(--sand-warm); color: var(--night); }
+    .restaurant-workspace button.secondary:hover { background: var(--sunset-end); }
+    .restaurant-workspace button:disabled { cursor: default; opacity: 0.6; }
+    .restaurant-workspace button:focus-visible,
+    .restaurant-workspace a:focus-visible,
+    .restaurant-workspace input:focus-visible,
+    .restaurant-workspace textarea:focus-visible,
+    .restaurant-workspace select:focus-visible {
       outline: 3px solid var(--sunset-start); outline-offset: 3px;
     }
 
@@ -62,19 +56,13 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
     .pill.verified { background: #DCFCE7; color: #166534; }
     .pill.denied { background: #FEE2E2; color: #991B1B; }
 
-    .dash-head {
-      align-items: center; display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: space-between; margin-bottom: 4px;
-    }
-    .dash-head .who { color: var(--night-soft); font-size: 0.85rem; }
-
     .venue-results { display: grid; gap: 6px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
     .venue-result {
       align-items: center; background: var(--sand); border: 1px solid var(--sand-warm);
       border-radius: var(--radius-sm); cursor: pointer; display: flex; font-size: 0.9rem;
       gap: 10px; justify-content: space-between; min-height: 48px; padding: 10px 12px;
     }
-    .restaurant-main .venue-result { background: var(--sand); color: var(--night); text-align: left; }
+    .restaurant-workspace .venue-result { background: var(--sand); color: var(--night); text-align: left; }
     .venue-result:hover { background: var(--sand-warm); }
     .venue-result.claimed { cursor: default; opacity: 0.6; }
     .venue-result strong { display: block; }
@@ -83,17 +71,24 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       color: var(--night-soft); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
     }
 
-    .claim-card { background: var(--sand); border-radius: var(--radius-sm); margin-bottom: 12px; padding: 16px; }
+    .claim-card {
+      background: var(--sand);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      padding: 16px;
+    }
+    .claim-card[data-verified-workspace="true"] {
+      background: transparent;
+      border-radius: 0;
+      margin: 0;
+      padding: 0;
+    }
     .claim-card-head {
       align-items: center; display: flex; flex-wrap: wrap; gap: 10px;
       justify-content: space-between; margin-bottom: 8px;
     }
-    .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; }
+    .claim-card-head h3 { font-family: var(--font-display); font-size: 1.05rem; margin: 0; }
     .claim-card > .status { margin-bottom: 8px; }
-    .listing-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
-    .manage-link, .public-page-link { font-size: 0.9rem; font-weight: 700; }
-    .manage-link { color: var(--night); }
-    .public-page-link { color: var(--ocean-deep); }
 
     .verify-block { margin-top: 8px; }
     .code-entry { display: flex; gap: 8px; margin-top: 8px; }
@@ -104,59 +99,219 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
 
     .loading-row { align-items: center; display: flex; gap: 12px; }
     .loading-row .status { margin: 0; }
+
+    .restaurant-section-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      margin: 0 0 12px;
+    }
+
+    .merchant-metrics {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 20px;
+    }
+    .merchant-metric-card {
+      background: var(--sand);
+      border: 1px solid rgba(32, 18, 56, 0.06);
+      border-radius: 14px;
+      display: grid;
+      gap: 6px;
+      min-height: 104px;
+      padding: 16px 17px;
+    }
+    .merchant-metric-card .label {
+      color: var(--night-soft);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .merchant-metric-card .value {
+      color: var(--night);
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+    .merchant-metric-card .meta {
+      color: var(--night-soft);
+      font-size: 0.8rem;
+      font-weight: 650;
+    }
+    .merchant-metric-card .meta.is-live { color: #166534; }
+
+    .merchant-filter-row {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .merchant-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .merchant-filter-chip {
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      color: var(--night-soft) !important;
+      cursor: pointer;
+      font: inherit !important;
+      font-size: 0.8rem !important;
+      font-weight: 750 !important;
+      min-height: 36px !important;
+      padding: 7px 12px !important;
+    }
+    .merchant-filter-chip.is-active {
+      background: var(--sand-warm) !important;
+      color: var(--night) !important;
+    }
+    .merchant-filter-chip:hover { color: var(--night) !important; }
+
+    .merchant-promo-table-wrap { overflow-x: auto; }
+    .merchant-promo-table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .merchant-promo-table th {
+      color: var(--night-soft);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .merchant-promo-table th:last-child,
+    .merchant-promo-table td:last-child { text-align: right; }
+    .merchant-promo-table td {
+      border-top: 1px solid rgba(32, 18, 56, 0.08);
+      padding: 14px 12px;
+      vertical-align: top;
+    }
+    .merchant-promo-table .promo-title {
+      color: var(--night);
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+    .merchant-promo-table .promo-sub {
+      color: var(--night-soft);
+      font-size: 0.78rem;
+      margin: 0;
+    }
+    .merchant-promo-table .promo-window-day {
+      color: var(--night);
+      font-size: 0.88rem;
+      font-weight: 750;
+      margin: 0 0 2px;
+    }
+    .merchant-promo-table .promo-window-time {
+      color: var(--night-soft);
+      font-size: 0.78rem;
+      margin: 0;
+    }
+    .merchant-promo-table .promo-actions {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+    .merchant-promo-table .merchant-promotion-button {
+      font-size: 0.78rem;
+      min-height: 36px;
+      padding: 7px 12px;
+    }
+    .merchant-promo-empty {
+      color: var(--night-soft);
+      font-size: 0.9rem;
+      margin: 18px 0 0;
+      text-align: center;
+    }
+
+    .claim-panel {
+      background: var(--sand);
+      border-radius: 14px;
+      margin-top: 18px;
+      padding: 18px;
+    }
+    .claim-panel h2 { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 10px; }
+    .unverified-stack { display: grid; gap: 12px; }
+
+    @media (max-width: 900px) {
+      .merchant-metrics { grid-template-columns: 1fr; }
+    }
     @media (max-width: 600px) {
-      .restaurant-main { padding-left: 14px; padding-right: 14px; }
-      .panel { padding: 16px; }
-      .dash-head { align-items: stretch; flex-direction: column; }
+      .restaurant-page { padding-left: 14px; padding-right: 14px; }
       .code-entry { align-items: stretch; flex-direction: column; }
       .code-entry input { max-width: none; }
+      .merchant-promo-table .promo-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 8px;
+      }
     }
   </style>
 
-  <header class="page-header">
-    <h1>Restaurant Dashboard</h1>
-    <p>Keep your regular listing accurate, then launch or schedule special limited-time promotions.</p>
-  </header>
+  <div class="restaurant-page">
+    <MerchantShell
+      activeTab="promotions"
+      venueName="Restaurant workspace"
+      hideTabs={true}
+    >
+      <button
+        slot="primary-cta"
+        class="merchant-shell-btn"
+        type="button"
+        data-promotion-action="create"
+        data-merchant-shell-primary-cta
+        id="shell-create-promotion"
+        hidden
+      >
+        Create Promotion
+      </button>
 
-  <main class="restaurant-main">
-    <section class="panel" id="loading-panel">
-      <div class="loading-row" role="status" aria-live="polite">
-        <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">
-        <p class="status">Loading your listings…</p>
-      </div>
-    </section>
+      <div class="restaurant-workspace">
+        <section id="loading-panel">
+          <div class="loading-row" role="status" aria-live="polite">
+            <img class="drink-loader drink-loader--sm" src="/cocktail-loader.svg" alt="" aria-hidden="true">
+            <p class="status">Loading your listings…</p>
+          </div>
+        </section>
 
-    <section class="panel hidden" id="error-panel">
-      <h2>Couldn't load your dashboard</h2>
-      <p class="status" id="error-text"></p>
-      <button type="button" id="retry-btn">Try again</button>
-    </section>
+        <section class="hidden" id="error-panel">
+          <h2 class="restaurant-section-title">Couldn't load your dashboard</h2>
+          <p class="status" id="error-text"></p>
+          <button type="button" id="retry-btn">Try again</button>
+        </section>
 
-    <div id="dashboard" class="hidden">
-      <section class="panel">
-        <div class="dash-head">
-          <h2>Your listings</h2>
-          <span class="who" id="who"></span>
+        <div id="dashboard" class="hidden">
+          <div id="claims-list"></div>
+          <p class="status hidden" id="no-claims">
+            You haven't claimed a listing yet — search for it below.
+          </p>
+
+          <section class="claim-panel" id="claim-listing-panel">
+            <h2>Claim a listing</h2>
+            <p class="status claim-listing-help">
+              Signing in with an email at your restaurant's own website domain verifies you instantly.
+              Otherwise verify by phone (if we have a number on file) or submit for manual review.
+              Venues that are not on the public site yet (no verified happy hour) still appear here so you can claim them.
+            </p>
+            <label for="venue-search" class="hidden">Search restaurants</label>
+            <input type="search" id="venue-search" placeholder="Search by restaurant name…" autocomplete="off">
+            <div class="venue-results" id="venue-results"></div>
+          </section>
         </div>
-        <div id="claims-list"></div>
-        <p class="status" id="no-claims" style="margin-top:8px;">
-          You haven't claimed a listing yet — search for it below.
-        </p>
-      </section>
-
-      <section class="panel">
-        <h2>Claim a listing</h2>
-        <p class="status claim-listing-help">
-          Signing in with an email at your restaurant's own website domain verifies you instantly.
-          Otherwise verify by phone (if we have a number on file) or submit for manual review.
-          Venues that are not on the public site yet (no verified happy hour) still appear here so you can claim them.
-        </p>
-        <label for="venue-search" class="hidden">Search restaurants</label>
-        <input type="search" id="venue-search" placeholder="Search by restaurant name…" autocomplete="off">
-        <div class="venue-results" id="venue-results"></div>
-      </section>
-    </div>
-  </main>
+      </div>
+    </MerchantShell>
+  </div>
 
   <MerchantPromotionUI />
 
@@ -165,12 +320,10 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       createServerAnchoredClock,
       formatSanDiegoDateTime,
       formatSanDiegoDateTimeInput,
-      formatSanDiegoTime,
       resolveSanDiegoDateTimeLocal,
       type ServerAnchoredClock,
     } from '../lib/promotionClientTime';
     import {
-      formatMerchantEntitlement,
       formatMerchantPromotionState,
       formatMerchantPromotionType,
       formatMerchantQuotaEntitlement,
@@ -282,10 +435,14 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       return value as MerchantPromotionEntitlementDto;
     }
 
+    type PromoFilter = 'all' | 'active' | 'scheduled' | 'drafts' | 'past';
+
     let currentUser: any = null;
     let claims: DashboardClaim[] = [];
     let claimsClock: ServerAnchoredClock | null = null;
     let dashboardRequestVersion = 0;
+    let selectedVenueId: number | null = null;
+    let promoFilter: PromoFilter = 'all';
     const promotionStates = new Map<number, VenuePromotionState>();
 
     let editorContext: EditorContext | null = null;
@@ -335,6 +492,211 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
 
     function claimForVenue(venueId: number): DashboardClaim | null {
       return claims.find((claim) => claim.venueId === venueId) || null;
+    }
+
+    function selectedClaim(): DashboardClaim | null {
+      if (selectedVenueId == null) return null;
+      return claimForVenue(selectedVenueId);
+    }
+
+    function roleLabel(role: DashboardClaim['accessRole'] | null | undefined): string {
+      if (role === 'owner') return 'Owner';
+      if (role === 'full_admin') return 'Full Admin';
+      if (role === 'promotions') return 'Promotions';
+      return '';
+    }
+
+    function readVenueIdFromUrl(): number | null {
+      const raw = new URLSearchParams(window.location.search).get('venueId');
+      if (!raw) return null;
+      const value = Number(raw);
+      return Number.isSafeInteger(value) && value > 0 ? value : null;
+    }
+
+    function writeVenueIdToUrl(venueId: number | null): void {
+      const url = new URL(window.location.href);
+      if (venueId == null) url.searchParams.delete('venueId');
+      else url.searchParams.set('venueId', String(venueId));
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    function pickSelectedVenueId(): number | null {
+      if (!claims.length) return null;
+      const fromUrl = readVenueIdFromUrl();
+      if (fromUrl != null && claims.some((claim) => claim.venueId === fromUrl)) return fromUrl;
+      const verified = claims.find((claim) => claim.status === 'verified');
+      return (verified || claims[0]).venueId;
+    }
+
+    function formatAllowanceReset(monthKey: string): string {
+      const match = /^(\d{4})-(\d{2})$/.exec(monthKey);
+      if (!match) return 'Resets next month';
+      const year = Number(match[1]);
+      const month = Number(match[2]); // 1-12
+      const nextMonthIndex = month === 12 ? 0 : month;
+      const nextYear = month === 12 ? year + 1 : year;
+      const label = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+      }).format(new Date(Date.UTC(nextYear, nextMonthIndex, 1)));
+      return `Resets ${label}`;
+    }
+
+    function formatPromotionWindow(promotion: MerchantPromotionDto): { day: string; time: string } {
+      const start = promotion.startsAt;
+      const end = promotion.effectiveEndsAt || promotion.endsAt;
+      if (!start && !end) {
+        return {
+          day: promotion.state === 'draft' ? 'Not set' : '—',
+          time: '',
+        };
+      }
+      const dayFormatter = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'America/Los_Angeles',
+      });
+      const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'America/Los_Angeles',
+      });
+      const startDate = start ? new Date(start) : null;
+      const endDate = end ? new Date(end) : null;
+      if (startDate && Number.isNaN(startDate.getTime())) {
+        return { day: '—', time: '' };
+      }
+      const day = startDate
+        ? dayFormatter.format(startDate)
+        : endDate
+          ? dayFormatter.format(endDate)
+          : '—';
+      const startText = startDate ? timeFormatter.format(startDate).toLowerCase().replace(' ', '') : '';
+      const endText = endDate && !Number.isNaN(endDate.getTime())
+        ? timeFormatter.format(endDate).toLowerCase().replace(' ', '')
+        : '';
+      const time = startText && endText ? `${startText}–${endText}` : startText || endText;
+      return { day, time };
+    }
+
+    function shellTabHref(tab: string, claim: DashboardClaim | null): string {
+      const id = claim?.venueId;
+      const slug = claim?.venueSlug ? encodeURIComponent(claim.venueSlug) : '';
+      switch (tab) {
+        case 'promotions':
+          return id != null ? `/restaurant/?venueId=${id}` : '/restaurant/';
+        case 'listing':
+          return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+        case 'photos':
+          return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+        case 'menu':
+          return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+        case 'audience':
+          return id != null ? `/restaurant/audience/?venueId=${id}` : '/restaurant/audience/';
+        case 'reports':
+          return id != null ? `/restaurant/reports/?venueId=${id}` : '/restaurant/reports/';
+        case 'billing':
+          return id != null ? `/restaurant/billing/?venueId=${id}` : '/restaurant/billing/';
+        case 'team':
+          return slug ? `/restaurant/manage/${slug}/users/` : '#';
+        default:
+          return '#';
+      }
+    }
+
+    function syncMerchantShell(claim: DashboardClaim | null): void {
+      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+      if (!shell) return;
+      const nameEl = shell.querySelector('[data-merchant-shell-venue-name]');
+      const emailEl = shell.querySelector('[data-merchant-shell-email]');
+      const roleEl = shell.querySelector('[data-merchant-shell-role]');
+      const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+      const verifiedEl = shell.querySelector<HTMLElement>('[data-merchant-shell-verified]');
+      const publicEl = shell.querySelector<HTMLAnchorElement>('[data-merchant-shell-public]');
+      const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+      const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+      const createBtn = document.getElementById('shell-create-promotion') as HTMLButtonElement | null;
+
+      const email = currentUser?.email || '';
+      if (emailEl) emailEl.textContent = email;
+
+      if (!claim) {
+        if (nameEl) nameEl.textContent = 'Restaurant workspace';
+        if (roleEl) roleEl.textContent = '';
+        if (roleSep) roleSep.hidden = true;
+        if (verifiedEl) verifiedEl.hidden = true;
+        if (publicEl) {
+          publicEl.hidden = true;
+          publicEl.href = '#';
+        }
+        if (tabsEl) tabsEl.hidden = true;
+        if (switcher) {
+          switcher.hidden = true;
+          switcher.innerHTML = '';
+        }
+        if (createBtn) createBtn.hidden = true;
+        shell.dataset.venueId = '';
+        return;
+      }
+
+      if (nameEl) nameEl.textContent = claim.venueName || `Venue #${claim.venueId}`;
+      const roleText = roleLabel(claim.accessRole);
+      if (roleEl) roleEl.textContent = roleText;
+      if (roleSep) roleSep.hidden = !(roleText && email);
+      if (verifiedEl) verifiedEl.hidden = claim.status !== 'verified';
+      shell.dataset.venueId = String(claim.venueId);
+
+      if (publicEl) {
+        if (claim.venueSlug) {
+          publicEl.hidden = false;
+          publicEl.href = `/venues/${encodeURIComponent(claim.venueSlug)}/`;
+        } else {
+          publicEl.hidden = true;
+          publicEl.href = '#';
+        }
+      }
+
+      if (createBtn) createBtn.hidden = claim.status !== 'verified';
+
+      if (tabsEl) {
+        const showTabs = Boolean(claim.accessRole) || claim.status === 'verified';
+        tabsEl.hidden = !showTabs;
+        const role = claim.accessRole || (claim.status === 'verified' ? 'promotions' : null);
+        for (const tab of tabsEl.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+          const tabId = tab.dataset.merchantShellTab || '';
+          let visible = true;
+          if (role === 'promotions') visible = tabId === 'promotions';
+          else if (role === 'full_admin') visible = tabId !== 'team';
+          else if (role === 'owner') visible = true;
+          else visible = tabId === 'promotions';
+          tab.hidden = !visible;
+          tab.classList.toggle('is-active', tabId === 'promotions');
+          if (tabId === 'promotions') tab.setAttribute('aria-current', 'page');
+          else tab.removeAttribute('aria-current');
+          const href = shellTabHref(tabId, claim);
+          const needsSlug = tabId === 'listing' || tabId === 'photos' || tabId === 'menu' || tabId === 'team';
+          const disabled = needsSlug && !claim.venueSlug;
+          tab.href = disabled ? '#' : href;
+          if (disabled) tab.setAttribute('aria-disabled', 'true');
+          else tab.removeAttribute('aria-disabled');
+        }
+      }
+
+      if (switcher) {
+        if (claims.length > 1) {
+          switcher.hidden = false;
+          switcher.innerHTML = claims.map((entry) => `
+            <option value="${entry.venueId}" ${entry.venueId === claim.venueId ? 'selected' : ''}>
+              ${escapeHTML(entry.venueName || `Venue #${entry.venueId}`)}
+            </option>
+          `).join('');
+        } else {
+          switcher.hidden = true;
+          switcher.innerHTML = '';
+        }
+      }
     }
 
     function promotionFor(venueId: number, promotionId: string): MerchantPromotionDto | null {
@@ -413,20 +775,9 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       `;
     }
 
-    function promotionTimingHTML(promotion: MerchantPromotionDto): string {
-      const end = promotion.effectiveEndsAt || promotion.endsAt;
-      if (promotion.state === 'live' && end) {
-        return `Ends ${escapeHTML(formatSanDiegoDateTime(end))}`;
-      }
-      if (promotion.startsAt && end) {
-        return `${escapeHTML(formatSanDiegoDateTime(promotion.startsAt))} – ${escapeHTML(formatSanDiegoDateTime(end))}`;
-      }
-      return promotion.state === 'draft' ? 'Timing not set' : 'Timing unavailable';
-    }
-
-    function promotionCardHTML(promotion: MerchantPromotionDto, claim: DashboardClaim): string {
+    function promotionRowActionsHTML(promotion: MerchantPromotionDto, claim: DashboardClaim): string {
       const actions = promotion.allowedActions;
-      const actionButtons = [
+      const buttons = [
         promotion.state === 'ended'
           ? `<button class="merchant-promotion-button secondary" type="button" data-promotion-action="rerun">Rerun</button>`
           : '',
@@ -443,162 +794,212 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="cancel">Cancel</button>`
           : '',
         actions.end
-          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="end">End promotion</button>`
+          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="end">End</button>`
           : '',
         actions.delete
-          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="delete">Delete draft</button>`
+          ? `<button class="merchant-promotion-button danger" type="button" data-promotion-action="delete">Delete</button>`
           : '',
-      ].filter(Boolean).join('');
-      const publicLink = claim.venueSlug && promotion.state === 'live'
-        ? `<a class="merchant-promotion-button secondary" href="/venues/${encodeURIComponent(claim.venueSlug)}/">View public page</a>`
-        : '';
-      const isTerminal = promotion.state === 'ended' || promotion.state === 'cancelled';
+      ].filter(Boolean);
+      return buttons.join('');
+    }
+
+    function promotionRowHTML(promotion: MerchantPromotionDto, claim: DashboardClaim): string {
       const title = promotion.title || (promotion.state === 'draft' ? 'Untitled draft' : 'Untitled promotion');
-      const badge = promotion.state === 'live'
-        ? 'Live promotion'
+      const bits = [
+        formatMerchantPromotionType(promotion.type),
+        promotion.description || '',
+        promotion.dealCode || '',
+      ].filter(Boolean);
+      const windowInfo = formatPromotionWindow(promotion);
+      const statusLabel = promotion.state === 'live'
+        ? 'Live'
         : formatMerchantPromotionState(promotion.state);
-
+      const actions = promotionRowActionsHTML(promotion, claim);
       return `
-        <article
-          class="merchant-promotion-card ${promotion.state === 'live' ? 'is-active' : ''} ${isTerminal ? 'is-terminal' : ''}"
-          data-promotion-id="${escapeHTML(promotion.id)}"
-        >
-          <div class="merchant-promotion-card-head">
-            <div>
-              <h5>${escapeHTML(title)}</h5>
-              <p class="merchant-promotion-meta">${escapeHTML(formatMerchantPromotionType(promotion.type))}</p>
-            </div>
-            <span class="merchant-state-badge ${escapeHTML(promotion.state)}">${escapeHTML(badge)}</span>
-          </div>
-          <p class="merchant-promotion-meta">${promotionTimingHTML(promotion)}</p>
-          ${promotion.description ? `<p class="merchant-promotion-detail">${escapeHTML(promotion.description)}</p>` : ''}
-          ${promotion.dealCode ? `<p class="merchant-promotion-code">Deal code: ${escapeHTML(promotion.dealCode)}</p>` : ''}
-          ${actionButtons || publicLink ? `<div class="merchant-card-actions">${actionButtons}${publicLink}</div>` : ''}
-          ${isTerminal ? '<p class="merchant-promotion-meta">Historical promotion</p>' : ''}
-        </article>
+        <tr data-promotion-id="${escapeHTML(promotion.id)}">
+          <td>
+            <p class="promo-title">${escapeHTML(title)}</p>
+            <p class="promo-sub">${escapeHTML(bits.join(' · '))}</p>
+          </td>
+          <td>
+            <p class="promo-window-day">${escapeHTML(windowInfo.day)}</p>
+            ${windowInfo.time ? `<p class="promo-window-time">${escapeHTML(windowInfo.time)}</p>` : ''}
+          </td>
+          <td>
+            <span class="merchant-state-badge ${escapeHTML(promotion.state)}">${escapeHTML(statusLabel)}</span>
+          </td>
+          <td>
+            <div class="promo-actions">${actions || ''}</div>
+          </td>
+        </tr>
       `;
     }
 
-    function promotionSectionHTML(
-      title: string,
-      promotions: MerchantPromotionDto[],
-      claim: DashboardClaim,
-      emptyCopy: string
-    ): string {
-      return `
-        <section class="merchant-promotion-section" aria-label="${escapeHTML(title)} promotions">
-          <div class="merchant-promotion-section-head">
-            <h4>${escapeHTML(title)}</h4>
-            <span class="merchant-promotion-count">${promotions.length}</span>
-          </div>
-          <div class="merchant-promotion-list">
-            ${promotions.length
-              ? promotions.map((promotion) => promotionCardHTML(promotion, claim)).join('')
-              : `<p class="merchant-promotion-empty">${escapeHTML(emptyCopy)}</p>`}
-          </div>
-        </section>
-      `;
-    }
-
-    function todayHappyHourHTML(claim: DashboardClaim, state: VenuePromotionState): string {
+    function metricsHTML(claim: DashboardClaim, state: VenuePromotionState): string {
       const clock = state.clock || claimsClock;
-      if (!clock) {
-        return `
-          <section class="merchant-today" aria-label="Today's Happy Hour">
-            <h4>Today's Happy Hour</h4>
-            <p class="merchant-today-state">Checking today's recurring schedule…</p>
-          </section>
-        `;
+      let hhValue = '—';
+      let hhMeta = "Checking today's recurring schedule…";
+      let hhLive = false;
+      if (clock) {
+        const today = getTodayHappyHourPresentation(claim.happyHourSchedule, clock.now());
+        hhValue = today.timeRange || 'None today';
+        hhMeta = today.statusText;
+        hhLive = today.state === 'live';
       }
-      const today = getTodayHappyHourPresentation(claim.happyHourSchedule, clock.now());
+
+      const groups = groupMerchantPromotions(state.promotions);
+      const liveCount = groups.active.length;
+      const scheduledCount = groups.scheduled.length;
+      const liveValue = liveCount === 0 ? 'None running' : String(liveCount);
+      const liveMeta = `${liveCount} active · ${scheduledCount} scheduled`;
+
+      let allowanceValue = 'Loading…';
+      let allowanceMeta = 'Monthly promotion credits';
+      if (state.entitlement) {
+        const entitlement = state.entitlement;
+        if (entitlement.isUnlimited || entitlement.remainingThisMonth === null || entitlement.allowance === null) {
+          allowanceValue = 'Unlimited';
+          allowanceMeta = formatAllowanceReset(entitlement.monthKey);
+        } else {
+          allowanceValue = `${entitlement.remainingThisMonth} of ${entitlement.allowance} left`;
+          allowanceMeta = formatAllowanceReset(entitlement.monthKey);
+        }
+      }
+
       return `
-        <section class="merchant-today" aria-label="Today's Happy Hour">
-          <h4>Today's Happy Hour</h4>
-          ${today.timeRange ? `<p class="merchant-today-time">${escapeHTML(today.timeRange)}</p>` : ''}
-          <p class="merchant-today-state ${today.state === 'live' ? 'is-now' : ''}">${escapeHTML(today.statusText)}</p>
-          <p class="merchant-promotion-meta">Recurring listing schedule · informational only</p>
-        </section>
+        <div class="merchant-metrics" aria-label="Promotion metrics">
+          <article class="merchant-metric-card">
+            <span class="label">Recurring happy hour</span>
+            <span class="value">${escapeHTML(hhValue)}</span>
+            <span class="meta ${hhLive ? 'is-live' : ''}">${escapeHTML(hhMeta)}</span>
+          </article>
+          <article class="merchant-metric-card">
+            <span class="label">Live promotions</span>
+            <span class="value">${escapeHTML(liveValue)}</span>
+            <span class="meta">${escapeHTML(liveMeta)}</span>
+          </article>
+          <article class="merchant-metric-card">
+            <span class="label">Monthly allowance</span>
+            <span class="value">${escapeHTML(allowanceValue)}</span>
+            <span class="meta">${escapeHTML(allowanceMeta)}</span>
+          </article>
+        </div>
+      `;
+    }
+
+    function filteredPromotions(state: VenuePromotionState): MerchantPromotionDto[] {
+      const groups = groupMerchantPromotions(state.promotions);
+      switch (promoFilter) {
+        case 'active': return groups.active;
+        case 'scheduled': return groups.scheduled;
+        case 'drafts': return groups.drafts;
+        case 'past': return groups.past;
+        default: return [
+          ...groups.active,
+          ...groups.scheduled,
+          ...groups.drafts,
+          ...groups.past,
+        ];
+      }
+    }
+
+    function filterChipsHTML(state: VenuePromotionState): string {
+      const groups = groupMerchantPromotions(state.promotions);
+      const chips: Array<{ id: PromoFilter; label: string; count: number }> = [
+        { id: 'all', label: 'All', count: state.promotions.length },
+        { id: 'active', label: 'Active', count: groups.active.length },
+        { id: 'scheduled', label: 'Scheduled', count: groups.scheduled.length },
+        { id: 'drafts', label: 'Drafts', count: groups.drafts.length },
+        { id: 'past', label: 'Past', count: groups.past.length },
+      ];
+      return `
+        <div class="merchant-filter-row">
+          <div class="merchant-filter-chips" role="tablist" aria-label="Filter promotions">
+            ${chips.map((chip) => `
+              <button
+                class="merchant-filter-chip ${promoFilter === chip.id ? 'is-active' : ''}"
+                type="button"
+                role="tab"
+                aria-selected="${promoFilter === chip.id}"
+                data-promo-filter="${chip.id}"
+              >${escapeHTML(chip.label)} · ${chip.count}</button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function promotionsTableHTML(claim: DashboardClaim, state: VenuePromotionState): string {
+      const rows = filteredPromotions(state);
+      if (!rows.length) {
+        return `<p class="merchant-promo-empty">No promotions in this view.</p>`;
+      }
+      return `
+        <div class="merchant-promo-table-wrap">
+          <table class="merchant-promo-table">
+            <thead>
+              <tr>
+                <th scope="col">Promotion</th>
+                <th scope="col">Window</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map((promotion) => promotionRowHTML(promotion, claim)).join('')}
+            </tbody>
+          </table>
+        </div>
       `;
     }
 
     function promotionCommandHTML(claim: DashboardClaim): string {
       const state = ensurePromotionState(claim.venueId);
-      const groups = groupMerchantPromotions(state.promotions);
-      const entitlement = state.entitlement
-        ? formatMerchantEntitlement(state.entitlement)
-        : 'Allowance status is loading…';
       const statusMessage = state.error || state.message || (state.loading ? 'Loading promotions…' : '');
       const statusKind = state.error ? 'error' : state.messageKind === 'error' ? 'error' : '';
 
       return `
         <div class="merchant-promotion-command" data-promotion-command>
-          ${todayHappyHourHTML(claim, state)}
-          <section aria-label="Promotions">
-            <div class="merchant-promotion-heading">
-              <div>
-                <h4>Promotions</h4>
-                <p class="merchant-entitlement"><strong>Allowance:</strong> ${escapeHTML(entitlement)}</p>
-              </div>
-              <div class="merchant-promotion-actions">
-                <button class="merchant-promotion-button" type="button" data-promotion-action="create">Create Promotion</button>
-              </div>
-            </div>
-          </section>
-          ${groups.active.length ? '' : '<p class="merchant-promotion-empty"><strong>No promotion currently Live</strong></p>'}
+          ${metricsHTML(claim, state)}
+          ${filterChipsHTML(state)}
           <div class="merchant-promotion-load-status ${statusKind}" role="status" aria-live="polite">
             ${escapeHTML(statusMessage)}
             ${state.error ? ' <button class="merchant-promotion-button secondary" type="button" data-promotion-action="retry">Try again</button>' : ''}
           </div>
-          <div class="merchant-promotion-sections">
-            ${promotionSectionHTML('Active', groups.active, claim, 'No active promotion.')}
-            ${promotionSectionHTML('Scheduled', groups.scheduled, claim, 'No scheduled promotions.')}
-            ${promotionSectionHTML('Drafts', groups.drafts, claim, 'No saved drafts.')}
-            ${promotionSectionHTML('Past', groups.past, claim, 'No past promotions yet.')}
-          </div>
+          ${promotionsTableHTML(claim, state)}
         </div>
       `;
     }
 
-    function claimCardHTML(claim: DashboardClaim): string {
+    function unverifiedClaimCardHTML(claim: DashboardClaim): string {
       const underManualReview = claim.status === 'pending' && claim.verificationMethod === 'manual' && claim.claimNote;
-      const statusNote = claim.status === 'verified'
-        ? 'Verified.'
-        : claim.status === 'denied'
-          ? `Not verified: ${escapeHTML(claim.denialReason || 'no reason given.')} Try again below.`
-          : underManualReview
-            ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
-            : 'Verify this listing to finish claiming it.';
-      const canManageListing = claim.accessRole !== 'promotions';
-      const listingLinks = claim.status === 'verified' && claim.venueSlug ? `
-        <div class="listing-links">
-          ${canManageListing ? `<a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/">
-            Manage listing, photos &amp; menu →
-          </a>` : ''}
-          <a class="public-page-link" href="/venues/${encodeURIComponent(claim.venueSlug)}/">
-            View public page →
-          </a>
-          ${canManageListing ? `<a class="manage-link" href="/restaurant/reports/?venueId=${claim.venueId}">
-            Reports →
-          </a>` : ''}
-          ${claim.accessRole === 'owner' ? `<a class="manage-link" href="/restaurant/manage/${encodeURIComponent(claim.venueSlug)}/users/">
-            Managing users →
-          </a>` : ''}
-        </div>
-      ` : '';
+      const statusNote = claim.status === 'denied'
+        ? `Not verified: ${escapeHTML(claim.denialReason || 'no reason given.')} Try again below.`
+        : underManualReview
+          ? 'Under review — an admin will approve or deny this soon. You can also verify by phone below to skip the wait.'
+          : 'Verify this listing to finish claiming it.';
 
       return `
         <article class="claim-card" data-claim-id="${escapeHTML(claim.id)}" data-venue-id="${claim.venueId}">
           <div class="claim-card-head">
             <h3>${escapeHTML(claim.venueName || `Venue #${claim.venueId}`)}</h3>
-            <span class="pill ${escapeHTML(claim.status)}">${escapeHTML(
-              claim.status === 'verified' && claim.accessRole
-                ? claim.accessRole === 'owner' ? 'Owner' : claim.accessRole === 'full_admin' ? 'Full Admin' : 'Promotions Only'
-                : claim.status
-            )}</span>
+            <span class="pill ${escapeHTML(claim.status)}">${escapeHTML(claim.status)}</span>
           </div>
           <p class="status">${statusNote}</p>
-          ${listingLinks}
-          ${claim.status === 'verified' ? promotionCommandHTML(claim) : verificationOptionsHTML(claim)}
+          ${verificationOptionsHTML(claim)}
+        </article>
+      `;
+    }
+
+    function verifiedWorkspaceHTML(claim: DashboardClaim): string {
+      return `
+        <article
+          class="claim-card"
+          data-verified-workspace="true"
+          data-claim-id="${escapeHTML(claim.id)}"
+          data-venue-id="${claim.venueId}"
+        >
+          ${promotionCommandHTML(claim)}
         </article>
       `;
     }
@@ -608,15 +1009,36 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       document.getElementById('loading-panel')!.classList.add('hidden');
       document.getElementById('error-panel')!.classList.add('hidden');
       document.getElementById('dashboard')!.classList.remove('hidden');
-      document.getElementById('who')!.textContent = `Signed in as ${currentUser.email}`;
+
+      selectedVenueId = pickSelectedVenueId();
+      writeVenueIdToUrl(selectedVenueId);
+      const claim = selectedClaim();
+      syncMerchantShell(claim);
 
       const noClaimsEl = document.getElementById('no-claims')!;
+      const claimPanel = document.getElementById('claim-listing-panel')!;
+
       if (!claims.length) {
         claimsListEl.innerHTML = '';
         noClaimsEl.classList.remove('hidden');
+        claimPanel.classList.remove('hidden');
+        return;
+      }
+
+      noClaimsEl.classList.add('hidden');
+
+      if (claim && claim.status === 'verified') {
+        claimsListEl.innerHTML = verifiedWorkspaceHTML(claim);
+        claimPanel.classList.remove('hidden');
       } else {
-        noClaimsEl.classList.add('hidden');
-        claimsListEl.innerHTML = claims.map(claimCardHTML).join('');
+        const unverified = claims.filter((entry) => entry.status !== 'verified');
+        const selectedUnverified = claim && claim.status !== 'verified' ? [claim] : unverified;
+        claimsListEl.innerHTML = `
+          <div class="unverified-stack">
+            ${selectedUnverified.map(unverifiedClaimCardHTML).join('')}
+          </div>
+        `;
+        claimPanel.classList.remove('hidden');
       }
     }
 
@@ -638,10 +1060,8 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
             candidate.dataset.promotionAction === focusedAction &&
             (candidate.closest<HTMLElement>('[data-promotion-id]')?.dataset.promotionId || '') === focusedPromotionId
           );
-        const fallback = updated.querySelector<HTMLElement>(
-          '[data-promotion-action="create"]'
-        );
-        (matchingAction || fallback)?.focus();
+        const fallback = document.getElementById('shell-create-promotion');
+        (matchingAction || (fallback instanceof HTMLElement ? fallback : null))?.focus();
       }
     }
 
@@ -980,7 +1400,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
         stateAtOpen: promotion?.state || null,
       };
       const sourceAction = source.dataset.promotionAction;
-      const createActionSelector = `.claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="create"]`;
+      const createActionSelector = `#shell-create-promotion, .claim-card[data-venue-id="${claim.venueId}"] [data-promotion-action="create"]`;
       rememberFocus(
         source,
         promotion && sourceAction
@@ -1382,7 +1802,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       actionContext = { venueId, promotionId: promotion.id, action };
       rememberFocus(
         source,
-        `.claim-card[data-venue-id="${venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${action}"], .claim-card[data-venue-id="${venueId}"] [data-promotion-action="create"]`
+        `.claim-card[data-venue-id="${venueId}"] [data-promotion-id="${promotion.id}"] [data-promotion-action="${action}"], #shell-create-promotion`
       );
       const title = action === 'delete'
         ? 'Delete this draft?'
@@ -1482,11 +1902,40 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       const result = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-venue-id]');
       if (!result || result.disabled) return;
       try {
-        await postJson('/api/restaurant/claim', { venueId: Number(result.dataset.venueId) });
+        const claimedVenueId = Number(result.dataset.venueId);
+        await postJson('/api/restaurant/claim', { venueId: claimedVenueId });
+        selectedVenueId = claimedVenueId;
+        writeVenueIdToUrl(claimedVenueId);
         await loadEverything();
       } catch (error: any) {
         window.alert(error?.message || 'Could not claim that listing.');
       }
+    });
+
+    document.getElementById('shell-create-promotion')?.addEventListener('click', (event) => {
+      const claim = selectedClaim();
+      if (!claim || claim.status !== 'verified') return;
+      openPromotionEditor(event.currentTarget as HTMLElement, claim, 'create', null, 'now');
+    });
+
+    document.querySelector('[data-merchant-shell-switcher]')?.addEventListener('change', (event) => {
+      const value = Number((event.currentTarget as HTMLSelectElement).value);
+      if (!Number.isSafeInteger(value) || value <= 0) return;
+      selectedVenueId = value;
+      promoFilter = 'all';
+      writeVenueIdToUrl(value);
+      render();
+      const claim = claimForVenue(value);
+      if (claim?.status === 'verified') void loadPromotions(value);
+    });
+
+    claimsListEl.addEventListener('click', (event) => {
+      const filter = (event.target as HTMLElement).closest<HTMLElement>('[data-promo-filter]');
+      if (!filter) return;
+      const next = filter.dataset.promoFilter as PromoFilter | undefined;
+      if (!next || next === promoFilter) return;
+      promoFilter = next;
+      if (selectedVenueId != null) renderVenueCommand(selectedVenueId);
     });
 
     claimsListEl.addEventListener('click', async (event) => {

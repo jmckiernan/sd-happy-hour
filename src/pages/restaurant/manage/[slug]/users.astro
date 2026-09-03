@@ -1,57 +1,48 @@
 ---
 export const prerender = true;
 import Layout from '../../../../layouts/Layout.astro';
+import MerchantShell from '../../../../components/MerchantShell.astro';
 import { getVenues, venueSlug } from '../../../../lib/venues';
 
 export function getStaticPaths() {
   return getVenues().map((venue) => ({ params: { slug: venueSlug(venue) }, props: { venue } }));
 }
 const { venue } = Astro.props;
+const slug = venueSlug(venue);
+const publicHref = `/venues/${encodeURIComponent(slug)}/`;
 ---
 <Layout title={`Managing Users — ${venue.name} | Happy Hour SD`} description="Manage restaurant dashboard access.">
   <style is:global>
-    .mu-wrap {
-      margin: 0 auto;
-      max-width: 920px;
-      padding: 38px 24px 88px;
-    }
-    .mu-back {
-      color: var(--night-soft);
-      display: inline-flex;
-      font-size: .9rem;
-      font-weight: 750;
-      margin-bottom: 24px;
-      text-decoration: none;
-    }
-    .mu-back:hover { color: var(--night); }
-    .mu-wrap h1 {
+    .mu-page { margin: 0 auto; padding: 28px 24px 0; }
+    .mu-intro { margin-bottom: 18px; }
+    .mu-intro h2 {
+      color: var(--night);
       font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 2.6rem);
-      line-height: 1.05;
-      margin: 0 0 12px;
+      font-size: 1.35rem;
+      margin: 0 0 6px;
     }
     .mu-sub {
       color: var(--night-soft);
       line-height: 1.55;
-      margin: 0 0 30px;
+      margin: 0;
     }
     .mu-panel {
-      background: rgba(255, 255, 255, .96);
-      border: 1px solid rgba(214, 197, 166, .45);
-      border-radius: 24px;
-      box-shadow: 0 12px 34px rgba(20, 27, 37, .07);
-      margin-bottom: 22px;
-      padding: 28px;
+      background: var(--sand-warm);
+      border: 1px solid rgba(32, 18, 56, .06);
+      border-radius: 16px;
+      margin-bottom: 18px;
+      padding: 22px;
     }
     .mu-panel h2 {
-      font-size: 1.25rem;
+      color: var(--night);
+      font-size: 1.15rem;
       line-height: 1.25;
-      margin: 0 0 10px;
+      margin: 0 0 8px;
     }
     .mu-hint,
     .mu-status {
       color: var(--night-soft);
-      font-size: .9rem;
+      font-size: .88rem;
       line-height: 1.55;
     }
     .mu-hint { margin: 0; max-width: 720px; }
@@ -63,14 +54,13 @@ const { venue } = Astro.props;
       display: grid;
       gap: 12px;
       grid-template-columns: minmax(0, 1fr) 210px;
-      margin-top: 20px;
+      margin-top: 18px;
     }
-    .mu-wrap input,
-    .mu-wrap select {
+    .mu-workspace input,
+    .mu-workspace select {
       background-color: #fff;
-      border: 1px solid #d8c8ae;
+      border: 2px solid transparent;
       border-radius: 12px;
-      box-shadow: 0 1px 2px rgba(20, 27, 37, .04);
       color: var(--night);
       font: inherit;
       min-height: 48px;
@@ -78,21 +68,19 @@ const { venue } = Astro.props;
       transition: border-color .18s ease, box-shadow .18s ease;
       width: 100%;
     }
-    .mu-wrap select {
+    .mu-workspace select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23141b25' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23201238' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
       background-position: right 14px center;
       background-repeat: no-repeat;
       background-size: 16px;
       cursor: pointer;
       padding-right: 42px;
     }
-    .mu-wrap input:hover,
-    .mu-wrap select:hover { border-color: #bfa77f; }
-    .mu-wrap input:focus,
-    .mu-wrap select:focus {
-      border-color: #d97706;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, .14);
+    .mu-workspace input:focus,
+    .mu-workspace select:focus {
+      border-color: var(--sunset-start);
+      box-shadow: 0 0 0 4px rgba(255,107,53,.12);
       outline: 0;
     }
     .mu-results,
@@ -105,15 +93,14 @@ const { venue } = Astro.props;
     .mu-person {
       align-items: center;
       background: #fff;
-      border: 1px solid #e3d8c6;
-      border-radius: 16px;
+      border: 1px solid rgba(32, 18, 56, .08);
+      border-radius: 14px;
       display: flex;
       gap: 20px;
       justify-content: space-between;
       min-height: 76px;
       padding: 16px 18px;
     }
-    .mu-result { background: #faf8f4; }
     .mu-person-copy {
       display: grid;
       gap: 5px;
@@ -151,38 +138,37 @@ const { venue } = Astro.props;
     .mu-btn {
       align-items: center;
       background: var(--night);
-      border: 1px solid var(--night);
+      border: 2px solid var(--night);
       border-radius: 100px;
       color: #fff;
       cursor: pointer;
       display: inline-flex;
       font: inherit;
       font-size: .86rem;
-      font-weight: 760;
+      font-weight: 800;
       justify-content: center;
       min-height: 42px;
       padding: 9px 18px;
-      transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease, transform .18s ease;
+      transition: background-color .18s ease, border-color .18s ease, color .18s ease;
     }
     .mu-btn:hover {
-      box-shadow: 0 5px 13px rgba(20, 27, 37, .14);
-      transform: translateY(-1px);
+      background: var(--sunset-start);
+      border-color: var(--sunset-start);
     }
     .mu-btn:focus-visible {
-      outline: 3px solid rgba(249, 115, 22, .3);
+      outline: 3px solid var(--sunset-start);
       outline-offset: 2px;
     }
-    .mu-btn:active { box-shadow: none; transform: translateY(0); }
-    .mu-btn:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+    .mu-btn:disabled { cursor: not-allowed; opacity: .55; }
     .mu-owner {
-      background: #fffaf2;
-      border-color: #f0c98d;
+      background: rgba(8, 145, 178, .08);
+      border-color: rgba(8, 145, 178, .2);
     }
     .mu-role-badge {
-      background: #ffedd5;
-      border: 1px solid #fdba74;
+      background: rgba(8, 145, 178, .14);
+      border: 1px solid rgba(8, 145, 178, .28);
       border-radius: 100px;
-      color: #9a3412;
+      color: var(--ocean-deep);
       flex: 0 0 auto;
       font-size: .78rem;
       font-weight: 800;
@@ -193,15 +179,14 @@ const { venue } = Astro.props;
     .mu-empty { color: var(--night-soft); font-size: .9rem; margin: 0; }
     .mu-actions button[data-action="resend"],
     .mu-actions button[data-action="remove"] {
-      box-shadow: 0 2px 7px rgba(20, 27, 37, .08);
       gap: 7px;
       letter-spacing: .01em;
       min-width: 94px;
     }
     .mu-actions button[data-action="resend"] {
-      background: #fff7ed;
-      border-color: #fdba74;
-      color: #9a3412;
+      background: #fff;
+      border-color: rgba(32, 18, 56, .16);
+      color: var(--night);
     }
     .mu-actions button[data-action="resend"]::before {
       content: "↻";
@@ -219,21 +204,18 @@ const { venue } = Astro.props;
       line-height: .8;
     }
     .mu-actions button[data-action="resend"]:hover {
-      background: #ffedd5;
-      border-color: #fb923c;
-      box-shadow: 0 5px 13px rgba(154, 52, 18, .14);
-      transform: translateY(-1px);
+      background: var(--sand-warm);
+      border-color: var(--sand-warm);
+      color: var(--night);
     }
     .mu-actions button[data-action="remove"]:hover {
       background: #fef2f2;
       border-color: #f87171;
-      box-shadow: 0 5px 13px rgba(185, 28, 28, .12);
-      transform: translateY(-1px);
     }
     [hidden] { display: none !important; }
     @media (max-width: 720px) {
-      .mu-wrap { padding: 28px 16px 64px; }
-      .mu-panel { border-radius: 20px; padding: 22px 18px; }
+      .mu-page { padding: 20px 14px 0; }
+      .mu-panel { padding: 18px 16px; }
       .mu-search-row { grid-template-columns: 1fr; }
       .mu-result,
       .mu-person { align-items: stretch; display: grid; gap: 14px; }
@@ -252,34 +234,47 @@ const { venue } = Astro.props;
     }
   </style>
 
-  <main class="mu-wrap" data-venue-id={venue.id} data-venue-name={venue.name}>
-    <a class="mu-back" href="/restaurant/">← Restaurant dashboard</a>
-    <h1>Managing Users</h1>
-    <p class="mu-sub">{venue.name} · Only the owner can add, remove, or change managing users.</p>
+  <div class="mu-page">
+    <MerchantShell
+      activeTab="team"
+      venueName={venue.name}
+      venueSlug={slug}
+      venueId={venue.id}
+      role="owner"
+      verified={true}
+      publicHref={publicHref}
+    >
+      <div class="mu-workspace" data-venue-id={venue.id} data-venue-name={venue.name} data-venue-slug={slug}>
+        <header class="mu-intro">
+          <h2>Team</h2>
+          <p class="mu-sub">Only the owner can add, remove, or change managing users.</p>
+        </header>
 
-    <section class="mu-panel" aria-labelledby="mu-add-title">
-      <h2 id="mu-add-title">Add a managing user</h2>
-      <p class="mu-hint">Search by at least three letters of a name, or enter a complete email address. If the email has no account yet, an invitation will be sent.</p>
-      <div class="mu-search-row">
-        <input id="mu-search" type="search" placeholder="Name or complete email" autocomplete="off" aria-label="Search users">
-        <select id="mu-new-role" aria-label="Access level">
-          <option value="full_admin">Full Admin</option>
-          <option value="promotions">Promotions Only</option>
-        </select>
+        <section class="mu-panel" aria-labelledby="mu-add-title">
+          <h2 id="mu-add-title">Add a managing user</h2>
+          <p class="mu-hint">Search by at least three letters of a name, or enter a complete email address. If the email has no account yet, an invitation will be sent.</p>
+          <div class="mu-search-row">
+            <input id="mu-search" type="search" placeholder="Name or complete email" autocomplete="off" aria-label="Search users">
+            <select id="mu-new-role" aria-label="Access level">
+              <option value="full_admin">Full Admin</option>
+              <option value="promotions">Promotions Only</option>
+            </select>
+          </div>
+          <div class="mu-results" id="mu-results"></div>
+          <div class="mu-status" id="mu-add-status" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="mu-panel" aria-labelledby="mu-current-title">
+          <h2 id="mu-current-title">Current access</h2>
+          <div class="mu-list" id="mu-current"><p class="mu-empty">Loading managing users…</p></div>
+          <div class="mu-status" id="mu-list-status" role="status" aria-live="polite"></div>
+        </section>
       </div>
-      <div class="mu-results" id="mu-results"></div>
-      <div class="mu-status" id="mu-add-status" role="status" aria-live="polite"></div>
-    </section>
-
-    <section class="mu-panel" aria-labelledby="mu-current-title">
-      <h2 id="mu-current-title">Current access</h2>
-      <div class="mu-list" id="mu-current"><p class="mu-empty">Loading managing users…</p></div>
-      <div class="mu-status" id="mu-list-status" role="status" aria-live="polite"></div>
-    </section>
-  </main>
+    </MerchantShell>
+  </div>
 
   <script>
-    const root = document.querySelector<HTMLElement>('.mu-wrap')!;
+    const root = document.querySelector<HTMLElement>('.mu-workspace')!;
     const venueId = Number(root.dataset.venueId);
     const search = document.getElementById('mu-search') as HTMLInputElement;
     const newRole = document.getElementById('mu-new-role') as HTMLSelectElement;
@@ -309,6 +304,86 @@ const { venue } = Astro.props;
     function roleOptions(selected: string) {
       return `<option value="full_admin"${selected === 'full_admin' ? ' selected' : ''}>Full Admin</option><option value="promotions"${selected === 'promotions' ? ' selected' : ''}>Promotions Only</option>`;
     }
+
+    function syncMerchantShell(claims: Array<{
+      venueId: number;
+      venueName?: string | null;
+      venueSlug?: string | null;
+      accessRole?: string;
+      status?: string;
+    }>, email: string): void {
+      const shell = document.querySelector<HTMLElement>('[data-merchant-shell]');
+      if (!shell) return;
+      const claim = claims.find((entry) => entry.venueId === venueId) || null;
+      const emailEl = shell.querySelector('[data-merchant-shell-email]');
+      const roleEl = shell.querySelector('[data-merchant-shell-role]');
+      const roleSep = shell.querySelector<HTMLElement>('[data-merchant-shell-role-sep]');
+      const switcher = shell.querySelector<HTMLSelectElement>('[data-merchant-shell-switcher]');
+      const tabsEl = shell.querySelector<HTMLElement>('[data-merchant-shell-tabs]');
+
+      if (emailEl) emailEl.textContent = email;
+      const roleText = claim?.accessRole === 'owner' ? 'Owner'
+        : claim?.accessRole === 'full_admin' ? 'Full Admin'
+        : claim?.accessRole === 'promotions' ? 'Promotions'
+        : 'Owner';
+      if (roleEl) roleEl.textContent = roleText;
+      if (roleSep) roleSep.hidden = !(roleText && email);
+
+      const ownerClaims = claims.filter((entry) => entry.status === 'verified' && entry.accessRole === 'owner' && entry.venueSlug);
+      if (switcher) {
+        if (ownerClaims.length > 1) {
+          switcher.hidden = false;
+          switcher.innerHTML = ownerClaims.map((entry) => `
+            <option value="${entry.venueId}" data-slug="${escapeHTML(entry.venueSlug || '')}" ${entry.venueId === venueId ? 'selected' : ''}>
+              ${escapeHTML(entry.venueName || `Venue #${entry.venueId}`)}
+            </option>
+          `).join('');
+        } else {
+          switcher.hidden = true;
+          switcher.innerHTML = '';
+        }
+      }
+
+      if (tabsEl) tabsEl.hidden = false;
+      const active = claim || { venueId, venueSlug: root.dataset.venueSlug || '', venueName: root.dataset.venueName || '' };
+      const id = String(active.venueId);
+      const slug = active.venueSlug ? encodeURIComponent(active.venueSlug) : '';
+      for (const tab of shell.querySelectorAll<HTMLAnchorElement>('[data-merchant-shell-tab]')) {
+        const tabId = tab.dataset.merchantShellTab || '';
+        let href = '#';
+        if (tabId === 'promotions') href = `/restaurant/?venueId=${id}`;
+        else if (tabId === 'listing') href = slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+        else if (tabId === 'photos') href = slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+        else if (tabId === 'menu') href = slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+        else if (tabId === 'audience') href = `/restaurant/audience/?venueId=${id}`;
+        else if (tabId === 'reports') href = `/restaurant/reports/?venueId=${id}`;
+        else if (tabId === 'billing') href = `/restaurant/billing/?venueId=${id}`;
+        else if (tabId === 'team') href = slug ? `/restaurant/manage/${slug}/users/` : '#';
+        tab.href = href;
+      }
+    }
+
+    async function hydrateShell() {
+      try {
+        const [me, claimsData] = await Promise.all([
+          api('/api/account/me'),
+          api('/api/restaurant/claims'),
+        ]);
+        const email = me.authenticated ? (me.user?.email || '') : '';
+        syncMerchantShell(claimsData.claims || [], email);
+      } catch {
+        /* Team page still works; shell meta is best-effort. */
+      }
+    }
+
+    document.querySelector('[data-merchant-shell-switcher]')?.addEventListener('change', (event) => {
+      const select = event.currentTarget as HTMLSelectElement;
+      const option = select.selectedOptions[0];
+      const nextSlug = option?.dataset.slug;
+      if (!nextSlug) return;
+      window.location.assign(`/restaurant/manage/${encodeURIComponent(nextSlug)}/users/`);
+    });
+
     async function load() {
       try {
         const data = await api(`/api/restaurant/venues/${venueId}/managers`);
@@ -382,6 +457,7 @@ const { venue } = Astro.props;
         await load();
       } catch (error: any) { setStatus(listStatus, error.message, 'error'); }
     });
+    void hydrateShell();
     void load();
   </script>
 </Layout>

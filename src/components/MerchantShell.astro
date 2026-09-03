@@ -1,0 +1,431 @@
+---
+/**
+ * MerchantShell — shared venue workspace chrome for owner pages.
+ *
+ * Sit inside existing `Layout.astro` (keep site backdrop/nav/footer). This is a
+ * wide white workspace card (`max-width: 1240px`), not a separate full-page layout.
+ *
+ * Props
+ * - `activeTab` — which tab is current: promotions | listing | photos | menu |
+ *   audience | reports | billing | team
+ * - `venueName` / `venueSlug` / `venueId` — selected venue identity
+ * - `email` — signed-in owner email shown under the venue name
+ * - `role` — owner | full_admin | promotions (drives tab gating)
+ * - `verified` — show green verified check when true
+ * - `publicHref` — Public page link; omit/null hides the button
+ * - `venues` — switcher options `{ id, name, slug? }[]` (2+ shows switcher)
+ * - `primaryCtaLabel` / `primaryCtaHref` — optional header CTA (button or link)
+ * - `hideTabs` — force-hide the tab row (claim/onboarding flows)
+ *
+ * Slots
+ * - default — page body
+ * - `primary-cta` — replaces primaryCtaLabel/Href when provided
+ *
+ * Role gating
+ * - promotions → Promotions only
+ * - full_admin → all except Team
+ * - owner → all tabs
+ *
+ * Client pages may update `[data-merchant-shell-*]` nodes after claims load.
+ */
+export type MerchantShellTab =
+  | 'promotions'
+  | 'listing'
+  | 'photos'
+  | 'menu'
+  | 'audience'
+  | 'reports'
+  | 'billing'
+  | 'team';
+
+export type MerchantShellRole = 'owner' | 'full_admin' | 'promotions';
+
+export interface MerchantShellVenueOption {
+  id: number;
+  name: string;
+  slug?: string | null;
+}
+
+interface Props {
+  activeTab: MerchantShellTab;
+  venueName?: string | null;
+  venueSlug?: string | null;
+  venueId?: number | null;
+  email?: string | null;
+  role?: MerchantShellRole | null;
+  verified?: boolean;
+  publicHref?: string | null;
+  venues?: MerchantShellVenueOption[];
+  primaryCtaLabel?: string | null;
+  primaryCtaHref?: string | null;
+  hideTabs?: boolean;
+}
+
+const {
+  activeTab,
+  venueName = null,
+  venueSlug = null,
+  venueId = null,
+  email = null,
+  role = null,
+  verified = false,
+  publicHref = null,
+  venues = [],
+  primaryCtaLabel = null,
+  primaryCtaHref = null,
+  hideTabs = false,
+} = Astro.props;
+
+const displayName = venueName?.trim() || 'Your venue';
+const roleLabel =
+  role === 'owner' ? 'Owner' : role === 'full_admin' ? 'Full Admin' : role === 'promotions' ? 'Promotions' : null;
+
+function canSeeTab(tab: MerchantShellTab): boolean {
+  if (!role) return tab === 'promotions';
+  if (role === 'promotions') return tab === 'promotions';
+  if (role === 'full_admin') return tab !== 'team';
+  return true;
+}
+
+function tabHref(tab: MerchantShellTab): string {
+  const id = venueId != null ? String(venueId) : '';
+  const slug = venueSlug ? encodeURIComponent(venueSlug) : '';
+  switch (tab) {
+    case 'promotions':
+      return id ? `/restaurant/?venueId=${id}` : '/restaurant/';
+    case 'listing':
+      return slug ? `/restaurant/manage/${slug}/?tab=listing` : '#';
+    case 'photos':
+      return slug ? `/restaurant/manage/${slug}/?tab=photos` : '#';
+    case 'menu':
+      return slug ? `/restaurant/manage/${slug}/?tab=menu` : '#';
+    case 'audience':
+      return id ? `/restaurant/audience/?venueId=${id}` : '/restaurant/audience/';
+    case 'reports':
+      return id ? `/restaurant/reports/?venueId=${id}` : '/restaurant/reports/';
+    case 'billing':
+      return id ? `/restaurant/billing/?venueId=${id}` : '/restaurant/billing/';
+    case 'team':
+      return slug ? `/restaurant/manage/${slug}/users/` : '#';
+  }
+}
+
+const tabs: { id: MerchantShellTab; label: string }[] = [
+  { id: 'promotions', label: 'Promotions' },
+  { id: 'listing', label: 'Listing' },
+  { id: 'photos', label: 'Photos' },
+  { id: 'menu', label: 'Menu' },
+  { id: 'audience', label: 'Audience' },
+  { id: 'reports', label: 'Reports' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'team', label: 'Team' },
+];
+
+const showSwitcher = venues.length > 1;
+const showTabs = !hideTabs && Boolean(role || venueId);
+---
+
+<style is:global>
+  .merchant-shell {
+    background: white;
+    border: 1px solid rgba(32, 18, 56, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 14px 40px rgba(32, 18, 56, 0.07);
+    margin: 0 auto 80px;
+    max-width: 1240px;
+    padding: 22px 24px 28px;
+    width: 100%;
+  }
+
+  .merchant-shell-header {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .merchant-shell-identity {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .merchant-shell-mark {
+    align-items: center;
+    background: rgba(8, 145, 178, 0.14);
+    border-radius: 12px;
+    color: var(--ocean-deep);
+    display: inline-flex;
+    flex: 0 0 44px;
+    font-size: 1.25rem;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
+  }
+
+  .merchant-shell-identity-copy { min-width: 0; }
+  .merchant-shell-title-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .merchant-shell-venue-name {
+    color: var(--night);
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .merchant-shell-verified {
+    align-items: center;
+    background: #16A34A;
+    border-radius: 999px;
+    color: white;
+    display: inline-flex;
+    flex: 0 0 20px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    height: 20px;
+    justify-content: center;
+    line-height: 1;
+    width: 20px;
+  }
+  .merchant-shell-verified[hidden] { display: none !important; }
+
+  .merchant-shell-meta {
+    color: var(--night-soft);
+    font-size: 0.84rem;
+    margin: 4px 0 0;
+  }
+  .merchant-shell-meta [data-merchant-shell-email]:empty,
+  .merchant-shell-meta [data-merchant-shell-role]:empty { display: none; }
+
+  .merchant-shell-switcher {
+    appearance: none;
+    background: var(--sand-warm);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    color: var(--night);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 750;
+    margin-top: 8px;
+    max-width: 100%;
+    min-height: 40px;
+    padding: 8px 34px 8px 12px;
+  }
+  .merchant-shell-switcher:focus {
+    border-color: var(--sunset-start);
+    outline: none;
+  }
+  .merchant-shell-switcher[hidden] { display: none !important; }
+
+  .merchant-shell-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .merchant-shell-btn {
+    align-items: center;
+    background: var(--night);
+    border: 2px solid var(--night);
+    border-radius: 100px;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    gap: 7px;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    text-decoration: none;
+  }
+  .merchant-shell-btn:hover { background: var(--sunset-start); border-color: var(--sunset-start); }
+  .merchant-shell-btn--secondary {
+    background: white;
+    border-color: rgba(32, 18, 56, 0.16);
+    color: var(--night);
+  }
+  .merchant-shell-btn--secondary:hover {
+    background: var(--sand-warm);
+    border-color: var(--sand-warm);
+    color: var(--night);
+  }
+  .merchant-shell-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .merchant-shell-btn[hidden] { display: none !important; }
+  .merchant-shell-btn:focus-visible {
+    outline: 3px solid var(--sunset-start);
+    outline-offset: 2px;
+  }
+
+  .merchant-shell-tabs {
+    border-bottom: 1px solid rgba(32, 18, 56, 0.1);
+    display: flex;
+    gap: 4px;
+    margin: 18px 0 0;
+    overflow-x: auto;
+    padding-bottom: 0;
+  }
+  .merchant-shell-tabs[hidden] { display: none !important; }
+
+  .merchant-shell-tab {
+    color: var(--night-soft);
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+    font-weight: 650;
+    padding: 12px 14px 14px;
+    position: relative;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .merchant-shell-tab:hover { color: var(--night); }
+  .merchant-shell-tab.is-active {
+    color: var(--night);
+    font-weight: 850;
+  }
+  .merchant-shell-tab.is-active::after {
+    background: var(--night);
+    bottom: 0;
+    content: '';
+    height: 3px;
+    left: 10px;
+    position: absolute;
+    right: 10px;
+    border-radius: 3px 3px 0 0;
+  }
+  .merchant-shell-tab[hidden] { display: none !important; }
+  .merchant-shell-tab[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .merchant-shell-body {
+    margin-top: 22px;
+  }
+
+  @media (max-width: 700px) {
+    .merchant-shell { padding: 16px 14px 22px; }
+    .merchant-shell-header { align-items: stretch; flex-direction: column; }
+    .merchant-shell-actions { justify-content: stretch; }
+    .merchant-shell-actions .merchant-shell-btn { flex: 1 1 auto; }
+    .merchant-shell-venue-name { white-space: normal; }
+  }
+</style>
+
+<section
+  class="merchant-shell"
+  data-merchant-shell
+  data-venue-id={venueId ?? undefined}
+  data-active-tab={activeTab}
+>
+  <header class="merchant-shell-header">
+    <div class="merchant-shell-identity">
+      <span class="merchant-shell-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 4h14l-7 8v5h3v2H9v-2h3v-5L5 4z" fill="currentColor"/>
+          <path d="M4.5 4h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div class="merchant-shell-identity-copy">
+        <div class="merchant-shell-title-row">
+          <h1 class="merchant-shell-venue-name" data-merchant-shell-venue-name>{displayName}</h1>
+          <span
+            class="merchant-shell-verified"
+            data-merchant-shell-verified
+            title="Verified"
+            hidden={!verified}
+          >✓</span>
+        </div>
+        <p class="merchant-shell-meta">
+          <span data-merchant-shell-role>{roleLabel || ''}</span>
+          <span data-merchant-shell-role-sep hidden={!roleLabel || !email}> · </span>
+          <span data-merchant-shell-email>{email || ''}</span>
+        </p>
+        <label class="hidden" for="merchant-shell-venue-switcher">Switch venue</label>
+        <select
+          id="merchant-shell-venue-switcher"
+          class="merchant-shell-switcher"
+          data-merchant-shell-switcher
+          hidden={!showSwitcher}
+        >
+          {venues.map((venue) => (
+            <option value={venue.id} selected={venue.id === venueId}>
+              {venue.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div class="merchant-shell-actions" data-merchant-shell-actions>
+      <a
+        class="merchant-shell-btn merchant-shell-btn--secondary"
+        data-merchant-shell-public
+        href={publicHref || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        hidden={!publicHref}
+      >
+        Public page
+        <span aria-hidden="true">↗</span>
+      </a>
+      <slot name="primary-cta">
+        {primaryCtaHref && primaryCtaLabel ? (
+          <a class="merchant-shell-btn" data-merchant-shell-primary-cta href={primaryCtaHref}>
+            {primaryCtaLabel}
+          </a>
+        ) : primaryCtaLabel ? (
+          <button class="merchant-shell-btn" type="button" data-merchant-shell-primary-cta>
+            {primaryCtaLabel}
+          </button>
+        ) : null}
+      </slot>
+    </div>
+  </header>
+
+  <nav class="merchant-shell-tabs" data-merchant-shell-tabs aria-label="Venue workspace" hidden={!showTabs}>
+    {tabs.map((tab) => {
+      const href = tabHref(tab.id);
+      const needsSlug = tab.id === 'listing' || tab.id === 'photos' || tab.id === 'menu' || tab.id === 'team';
+      const disabled = needsSlug && !venueSlug;
+      const visible = canSeeTab(tab.id);
+      return (
+        <a
+          class:list={['merchant-shell-tab', { 'is-active': activeTab === tab.id }]}
+          href={disabled ? '#' : href}
+          data-merchant-shell-tab={tab.id}
+          aria-current={activeTab === tab.id ? 'page' : undefined}
+          aria-disabled={disabled ? 'true' : undefined}
+          hidden={!visible}
+        >
+          {tab.label}
+        </a>
+      );
+    })}
+  </nav>
+
+  <div class="merchant-shell-body">
+    <slot />
+  </div>
+</section>

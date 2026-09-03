@@ -210,8 +210,9 @@ test('migration, protected route, ownership isolation, venue switcher, exports, 
   assert.match(migration, /venue_owner_user_id/);
   assert.match(migration, /visitor_id/);
   assert.match(migration, /visit_id/);
-  assert.match(page, /id="report-venue"/);
-  assert.match(page, /venueSelect\.addEventListener\('change'/);
+  assert.match(page, /data-merchant-shell-switcher/);
+  assert.match(page, /shellSwitcher\?\.addEventListener\('change'/);
+  assert.match(page, /See Audience/);
   assert.match(page, /format=pdf/);
   assert.match(reportRoute, /listMerchantReportVenues/);
   assert.match(reportRoute, /paid_required/);

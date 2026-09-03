@@ -33,6 +33,8 @@ test('postAuthReturnPath rejects account/sign-in self-loops and unwraps nested n
   );
   assert.equal(postAuthReturnPath('/account/?next=/account/'), null);
   assert.equal(postAuthReturnPath('/restaurant/reports/'), '/restaurant/reports/');
+  assert.equal(postAuthReturnPath('/restaurant/audience/'), '/restaurant/audience/');
+  assert.equal(postAuthReturnPath('/restaurant/billing/?venueId=42'), '/restaurant/billing/?venueId=42');
 });
 
 test('accountSignInHref encodes a safe next destination', () => {
@@ -43,6 +45,14 @@ test('accountSignInHref encodes a safe next destination', () => {
   assert.equal(
     accountSignInHref('/restaurant/reports/'),
     '/account/?next=%2Frestaurant%2Freports%2F',
+  );
+  assert.equal(
+    accountSignInHref('/restaurant/audience/?venueId=42'),
+    '/account/?next=%2Frestaurant%2Faudience%2F%3FvenueId%3D42',
+  );
+  assert.equal(
+    accountSignInHref('/restaurant/billing/'),
+    '/account/?next=%2Frestaurant%2Fbilling%2F',
   );
 });
 

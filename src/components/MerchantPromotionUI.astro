@@ -1,10 +1,7 @@
 <style is:global>
   .merchant-promotion-command {
-    border-top: 1px solid var(--sand-warm);
     display: grid;
-    gap: 18px;
-    margin-top: 18px;
-    padding-top: 18px;
+    gap: 4px;
   }
 
   .merchant-promotion-command [hidden],
@@ -55,7 +52,7 @@
   .merchant-promotion-button {
     align-items: center;
     background: var(--night);
-    border: 0;
+    border: 2px solid var(--night);
     border-radius: 100px;
     color: white;
     cursor: pointer;
@@ -69,11 +66,28 @@
     text-decoration: none;
   }
 
-  .merchant-promotion-button:hover { background: var(--sunset-start); }
-  .merchant-promotion-button.secondary { background: var(--sand-warm); color: var(--night); }
-  .merchant-promotion-button.secondary:hover { background: var(--sunset-end); }
-  .merchant-promotion-button.danger { background: #FEE2E2; color: #991B1B; }
-  .merchant-promotion-button.danger:hover { background: #FECACA; }
+  .merchant-promotion-button:hover {
+    background: var(--sunset-start);
+    border-color: var(--sunset-start);
+  }
+  .merchant-promotion-button.secondary {
+    background: white;
+    border-color: rgba(32, 18, 56, 0.16);
+    color: var(--night);
+  }
+  .merchant-promotion-button.secondary:hover {
+    background: var(--sand-warm);
+    border-color: var(--sand-warm);
+  }
+  .merchant-promotion-button.danger {
+    background: #FEE2E2;
+    border-color: #FEE2E2;
+    color: #991B1B;
+  }
+  .merchant-promotion-button.danger:hover {
+    background: #FECACA;
+    border-color: #FECACA;
+  }
   .merchant-promotion-button:disabled { cursor: not-allowed; opacity: 0.55; }
 
   .merchant-promotion-button:focus-visible,
@@ -144,9 +158,9 @@
 
   .merchant-promotion-dialog {
     background: white;
-    border: 0;
-    border-radius: 20px;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(32, 18, 56, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
     color: var(--night);
     max-height: calc(100dvh - 24px);
     max-width: 640px;
@@ -157,7 +171,7 @@
     margin: auto;
     position: fixed;
   }
-  .merchant-promotion-dialog::backdrop { background: rgba(17, 24, 39, 0.64); }
+  .merchant-promotion-dialog::backdrop { background: rgba(15, 23, 42, 0.58); }
   .merchant-dialog-surface {
     background: white;
     border-radius: inherit;
@@ -176,8 +190,8 @@
   .merchant-dialog-header p { color: var(--night-soft); font-size: 0.84rem; margin: 0; }
   .merchant-dialog-close {
     align-items: center;
-    background: var(--sand-warm);
-    border: 0;
+    background: white;
+    border: 2px solid rgba(32, 18, 56, 0.12);
     border-radius: 50%;
     color: var(--night);
     cursor: pointer;
@@ -188,6 +202,10 @@
     height: 44px;
     justify-content: center;
     padding: 0;
+  }
+  .merchant-dialog-close:hover {
+    background: var(--sand-warm);
+    border-color: var(--sand-warm);
   }
 
   .merchant-promotion-form { display: grid; gap: 15px; }
@@ -231,7 +249,10 @@
     padding: 10px 12px;
     text-transform: none !important;
   }
-  .merchant-choice:has(input:checked) { background: #FFF7ED; border-color: var(--sunset-start); }
+  .merchant-choice:has(input:checked) {
+    background: var(--sand);
+    border-color: var(--sunset-start);
+  }
   .merchant-choice:has(input:disabled) { cursor: not-allowed; opacity: 0.58; }
   .merchant-choice input { min-height: 20px; padding: 0; width: 20px; }
 
@@ -283,14 +304,20 @@
 
   .merchant-field-error { color: #B91C1C; font-size: 0.78rem; font-weight: 700; min-height: 0; }
   .merchant-preview {
-    background: linear-gradient(135deg, #FFF7ED, #FEF2F2);
-    border: 1px solid #FED7AA;
-    border-radius: var(--radius-sm);
+    background: var(--sand);
+    border: 1px solid rgba(32, 18, 56, 0.08);
+    border-radius: 14px;
     display: grid;
     gap: 6px;
     padding: 14px;
   }
-  .merchant-preview-label { color: #9A3412; font-size: 0.68rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+  .merchant-preview-label {
+    color: var(--ocean-deep);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
   .merchant-preview h3 { font-size: 1.05rem; margin: 0; }
   .merchant-preview p { color: var(--night-soft); font-size: 0.84rem; margin: 0; white-space: pre-wrap; }
   .merchant-preview-time { color: var(--night) !important; font-weight: 750; }
@@ -304,9 +331,9 @@
   .merchant-confirmation h2 { font-size: 1.4rem; margin: 0; }
   .merchant-confirmation-copy { color: var(--night-soft); margin: 0; }
   .merchant-confirmation-card {
-    background: #FFF7ED;
-    border: 1px solid #FDBA74;
-    border-radius: var(--radius-sm);
+    background: var(--sand);
+    border: 1px solid rgba(32, 18, 56, 0.08);
+    border-radius: 14px;
     display: grid;
     gap: 7px;
     padding: 16px;
