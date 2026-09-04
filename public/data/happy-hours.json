@@ -18740,18 +18740,20 @@
       "Tuesday",
       "Wednesday",
       "Thursday",
-      "Friday"
+      "Friday",
+      "Sunday"
     ],
     "startTime": "14:30",
-    "endTime": "18:30",
+    "endTime": "19:30",
     "deals": [
       "$3 oysters, tater tots, crab & corn fritters",
-      "$6 beverages"
+      "$6 beverages",
+      "$5 you call its"
     ],
     "website": "https://stksteakhouse.com/venues/san-diego/",
     "phone": "(619) 354-5988",
-    "verified": false,
-    "lastVerifiedAt": "2026-08-29",
+    "verified": true,
+    "lastVerifiedAt": "2026-09-04",
     "sourceUrl": "https://stksteakhouse.com/en-us/location/san-diego/menu?menu=Happy-Hour-Menu",
     "dealTypes": [
       "beer",
