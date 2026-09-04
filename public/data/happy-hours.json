@@ -104806,6 +104806,22 @@
       "startPrice": 10,
       "endPrice": 30,
       "currencyCode": "USD"
+    },
+    "imageCrop": {
+      "hero": {
+        "x": 93.9,
+        "y": 0
+      },
+      "card": {
+        "x": 100,
+        "y": 4.6,
+        "scale": 1.3
+      },
+      "tile": {
+        "x": 100,
+        "y": 0,
+        "scale": 1.3
+      }
     }
   },
   {
