@@ -61,10 +61,12 @@ const listId = Astro.params.id || '';
     .share-close { background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 1.2rem; line-height: 1; padding: 8px 10px; }
     .share-close:hover { background: #ead7bd; }
     .share-panel { display: grid; gap: 20px; }
-    .share-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+    .share-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; grid-template-rows: auto auto auto auto auto; }
     .share-box { background: var(--sand); border-radius: var(--radius-sm); padding: 16px; }
+    .share-box.collab-form { display: grid; grid-row: span 5; grid-template-rows: subgrid; }
     .share-box h3 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 5px; }
-    .share-box .collab-button { justify-self: start; width: auto; }
+    .share-box input[type="email"], .share-box select { box-sizing: border-box; min-height: 42px; }
+    .share-box .collab-button { justify-self: start; min-width: 10.5rem; padding-block: 9px; width: 10.5rem; }
     .access-person { min-width: 0; }
     .access-person strong, .access-person span { display: block; overflow: hidden; text-overflow: ellipsis; }
     .access-person span { color: var(--night-soft); font-size: .82rem; }
@@ -168,6 +170,7 @@ const listId = Astro.params.id || '';
               <div class="share-box collab-form">
                 <h3>Invite by link</h3>
                 <p class="collab-muted">Create a reusable secure link. You can copy it again below until it expires or you revoke it.</p>
+                <div class="share-field-spacer" aria-hidden="true"></div>
                 <label>Access
                   <select id="link-role"><option value="viewer">Can view</option><option value="editor">Can edit after joining</option></select>
                 </label>
