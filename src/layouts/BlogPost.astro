@@ -256,6 +256,7 @@ const breadcrumbs = [
           fetchpriority="high"
           decoding="async"
           data-fallback-src={heroFallback}
+          data-blog-hero
         />
       </div>
     </div>
@@ -313,8 +314,8 @@ const breadcrumbs = [
   )}
   </article>
 
-  <script>
-    const hero = document.querySelector<HTMLImageElement>('.post-hero img[data-fallback-src]');
+  <script define:vars={{ slug }}>
+    const hero = document.querySelector('.post-hero img[data-blog-hero]');
     if (hero) {
       const useFallback = () => {
         const fallback = hero.dataset.fallbackSrc;
@@ -323,6 +324,24 @@ const breadcrumbs = [
       };
       hero.addEventListener('error', useFallback, { once: true });
       if (hero.complete && hero.naturalWidth === 0) useFallback();
+
+      // Static HTML is baked at deploy time; overlay the featured image from
+      // GitHub so admin edits show up without waiting for a rebuild.
+      (async () => {
+        try {
+          const res = await fetch(`/api/blog-content/${encodeURIComponent(slug)}`, { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+          const nextSrc = data.heroImage;
+          if (!nextSrc) return;
+          const current = new URL(hero.src, window.location.origin);
+          const next = new URL(nextSrc, window.location.origin);
+          if (current.pathname !== next.pathname) hero.src = nextSrc;
+          if (data.heroFallback) hero.dataset.fallbackSrc = data.heroFallback;
+        } catch {
+          // Non-critical: the deploy-time image is still correct as of the last build.
+        }
+      })();
     }
   </script>
 

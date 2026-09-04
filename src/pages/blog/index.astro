@@ -166,6 +166,7 @@ const breadcrumbs = [
               loading="lazy"
               decoding="async"
               data-fallback-src={getPostImageFallback(post.data.heroImage, post.data.venues, 'card')}
+              data-blog-slug={post.id}
             />
           </div>
           <div class="post-card-body">
@@ -189,7 +190,7 @@ const breadcrumbs = [
     ))}
   </div>
   <script>
-    for (const image of document.querySelectorAll<HTMLImageElement>('img[data-fallback-src]')) {
+    for (const image of document.querySelectorAll('img[data-fallback-src]')) {
       const useFallback = () => {
         const fallback = image.dataset.fallbackSrc;
         if (!fallback || image.src.endsWith(fallback)) return;
@@ -198,5 +199,26 @@ const breadcrumbs = [
       image.addEventListener('error', useFallback, { once: true });
       if (image.complete && image.naturalWidth === 0) useFallback();
     }
+
+    // Card thumbnails are baked at deploy time; overlay from GitHub so image
+    // edits on live posts show up without waiting for a rebuild.
+    (async () => {
+      try {
+        const res = await fetch('/api/blog-content/', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const image of document.querySelectorAll('img[data-blog-slug]')) {
+          const slug = image.dataset.blogSlug;
+          const live = slug && data.posts?.[slug];
+          if (!live?.heroImage) continue;
+          const current = new URL(image.src, window.location.origin);
+          const next = new URL(live.heroImage, window.location.origin);
+          if (current.pathname !== next.pathname) image.src = live.heroImage;
+          if (live.heroFallback) image.dataset.fallbackSrc = live.heroFallback;
+        }
+      } catch {
+        // Non-critical: deploy-time thumbnails remain as of the last build.
+      }
+    })();
   </script>
 </Layout>
