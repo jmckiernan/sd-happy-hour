@@ -14593,6 +14593,20 @@
       "startPrice": 20,
       "endPrice": 30,
       "currencyCode": "USD"
+    },
+    "imageCrop": {
+      "hero": {
+        "x": 55.4,
+        "y": 0
+      },
+      "card": {
+        "x": 43.2,
+        "y": 52.1
+      },
+      "tile": {
+        "x": 45.2,
+        "y": 54
+      }
     }
   },
   {
@@ -51479,6 +51493,12 @@
       "wheelchairAccessibleEntrance": true,
       "wheelchairAccessibleRestroom": true,
       "wheelchairAccessibleSeating": true
+    },
+    "imageCrop": {
+      "hero": {
+        "x": 55.3,
+        "y": 66
+      }
     }
   },
   {
@@ -104786,6 +104806,22 @@
       "startPrice": 10,
       "endPrice": 30,
       "currencyCode": "USD"
+    },
+    "imageCrop": {
+      "hero": {
+        "x": 93.9,
+        "y": 0
+      },
+      "card": {
+        "x": 100,
+        "y": 4.6,
+        "scale": 1.3
+      },
+      "tile": {
+        "x": 100,
+        "y": 0,
+        "scale": 1.3
+      }
     }
   },
   {
