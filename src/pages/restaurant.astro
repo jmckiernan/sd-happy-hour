@@ -404,7 +404,8 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
       details: Record<string, unknown> | null;
 
       constructor(status: number, body: any) {
-        super(Array.isArray(body?.errors) ? body.errors.join(' ') : 'Something went wrong.');
+        const detail = Array.isArray(body?.errors) ? body.errors.join(' ') : '';
+        super(detail || `Request failed (${status}).`);
         this.name = 'MerchantApiError';
         this.status = status;
         this.code = typeof body?.code === 'string' ? body.code : '';

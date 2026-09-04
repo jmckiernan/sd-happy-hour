@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getVenueOverrides, listPublishedVenueIds, listVerifiedClaimedVenueIds } from '../../lib/store';
-import { LIVE_LISTING_FIELDS } from '../../lib/venueContent';
+import { getVenues } from '../../lib/venues';
+import { LIVE_LISTING_FIELDS, mergeVenue, resolveLiveFeaturedImage } from '../../lib/venueContent';
 
 export const prerender = false;
 
@@ -24,6 +25,10 @@ export const prerender = false;
 // this response gets spread straight over a venue object in the browser — a
 // stray key from an older patch shape would silently overwrite something it
 // shouldn't.
+//
+// Featured photos are resolved here — same as /api/venue-content — so a stale
+// override pointing at a deleted Blob cannot clobber a healthy catalog image on
+// homepage cards while the venue page quietly falls back.
 export const GET: APIRoute = async () => {
   const [overrides, publishedVenueIds, ownerVerifiedVenueIds] = await Promise.all([
     getVenueOverrides(),
@@ -31,12 +36,26 @@ export const GET: APIRoute = async () => {
     listVerifiedClaimedVenueIds(),
   ]);
 
+  const venuesById = new Map(getVenues().map((venue) => [venue.id, venue]));
   const payload: Record<string, Record<string, unknown>> = {};
+
   for (const [venueId, override] of Object.entries(overrides)) {
     const patch: Record<string, unknown> = {};
     for (const field of LIVE_LISTING_FIELDS) {
       if (field in override.patch) patch[field] = override.patch[field];
     }
+
+    const touchesImage =
+      Object.prototype.hasOwnProperty.call(override.patch, 'image') ||
+      Object.prototype.hasOwnProperty.call(override.patch, 'imageCrop');
+    const venue = venuesById.get(Number(venueId));
+    if (venue && touchesImage) {
+      const merged = mergeVenue(venue, override);
+      const featured = await resolveLiveFeaturedImage(venue, merged, override);
+      patch.image = featured.image;
+      patch.imageCrop = featured.imageCrop ?? null;
+    }
+
     payload[venueId] = patch;
   }
 

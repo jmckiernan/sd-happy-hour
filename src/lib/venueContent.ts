@@ -199,11 +199,14 @@ export async function resolveLiveFeaturedImage(
     return { image: mergedImage, imageCrop: merged.imageCrop };
   }
 
-  if (baseImage && baseImage !== mergedImage && (await isAvailable(baseImage))) {
+  if (baseImage && (await isAvailable(baseImage))) {
     return { image: baseImage, imageCrop: baseVenue.imageCrop };
   }
 
-  return { image: mergedImage, imageCrop: merged.imageCrop };
+  // Neither the override nor the catalog image is reachable — return empty so
+  // listing surfaces fall back to the vibe stock photo instead of retrying a
+  // broken /api/images/ URL on every card.
+  return { image: '', imageCrop: undefined };
 }
 
 /** Every venue with its owner's edits applied. Used by anything that reasons
