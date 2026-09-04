@@ -34,7 +34,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       scroll-margin-top: 90px;
     }
     .panel h2 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 4px; }
-    .panel .hint { color: var(--night-soft); font-size: 0.85rem; margin-bottom: 14px; }
+    .panel .hint { color: var(--night-soft); font-size: 0.85rem; line-height: 1.55; margin-bottom: 14px; }
+    .panel .hint-meta { font-size: 0.82rem; margin-bottom: 14px; margin-top: -6px; }
 
     .auth-layout {
       display: grid;
@@ -389,7 +390,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
         <div class="account-head">
           <div>
             <h2>Your lists</h2>
-            <p class="hint" id="list-count-hint" style="margin-bottom:0;">Three built-in lists plus up to seven custom lists.</p>
+            <p class="hint">Organize happy hour spots into lists you can share with friends. Open a list to add venues, invite collaborators, and turn on list alerts for new deals. Pick a default list so the Save button on venue pages knows where to put new spots.</p>
+            <p class="hint hint-meta" id="list-count-hint">Three built-in lists plus up to seven custom lists.</p>
           </div>
           <label class="default-list-control">Default quick-save list
             <select id="default-list-select" aria-label="Default quick-save list"></select>
@@ -412,15 +414,17 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
         <div class="account-head">
           <div>
             <h2>All Saved Spots</h2>
-            <p class="hint" style="margin-bottom:0;">Every venue from every list you can access, shown once.</p>
+            <p class="hint">Every venue you've saved across all your lists, shown once. Rate places, leave a public comment, move spots between lists, or add a private note that only appears on a specific list.</p>
           </div>
         </div>
         <div id="saved-grid" class="saved-grid"></div>
       </section>
 
       <section class="panel" id="section-alerts">
-        <h2>Create a new alert</h2>
-        <p class="hint">Leave any filter blank to match any value for that field.</p>
+        <h2>Alerts</h2>
+        <p class="hint">Get notified by email or text when happy hours match what you're looking for — neighborhood, day, time, deals, and more. Create an alert below, then turn it on or off anytime. Leave any filter blank to match all values for that field.</p>
+
+        <h2 style="margin-top:20px;">Create a new alert</h2>
         <form class="alert-form" id="create-form"></form>
 
         <div class="alerts-list-head" style="margin-top:24px;">
@@ -431,8 +435,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       </section>
 
       <section class="panel" id="section-preferences">
-        <h2>Text alert setup</h2>
-        <p class="hint">Add your phone and opt in once here. Then enable the Text channel on any alert above.</p>
+        <h2>Preferences</h2>
+        <p class="hint">Control how Happy Hour SD reaches you. Add your phone and opt in once for text alerts, then enable the Text channel on any alert above. You can also subscribe to the weekly email digest or help improve nearby results with optional location analytics.</p>
         <div class="sms-status" id="sms-status" aria-live="polite"></div>
         <form id="preferences-form">
           <label>Phone number (for text alerts) <input type="tel" name="phone" placeholder="(619) 555-0100" autocomplete="tel"></label>
@@ -466,6 +470,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
 
       <section class="panel" id="section-profile">
         <h2>Profile</h2>
+        <p class="hint">Update the name shown on shared lists and comments. If you signed up with email and password, you can change your password here too.</p>
         <form id="profile-form">
           <label>Name <input name="name" required></label>
           <label>Email <input name="email" disabled></label>
