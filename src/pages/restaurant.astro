@@ -304,6 +304,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
   <MerchantPromotionUI />
 
   <script>
+    import { appAlert } from '../lib/appDialog';
     import {
       createServerAnchoredClock,
       formatSanDiegoDateTime,
@@ -2037,7 +2038,7 @@ import MerchantPromotionUI from '../components/MerchantPromotionUI.astro';
           writeVenueIdToUrl(claimedVenueId);
           await loadEverything();
         } catch (error: any) {
-          window.alert(error?.message || 'Could not claim that listing.');
+          await appAlert(error?.message || 'Could not claim that listing.');
         }
       }, { signal });
 

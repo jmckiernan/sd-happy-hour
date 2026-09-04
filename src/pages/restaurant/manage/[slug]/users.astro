@@ -274,6 +274,7 @@ const publicHref = `/venues/${encodeURIComponent(slug)}/`;
   </div>
 
   <script>
+    import { appConfirm } from '../../../../lib/appDialog';
     import {
       MERCHANT_VENUE_CHANGE_EVENT,
       onMerchantPageLoad,
@@ -504,7 +505,7 @@ const publicHref = `/venues/${encodeURIComponent(slug)}/`;
           await add({ email: row.dataset.email || '', role: row.querySelector('select')?.value });
           return;
         }
-        if (!confirm(row.dataset.kind === 'invite' ? 'Revoke this invitation?' : 'Remove this managing user?')) return;
+        if (!(await appConfirm(row.dataset.kind === 'invite' ? 'Revoke this invitation?' : 'Remove this managing user?'))) return;
         try {
           await api(`/api/restaurant/venues/${venueId}/managers`, { method: 'DELETE', body: JSON.stringify({ id: row.dataset.id, kind: row.dataset.kind }) });
           setStatus(listStatus, row.dataset.kind === 'invite' ? 'Invitation revoked.' : 'Managing user removed.', 'ok');

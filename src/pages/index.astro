@@ -665,6 +665,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
+    import { appAlert, appConfirm, appPrompt } from '../lib/appDialog';
     import {
       deriveConsumerPromotionState,
       type ConsumerPromotionState,
@@ -942,7 +943,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       }
     }
 
-    document.getElementById('location-btn')!.addEventListener('click', () => {
+    document.getElementById('location-btn')!.addEventListener('click', async () => {
       const btn = document.getElementById('location-btn')!;
       const text = document.getElementById('location-text')!;
 
@@ -957,7 +958,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       let shareApproximateArea = localStorage.getItem('sdhh_area_analytics_consent') === 'v1';
       if (localStorage.getItem('sdhh_area_analytics_consent') === null) {
-        shareApproximateArea = window.confirm(
+        shareApproximateArea = await appConfirm(
           'Use your approximate market area to improve nearby results and anonymous audience insights? Exact coordinates are never stored.'
         );
         localStorage.setItem('sdhh_area_analytics_consent', shareApproximateArea ? 'v1' : 'no');
@@ -984,9 +985,9 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
             }
           }
         },
-        () => {
+        async () => {
           text.textContent = 'Near me';
-          alert('Could not get your location. Please enable location services.');
+          await appAlert('Could not get your location. Please enable location services.');
         }
       );
     });
@@ -1166,7 +1167,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       picker.setAttribute('aria-busy', 'true');
       try {
         if (listId === '__create') {
-          const title = window.prompt('Name your new list');
+          const title = await appPrompt('Name your new list');
           if (!title?.trim()) return;
           if (actionStatus) {
             actionStatus.classList.add('is-loading');
@@ -2134,7 +2135,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
       try {
         if (listId === '__create') {
-          const title = window.prompt('Name your new list');
+          const title = await appPrompt('Name your new list');
           if (!title?.trim()) return;
           if (actionStatus) {
             actionStatus.classList.add('is-loading');

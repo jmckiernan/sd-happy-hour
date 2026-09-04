@@ -433,6 +433,7 @@ const isLive = Boolean(draft && !draft.data.draft);
   )}
 
   <script>
+    import { appConfirm } from '../../../lib/appDialog';
     const msgEl = document.getElementById('preview-msg');
     const previewActions = document.querySelector('.preview-actions');
     const editBtn = document.getElementById('edit-btn') as HTMLButtonElement | null;
@@ -749,7 +750,7 @@ const isLive = Boolean(draft && !draft.data.draft);
       }
     }
 
-    previewActions?.addEventListener('click', (event) => {
+    previewActions?.addEventListener('click', async (event) => {
       const button = (event.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
       if (!button) return;
       const action = button.dataset.action as 'publish' | 'unpublish' | 'delete';
@@ -757,7 +758,7 @@ const isLive = Boolean(draft && !draft.data.draft);
       if (!slug) return;
 
       const confirmMsg = CONFIRM_MESSAGES[action];
-      if (confirmMsg && !confirm(confirmMsg)) return;
+      if (confirmMsg && !(await appConfirm(confirmMsg))) return;
       callApi(action, slug);
     });
 

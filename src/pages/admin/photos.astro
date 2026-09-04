@@ -89,6 +89,7 @@ import AdminNav from '../../components/AdminNav.astro';
   </main>
 
   <script>
+    import { appConfirm, appPrompt } from '../../lib/appDialog';
     import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
     const statusEl = document.getElementById('status')!;
     const queueEl = document.getElementById('queue')!;
@@ -178,8 +179,8 @@ import AdminNav from '../../components/AdminNav.astro';
       // Rejecting tells the owner something; the reason is optional but it's
       // the only feedback they get, so it's prompted for rather than skipped.
       let note = '';
-      if (action === 'reject') note = prompt('Reason (shown to the restaurant):') || '';
-      if (action === 'delete' && !confirm('Delete this photo from the album entirely?')) return;
+      if (action === 'reject') note = (await appPrompt('Reason (shown to the restaurant):')) || '';
+      if (action === 'delete' && !(await appConfirm('Delete this photo from the album entirely?'))) return;
 
       row.querySelectorAll('button').forEach((el) => ((el as HTMLButtonElement).disabled = true));
       try {

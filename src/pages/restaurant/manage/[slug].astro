@@ -210,6 +210,7 @@ const venueImageUrl = getListingImage(venue, 'card');
   </MerchantShell>
 
   <script>
+    import { appConfirm } from '../../../lib/appDialog';
     import { listingFormHTML, readListingForm, wireListingPhotoPicker } from '../../../lib/listingForm';
     import {
       MERCHANT_TAB_EVENT,
@@ -683,7 +684,7 @@ const venueImageUrl = getListingImage(venue, 'card');
         }
 
         if (button.dataset.action === 'delete-photo') {
-          if (!confirm('Delete this photo?')) return;
+          if (!(await appConfirm('Delete this photo?'))) return;
           setStatus(statusEl, 'Deleting...');
           try {
             await api(`/api/restaurant/photos/${photoId}`, { method: 'DELETE' });
@@ -1020,7 +1021,7 @@ const venueImageUrl = getListingImage(venue, 'card');
         }
 
         if (button.dataset.action === 'delete-section') {
-          if (!confirm('Delete this section and everything in it?')) return;
+          if (!(await appConfirm('Delete this section and everything in it?'))) return;
           try {
             await menuAction({ action: 'delete-section', sectionId: section.dataset.sectionId });
             await loadMenu();

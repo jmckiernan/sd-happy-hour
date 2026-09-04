@@ -172,6 +172,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
   </script>
 
   <script>
+    import { appAlert, appPrompt } from '../lib/appDialog';
     import { accountSignInHref, currentReturnPath } from '../lib/authRedirect';
     import { listingFormHTML, readListingForm, wireImageCropControls, wireListingImageControls, previewSrc } from '../lib/listingForm';
     import { vibeImageFor } from '../lib/vibeImages';
@@ -520,7 +521,7 @@ const venueSlugByNameAndHood = Object.fromEntries(
         listing: readListingForm(card.querySelector('.lf-form') as HTMLElement),
       };
       if (action === 'deny') {
-        body.denialReason = prompt('Reason for denial?') || '';
+        body.denialReason = (await appPrompt('Reason for denial?')) || '';
       }
 
       try {
@@ -561,12 +562,12 @@ const venueSlugByNameAndHood = Object.fromEntries(
       button.textContent = 'Sending...';
       try {
         const summary = await api('/api/admin/dispatch-alerts', { method: 'POST' });
-        alert(
+        await appAlert(
           `Live venues: ${summary.liveVenueCount}\nUsers notified: ${summary.usersNotified}\nEmails sent: ${summary.emailsSent}\nTexts sent: ${summary.textsSent}` +
           (summary.simulated ? '\n\n(Email/SMS provider not configured yet — this run was simulated/logged, not actually delivered.)' : '')
         );
       } catch (err: any) {
-        alert(err.message);
+        await appAlert(err.message);
       } finally {
         button.disabled = false;
         button.textContent = originalText;

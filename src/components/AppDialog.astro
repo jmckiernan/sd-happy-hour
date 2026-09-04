@@ -1,0 +1,150 @@
+<style is:global>
+  .app-dialog {
+    background: white;
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    margin: auto;
+    max-width: min(440px, calc(100vw - 32px));
+    padding: 0;
+    width: 100%;
+  }
+
+  .app-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.58);
+  }
+
+  .app-dialog-surface {
+    display: grid;
+    gap: 14px;
+    padding: 24px;
+  }
+
+  .app-dialog h2 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .app-dialog-message {
+    color: var(--night-soft);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .app-dialog-input {
+    border: 1px solid rgba(32, 18, 56, 0.16);
+    border-radius: 12px;
+    font: inherit;
+    font-size: 0.95rem;
+    padding: 11px 13px;
+    width: 100%;
+  }
+
+  .app-dialog-input:focus-visible {
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+    outline: 3px solid var(--sunset-start);
+    outline-offset: 2px;
+  }
+
+  .app-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .app-dialog-actions.single {
+    justify-content: stretch;
+  }
+
+  .app-dialog-button {
+    align-items: center;
+    background: var(--night);
+    border: 2px solid var(--night);
+    border-radius: 100px;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 17px;
+  }
+
+  .app-dialog-button:hover {
+    background: var(--sunset-start);
+    border-color: var(--sunset-start);
+  }
+
+  .app-dialog-button.secondary {
+    background: white;
+    border-color: rgba(32, 18, 56, 0.16);
+    color: var(--night);
+  }
+
+  .app-dialog-button.secondary:hover {
+    background: var(--sand-warm);
+    border-color: var(--sand-warm);
+  }
+
+  .app-dialog-button.danger {
+    background: #FEE2E2;
+    border-color: #FEE2E2;
+    color: #991B1B;
+  }
+
+  .app-dialog-button.danger:hover {
+    background: #FECACA;
+    border-color: #FECACA;
+  }
+
+  .app-dialog-button:focus-visible {
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+    outline: 3px solid var(--sunset-start);
+    outline-offset: 2px;
+  }
+
+  .app-dialog-actions.single .app-dialog-button {
+    width: 100%;
+  }
+
+  @media (max-width: 600px) {
+    .app-dialog-actions:not(.single) {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .app-dialog-actions:not(.single) .app-dialog-button:first-child {
+      order: 2;
+    }
+
+    .app-dialog-actions:not(.single) .app-dialog-button:last-child {
+      order: 1;
+    }
+  }
+</style>
+
+<dialog class="app-dialog" id="app-dialog" aria-labelledby="app-dialog-title">
+  <div class="app-dialog-surface">
+    <h2 id="app-dialog-title" data-app-dialog-title>Confirm</h2>
+    <p class="app-dialog-message" data-app-dialog-message></p>
+    <div data-app-dialog-input-wrap hidden>
+      <input class="app-dialog-input" type="text" data-app-dialog-input autocomplete="off">
+    </div>
+    <div class="app-dialog-actions" data-app-dialog-actions>
+      <button class="app-dialog-button secondary" type="button" data-app-dialog-cancel>Cancel</button>
+      <button class="app-dialog-button" type="button" data-app-dialog-confirm>Confirm</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { initAppDialog } from '../lib/appDialog';
+  initAppDialog();
+</script>

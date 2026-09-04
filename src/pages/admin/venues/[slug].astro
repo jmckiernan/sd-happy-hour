@@ -187,6 +187,7 @@ const { venue } = Astro.props;
   </div>
 
   <script>
+    import { appConfirm } from '../../../lib/appDialog';
     import {
       LISTING_IMAGE_BUSY_EVENT,
       listingFormHTML,
@@ -256,7 +257,7 @@ const { venue } = Astro.props;
 
     ownerTransferBtn.addEventListener('click', async () => {
       const email = ownerEmailInput.value.trim();
-      if (!email || !confirm(`Transfer ownership of this restaurant to ${email}? The current owner will lose owner access.`)) return;
+      if (!email || !(await appConfirm(`Transfer ownership of this restaurant to ${email}? The current owner will lose owner access.`))) return;
       ownerTransferBtn.disabled = true;
       ownerStatusEl.textContent = 'Transferring ownership…';
       try {

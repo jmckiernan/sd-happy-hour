@@ -209,6 +209,7 @@ const listId = Astro.params.id || '';
   </main>
 
   <script>
+    import { appConfirm } from '../../lib/appDialog';
     import { accountSignInHref, currentReturnPath } from '../../lib/authRedirect';
     import { venuesForListPicker } from '../../lib/listVenuePicker';
 
@@ -893,7 +894,7 @@ const listId = Astro.params.id || '';
     });
 
     document.getElementById('delete-list')!.addEventListener('click', async () => {
-      if (!window.confirm('Delete this list for everyone? This cannot be undone.')) return;
+      if (!(await appConfirm('Delete this list for everyone? This cannot be undone.'))) return;
       try {
         await requestJson(`/api/lists/${encodeURIComponent(listId)}`, { method: 'DELETE' });
         window.location.href = '/account/#section-lists';

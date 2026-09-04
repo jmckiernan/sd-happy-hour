@@ -39,6 +39,7 @@ const {
 
 import { ClientRouter } from 'astro:transitions';
 import AdminStyles from '../components/AdminStyles.astro';
+import AppDialog from '../components/AppDialog.astro';
 import { organizationSchema, serializeJsonLd, SITE_NAME, websiteSchema } from '../lib/seo';
 import { getSession } from '../lib/session';
 import { isAdminEmail } from '../lib/admins';
@@ -421,6 +422,8 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
     {(Astro.url.pathname === '/admin' || Astro.url.pathname.startsWith('/admin/')) && <AdminStyles />}
     <slot />
   </div>
+
+  <AppDialog />
 
   <footer class="site-footer">
     <p>Built by Shane & John in San Diego | <a href="/submit/">Submit a spot</a> · <a href="/report-a-bug/">Report a bug</a> · <a href="/features/">Request a feature</a></p>

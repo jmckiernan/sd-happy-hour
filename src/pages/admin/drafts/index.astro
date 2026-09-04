@@ -106,6 +106,7 @@ import AdminNav from '../../../components/AdminNav.astro';
   </div>
 
   <script>
+    import { appConfirm } from '../../../lib/appDialog';
     const statusEl = document.getElementById('status')!;
     const draftsEl = document.getElementById('drafts')!;
     const adminUserEl = document.getElementById('admin-user')!;
@@ -184,9 +185,9 @@ import AdminNav from '../../../components/AdminNav.astro';
         const msg = isDraft
           ? 'Discard this draft? This deletes the file from the repo — it cannot be undone.'
           : 'Delete this post entirely? This removes it from the repo — it cannot be undone.';
-        if (!confirm(msg)) return;
+        if (!(await appConfirm(msg))) return;
       } else if (action === 'unpublish') {
-        if (!confirm('Unpublish this post? It goes back to hidden/draft until republished.')) return;
+        if (!(await appConfirm('Unpublish this post? It goes back to hidden/draft until republished.'))) return;
       }
 
       button.disabled = true;
