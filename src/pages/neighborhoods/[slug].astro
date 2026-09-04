@@ -78,12 +78,14 @@ const nearby = profile.nearby
               <ul>
                 {cardSpecials(venue).map((deal: string) => <li>{deal}</li>)}
               </ul>
-              <div class="card-actions-row" set:html={renderCardShareNotifyIcons({
-                venueId: venue.id,
-                venueName: venue.name,
-                slug: venueSlug(venue),
-              })} />
-              <a class="details" href={venuePath(venue)}>View {venue.name} details →</a>
+              <div class="card-actions-row">
+                <a class="details" href={venuePath(venue)}>View Details</a>
+                <div set:html={renderCardShareNotifyIcons({
+                  venueId: venue.id,
+                  venueName: venue.name,
+                  slug: venueSlug(venue),
+                })} />
+              </div>
             </div>
           </article>
         ))}
@@ -165,7 +167,9 @@ const nearby = profile.nearby
   .venue-copy h3 a { text-decoration: none; }
   .address { color: var(--night-soft); font-size: .86rem; margin-bottom: 14px; }
   .venue-copy ul { margin: 0 0 16px 20px; line-height: 1.55; }
-  .card-actions-row { align-items: center; display: flex; justify-content: flex-end; margin: 0 0 14px; }
+  .card-actions-row { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin: 0; }
+  .details { color: var(--ocean-deep); font-weight: 750; text-decoration: none; }
+  .details:hover { text-decoration: underline; }
   :global(.card-action-icons) { align-items: center; display: inline-flex; flex-shrink: 0; gap: 6px; position: relative; }
   :global(.card-icon-btn) {
     align-items: center; appearance: none; background: var(--sand-warm); border: 2px solid rgba(15, 23, 42, .12);
@@ -208,7 +212,6 @@ const nearby = profile.nearby
     accent-color: var(--ocean); align-self: center; flex-shrink: 0; height: 16px; justify-self: center;
     margin: 0; padding: 0; width: 16px;
   }
-  .details { color: var(--ocean-deep); font-weight: 750; }
   .nearby { background: var(--sand-warm); border-radius: var(--radius); margin-top: 42px; padding: 24px; }
   .nearby div { display: flex; flex-wrap: wrap; gap: 10px; }
   .nearby a { background: white; border-radius: 100px; font-weight: 700; padding: 9px 15px; text-decoration: none; }
