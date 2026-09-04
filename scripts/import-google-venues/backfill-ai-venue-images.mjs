@@ -20,6 +20,8 @@ function parseOptions(argv) {
   const options = {
     apply: false,
     force: false,
+    regenerateAi: false,
+    includeUnlisted: false,
     limit: 0,
     ids: new Set(),
     delayMs: 1500,
@@ -27,6 +29,8 @@ function parseOptions(argv) {
   for (const arg of argv) {
     if (arg === '--apply') options.apply = true;
     else if (arg === '--force') options.force = true;
+    else if (arg === '--regenerate-ai') options.regenerateAi = true;
+    else if (arg === '--include-unlisted') options.includeUnlisted = true;
     else if (arg.startsWith('--limit=')) options.limit = Math.max(0, Number(arg.slice(8)) || 0);
     else if (arg.startsWith('--ids=')) {
       for (const id of arg.slice(6).split(',')) if (Number(id)) options.ids.add(Number(id));
@@ -38,24 +42,61 @@ function parseOptions(argv) {
 }
 
 function usage() {
-  return `Generate temporary AI placeholder hero images for published venues without a featured photo.
+  return `Generate temporary AI placeholder hero images for venues without a featured photo,
+or regenerate existing AI placeholders with updated food/drink-focused prompts.
 
 Usage:
   npm run images:ai -- [--apply] [--limit=10] [--ids=611,612] [--force]
+  npm run images:ai -- --regenerate-ai [--apply] [--include-unlisted]
 
 Default: preview targets only. With --apply, writes JPEGs to public/images/venues/
 and attaches imageSource.provider=ai_generated until an owner replaces it.
 
 Options:
-  --apply           write images and update happy-hours.json
-  --force           regenerate even if a prior AI placeholder exists
-  --limit=N         process at most N venues
-  --ids=1,2,3       process only these venue ids
-  --delay-ms=1500   pause between Gemini calls`;
+  --apply              write images and update happy-hours.json
+  --force              regenerate even if a prior AI placeholder exists
+  --regenerate-ai      replace existing ai_generated hero images
+  --include-unlisted   include unlisted venues without images (new placeholders only)
+  --limit=N            process at most N venues
+  --ids=1,2,3          process only these venue ids
+  --delay-ms=1500      pause between Gemini calls`;
 }
 
 function isPublished(venue) {
   return venue.listingStatus !== 'unlisted' && venue.startTime && venue.endTime && venue.days?.length;
+}
+
+function isAiGenerated(venue) {
+  return venue.imageSource?.provider === 'ai_generated';
+}
+
+function venueMatchesMode(venue, options) {
+  if (options.regenerateAi) {
+    if (isAiGenerated(venue)) return true;
+    if (!venue.image) return options.includeUnlisted || isPublished(venue);
+    return false;
+  }
+  if (!venue.image) return options.includeUnlisted || isPublished(venue);
+  return options.force && isAiGenerated(venue);
+}
+
+function selectTargets(venues, options, priorRun) {
+  let targets;
+  if (options.ids.size) {
+    targets = venues.filter((venue) => options.ids.has(Number(venue.id)));
+    targets = targets.filter((venue) => venueMatchesMode(venue, options));
+  } else if (options.regenerateAi) {
+    targets = venues.filter((venue) => isAiGenerated(venue));
+    if (!options.includeUnlisted) targets = targets.filter(isPublished);
+  } else {
+    targets = venues.filter((venue) => !venue.image);
+    if (!options.includeUnlisted) targets = targets.filter(isPublished);
+  }
+  if (!options.force && !options.regenerateAi) {
+    targets = targets.filter((venue) => priorRun.venues?.[venue.id]?.outcome !== 'attached');
+  }
+  if (options.limit) targets = targets.slice(0, options.limit);
+  return targets;
 }
 
 function pageUrlFor(venue) {
@@ -84,14 +125,10 @@ async function main() {
 
   const venues = readJson(HAPPY_HOURS_PATH, []);
   const prior = readJson(RUN_PATH, { version: 1, venues: {} });
-  let targets = venues.filter((venue) => !venue.image && isPublished(venue));
-  if (options.ids.size) targets = targets.filter((venue) => options.ids.has(Number(venue.id)));
-  if (!options.force) {
-    targets = targets.filter((venue) => prior.venues?.[venue.id]?.outcome !== 'attached');
-  }
-  if (options.limit) targets = targets.slice(0, options.limit);
+  const targets = selectTargets(venues, options, prior);
 
-  console.log(`${options.apply ? 'Generating' : 'Previewing'} AI placeholders for ${targets.length} venue(s).`);
+  const mode = options.regenerateAi ? 'regenerating' : 'generating';
+  console.log(`${options.apply ? mode[0].toUpperCase() + mode.slice(1) : 'Previewing'} AI placeholders for ${targets.length} venue(s).`);
   if (options.apply && !process.env.GEMINI_API_KEY?.trim()) {
     throw new Error('GEMINI_API_KEY is required for --apply.');
   }
@@ -110,6 +147,7 @@ async function main() {
         outcome: 'preview',
         brand: brandKey(venue.name),
         referenceVenueId: reference?.id || null,
+        mode: options.regenerateAi ? 'regenerate' : 'new',
       };
       continue;
     }
@@ -136,15 +174,20 @@ async function main() {
         brand: brandKey(venue.name),
         referenceVenueId: reference?.id || null,
         image: venue.image,
+        mode: options.regenerateAi ? 'regenerate' : 'new',
       };
       attached += 1;
       console.log(`  ok   ${label}${reference ? ` (style ref #${reference.id})` : ''}`);
+      prior.updatedAt = new Date().toISOString();
+      writeJson(RUN_PATH, prior);
+      writeJson(HAPPY_HOURS_PATH, venues);
     } catch (error) {
       prior.venues[venue.id] = {
         venueId: venue.id,
         name: venue.name,
         outcome: 'error',
         reason: error.message,
+        mode: options.regenerateAi ? 'regenerate' : 'new',
       };
       console.error(`  FAIL ${label}  ${error.message}`);
     }
@@ -154,7 +197,6 @@ async function main() {
 
   prior.updatedAt = new Date().toISOString();
   writeJson(RUN_PATH, prior);
-  if (options.apply && attached) writeJson(HAPPY_HOURS_PATH, venues);
   console.log(`\nAttached: ${attached}. Manifest: ${path.relative(ROOT_DIR, RUN_PATH)}`);
 }
 
