@@ -51493,6 +51493,12 @@
       "wheelchairAccessibleEntrance": true,
       "wheelchairAccessibleRestroom": true,
       "wheelchairAccessibleSeating": true
+    },
+    "imageCrop": {
+      "hero": {
+        "x": 55.3,
+        "y": 66
+      }
     }
   },
   {
