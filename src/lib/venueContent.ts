@@ -168,10 +168,9 @@ export function validateOwnerPatch(
  * in the patch are meaningful — the owner clearing their phone number, say —
  * so they overwrite rather than falling back. */
 export function mergeVenue(venue: Venue, override: VenueOverride | null | undefined): Venue {
-  if (!override) return venue;
   const merged = normalizeListingConsistency({
     ...venue,
-    ...override.patch,
+    ...(override?.patch ?? {}),
     id: venue.id,
   }) as Venue;
   return { ...merged, id: venue.id };

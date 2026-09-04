@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { validateListing, normalizeListingConsistency } from '../../../../lib/validation';
+import { validateListing, normalizeListingConsistency, cleanList } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 import { fetchVenues, updateVenue, type VenueFileSnapshot } from '../../../../lib/venueRepo';
@@ -89,9 +89,18 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   }
 
   const listingRecord = listing as unknown as Record<string, unknown>;
-  const baselineRecord = baseline as unknown as Record<string, unknown>;
+  // Diff against the deal fields the editor actually rendered. The baseline
+  // validator runs normalizeListingConsistency(), which clears dealTypes when
+  // there are no deals — so comparing only the normalized record makes a
+  // manual "uncheck all deal types" look like no change while the repository
+  // row still carries the stale tags.
+  const editorBaseline = {
+    ...(baseline as unknown as Record<string, unknown>),
+    deals: cleanList(body.baseline?.deals),
+    dealTypes: cleanList(body.baseline?.dealTypes),
+  };
   const changedFields = Object.keys(listingRecord).filter(
-    (field) => !sameListingValue(listingRecord[field], baselineRecord[field])
+    (field) => !sameListingValue(listingRecord[field], editorBaseline[field])
   );
 
   let snapshot: VenueFileSnapshot;
@@ -114,12 +123,12 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   // present in the full form submission.
   const repositoryInput = { ...repositoryVenue } as Record<string, unknown>;
   for (const field of changedFields) repositoryInput[field] = listingRecord[field];
-  const repositoryValidation = validateListing(repositoryInput, { requireCoordinates: true });
+  const repositoryValidation = validateListing(
+    normalizeListingConsistency(repositoryInput),
+    { requireCoordinates: true }
+  );
   if (repositoryValidation.errors.length) {
-    return errorJson(
-      ['The repository venue changed while this editor was open. Reload and try again.'],
-      409
-    );
+    return errorJson(repositoryValidation.errors, 422);
   }
   const repositoryListing = repositoryValidation.listing;
 

@@ -5,10 +5,11 @@ import test from 'node:test';
 import { listingFormHTML } from '../src/lib/listingForm.ts';
 import {
   getVenueContent,
+  mergeVenue,
   OWNER_EDITABLE_FIELDS,
   validateOwnerPatch,
 } from '../src/lib/venueContent.ts';
-import { validateListing, validateSubmission } from '../src/lib/validation.ts';
+import { validateListing, validateSubmission, normalizeListingConsistency, cleanList } from '../src/lib/validation.ts';
 
 const ROOT = process.cwd();
 
@@ -161,6 +162,66 @@ test('the admin and submission validators accept a window with no deals too', ()
     validateListing({ ...base, dealTypes: ['beer'] }).errors
       .includes('Remove the deal types, or add the deals they describe.')
   );
+});
+
+test('mergeVenue clears deal types when a listing has no deals', () => {
+  const venue = {
+    id: 246,
+    name: 'Bullpen',
+    neighborhood: 'Kearny Mesa',
+    address: '8199 Clairemont Mesa Blvd',
+    lat: 32.83,
+    lng: -117.14,
+    days: ['Monday'],
+    startTime: '14:00',
+    endTime: '17:00',
+    deals: [],
+    dealTypes: ['beer', 'cocktails', 'wine'],
+    vibe: 'Bar and grill',
+    website: 'http://www.bullpenbar.com/',
+    sourceUrl: 'https://example.test',
+  };
+
+  assert.deepEqual(mergeVenue(venue, null).dealTypes, []);
+});
+
+test('admin venue save detects clearing inherited deal types', () => {
+  const base = {
+    name: 'Bullpen',
+    neighborhood: 'Kearny Mesa',
+    address: '8199 Clairemont Mesa Blvd',
+    lat: 32.83,
+    lng: -117.14,
+    days: ['Monday'],
+    startTime: '14:00',
+    endTime: '17:00',
+    deals: [],
+    dealTypes: ['beer', 'cocktails', 'wine'],
+    vibe: 'Bar and grill',
+    website: 'http://www.bullpenbar.com/',
+    sourceUrl: 'https://example.test',
+  };
+
+  const rawBaseline = { ...base };
+  const normalizedBaseline = validateListing(normalizeListingConsistency(rawBaseline)).listing;
+  const clearedListing = validateListing({ ...base, dealTypes: [] }).listing;
+  const editorBaseline = {
+    ...normalizedBaseline,
+    deals: cleanList(rawBaseline.deals),
+    dealTypes: cleanList(rawBaseline.dealTypes),
+  };
+  const listingRecord = clearedListing;
+  const changedFields = Object.keys(listingRecord).filter(
+    (field) => JSON.stringify(listingRecord[field]) !== JSON.stringify(editorBaseline[field])
+  );
+
+  assert.ok(changedFields.includes('dealTypes'));
+
+  const repositoryInput = { ...rawBaseline };
+  for (const field of changedFields) repositoryInput[field] = listingRecord[field];
+  const saved = validateListing(normalizeListingConsistency(repositoryInput), { requireCoordinates: true });
+  assert.deepEqual(saved.errors, []);
+  assert.deepEqual(saved.listing.dealTypes, []);
 });
 
 test('every form on the claim path presents deals as optional', async () => {
