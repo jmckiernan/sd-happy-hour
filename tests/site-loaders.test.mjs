@@ -125,4 +125,16 @@ for (const relative of [
   assert.match(source, /\bdrink-loader(?:--|\s)/, `${relative} does not use the shared drink loader`);
 }
 
+for (const relative of [
+  'src/pages/index.astro',
+  'src/pages/account.astro',
+  'src/pages/live-deals.astro',
+]) {
+  const source = await readFile(path.join(projectRoot, relative), 'utf8');
+  const scriptBlocks = [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map((match) => match[1]);
+  for (const block of scriptBlocks) {
+    assert.doesNotMatch(block, /from\s+['"][^'"]*\/venues['"]/, `${relative} client script imports lib/venues`);
+  }
+}
+
 console.log(`ok - ${files.length} Astro files use randomized cocktail, beer, and wine loaders instead of generic spinners`);

@@ -682,7 +682,8 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       getSanDiegoDayBounds,
       getSanDiegoParts,
     } from '../lib/sanDiegoTime';
-    import { getListingImage, venueMatchesTimeRange, venuePath, venueSlug, venueVerificationType } from '../lib/venues';
+    import { getListingImage, venueListingPath, venueMatchesTimeRange, venueVerificationType } from '../lib/venueListingHelpers';
+    import { buildVenueSlugMap, slugFromMap } from '../lib/venueSlug';
     import { neighborhoodPath } from '../lib/neighborhoods';
     import { listingImageStyle } from '../lib/imageCrop';
     import { cardSpecials, cardTimeLabel } from '../lib/listingCopy';
@@ -705,8 +706,21 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     let baseHappyHours: any[] = [];
     let happyHours: any[] = [];
+    let venueSlugMap = new Map<number, string>();
     let venueDirectoryLoaded = false;
     let venueDirectoryRefreshPromise: Promise<void> | null = null;
+
+    function rebuildVenueSlugMap() {
+      venueSlugMap = buildVenueSlugMap(happyHours);
+    }
+
+    function venuePath(h: any) {
+      return venueListingPath(h, venueSlugMap);
+    }
+
+    function venueSlug(h: any) {
+      return slugFromMap(h, venueSlugMap);
+    }
     let userLocation: { lat: number; lng: number } | null = null;
     let map: any = null;
     let markers: any[] = [];
@@ -1282,6 +1296,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         baseHappyHours.filter((venue) => isPubliclyListed(venue)),
       );
       venueDirectoryLoaded = true;
+      rebuildVenueSlugMap();
 
       populateSelect('neighborhood-filter', [...new Set(happyHours.map((h) => h.neighborhood))].sort());
       populateSelect('deal-filter', [...new Set(happyHours.flatMap((h) => h.dealTypes || []))].sort(), labelize);
@@ -1310,6 +1325,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         const refreshed = await mergeOwnerEdits(baseHappyHours, happyHours);
         if (JSON.stringify(refreshed) === JSON.stringify(happyHours)) return;
         happyHours = refreshed;
+        rebuildVenueSlugMap();
         render();
       })();
 

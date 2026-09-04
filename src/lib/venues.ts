@@ -1,13 +1,21 @@
 import happyHours from '../../public/data/happy-hours.json';
 import { isPubliclyListed, type BrowseHold } from './listingVisibility';
-import { vibeImageFor } from './vibeImages';
-import type { AlertFilters, LiveOverride } from './store';
+import type { LiveOverride } from './store';
 import { isHappyHourActive } from './sanDiegoTime';
 import { DEALS_UNKNOWN_LABEL } from './listingCopy';
-import { OFFERS_UNKNOWN_FILTER } from './directoryFilters';
 import type { WeeklySpecial } from './listingCopy';
 import { slugify, buildVenueSlugMap, slugFromMap, type SlugVenue } from './venueSlug';
 import type { ImageFraming } from './imageCrop';
+import {
+  alertMatchesVenue,
+  getGalleryThumb,
+  getListingImage,
+  getVenueImage,
+  throughImageCdn,
+  venueMatchesTimeRange,
+  venueVerificationType,
+  type VenueVerificationType,
+} from './venueListingHelpers';
 
 export { slugify };
 
@@ -387,91 +395,15 @@ export function isVenueLive(venue: Venue, overrides: Record<number, LiveOverride
   return isHappeningNow(venue, now);
 }
 
-export function alertMatchesVenue(filters: AlertFilters, venue: Venue): boolean {
-  // Stub / window-only listings omit `days`; treat them as matching no day filter
-  // rather than throwing when alerts (or Save preferences) re-count matches.
-  const venueDays = venue.days || [];
-  if (filters.days?.length && !filters.days.some((day) => venueDays.includes(day))) return false;
-  if (filters.neighborhood && venue.neighborhood !== filters.neighborhood) return false;
-  // An alert saved from the homepage filter bar can carry that bar's one
-  // non-deal-type option, which selects venues whose offers nobody published.
-  if (filters.dealType === OFFERS_UNKNOWN_FILTER) {
-    if ((venue.dealTypes || []).length) return false;
-  } else if (filters.dealType && !(venue.dealTypes || []).includes(filters.dealType)) {
-    return false;
-  }
-  if (filters.query) {
-    const haystack = [venue.name, venue.neighborhood, venue.address, venue.vibe, ...(venue.deals || []), ...(venue.dealTypes || [])]
-      .join(' ')
-      .toLowerCase();
-    if (!haystack.includes(filters.query.toLowerCase())) return false;
-  }
-  if (!venueMatchesTimeRange(venue, filters.startTime, filters.endTime, filters.days)) return false;
-  return true;
-}
-
-function clockMinutes(value: string | undefined): number | null {
-  if (!value || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return null;
-  const [hours, minutes] = value.split(':').map(Number);
-  return hours * 60 + minutes;
-}
-
-/**
- * Matches recurring windows that fit inside the visitor's chosen clock
- * bounds. A single bound remains useful ("starts after" or "ends before"),
- * while a start + end describes the complete window an alert should watch.
- */
-export function venueMatchesTimeRange(
-  venue: Pick<Venue, 'startTime' | 'endTime' | 'windows'>,
-  startTime = '',
-  endTime = '',
-  days: string[] = [],
-): boolean {
-  const lower = clockMinutes(startTime);
-  const upper = clockMinutes(endTime);
-  if (lower === null && upper === null) return true;
-
-  const windows = venue.windows?.length
-    ? venue.windows
-    : venue.startTime && venue.endTime
-      ? [{ startTime: venue.startTime, endTime: venue.endTime }]
-      : [];
-
-  return windows.some((window) => {
-    if (days.length && 'days' in window && window.days?.length && !days.some((day) => (window.days || []).includes(day))) {
-      return false;
-    }
-    const rawStart = clockMinutes(window.startTime);
-    const rawEnd = clockMinutes(window.endTime);
-    if (rawStart === null || rawEnd === null) return false;
-    const windowEnd = rawEnd <= rawStart ? rawEnd + 24 * 60 : rawEnd;
-
-    if (lower !== null && upper !== null) {
-      const filterEnd = upper <= lower ? upper + 24 * 60 : upper;
-      return [-24 * 60, 0, 24 * 60].some((shift) =>
-        rawStart >= lower + shift && windowEnd <= filterEnd + shift
-      );
-    }
-    if (lower !== null) return rawStart >= lower;
-    return rawEnd <= upper!;
-  });
-}
-
-export type VenueVerificationType = 'owner' | 'web' | 'none';
-
-/** Public trust label. Google and the venue's own web pages are both web
- * evidence; a verified owner claim always takes precedence over that. */
-export function venueVerificationType(
-  venue: Pick<Venue, 'verified' | 'lastVerifiedAt' | 'hhSources'>,
-  ownerVerified = false,
-): VenueVerificationType {
-  if (ownerVerified) return 'owner';
-  const hasWebEvidence = Object.values(venue.hhSources || {}).some((source) => {
-    const kind = String(source?.source || '').toLowerCase();
-    return kind.includes('website') || kind.includes('google') || kind.includes('venue');
-  });
-  return venue.verified || Boolean(venue.lastVerifiedAt) || hasWebEvidence ? 'web' : 'none';
-}
+export {
+  alertMatchesVenue,
+  getGalleryThumb,
+  getListingImage,
+  getVenueImage,
+  venueMatchesTimeRange,
+  venueVerificationType,
+  type VenueVerificationType,
+};
 
 export function formatTime(time: string): string {
   const [h, m] = time.split(':').map(Number);
@@ -486,81 +418,6 @@ export { WEEKDAY_NAMES, happyHourDayNames } from './happyHourDays';
 // admin listing form can share it without dragging this module (and the venue
 // dataset it imports) into a browser bundle.
 export { vibeImages, vibeImageFor } from './vibeImages';
-
-const IMAGE_SIZES = {
-  tile: { w: 640, q: 80 },
-  card: { w: 800, q: 80 },
-  hero: { w: 1600, q: 85 },
-} as const;
-
-/**
- * Routes an image through Netlify Image CDN at the requested size, which
- * resizes on demand and negotiates a modern format (AVIF/WebP), edge-caching
- * each distinct transform. For the vibe photos that's a like-for-like
- * replacement for the `?w=`/`?q=` params Unsplash used to handle, so only one
- * 1600px master per vibe has to be committed rather than a variant per size.
- *
- * Left alone in three cases:
- *
- * - Outside production. `/.netlify/images` only exists on Netlify's platform;
- *   plain `astro dev` 404s it, so dev serves the original. Unoptimized, but it
- *   renders. `npm run dev:netlify` exercises the real path — same dev/prod
- *   split as lib/imageStore.ts.
- * - Anything not rooted at `/`. Remote sources need a `remote_images`
- *   allowlist in netlify.toml, and a post's heroImage can be any URL an admin
- *   pasted, so those pass through untouched rather than 400ing.
- * - Blob-backed uploads at `/api/images/` — served by a server function, not
- *   a static file Netlify Image CDN can fetch — so those stay direct too.
- * - Already-transformed URLs, so wrapping twice is a no-op.
- */
-function throughImageCdn(src: string, size: keyof typeof IMAGE_SIZES): string {
-  if (!import.meta.env.PROD) return src;
-  if (!src.startsWith('/') || src.startsWith('/.netlify/images')) return src;
-  if (src.startsWith('/api/images/')) return src;
-  const { w, q } = IMAGE_SIZES[size];
-  return `/.netlify/images?url=${encodeURIComponent(src)}&w=${w}&q=${q}`;
-}
-
-/**
- * Returns the URL for a venue's vibe photo, sized for the given use.
- * 'card'  -> small homepage thumbnail (800px wide)
- * 'hero'  -> large venue-page banner (1600px wide, higher quality)
- */
-export function getVenueImage(vibe: string | undefined, size: 'card' | 'hero' = 'card'): string {
-  return throughImageCdn(vibeImageFor(vibe), size);
-}
-
-/**
- * A gallery flyer sized for its thumbnail frame on the venue page. The
- * lightbox deliberately does not use this: a happy-hour menu is only readable
- * at full resolution, so zooming loads the original (see the venue page's
- * originalSrc()).
- */
-export function getGalleryThumb(url: string): string {
-  return throughImageCdn(url, 'tile');
-}
-
-/**
- * The image to show for a venue: its own admin-set featured photo if it has
- * one, otherwise the vibe stock photo. Every surface that shows a venue photo
- * (homepage cards, venue hero, OG image) goes through this, so setting a
- * featured image in the admin updates all of them at once and clearing it
- * falls straight back to the stock photo.
- *
- * Takes a venue-shaped object rather than a Venue so the homepage's client
- * script — which works off parsed happy-hours.json, not the typed import —
- * can call it too.
- */
-export function getListingImage(
-  venue: { image?: string; vibe?: string },
-  size: 'card' | 'hero' = 'card'
-): string {
-  // Featured photos are usually full-size originals served from Blobs via
-  // /api/images/, so they need the same Image CDN pass the vibe photos get —
-  // otherwise a card thumbnail downloads a hero-resolution file.
-  if (venue.image) return throughImageCdn(venue.image, size);
-  return getVenueImage(venue.vibe || '', size);
-}
 
 /**
  * Picks an image for a blog post: the post's own heroImage if set, else the
