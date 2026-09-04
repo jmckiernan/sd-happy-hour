@@ -36,16 +36,23 @@ function contentTypeFromPath(pathname: string): string | null {
   return EXT_BY_CONTENT_TYPE[ext] || null;
 }
 
-/** Reads a committed static asset from public/ when the path is under /images/. */
-async function readPublicStaticImage(pathname: string, maxBytes: number): Promise<StoredImage | null> {
+function isCommittedStaticImagePath(pathname: string): boolean {
   const normalized = path.posix.normalize(pathname);
-  if (!normalized.startsWith('/images/') || normalized.includes('..')) return null;
+  return normalized.startsWith('/images/') && !normalized.includes('..');
+}
+
+/**
+ * Reads a committed static asset from public/ in local dev and scripts.
+ * public/ is not on the Netlify function filesystem — production uses fetch.
+ */
+async function readPublicStaticImage(pathname: string, maxBytes: number): Promise<StoredImage | null> {
+  if (!isCommittedStaticImagePath(pathname)) return null;
 
   const publicRoot = path.resolve(path.join(process.cwd(), 'public'));
-  const filePath = path.resolve(publicRoot, normalized.slice(1));
+  const filePath = path.resolve(publicRoot, pathname.slice(1));
   if (!filePath.startsWith(`${publicRoot}${path.sep}`)) return null;
 
-  const contentType = contentTypeFromPath(normalized);
+  const contentType = contentTypeFromPath(pathname);
   if (!contentType || !ALLOWED_SOURCE_CONTENT_TYPES.has(contentType)) return null;
 
   try {
@@ -86,10 +93,9 @@ async function fetchRemoteImage(
 
 /**
  * Loads image bytes for admin upload/edit flows without looping stored images
- * back through HTTP when avoidable. Stored blobs and committed public assets
- * are read directly; everything else is fetched, forwarding the admin's
- * cookies on same-origin requests so Netlify visitor protection does not 401
- * server-side fetches of /images/... paths the browser already loaded.
+ * back through HTTP when avoidable. Stored blobs are read directly; committed
+ * /images/ assets are read from public/ in dev and fetched same-origin in
+ * production (public/ lives on the CDN, not in the function bundle).
  */
 export async function loadSourceImage(
   sourceUrl: string,
@@ -113,8 +119,13 @@ export async function loadSourceImage(
     return image;
   }
 
-  const staticImage = await readPublicStaticImage(parsed.pathname, maxBytes);
-  if (staticImage) return staticImage;
+  if (isCommittedStaticImagePath(parsed.pathname)) {
+    if (import.meta.env.DEV) {
+      const staticImage = await readPublicStaticImage(parsed.pathname, maxBytes);
+      if (staticImage) return staticImage;
+    }
+    return fetchRemoteImage(parsed, options.requestUrl, options.cookieHeader, maxBytes);
+  }
 
   if (!/^https?:$/.test(parsed.protocol)) {
     throw new Error('Provide a valid http(s) image URL or a stored /api/images/ path.');

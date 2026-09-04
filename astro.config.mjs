@@ -36,6 +36,10 @@ export default defineConfig({
       'node_modules/pdfkit/js/standard-fonts/**',
       'node_modules/pdfkit/js/data/**',
     ],
+    // loadSourceImage reads committed /images/ assets from public/ in dev.
+    // @vercel/nft cannot resolve the dynamic path and would otherwise ship
+    // the entire venue photo library (~470 MB) inside the SSR function.
+    excludeFiles: ['public/**'],
   }),
   // Explicit hover prefetch for merchant tab links (and any other
   // data-astro-prefetch markers). ClientRouter on /restaurant/* also enables
