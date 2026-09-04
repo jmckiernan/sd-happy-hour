@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { validateListing } from '../../../../lib/validation';
+import { validateListing, normalizeListingConsistency } from '../../../../lib/validation';
 import { getAdminUser } from '../../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../../lib/api';
 import { fetchVenues, updateVenue, type VenueFileSnapshot } from '../../../../lib/venueRepo';
@@ -11,6 +11,7 @@ import {
   isLocalImageStorageAvailable,
   isNetlifyBlobsAvailable,
   readImageStrict,
+  storedImageUrlKey,
 } from '../../../../lib/imageStore';
 
 export const prerender = false;
@@ -31,9 +32,7 @@ function venueIdFrom(value: string | undefined): number | null {
 }
 
 function storedImageKey(image: string): string | null {
-  if (!image.startsWith('/api/images/')) return null;
-  const match = image.match(/^\/api\/images\/([^/?#]+)$/);
-  return match?.[1] || '';
+  return storedImageUrlKey(image);
 }
 
 const LIVE_LISTING_FIELD_SET = new Set<string>(LIVE_LISTING_FIELDS);
@@ -81,9 +80,10 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const { listing, errors } = validateListing(body.listing || {}, { requireCoordinates: true });
   if (errors.length) return errorJson(errors, 422);
 
-  const { listing: baseline, errors: baselineErrors } = validateListing(body.baseline || {}, {
-    requireCoordinates: true,
-  });
+  const { listing: baseline, errors: baselineErrors } = validateListing(
+    normalizeListingConsistency(body.baseline || {}),
+    { requireCoordinates: true }
+  );
   if (baselineErrors.length) {
     return errorJson(['This editor is out of date. Reload the page before saving.'], 409);
   }

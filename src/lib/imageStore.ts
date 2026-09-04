@@ -237,6 +237,25 @@ export async function readImageStrict(key: string): Promise<StoredImage | null> 
   }
 }
 
+export function storedImageUrlKey(url: string): string | null {
+  if (!url.startsWith('/api/images/')) return null;
+  const match = url.match(/^\/api\/images\/([^/?#]+)$/);
+  return match?.[1] || null;
+}
+
+/** Non-stored paths and remote URLs are treated as available; stored images
+ * must exist in durable storage. */
+export async function isStoredImageUrlAvailable(url: string): Promise<boolean> {
+  if (!url) return false;
+  const key = storedImageUrlKey(url);
+  if (!key) return true;
+  try {
+    return Boolean(await readImageStrict(key));
+  } catch {
+    return false;
+  }
+}
+
 export async function readImage(key: string): Promise<StoredImage | null> {
   try {
     return await readImageStrict(key);

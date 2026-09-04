@@ -650,23 +650,20 @@ test('venue page keeps the stock hero and lightbox image when a live featured-im
     .toBeGreaterThan(0);
 });
 
-test('venue page restores the stock hero when a live override clears a build-time featured image', async ({
+test('venue page keeps the build-time featured image when a stale live override clears it', async ({
   page,
 }) => {
   const buildTimeImage = '/api/images/your-mother-s-house-1787356091402-57d84087.png';
-  const stockImage = '/images/vibes/speakeasy.jpg';
 
   await mockConsumerApis(page, {
     venueContentPayload: {
       venueId: 21,
       hasOwnerEdits: true,
-      listing: { image: '' },
+      listing: { image: buildTimeImage },
       photos: [],
       menu: [],
     },
   });
-  // Keep the prerendered featured image healthy so only the explicit empty
-  // live override can cause the switch back to the venue's stock fallback.
   await page.route(`**${buildTimeImage}`, (route) =>
     route.fulfill({
       path: `${process.cwd()}/public/images/vibes/rooftop-vibes.jpg`,
@@ -677,7 +674,7 @@ test('venue page restores the stock hero when a live override clears a build-tim
   await page.goto('/venues/your-mother-s-house/');
 
   const heroImage = page.locator('#hero-frame > img');
-  await expect(heroImage).toHaveAttribute('src', stockImage);
+  await expect(heroImage).toHaveAttribute('src', buildTimeImage);
   await expect
     .poll(() => heroImage.evaluate((image) => (image as HTMLImageElement).naturalWidth))
     .toBeGreaterThan(0);

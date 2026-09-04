@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getVenues } from '../../../lib/venues';
 import { getVenueOverride, isVenueOwnerVerified } from '../../../lib/store';
-import { getVenueContent, mergeVenue, LIVE_LISTING_FIELDS } from '../../../lib/venueContent';
+import { getVenueContent, mergeVenue, LIVE_LISTING_FIELDS, resolveLiveFeaturedImage } from '../../../lib/venueContent';
 import { json, errorJson } from '../../../lib/api';
 
 export const prerender = false;
@@ -30,6 +30,7 @@ export const GET: APIRoute = async ({ params }) => {
     isVenueOwnerVerified(venueId),
   ]);
   const merged = mergeVenue(venue, override);
+  const featured = await resolveLiveFeaturedImage(venue, merged, override);
 
   // Only the live-editable fields go back, not the whole venue: the page
   // already has the rest in its HTML, and this keeps the response about what
@@ -37,6 +38,8 @@ export const GET: APIRoute = async ({ params }) => {
   const listing: Record<string, unknown> = {};
   const mergedFields = merged as unknown as Record<string, unknown>;
   for (const field of LIVE_LISTING_FIELDS) listing[field] = mergedFields[field];
+  listing.image = featured.image;
+  listing.imageCrop = featured.imageCrop ?? null;
 
   return new Response(
     JSON.stringify({

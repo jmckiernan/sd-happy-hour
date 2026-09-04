@@ -10,7 +10,8 @@ import {
   type VenueOverride,
   type VenuePhoto,
 } from './store';
-import { cleanString, cleanList, isValidTime } from './validation';
+import { cleanString, cleanList, isValidTime, normalizeListingConsistency } from './validation';
+import { isStoredImageUrlAvailable } from './imageStore';
 
 // ---------------------------------------------------------------------------
 // Where an admin-curated venue meets runtime listing edits.
@@ -168,7 +169,42 @@ export function validateOwnerPatch(
  * so they overwrite rather than falling back. */
 export function mergeVenue(venue: Venue, override: VenueOverride | null | undefined): Venue {
   if (!override) return venue;
-  return { ...venue, ...override.patch, id: venue.id } as Venue;
+  const merged = normalizeListingConsistency({
+    ...venue,
+    ...override.patch,
+    id: venue.id,
+  }) as Venue;
+  return { ...merged, id: venue.id };
+}
+
+/** When a live override clears or breaks the featured image, prefer the
+ * build-time repository image if it is still healthy. Stale override rows
+ * otherwise make prerendered pages flash the correct photo and then swap to
+ * the vibe stock fallback. */
+export async function resolveLiveFeaturedImage(
+  baseVenue: Venue,
+  merged: Venue,
+  override: VenueOverride | null | undefined,
+  isAvailable: (url: string) => Promise<boolean> = isStoredImageUrlAvailable
+): Promise<{ image: string; imageCrop: Venue['imageCrop'] }> {
+  const baseImage = String(baseVenue.image || '');
+  const mergedImage = String(merged.image || '');
+  const overrideTouchesImage =
+    Boolean(override?.patch) && Object.prototype.hasOwnProperty.call(override.patch, 'image');
+
+  if (!overrideTouchesImage) {
+    return { image: mergedImage, imageCrop: merged.imageCrop };
+  }
+
+  if (mergedImage && (await isAvailable(mergedImage))) {
+    return { image: mergedImage, imageCrop: merged.imageCrop };
+  }
+
+  if (baseImage && baseImage !== mergedImage && (await isAvailable(baseImage))) {
+    return { image: baseImage, imageCrop: baseVenue.imageCrop };
+  }
+
+  return { image: mergedImage, imageCrop: merged.imageCrop };
 }
 
 /** Every venue with its owner's edits applied. Used by anything that reasons

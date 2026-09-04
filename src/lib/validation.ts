@@ -242,6 +242,16 @@ export function cleanAlertChannels(input: Record<string, any> | undefined): Aler
   };
 }
 
+/** Repairs listing shapes that partial live-override merges can leave behind.
+ * dealTypes is derived from deal text, so an override that clears deals
+ * without also clearing dealTypes would otherwise fail validateListing(). */
+export function normalizeListingConsistency(input: Record<string, unknown>): Record<string, unknown> {
+  const normalized = { ...input };
+  const deals = cleanList(normalized.deals);
+  if (!deals.length && cleanList(normalized.dealTypes).length) normalized.dealTypes = [];
+  return normalized;
+}
+
 export function validateListing(
   input: Record<string, any>,
   { requireCoordinates = false }: { requireCoordinates?: boolean } = {}
