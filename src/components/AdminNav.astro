@@ -1,0 +1,38 @@
+---
+export type AdminNavSection =
+  | 'submissions'
+  | 'claims'
+  | 'photos'
+  | 'users'
+  | 'analytics'
+  | 'drafts'
+  | 'new-post'
+  | 'content-engine'
+  | 'ai-costs';
+
+interface Props {
+  current: AdminNavSection;
+  /** Defaults to admin-subnav; content-engine and ai-costs pass their own class. */
+  navClass?: string;
+}
+
+const { current, navClass = 'admin-subnav' } = Astro.props;
+
+const links: Array<{ id: AdminNavSection; href: string; label: string }> = [
+  { id: 'submissions', href: '/admin/', label: 'Venue Submissions' },
+  { id: 'claims', href: '/admin/venues/', label: 'Venue Claims' },
+  { id: 'photos', href: '/admin/photos/', label: 'Photo Review' },
+  { id: 'users', href: '/admin/users/', label: 'Users' },
+  { id: 'analytics', href: '/admin/analytics/', label: 'Analytics' },
+  { id: 'drafts', href: '/admin/drafts/', label: 'Posts' },
+  { id: 'new-post', href: '/admin/new-post/', label: 'Add Blog Post' },
+  { id: 'content-engine', href: '/admin/content-engine/', label: 'Content Engine' },
+  { id: 'ai-costs', href: '/admin/ai-costs/', label: 'AI Costs' },
+];
+---
+<nav class={navClass} aria-label="Admin sections">
+  {links.map((link) => (
+    <a href={link.href} aria-current={current === link.id ? 'page' : undefined}>{link.label}</a>
+  ))}
+  <slot />
+</nav>

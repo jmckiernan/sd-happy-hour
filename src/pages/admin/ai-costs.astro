@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 ---
 <Layout title="API Costs | Happy Hour SD Admin" description="Monitor API usage and costs across AI, email, SMS, and all services.">
   <style is:global>
@@ -40,9 +41,20 @@ import Layout from '../../layouts/Layout.astro';
     .ai-breakdown-stats { display: flex; gap: 16px; font-size: .82rem; color: var(--night-soft); }
     .ai-breakdown-cost { font-weight: 700; color: #059669; }
     
+    .ai-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .ai-filters select { width: 100%; border: 2px solid var(--sand-warm); border-radius: 10px; background: white; color: var(--night); font: inherit; font-size: .82rem; padding: 9px 11px; cursor: pointer; }
+    .ai-filters select:focus { outline: 2px solid var(--sunset-start); outline-offset: 1px; }
+    .ai-filter-label { display: block; font-size: .68rem; font-weight: 700; color: var(--night-soft); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+    .ai-filter-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; font-size: .78rem; color: var(--night-soft); }
+    .ai-filter-meta button { border: 0; background: none; color: var(--night); font: inherit; font-size: .78rem; font-weight: 650; cursor: pointer; text-decoration: underline; padding: 0; }
     .ai-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 12px; }
     .ai-table th, .ai-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(15,23,42,.06); }
     .ai-table th { font-weight: 700; color: var(--night-soft); font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; }
+    .ai-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+    .ai-table th.sortable:hover { color: var(--night); }
+    .ai-table th.sortable .sort-icon { display: inline-block; margin-left: 4px; opacity: .35; font-size: .65rem; }
+    .ai-table th.sortable.active { color: var(--night); }
+    .ai-table th.sortable.active .sort-icon { opacity: 1; }
     .ai-table tr:hover td { background: rgba(15,23,42,.02); }
     .ai-pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
     .ai-pill.success { background: #DCFCE7; color: #166534; }
@@ -78,17 +90,7 @@ import Layout from '../../layouts/Layout.astro';
           <button id="ai-refresh">Refresh</button>
         </div>
       </div>
-      <nav class="ai-nav">
-        <a href="/admin/">Submissions</a>
-        <a href="/admin/users/">Users</a>
-        <a href="/admin/analytics/">Analytics</a>
-        <a href="/admin/venues/">Venues</a>
-        <a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/">Posts</a>
-        <a href="/admin/new-post/">Add Blog Post</a>
-        <a href="/admin/content-engine/">Content Engine</a>
-        <a href="/admin/ai-costs/" aria-current="page">AI Costs</a>
-      </nav>
+      <AdminNav current="ai-costs" navClass="ai-nav" />
     </header>
 
     <main class="ai-costs">
@@ -140,6 +142,9 @@ import Layout from '../../layouts/Layout.astro';
     interface CostData { summary: CostSummary; dailyCosts: DailyCost[]; }
 
     let data: CostData | null = null;
+    type SortColumn = 'createdAt' | 'provider' | 'model' | 'feature' | 'tokens' | 'costCents' | 'success';
+    const recentFilters = { provider: '', model: '', feature: '', status: '' };
+    let recentSort: { column: SortColumn; direction: 'asc' | 'desc' } = { column: 'createdAt', direction: 'desc' };
     const $ = (id: string) => document.getElementById(id)!;
     const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'} as any)[c]);
     const formatCost = (cents: number) => cents < 100 ? `${cents.toFixed(2)}¢` : `$${(cents / 100).toFixed(2)}`;
@@ -199,28 +204,155 @@ import Layout from '../../layouts/Layout.astro';
       }).join('');
     }
     
+    function tokenSortValue(c: RecentCall) {
+      if (c.inputTokens || c.outputTokens) return (c.inputTokens || 0) + (c.outputTokens || 0);
+      if (c.imageCount) return c.imageCount;
+      if (c.messageCount) return c.messageCount;
+      return 0;
+    }
+
+    function formatTokens(c: RecentCall) {
+      if (c.inputTokens || c.outputTokens) return `${(c.inputTokens || 0).toLocaleString()} / ${(c.outputTokens || 0).toLocaleString()}`;
+      if (c.imageCount) return `${c.imageCount} img`;
+      if (c.messageCount) return `${c.messageCount} msg`;
+      return '—';
+    }
+
+    function compareRecent(a: RecentCall, b: RecentCall) {
+      const dir = recentSort.direction === 'asc' ? 1 : -1;
+      const col = recentSort.column;
+      let av: string | number | boolean;
+      let bv: string | number | boolean;
+      switch (col) {
+        case 'createdAt': av = new Date(a.createdAt).getTime(); bv = new Date(b.createdAt).getTime(); break;
+        case 'provider': av = a.provider; bv = b.provider; break;
+        case 'model': av = a.model; bv = b.model; break;
+        case 'feature': av = a.feature; bv = b.feature; break;
+        case 'tokens': av = tokenSortValue(a); bv = tokenSortValue(b); break;
+        case 'costCents': av = a.costCents; bv = b.costCents; break;
+        case 'success': av = a.success ? 1 : 0; bv = b.success ? 1 : 0; break;
+        default: return 0;
+      }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    }
+
+    function filterRecentCalls(calls: RecentCall[]) {
+      return calls.filter((c) => {
+        if (recentFilters.provider && c.provider !== recentFilters.provider) return false;
+        if (recentFilters.model && c.model !== recentFilters.model) return false;
+        if (recentFilters.feature && c.feature !== recentFilters.feature) return false;
+        if (recentFilters.status === 'ok' && !c.success) return false;
+        if (recentFilters.status === 'error' && c.success) return false;
+        return true;
+      });
+    }
+
+    function sortIcon(column: SortColumn) {
+      if (recentSort.column !== column) return '↕';
+      return recentSort.direction === 'asc' ? '↑' : '↓';
+    }
+
+    function sortHeader(column: SortColumn, label: string) {
+      const active = recentSort.column === column ? ' active' : '';
+      return `<th class="sortable${active}" data-sort="${column}">${label}<span class="sort-icon">${sortIcon(column)}</span></th>`;
+    }
+
     function renderRecent() {
-      const calls = data!.summary.recentCalls;
-      if (!calls.length) {
+      const allCalls = data!.summary.recentCalls;
+      if (!allCalls.length) {
         $('ai-recent').innerHTML = '<p class="ai-empty">No API calls recorded yet.</p>';
         return;
       }
+
+      const providers = [...new Set(allCalls.map((c) => c.provider))].sort();
+      const models = [...new Set(allCalls.map((c) => c.model))].sort();
+      const features = [...new Set(allCalls.map((c) => c.feature))].sort();
+      const filtered = filterRecentCalls(allCalls).sort(compareRecent);
+      const hasFilters = Object.values(recentFilters).some(Boolean);
+
       $('ai-recent').innerHTML = `
-        <table class="ai-table">
-          <thead><tr><th>Time</th><th>Provider</th><th>Model</th><th>Feature</th><th>Tokens</th><th>Cost</th><th>Status</th></tr></thead>
-          <tbody>${calls.map(c => `
+        <div class="ai-filters">
+          <label><span class="ai-filter-label">Provider</span>
+            <select id="ai-filter-provider"><option value="">All providers</option>${providers.map((p) => `<option value="${esc(p)}"${recentFilters.provider === p ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select>
+          </label>
+          <label><span class="ai-filter-label">Model</span>
+            <select id="ai-filter-model"><option value="">All models</option>${models.map((m) => `<option value="${esc(m)}"${recentFilters.model === m ? ' selected' : ''}>${esc(m)}</option>`).join('')}</select>
+          </label>
+          <label><span class="ai-filter-label">Feature</span>
+            <select id="ai-filter-feature"><option value="">All features</option>${features.map((f) => `<option value="${esc(f)}"${recentFilters.feature === f ? ' selected' : ''}>${formatFeature(f)}</option>`).join('')}</select>
+          </label>
+          <label><span class="ai-filter-label">Status</span>
+            <select id="ai-filter-status">
+              <option value=""${recentFilters.status === '' ? ' selected' : ''}>All statuses</option>
+              <option value="ok"${recentFilters.status === 'ok' ? ' selected' : ''}>OK</option>
+              <option value="error"${recentFilters.status === 'error' ? ' selected' : ''}>Error</option>
+            </select>
+          </label>
+        </div>
+        <div class="ai-filter-meta">
+          <span>${filtered.length.toLocaleString()} of ${allCalls.length.toLocaleString()} calls shown</span>
+          ${hasFilters ? '<button type="button" id="ai-clear-filters">Clear filters</button>' : ''}
+        </div>
+        ${filtered.length ? `<table class="ai-table">
+          <thead><tr>
+            ${sortHeader('createdAt', 'Time')}
+            ${sortHeader('provider', 'Provider')}
+            ${sortHeader('model', 'Model')}
+            ${sortHeader('feature', 'Feature')}
+            ${sortHeader('tokens', 'Tokens')}
+            ${sortHeader('costCents', 'Cost')}
+            ${sortHeader('success', 'Status')}
+          </tr></thead>
+          <tbody>${filtered.map((c) => `
             <tr>
               <td>${formatDate(c.createdAt)}</td>
               <td><span class="ai-pill provider-${c.provider}">${esc(c.provider)}</span></td>
               <td style="font-family:monospace;font-size:.75rem;">${esc(c.model)}</td>
               <td>${formatFeature(c.feature)}</td>
-              <td>${c.inputTokens || c.outputTokens ? `${(c.inputTokens || 0).toLocaleString()} / ${(c.outputTokens || 0).toLocaleString()}` : c.imageCount ? `${c.imageCount} img` : c.messageCount ? `${c.messageCount} msg` : '—'}</td>
+              <td>${formatTokens(c)}</td>
               <td style="font-weight:600;color:#059669;">${formatCost(c.costCents)}</td>
               <td><span class="ai-pill ${c.success ? 'success' : 'error'}">${c.success ? 'OK' : 'Error'}</span></td>
             </tr>
           `).join('')}</tbody>
-        </table>
+        </table>` : '<p class="ai-empty">No calls match the current filters.</p>'}
       `;
+
+      $('ai-filter-provider')?.addEventListener('change', (e) => {
+        recentFilters.provider = (e.target as HTMLSelectElement).value;
+        renderRecent();
+      });
+      $('ai-filter-model')?.addEventListener('change', (e) => {
+        recentFilters.model = (e.target as HTMLSelectElement).value;
+        renderRecent();
+      });
+      $('ai-filter-feature')?.addEventListener('change', (e) => {
+        recentFilters.feature = (e.target as HTMLSelectElement).value;
+        renderRecent();
+      });
+      $('ai-filter-status')?.addEventListener('change', (e) => {
+        recentFilters.status = (e.target as HTMLSelectElement).value;
+        renderRecent();
+      });
+      $('ai-clear-filters')?.addEventListener('click', () => {
+        recentFilters.provider = '';
+        recentFilters.model = '';
+        recentFilters.feature = '';
+        recentFilters.status = '';
+        renderRecent();
+      });
+      $('ai-recent')?.querySelectorAll('th.sortable').forEach((th) => {
+        th.addEventListener('click', () => {
+          const column = (th as HTMLElement).dataset.sort as SortColumn;
+          if (recentSort.column === column) {
+            recentSort.direction = recentSort.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            recentSort = { column, direction: column === 'createdAt' ? 'desc' : 'asc' };
+          }
+          renderRecent();
+        });
+      });
     }
     
     function render() {

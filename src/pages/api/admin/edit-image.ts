@@ -1,13 +1,14 @@
 import type { APIRoute } from 'astro';
 import { getAdminUser } from '../../../lib/admins';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
-import { saveImage, makeImageKey, readImage } from '../../../lib/imageStore';
+import { saveImage, makeImageKey } from '../../../lib/imageStore';
 import { callGeminiImage } from '../../../lib/aiImages';
 import { describeStoredImage } from '../../../lib/imageMetadata';
+import { ALLOWED_SOURCE_CONTENT_TYPES, loadSourceImage } from '../../../lib/loadSourceImage';
 
 export const prerender = false;
 
-const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
+const ALLOWED_CONTENT_TYPES = ALLOWED_SOURCE_CONTENT_TYPES;
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB, same cap as upload-image.ts
 
 // Frames a bare edit request as an actual edit instruction — the same job
@@ -39,41 +40,6 @@ function buildEditPrompt(prompt: string): string {
     'an edit of the given image, not a new image inspired by it. Return the ' +
     'edited image. No text, logos, or watermarks anywhere in the image.'
   );
-}
-
-// The image being edited is almost always one this app already stored
-// (served at /api/images/<key>) — read it straight out of imageStore
-// instead of looping the request back through fetch(). Anything else (a
-// pasted external URL that was never "downloaded & stored") falls back to
-// fetching it directly, same as upload-image.ts's URL path.
-async function loadSourceImage(sourceUrl: string, requestUrl: URL): Promise<{ bytes: Uint8Array; contentType: string }> {
-  let parsed: URL;
-  try {
-    parsed = new URL(sourceUrl, requestUrl);
-  } catch {
-    throw new Error('Provide a valid image URL.');
-  }
-
-  const ownMatch = parsed.pathname.match(/^\/api\/images\/([^/]+)$/);
-  if (ownMatch) {
-    const image = await readImage(decodeURIComponent(ownMatch[1]));
-    if (!image) throw new Error('Could not find that stored image — it may have been deleted.');
-    return image;
-  }
-
-  if (!/^https?:$/.test(parsed.protocol)) throw new Error('Provide a valid http(s) image URL.');
-
-  const res = await fetch(parsed);
-  if (!res.ok) throw new Error(`Could not fetch that URL (${res.status}).`);
-
-  const contentType = (res.headers.get('content-type') || '').split(';')[0].trim();
-  if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
-    throw new Error('That URL did not return a JPEG, PNG, WebP, GIF, or AVIF image.');
-  }
-
-  const buf = await res.arrayBuffer();
-  if (buf.byteLength > MAX_BYTES) throw new Error('Image is too large (8MB max).');
-  return { bytes: new Uint8Array(buf), contentType };
 }
 
 export const POST: APIRoute = async ({ request, cookies, url }) => {
@@ -122,7 +88,11 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       if (!sourceUrl) return errorJson(['No current image to edit — generate or upload one first.'], 400);
       editedFrom = sourceUrl;
       isCurrentImageEdit = true;
-      source = await loadSourceImage(sourceUrl, url);
+      source = await loadSourceImage(sourceUrl, {
+        requestUrl: url,
+        cookieHeader: request.headers.get('cookie'),
+        maxBytes: MAX_BYTES,
+      });
     }
   } catch (err: any) {
     return errorJson([err.message], 400);

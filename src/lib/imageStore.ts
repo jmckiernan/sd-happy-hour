@@ -238,9 +238,16 @@ export async function readImageStrict(key: string): Promise<StoredImage | null> 
 }
 
 export function storedImageUrlKey(url: string): string | null {
-  if (!url.startsWith('/api/images/')) return null;
-  const match = url.match(/^\/api\/images\/([^/?#]+)$/);
-  return match?.[1] || null;
+  let pathname = url;
+  if (!pathname.startsWith('/')) {
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      return null;
+    }
+  }
+  const match = pathname.match(/^\/api\/images\/([^/?#]+)\/?$/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
 /** Non-stored paths and remote URLs are treated as available; stored images

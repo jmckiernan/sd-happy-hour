@@ -72,12 +72,18 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
             listing: approvedListing,
             status: 'approved',
             approvedListingId: submission.approvedListingId,
+            submissionKind: 'update',
           });
           return json(updated);
         }
 
         const nextId = await appendVenue(listing, now);
-        const updated = await updateSubmission(submission.id, { listing, status: 'approved', approvedListingId: nextId });
+        const updated = await updateSubmission(submission.id, {
+          listing,
+          status: 'approved',
+          approvedListingId: nextId,
+          submissionKind: 'new',
+        });
         return json(updated);
       } catch (err: any) {
         return errorJson([`Could not publish venue: ${err.message}`], 502);

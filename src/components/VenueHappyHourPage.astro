@@ -676,6 +676,11 @@ function formatWindowLine(window: {
       cursor: pointer;
       font-family: inherit;
     }
+    .venue-actions.compact > a,
+    .venue-actions.compact > button,
+    .venue-actions.compact > .save-quick-action > button {
+      font-size: 0.85rem;
+    }
     .btn-primary { background: var(--night); color: white; }
     .btn-primary:hover { background: var(--sunset-start); }
     .btn-secondary { background: var(--sand-warm); color: var(--night); }
@@ -1638,6 +1643,7 @@ function formatWindowLine(window: {
     const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
     const saveLabel = document.getElementById('save-label')!;
     const saveListInfoText = document.getElementById('save-list-info-text')!;
+    const venueActions = document.querySelector('.venue-actions') as HTMLElement | null;
     let isSignedIn = false;
     let isSavedToDefault = false;
     let isFollowing = false;
@@ -1679,6 +1685,29 @@ function formatWindowLine(window: {
     liveDealSignIn.addEventListener('click', trackPromotionIntent);
     trackVenueEvent('venue_viewed');
 
+    function venueActionsWrap() {
+      if (!venueActions) return false;
+      const items = [...venueActions.children] as HTMLElement[];
+      if (items.length < 2) return false;
+      const firstTop = items[0].getBoundingClientRect().top;
+      return items.some((item, index) => index > 0 && item.getBoundingClientRect().top > firstTop + 1);
+    }
+
+    function syncVenueActionsLayout() {
+      if (!venueActions) return;
+      venueActions.classList.remove('compact');
+      void venueActions.offsetHeight;
+      if (venueActionsWrap()) {
+        venueActions.classList.add('compact');
+      }
+    }
+
+    let venueActionsResizeTimer: number | undefined;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(venueActionsResizeTimer);
+      venueActionsResizeTimer = window.setTimeout(syncVenueActionsLayout, 100);
+    }, { passive: true });
+
     function renderSaveState() {
       const savedVenue = savedState?.venues?.find((entry: any) => entry.venueId === venueId);
       const defaultList = savedState?.lists?.find((entry: any) => entry.id === savedState.defaultListId);
@@ -1704,6 +1733,7 @@ function formatWindowLine(window: {
           ? 'This will save to your default quick-save list.'
           : 'Sign in to save this venue to your default list.';
       }
+      syncVenueActionsLayout();
     }
 
     async function init() {
@@ -1732,6 +1762,7 @@ function formatWindowLine(window: {
       followBtn.classList.toggle('following', isFollowing);
       followBtn.setAttribute('aria-pressed', String(isFollowing));
       followLabel.textContent = isFollowing ? 'Following live deals' : 'Follow live deals';
+      syncVenueActionsLayout();
     }
 
     saveBtn.addEventListener('click', async () => {
@@ -1742,6 +1773,7 @@ function formatWindowLine(window: {
       const removing = isSavedToDefault;
       saveBtn.disabled = true;
       saveLabel.textContent = removing ? 'Unsaving…' : 'Saving…';
+      syncVenueActionsLayout();
       try {
         const response = await fetch(`/api/account/saved-venues/${venueId}`, {
           method: removing ? 'DELETE' : 'POST',
@@ -1763,6 +1795,7 @@ function formatWindowLine(window: {
       }
       followBtn.disabled = true;
       followLabel.textContent = isFollowing ? 'Unfollowing...' : 'Following...';
+      syncVenueActionsLayout();
       try {
         const response = await fetch(`/api/account/follows/${venueId}`, isFollowing
           ? { method: 'DELETE' }
@@ -2628,6 +2661,7 @@ function formatWindowLine(window: {
     window.addEventListener('pageshow', handlePageShow);
     window.addEventListener('pagehide', handlePageHide);
 
+    syncVenueActionsLayout();
     init();
     promotionFeed.start();
     initOwnerContent();

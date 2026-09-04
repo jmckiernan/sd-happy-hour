@@ -4,10 +4,11 @@ import { json, errorJson } from '../../../lib/api';
 import { saveImage, makeImageKey } from '../../../lib/imageStore';
 import { readImageDimensions } from '../../../lib/imageDimensions';
 import { describeStoredImage } from '../../../lib/imageMetadata';
+import { ALLOWED_SOURCE_CONTENT_TYPES, loadSourceImage } from '../../../lib/loadSourceImage';
 
 export const prerender = false;
 
-const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
+const ALLOWED_CONTENT_TYPES = ALLOWED_SOURCE_CONTENT_TYPES;
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
 
 // Below this, an image gets visibly grainy once it's stretched to fill the
@@ -24,7 +25,7 @@ const MIN_HEIGHT = 700;
 // link, for example, stops being a hotlink to someone else's server and
 // becomes an actual file this app owns). Both end up going through the
 // same saveImage() call either way.
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, url }) => {
   const admin = await getAdminUser(cookies);
   if (!admin) return errorJson(['Sign in at /account/ with an authorized admin email first.'], 401);
 
@@ -55,25 +56,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       imageContentType = file.type;
     } else {
       const body = await request.json();
-      const url = body.url;
+      const rawUrl = body.url;
       if (typeof body.slug === 'string' && body.slug.trim()) slug = body.slug.trim();
-      if (typeof url !== 'string' || !/^https?:\/\//.test(url)) {
-        return errorJson(['Provide a valid http(s) image URL.'], 400);
+      if (typeof rawUrl !== 'string' || !rawUrl.trim()) {
+        return errorJson(['Provide a valid image URL or /images/... path.'], 400);
       }
+      const imageUrl = rawUrl.trim();
       origin = 'url';
-      sourceUrl = url;
+      sourceUrl = imageUrl;
 
-      const res = await fetch(url);
-      if (!res.ok) return errorJson([`Could not fetch that URL (${res.status}).`], 502);
-
-      imageContentType = (res.headers.get('content-type') || '').split(';')[0].trim();
-      if (!ALLOWED_CONTENT_TYPES.has(imageContentType)) {
-        return errorJson(['That URL did not return a JPEG, PNG, WebP, GIF, or AVIF image.'], 400);
+      if (!imageUrl.startsWith('/') && !/^https?:\/\//.test(imageUrl)) {
+        return errorJson(['Provide a valid http(s) image URL or /images/... path.'], 400);
       }
 
-      const buf = await res.arrayBuffer();
-      if (buf.byteLength > MAX_BYTES) return errorJson(['Image is too large (8MB max).'], 400);
-      bytes = new Uint8Array(buf);
+      let loaded;
+      try {
+        loaded = await loadSourceImage(imageUrl, {
+          requestUrl: url,
+          cookieHeader: request.headers.get('cookie'),
+          maxBytes: MAX_BYTES,
+        });
+      } catch (err: any) {
+        return errorJson([err.message], 502);
+      }
+      bytes = loaded.bytes;
+      imageContentType = loaded.contentType;
     }
   } catch (err: any) {
     return errorJson([`Could not read image: ${err.message}`], 400);

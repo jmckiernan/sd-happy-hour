@@ -53,6 +53,7 @@
     "generate:backdrop": "node --env-file-if-exists=.env scripts/generate-backdrop.js",
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
     "seed:merchant-analytics": "node --env-file-if-exists=.env scripts/seed-merchant-analytics.mjs",
+    "seed:bot-traffic": "node --env-file-if-exists=.env scripts/seed-merchant-analytics.mjs -- --with-audience",
     "import:venues": "node --env-file-if-exists=.env scripts/import-google-venues/run.mjs",
     "import:venues:discover": "node --env-file-if-exists=.env scripts/import-google-venues/discover.mjs",
     "import:venues:enrich": "node --env-file-if-exists=.env scripts/import-google-venues/enrich.mjs",

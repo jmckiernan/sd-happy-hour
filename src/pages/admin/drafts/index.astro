@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
+import AdminNav from '../../../components/AdminNav.astro';
 ---
 <Layout title="Manage Posts | Happy Hour SD Admin" description="Review, edit, publish, or unpublish blog posts.">
   <style is:global>
@@ -95,17 +96,7 @@ import Layout from '../../../layouts/Layout.astro';
           <button class="secondary" id="refresh">Refresh</button>
         </div>
       </div>
-      <nav class="admin-subnav">
-        <a href="/admin/">Submissions</a>
-        <a href="/admin/users/">Users</a>
-        <a href="/admin/analytics/">Analytics</a>
-        <a href="/admin/venues/">Venues</a>
-        <a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/" aria-current="page">Posts</a>
-        <a href="/admin/new-post/">Add Blog Post</a>
-        <a href="/admin/content-engine/">Content Engine</a>
-        <a href="/admin/ai-costs/">AI Costs</a>
-      </nav>
+      <AdminNav current="drafts" />
     </div>
 
     <main class="admin-main">

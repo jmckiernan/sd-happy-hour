@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 ---
 <Layout title="Add Blog Post | Happy Hour SD Admin" description="Generate a new Happy Hour SD blog post draft.">
   <style is:global>
@@ -171,17 +172,7 @@ import Layout from '../../layouts/Layout.astro';
           <p>Generate a new Happy Hour SD post for review and publishing.</p>
         </div>
       </div>
-      <nav class="admin-subnav">
-        <a href="/admin/">Submissions</a>
-        <a href="/admin/users/">Users</a>
-        <a href="/admin/analytics/">Analytics</a>
-        <a href="/admin/venues/">Venues</a>
-        <a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/">Posts</a>
-        <a href="/admin/new-post/" aria-current="page">Add Blog Post</a>
-        <a href="/admin/content-engine/">Content Engine</a>
-        <a href="/admin/ai-costs/">AI Costs</a>
-      </nav>
+      <AdminNav current="new-post" />
     </div>
 
     <main class="np-wrap">

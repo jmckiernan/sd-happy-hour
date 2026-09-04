@@ -29,7 +29,14 @@ export default defineConfig({
   // dies with "EMFILE: too many open files".
   devToolbar: { enabled: false },
   output: 'server',
-  adapter: netlify(),
+  adapter: netlify({
+    // pdfkit loads standard fonts and ICC data from disk at runtime via
+    // package imports (#standard-fonts/*); NFT cannot trace those paths.
+    includeFiles: [
+      'node_modules/pdfkit/js/standard-fonts/**',
+      'node_modules/pdfkit/js/data/**',
+    ],
+  }),
   // Explicit hover prefetch for merchant tab links (and any other
   // data-astro-prefetch markers). ClientRouter on /restaurant/* also enables
   // prefetch; this keeps non-router pages from prefetching every link.

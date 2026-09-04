@@ -319,9 +319,11 @@ const publicHref = selectedVenue?.venueSlug
       const escapeHTML = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
       } as Record<string,string>)[char]);
-      const percent = (value:number, uniqueVisits = 0) => {
-        if (!uniqueVisits || !Number(value)) return '—';
-        return `${Number(value).toFixed(value % 1 ? 1 : 0)}%`;
+      const percent = (value:number, denominator = 0) => {
+        if (!denominator) return '—';
+        const rate = Number(value);
+        if (!Number.isFinite(rate)) return '—';
+        return `${rate.toFixed(rate % 1 ? 1 : 0)}%`;
       };
       const selectedVenue = () => bootstrap.venues.find((venue) => venue.venueId === selectedVenueId)!;
       const rangeQuery = () => selectedRange === 'custom'
@@ -445,7 +447,7 @@ const publicHref = selectedVenue?.venueSlug
           ['Shares',s.shares,s.shareRate],['Follows',s.follows,s.followRate],
         ];
         document.getElementById('intent-list')!.innerHTML = actions.map(([label,count,rate])=>`
-          <div class="intent-row"><strong>${label}</strong><span class="intent-count">${format.format(Number(count))}</span><span class="rate${!s.uniqueVisits || !Number(rate) ? ' empty' : ''}">${percent(Number(rate), s.uniqueVisits)}</span></div>`).join('');
+          <div class="intent-row"><strong>${label}</strong><span class="intent-count">${format.format(Number(count))}</span><span class="rate${!s.uniqueVisits ? ' empty' : ''}">${percent(Number(rate), s.uniqueVisits)}</span></div>`).join('');
 
         if (audienceLink) audienceLink.href = `/restaurant/audience/?venueId=${selectedVenueId}`;
 

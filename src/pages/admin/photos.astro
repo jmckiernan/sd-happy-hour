@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 
 // The human half of owner photo moderation. Photos reach this queue when
 // automated screening (src/lib/imageModeration.ts) flagged them as off-topic,
@@ -79,17 +80,7 @@ import Layout from '../../layouts/Layout.astro';
         <button class="secondary" id="refresh">Refresh</button>
       </div>
     </div>
-    <nav class="admin-subnav">
-      <a href="/admin/">Submissions</a>
-      <a href="/admin/users/">Users</a>
-      <a href="/admin/analytics/">Analytics</a>
-      <a href="/admin/venues/">Venues</a>
-      <a href="/admin/photos/" aria-current="page">Photo Review</a>
-      <a href="/admin/drafts/">Posts</a>
-      <a href="/admin/new-post/">Add Blog Post</a>
-      <a href="/admin/content-engine/">Content Engine</a>
-      <a href="/admin/ai-costs/">AI Costs</a>
-    </nav>
+    <AdminNav current="photos" />
   </div>
 
   <main class="admin-main">

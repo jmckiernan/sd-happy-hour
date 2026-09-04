@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 
 const posthogWebAnalyticsUrl = 'https://us.posthog.com/project/575257/web';
 const posthogBlogDashboardUrl = 'https://us.posthog.com/project/575257/dashboard/2028794';
@@ -61,17 +62,7 @@ const ahrefsUrl = 'https://ahrefs.com/webmaster-tools';
         <button class="secondary" id="logout">Log out</button>
       </div>
     </div>
-    <nav class="admin-subnav" aria-label="Admin sections">
-      <a href="/admin/">Submissions</a>
-      <a href="/admin/users/">Users</a>
-      <a href="/admin/analytics/" aria-current="page">Analytics</a>
-      <a href="/admin/venues/">Venues</a>
-      <a href="/admin/photos/">Photo Review</a>
-      <a href="/admin/drafts/">Posts</a>
-      <a href="/admin/new-post/">Add Blog Post</a>
-      <a href="/admin/content-engine/">Content Engine</a>
-      <a href="/admin/ai-costs/">AI Costs</a>
-    </nav>
+    <AdminNav current="analytics" />
   </div>
 
   <main class="admin-main">

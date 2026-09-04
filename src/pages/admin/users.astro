@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 ---
 <Layout title="Users | Happy Hour SD Admin" description="Manage users and review privacy-safe product activity.">
   <style is:global>
@@ -102,17 +103,7 @@ import Layout from '../../layouts/Layout.astro';
           <button class="secondary" id="logout" type="button">Log out</button>
         </div>
       </div>
-      <nav class="admin-subnav" aria-label="Admin sections">
-        <a href="/admin/">Submissions</a>
-        <a href="/admin/users/" aria-current="page">Users</a>
-        <a href="/admin/analytics/">Analytics</a>
-        <a href="/admin/venues/">Venues</a>
-        <a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/">Posts</a>
-        <a href="/admin/new-post/">Add Blog Post</a>
-        <a href="/admin/content-engine/">Content Engine</a>
-        <a href="/admin/ai-costs/">AI Costs</a>
-      </nav>
+      <AdminNav current="users" />
     </header>
 
     <main class="admin-main">

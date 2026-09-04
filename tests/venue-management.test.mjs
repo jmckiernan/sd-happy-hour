@@ -204,7 +204,9 @@ test('card corrections target an existing venue but remain admin-gated', async (
   assert.match(submitRoute, /requireRelationshipToVenue:\s*targetVenueId !== undefined/);
   assert.match(submitRoute, /createSubmission\(\{ contact, listing, approvedListingId: targetVenueId \}\)/);
   assert.match(store, /relationshipToVenue:\s*row\.contact_relationship \?\? ''/);
-  assert.match(store, /INSERT INTO submissions \(contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id\)/);
+  assert.match(store, /INSERT INTO submissions \(contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id, submission_kind\)/);
+  assert.match(reviewRoute, /submissionKind: 'update'/);
+  assert.match(reviewRoute, /submissionKind: 'new'/);
   assert.match(relationshipMigration, /ADD COLUMN contact_relationship text NOT NULL DEFAULT ''/);
 
   // Merely saving the queued proposal cannot touch a live venue. Only an
@@ -213,10 +215,11 @@ test('card corrections target an existing venue but remain admin-gated', async (
   assert.match(reviewRoute, /if \(action === 'approve'\) \{[\s\S]*if \(submission\.approvedListingId\) \{[\s\S]*await updateVenue\(submission\.approvedListingId, approvedListing\)/);
   assert.match(adminPage, /Approve venue update/);
   assert.match(adminPage, /proposed update to venue #/);
-  assert.match(adminPage, /data-filter="new"[^>]*>New listings/);
-  assert.match(adminPage, /data-filter="updates"[^>]*>Updates/);
-  assert.match(adminPage, /filter === 'new'\) return item\.status === 'pending' && item\.approvedListingId == null/);
-  assert.match(adminPage, /filter === 'updates'\) return item\.status === 'pending' && item\.approvedListingId != null/);
+  assert.match(adminPage, /data-filter="new"[^>]*>New venues/);
+  assert.match(adminPage, /data-filter="updates"[^>]*>Venue updates/);
+  assert.match(adminPage, /consolidateApproved/);
+  assert.match(adminPage, /submissionKind === 'new'/);
+  assert.match(adminPage, /submissionKind === 'update'/);
   assert.match(adminPage, /item\.contact\.relationshipToVenue[\s\S]{0,160}<strong>Relationship to venue:<\/strong> \$\{escapeHTML\(item\.contact\.relationshipToVenue\)\}/);
 });
 

@@ -1,8 +1,9 @@
 ---
 export const prerender = true;
 import Layout from '../../../layouts/Layout.astro';
+import AdminNav from '../../../components/AdminNav.astro';
 ---
-<Layout title="Venues | Happy Hour SD Admin" description="Browse venues, review claims, and manage access codes.">
+<Layout title="Venue Claims | Happy Hour SD Admin" description="Browse venues, review claims, and manage access codes.">
   <style is:global>
     .admin-bar {
       background: white;
@@ -121,7 +122,7 @@ import Layout from '../../../layouts/Layout.astro';
   <div class="admin-bar">
     <div class="admin-bar-inner">
       <div>
-        <h1>Venues</h1>
+        <h1>Venue Claims</h1>
         <p>Review claims, browse unverified listings, and manage restaurant access codes.</p>
       </div>
       <div class="admin-actions">
@@ -130,17 +131,7 @@ import Layout from '../../../layouts/Layout.astro';
         <button class="secondary" id="logout">Log out</button>
       </div>
     </div>
-    <nav class="admin-subnav">
-      <a href="/admin/">Submissions</a>
-      <a href="/admin/users/">Users</a>
-      <a href="/admin/analytics/">Analytics</a>
-      <a href="/admin/venues/" aria-current="page">Venues</a>
-      <a href="/admin/photos/">Photo Review</a>
-      <a href="/admin/drafts/">Posts</a>
-      <a href="/admin/new-post/">Add Blog Post</a>
-      <a href="/admin/content-engine/">Content Engine</a>
-      <a href="/admin/ai-costs/">AI Costs</a>
-    </nav>
+    <AdminNav current="claims" />
   </div>
 
   <main class="admin-main">
@@ -150,10 +141,10 @@ import Layout from '../../../layouts/Layout.astro';
     <input class="venue-search" id="venue-search" type="search" placeholder="Search by name, website, address, phone, or type…" autocomplete="off">
 
     <div class="admin-filters" id="filters" role="tablist" aria-label="Venue views" hidden>
-      <button type="button" role="tab" data-tab="pending" aria-pressed="true">Pending <span class="count" data-count="pending"></span></button>
-      <button type="button" role="tab" data-tab="verified" aria-pressed="false">Verified <span class="count" data-count="verified"></span></button>
-      <button type="button" role="tab" data-tab="unverified" aria-pressed="false">Unverified <span class="count" data-count="unverified"></span></button>
-      <button type="button" role="tab" data-tab="denied" aria-pressed="false">Denied <span class="count" data-count="denied"></span></button>
+      <button type="button" role="tab" data-tab="pending" aria-pressed="true">Claim pending <span class="count" data-count="pending"></span></button>
+      <button type="button" role="tab" data-tab="verified" aria-pressed="false">Owner verified <span class="count" data-count="verified"></span></button>
+      <button type="button" role="tab" data-tab="unverified" aria-pressed="false">No verified owner <span class="count" data-count="unverified"></span></button>
+      <button type="button" role="tab" data-tab="denied" aria-pressed="false">Claim denied <span class="count" data-count="denied"></span></button>
       <button type="button" role="tab" data-tab="access-codes" aria-pressed="false">Access codes</button>
     </div>
 
@@ -326,14 +317,14 @@ import Layout from '../../../layouts/Layout.astro';
     function claimTimingHTML(claim: any) {
       if (claim.status === 'pending') {
         const ms = Date.now() - new Date(claim.createdAt).getTime();
-        return `<div class="timing">Pending for ${escapeHTML(formatDuration(ms))} · submitted ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
+        return `<div class="timing">Claim pending for ${escapeHTML(formatDuration(ms))} · submitted ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
       }
       if (claim.status === 'verified' && claim.verifiedAt) {
         const ms = Date.now() - new Date(claim.verifiedAt).getTime();
-        return `<div class="timing">Verified ${escapeHTML(formatWhen(claim.verifiedAt))} · verified for ${escapeHTML(formatDuration(ms))}</div>`;
+        return `<div class="timing">Owner verified ${escapeHTML(formatWhen(claim.verifiedAt))} · verified for ${escapeHTML(formatDuration(ms))}</div>`;
       }
       if (claim.status === 'denied') {
-        return `<div class="timing">Denied · last attempt ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
+        return `<div class="timing">Claim denied · last attempt ${escapeHTML(formatWhen(claim.createdAt))}</div>`;
       }
       return '';
     }
@@ -441,19 +432,19 @@ import Layout from '../../../layouts/Layout.astro';
       let html = '';
       if (activeTab === 'pending') {
         const rows = pendingEntries().filter(({ venue }) => matchesSearch(venue));
-        setStatus(`${counts.pending} pending · showing ${rows.length}`);
+        setStatus(`${counts.pending} claim pending · showing ${rows.length}`);
         html = rows.length
-          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'pending', 'pending', 'pending')).join('')
-          : '<p>No pending claims match your search.</p>';
+          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'pending', 'claim pending', 'pending')).join('')
+          : '<p>No claim-pending venues match your search.</p>';
       } else if (activeTab === 'verified') {
         const rows = verifiedVenues().filter(matchesSearch);
-        setStatus(`${counts.verified} verified · showing ${rows.length}`);
+        setStatus(`${counts.verified} owner verified · showing ${rows.length}`);
         html = rows.length
           ? rows.map((venue) => {
               const claim = venue.claims.find((c: any) => c.status === 'verified');
-              return venueCardHTML(venue, claim, 'verified', 'verified', 'verified');
+              return venueCardHTML(venue, claim, 'verified', 'owner verified', 'verified');
             }).join('')
-          : '<p>No verified venues match your search.</p>';
+          : '<p>No owner-verified venues match your search.</p>';
       } else if (activeTab === 'unverified') {
         const rows = unverifiedVenues().filter(matchesSearch);
         setStatus(`${counts.unverified} without verified owner · showing ${rows.length}`);
@@ -462,17 +453,17 @@ import Layout from '../../../layouts/Layout.astro';
               const pending = venue.claims.find((c: any) => c.status === 'pending');
               const denied = venue.claims.find((c: any) => c.status === 'denied');
               const claim = pending || denied || null;
-              const label = pending ? 'pending claim' : denied ? 'denied claim' : 'unverified';
+              const label = pending ? 'claim pending' : denied ? 'claim denied' : 'no verified owner';
               const pillClass = pending ? 'pending' : denied ? 'denied' : 'unverified';
               return venueCardHTML(venue, claim, pending ? 'pending' : denied ? 'denied' : '', label, pillClass);
             }).join('')
-          : '<p>No unverified venues match your search.</p>';
+          : '<p>No venues without a verified owner match your search.</p>';
       } else if (activeTab === 'denied') {
         const rows = deniedEntries().filter(({ venue }) => matchesSearch(venue));
-        setStatus(`${counts.denied} denied · showing ${rows.length}`);
+        setStatus(`${counts.denied} claim denied · showing ${rows.length}`);
         html = rows.length
-          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'denied', 'denied', 'denied')).join('')
-          : '<p>No denied claims match your search.</p>';
+          ? rows.map(({ venue, claim }) => venueCardHTML(venue, claim, 'denied', 'claim denied', 'denied')).join('')
+          : '<p>No claim-denied venues match your search.</p>';
       }
 
       listEl.innerHTML = html;

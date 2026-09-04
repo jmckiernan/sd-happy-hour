@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
+import AdminNav from '../../components/AdminNav.astro';
 ---
 <Layout title="Content Engine | Happy Hour SD Admin" description="Discover, review, and publish current San Diego content.">
   <style is:global>
@@ -95,14 +96,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="ce-actions"><span id="ce-user" class="ce-meta"></span><button id="ce-pause" class="secondary">Pause</button><button id="ce-run">Run pipeline now</button><button id="ce-refresh" class="secondary">Refresh</button></div>
       </div>
       <div id="ce-schedule-info" class="ce-schedule-info"></div>
-      <nav class="ce-nav">
-        <a href="/admin/">Submissions</a><a href="/admin/users/">Users</a><a href="/admin/analytics/">Analytics</a>
-        <a href="/admin/venues/">Venues</a><a href="/admin/photos/">Photo Review</a>
-        <a href="/admin/drafts/">Posts</a>
-        <a href="/admin/new-post/">Add Blog Post</a>
-        <a href="/admin/content-engine/" aria-current="page">Content Engine</a>
-        <a href="/admin/ai-costs/">AI Costs</a>
-      </nav>
+      <AdminNav current="content-engine" navClass="ce-nav" />
     </header>
 
     <main class="ce-shell">

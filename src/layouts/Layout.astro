@@ -316,8 +316,11 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       background: rgba(255, 107, 53, 0.28);
     }
     .site-nav .links a#restaurant-nav-link[aria-current="page"] {
-      background: var(--night);
+      background: rgba(255, 107, 53, 0.92);
       color: white;
+    }
+    .site-nav .links a#restaurant-nav-link[aria-current="page"]:hover {
+      background: var(--sunset-start);
     }
 
     /* Admin-only links (visible only to signed-in admin emails) get a
@@ -366,8 +369,11 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       background: var(--sunset-start);
     }
     .site-nav.transparent .links a#restaurant-nav-link[aria-current="page"] {
-      background: var(--night);
+      background: rgba(255, 107, 53, 0.92);
       color: white;
+    }
+    .site-nav.transparent .links a#restaurant-nav-link[aria-current="page"]:hover {
+      background: var(--sunset-start);
     }
 
     @media (max-width: 720px) {

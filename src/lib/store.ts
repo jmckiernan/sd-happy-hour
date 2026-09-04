@@ -736,6 +736,7 @@ export interface Listing {
 export interface Submission {
   id: string;
   status: 'pending' | 'approved' | 'denied';
+  submissionKind: 'new' | 'update';
   createdAt: string;
   updatedAt: string;
   contact: { contactName: string; contactEmail: string; relationshipToVenue: string; notes: string };
@@ -747,6 +748,7 @@ export interface Submission {
 interface SubmissionRow {
   id: string;
   status: 'pending' | 'approved' | 'denied';
+  submission_kind: 'new' | 'update';
   contact_name: string;
   contact_email: string;
   contact_relationship: string;
@@ -762,6 +764,7 @@ function mapSubmission(row: SubmissionRow): Submission {
   return {
     id: row.id,
     status: row.status,
+    submissionKind: row.submission_kind,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     contact: {
@@ -795,15 +798,17 @@ export interface CreateSubmissionInput {
 }
 
 export async function createSubmission(input: CreateSubmissionInput): Promise<Submission> {
+  const submissionKind = input.approvedListingId != null ? 'update' : 'new';
   const rows = await sql<SubmissionRow>`
-    INSERT INTO submissions (contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id)
+    INSERT INTO submissions (contact_name, contact_email, contact_relationship, contact_notes, listing, approved_listing_id, submission_kind)
     VALUES (
       ${input.contact.contactName},
       ${input.contact.contactEmail},
       ${input.contact.relationshipToVenue},
       ${input.contact.notes},
       ${JSON.stringify(input.listing)}::jsonb,
-      ${input.approvedListingId ?? null}
+      ${input.approvedListingId ?? null},
+      ${submissionKind}
     )
     RETURNING *`;
   return mapSubmission(rows[0]);
@@ -814,6 +819,7 @@ export interface UpdateSubmissionInput {
   listing?: Listing;
   denialReason?: string;
   approvedListingId?: number;
+  submissionKind?: 'new' | 'update';
 }
 
 export async function updateSubmission(id: string, input: UpdateSubmissionInput): Promise<Submission | null> {
@@ -822,7 +828,8 @@ export async function updateSubmission(id: string, input: UpdateSubmissionInput)
       status               = COALESCE(${input.status ?? null}, status),
       listing               = COALESCE(${input.listing ? JSON.stringify(input.listing) : null}::jsonb, listing),
       denial_reason         = COALESCE(${input.denialReason ?? null}, denial_reason),
-      approved_listing_id   = COALESCE(${input.approvedListingId ?? null}, approved_listing_id)
+      approved_listing_id   = COALESCE(${input.approvedListingId ?? null}, approved_listing_id),
+      submission_kind       = COALESCE(${input.submissionKind ?? null}, submission_kind)
     WHERE id = ${id}
     RETURNING *`;
   return rows[0] ? mapSubmission(rows[0]) : null;
