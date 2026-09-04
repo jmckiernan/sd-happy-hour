@@ -2,7 +2,7 @@
 title: "Chasing the Best Taco Happy Hours in San Diego"
 description: "A local's guide to what makes a taco happy hour worth chasing in San Diego, plus the neighborhoods where you're most likely to find one."
 pubDate: 2026-08-01
-updatedDate: 2026-08-24
+updatedDate: "2026-09-04"
 author: "Happy Hour SD"
 draft: false
 aiGenerated: true
