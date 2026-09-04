@@ -5,8 +5,9 @@ pubDate: 2026-07-24
 author: "John & Shane"
 draft: false
 venues: ["ironside-fish-oyster", "craft-commerce"]
+updatedDate: "2026-09-04"
+heroImage: "/api/images/welcome-to-sd-happy-hours-1788487663663-019f9c2f.png"
 ---
-
 San Diego has no shortage of happy hours — the hard part has always been knowing which ones are actually happening *right now*, without scrolling through outdated posts or apps that haven't been updated in years.
 
 That's what Happy Hour SD is for. Pick a neighborhood, pick a day, and see what's live — real hours, real deals, sourced from the community and verified with the venues themselves wherever we can.
