@@ -33772,13 +33772,13 @@
     "lat": 32.8294036,
     "lng": -117.1527594,
     "days": [
-      "Sunday",
       "Monday",
       "Tuesday",
       "Wednesday",
       "Thursday",
       "Friday",
-      "Saturday"
+      "Saturday",
+      "Sunday"
     ],
     "startTime": "11:30",
     "endTime": "23:00",
@@ -33793,8 +33793,8 @@
     "vibe": "Gastropub",
     "website": "https://commontheorysd.com/",
     "phone": "(619) 780-6689",
-    "verified": false,
-    "lastVerifiedAt": "2026-08-29",
+    "verified": true,
+    "lastVerifiedAt": "2026-09-04",
     "sourceUrl": "https://commontheorysd.com/specials",
     "dealTypes": [
       "beer",
