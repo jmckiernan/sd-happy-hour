@@ -4,7 +4,6 @@ import {
   getVenueOverride,
   setVenueOverride,
   listPublishedVenuePhotos,
-  publishVenuePhotosAwaitingReview,
 } from '../../../../../lib/store';
 import { getVenueManager, NOT_A_MANAGER_MESSAGE } from '../../../../../lib/venueManager';
 import {
@@ -40,10 +39,6 @@ export const GET: APIRoute = async ({ params, cookies }) => {
   const venue = findVenue(venueId);
   if (!venue) return errorJson(['Venue not found.'], 404);
 
-  // Older uploads may have been held when automated screening was unavailable.
-  // Manual approval is no longer part of the owner workflow, so heal those
-  // legacy rows as soon as the management page is opened.
-  await publishVenuePhotosAwaitingReview(venueId);
   const override = await getVenueOverride(venueId);
 
   return json({
