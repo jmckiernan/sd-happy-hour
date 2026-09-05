@@ -585,6 +585,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
 
   <script>
     import { alertMatchesVenue } from '../lib/venueListingHelpers';
+    import { isPubliclyListed } from '../lib/listingVisibility';
     import { postAuthReturnPath } from '../lib/authRedirect';
     import { fetchBrowserSession } from '../lib/browserSession';
 
@@ -594,10 +595,30 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     let alertSaveConfirmation: { alertId: string; text: string } | null = null;
     // Lazy-loaded venue data for alerts filtering (no longer needed for saved spots)
     let happyHoursCache: any[] | null = null;
+    async function mergePublicVenues(venues: any[], failureFallback = venues) {
+      try {
+        const res = await fetch('/api/venue-overrides', { cache: 'no-store' });
+        if (!res.ok) return failureFallback.filter((venue) => isPubliclyListed(venue));
+        const { overrides, publishedVenueIds } = await res.json();
+        const published = new Set<number>(publishedVenueIds || []);
+        return venues
+          .filter((venue) => isPubliclyListed(venue, published))
+          .map((venue) => {
+            const patch = overrides?.[String(venue.id)];
+            return patch ? { ...venue, ...patch } : venue;
+          });
+      } catch {
+        return failureFallback.filter((venue) => isPubliclyListed(venue));
+      }
+    }
     async function getHappyHours(): Promise<any[]> {
       if (happyHoursCache) return happyHoursCache;
       const res = await fetch('/data/happy-hours.json');
-      happyHoursCache = await res.json();
+      const baseHappyHours = await res.json();
+      happyHoursCache = await mergePublicVenues(
+        baseHappyHours,
+        baseHappyHours.filter((venue: any) => isPubliclyListed(venue)),
+      );
       return happyHoursCache;
     }
 

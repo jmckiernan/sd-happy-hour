@@ -271,6 +271,29 @@ function testTheSitemapAndTheNoindexTagAgree() {
   assert.ok(happyHours.some((venue) => venue.seoHidden && isPubliclyListed(venue)));
 }
 
+async function testAlertMatchCountsOnlyPublicVenues() {
+  const account = await readFile(path.join(process.cwd(), 'src', 'pages', 'account.astro'), 'utf8');
+  const sharedAlertsApi = await readFile(
+    path.join(process.cwd(), 'src', 'pages', 'api', 'shared-alerts', '[shareId]', '[alertId].ts'),
+    'utf8',
+  );
+
+  // The account page's "N spots match right now" preview must use the same
+  // public catalog as the homepage grid, not the full import backlog.
+  assert.match(account, /mergePublicVenues/);
+  assert.match(account, /isPubliclyListed\(venue, published\)/);
+  assert.doesNotMatch(account, /happyHoursCache = await res\.json\(\);\s*return happyHoursCache;/);
+
+  // Shared alert previews and notification dispatch both read public venues only.
+  assert.match(sharedAlertsApi, /getPublicMergedVenues\(\)/);
+
+  const emptyFilters = {};
+  const fromAll = getVenues().filter((venue) => alertMatchesVenue(emptyFilters, venue)).length;
+  const fromPublic = homepageGridVenues().filter((venue) => alertMatchesVenue(emptyFilters, venue)).length;
+  assert.ok(fromAll > fromPublic, 'catalog still includes hidden venues alerts must exclude');
+  assert.equal(fromPublic, homepageGridVenues().length);
+}
+
 tests.push(
   testTheSitemapAndTheNoindexTagAgree,
   testEveryPublishedVenueIsOnTheHomepage,
@@ -282,6 +305,7 @@ tests.push(
   testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent,
   testAConfirmedVenueIsNeverKeptOutOfTheIndexOrItsNeighborhoodPage,
   testABuildingFullOfTenantsIsNotAPublishedVenue,
+  testAlertMatchCountsOnlyPublicVenues,
 );
 
 let failed = 0;

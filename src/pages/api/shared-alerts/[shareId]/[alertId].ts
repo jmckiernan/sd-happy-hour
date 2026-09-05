@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { getUserByShareId, getAlert } from '../../../../lib/store';
 import { json, errorJson } from '../../../../lib/api';
-import { getVenues, alertMatchesVenue } from '../../../../lib/venues';
+import { alertMatchesVenue } from '../../../../lib/venues';
+import { getPublicMergedVenues } from '../../../../lib/venueContent';
 
 export const prerender = false;
 
@@ -16,7 +17,7 @@ export const GET: APIRoute = async ({ params }) => {
   const alert = await getAlert(owner.id, params.alertId!);
   if (!alert) return errorJson(['Shared alert not found.'], 404);
 
-  const matches = getVenues().filter((venue) => alertMatchesVenue(alert.filters, venue));
+  const matches = (await getPublicMergedVenues()).filter((venue) => alertMatchesVenue(alert.filters, venue));
 
   return json({
     ownerName: owner.name,
