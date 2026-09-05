@@ -218,6 +218,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
 
     .saved-grid { display: grid; gap: 14px; }
     .custom-list-create { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); align-items: end; gap: 12px; margin-top: 14px; }
+    #account-section .custom-list-create textarea,
+    #account-section .inline-list-create textarea { min-height: 48px; height: 48px; resize: vertical; }
     .custom-list-create .form-actions, .list-create-options { grid-column: 1 / -1; }
     .list-create-options { display: flex; gap: 18px; flex-wrap: wrap; }
     .custom-lists-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
@@ -258,7 +260,20 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     button.list-chip:hover { background: #fee2e2; color: #991b1b; }
     .list-chip-remove { color: var(--night-soft); font-size: 1rem; line-height: 1; }
     .saved-list-tools { display: grid; gap: 9px; grid-template-columns: minmax(180px, 260px) minmax(180px, 260px); }
-    .inline-list-create { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius-sm); display: grid; gap: 9px; padding: 12px; }
+    .saved-list-tools > label,
+    .saved-note-list-picker { max-width: 260px; width: 100%; }
+    .inline-list-create {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: var(--radius-sm);
+      display: grid;
+      gap: 9px;
+      grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr);
+      align-items: end;
+      padding: 12px;
+    }
+    .inline-list-create .list-create-options,
+    .inline-list-create .saved-edit-actions { grid-column: 1 / -1; }
     .feedback-contributions { display: grid; gap: 7px; }
     .feedback-entry { background: var(--sand); border-radius: var(--radius-sm); color: var(--night-soft); display: grid; font-size: .82rem; gap: 4px; padding: 9px 11px; }
     .feedback-entry .feedback-body { color: var(--night); }
@@ -286,6 +301,11 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     }
 
     /* Alerts section */
+    .alerts-section-divider {
+      background: var(--sand);
+      height: 16px;
+      margin: 24px -22px;
+    }
     .alert-form { display: grid; gap: 12px; }
     .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
     .day-checks { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -335,12 +355,14 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       .auth-grid { grid-template-columns: 1fr; }
       .account-head { align-items: stretch; flex-direction: column; }
       .custom-list-create, .custom-lists-grid { grid-template-columns: 1fr; }
+      .inline-list-create { grid-template-columns: 1fr; }
       .saved-list-tools { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 720px) {
       .account-main { padding: 20px 16px 64px; }
       .panel { padding: 16px; scroll-margin-top: 64px; }
+      .alerts-section-divider { margin-inline: -16px; }
       .auth-grid .panel { padding: 24px 16px; }
       .restaurant-pitch { padding: 22px 18px; }
       .stuff-nav {
@@ -491,7 +513,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
         </div>
         <form class="custom-list-create" id="create-list-form">
           <label>List title <input name="title" maxlength="80" placeholder="Friday night picks" required></label>
-          <label>Description (optional) <textarea name="description" maxlength="500" rows="2" placeholder="Patios and cocktails near North Park"></textarea></label>
+          <label>Description (optional) <textarea name="description" maxlength="500" rows="1" placeholder="Patios and cocktails near North Park"></textarea></label>
           <div class="list-create-options">
             <label class="channel-check"><input type="checkbox" name="commentsEnabled"> Enable comments on this list</label>
           </div>
@@ -519,7 +541,9 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
         <h2 style="margin-top:20px;">Create a new alert</h2>
         <form class="alert-form" id="create-form"></form>
 
-        <div class="alerts-list-head" style="margin-top:24px;">
+        <div class="alerts-section-divider" aria-hidden="true"></div>
+
+        <div class="alerts-list-head">
           <h2>Your alerts</h2>
           <p class="status" id="list-subtitle"></p>
         </div>
@@ -586,7 +610,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
   <script>
     import { alertMatchesVenue } from '../lib/venueListingHelpers';
     import { isPubliclyListed } from '../lib/listingVisibility';
-    import { postAuthReturnPath } from '../lib/authRedirect';
+    import { postAuthReturnPath, postLoginDestination } from '../lib/authRedirect';
     import { fetchBrowserSession } from '../lib/browserSession';
 
     let currentUser: any = null;
@@ -751,12 +775,23 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       return res.json();
     }
 
+    function continueAfterLogin(result: any): boolean {
+      const destination = postLoginDestination(
+        new URLSearchParams(window.location.search).get('next'),
+        result?.restaurantDashboardPath
+      );
+      if (!destination) return false;
+      window.location.replace(destination);
+      return true;
+    }
+
     async function handleGoogleCredential(response: any) {
       const note = document.getElementById('google-note')!;
       note.classList.remove('error');
       note.textContent = 'Signing in...';
       try {
-        await postJson('/api/account/google', { credential: response.credential });
+        const result = await postJson('/api/account/google', { credential: response.credential });
+        if (continueAfterLogin(result)) return;
         await loadAccount();
         note.textContent = '';
       } catch (err: any) {
@@ -847,12 +882,13 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       status.textContent = 'Signing in...';
       button.disabled = true;
       try {
-        await postJson('/api/account/login', {
+        const result = await postJson('/api/account/login', {
           email: (form.elements.namedItem('email') as HTMLInputElement).value,
           password: (form.elements.namedItem('password') as HTMLInputElement).value,
         });
         form.reset();
         status.textContent = '';
+        if (continueAfterLogin(result)) return;
         await loadAccount();
       } catch (err: any) {
         status.classList.add('error');
@@ -1135,10 +1171,12 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
             <span class="field-helper">Visible to people who can see your shared list.</span>
           </label>
           ${noteMembership ? `
-            <label>Note for this list
+            <label class="saved-note-list-picker">Note for this list
               <select data-note-list>
                 ${noteLists.map((list: any) => `<option value="${escapeHTML(list.listId)}" ${list.listId === noteMembership.listId ? 'selected' : ''}>${escapeHTML(list.title)}</option>`).join('')}
               </select>
+            </label>
+            <label>List note
               <textarea data-list-note maxlength="500" placeholder="Only on ${escapeHTML(noteMembership.title)} — visible to people on that list, not on your other lists…">${escapeHTML(myNote)}</textarea>
               <span class="field-helper">Private to this list and its collaborators.</span>
             </label>
@@ -1220,7 +1258,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
             </div>
             <div class="inline-list-create hidden" data-inline-create>
               <label>New list title <input data-new-list-title maxlength="80" placeholder="Weekend picks"></label>
-              <label>Description (optional) <textarea data-new-list-description maxlength="500" rows="2"></textarea></label>
+              <label>Description (optional) <textarea data-new-list-description maxlength="500" rows="1"></textarea></label>
               <div class="list-create-options">
                 <label class="channel-check"><input type="checkbox" data-new-list-comments> Enable comments on this list</label>
               </div>

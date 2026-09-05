@@ -158,9 +158,15 @@ const nearby = profile.nearby
   .local-intro .planning-tip { background: var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); margin: 18px 0 0; padding: 14px 16px; }
   .freshness-note { color: var(--night-soft); line-height: 1.55; margin: -4px 0 20px; }
   .venue-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-  .venue-result { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: 0 8px 28px rgba(15,23,42,.08); }
-  .venue-image { display: block; height: 210px; }
-  .venue-image img { height: 100%; object-fit: cover; width: 100%; }
+  .venue-result { background: white; border-radius: var(--radius); overflow: visible; box-shadow: 0 8px 28px rgba(15,23,42,.08); }
+  /* The card itself must allow its action popovers to extend over the cards
+     below it. Clip only the photo frame so admin-selected zoom never paints
+     across the schedule and title. */
+  .venue-image {
+    border-radius: var(--radius) var(--radius) 0 0; display: block; height: 210px;
+    isolation: isolate; overflow: hidden; position: relative;
+  }
+  .venue-image img { display: block; height: 100%; object-fit: cover; width: 100%; }
   .venue-copy { padding: 22px; }
   .schedule { color: var(--sunset-start); font-size: .74rem; font-weight: 800; line-height: 1.45; margin-bottom: 8px; text-transform: uppercase; }
   .venue-copy h3 { font-family: var(--font-display); font-size: 1.45rem; margin-bottom: 4px; }

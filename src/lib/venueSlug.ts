@@ -18,6 +18,9 @@ export type SlugVenue = {
  * One slug per listing. Unique names stay `/venues/the-cork-and-craft/`.
  * Chains share a name, so the neighborhood is appended:
  * `/venues/karl-strauss-brewing-company-sorrento-valley/`.
+ *
+ * Always build this map from the full venue catalog. Unlisted claim stubs still
+ * occupy a name and must be counted when disambiguating published locations.
  */
 export function buildVenueSlugMap(venues: SlugVenue[]): Map<number, string> {
   const byName = new Map<string, SlugVenue[]>();

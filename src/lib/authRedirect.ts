@@ -72,6 +72,28 @@ export function postAuthReturnPath(raw: string | null | undefined): string | nul
   return current;
 }
 
+/**
+ * Default destination for a restaurant owner after sign-in. Claims are ordered
+ * by the store, so multi-venue owners land on their most recently claimed
+ * verified venue while the dashboard's venue switcher keeps the rest handy.
+ */
+export function verifiedOwnerDashboardPath(
+  claims: Array<{ status?: string | null; venueId?: number | null }> | null | undefined
+): string | null {
+  const claim = claims?.find(({ status, venueId }) =>
+    status === 'verified' && Number.isSafeInteger(venueId) && Number(venueId) > 0
+  );
+  return claim ? `/restaurant/?venueId=${claim.venueId}` : null;
+}
+
+/** Preserve an intentional gated-page return before applying a role default. */
+export function postLoginDestination(
+  requestedReturnPath: string | null | undefined,
+  roleDefaultPath: string | null | undefined
+): string | null {
+  return postAuthReturnPath(requestedReturnPath) || postAuthReturnPath(roleDefaultPath);
+}
+
 /** Build /account/ or /account/?next=… for a safe same-origin return path. */
 export function accountSignInHref(returnTo?: string | null): string {
   const next = postAuthReturnPath(returnTo);

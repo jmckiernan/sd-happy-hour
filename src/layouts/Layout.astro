@@ -398,7 +398,7 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
         white-space: nowrap;
       }
 
-      .mobile-nav-toggle {
+      .site-nav .mobile-nav-toggle {
         align-items: center;
         appearance: none;
         background: rgba(255, 255, 255, 0.9);
@@ -411,9 +411,23 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
         height: 46px;
         justify-content: center;
         margin-left: auto;
+        padding: 0;
         position: relative;
         width: 46px;
         z-index: 303;
+      }
+
+      /* Page-level form/button themes also see slotted layout controls. Keep
+         the shared menu button deterministic so account/admin button rules
+         cannot shrink its middle bar or recolor it after a tap. */
+      .site-nav .mobile-nav-toggle:hover,
+      .site-nav .mobile-nav-toggle:focus-visible {
+        background: rgba(255, 255, 255, 0.9);
+      }
+      .site-nav .mobile-nav-toggle:focus-visible {
+        border-color: var(--ocean);
+        box-shadow: 0 0 0 4px rgba(8, 145, 178, .14);
+        outline: none;
       }
 
       .mobile-nav-toggle-icon,
@@ -430,6 +444,7 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       }
 
       .mobile-nav-toggle-icon {
+        flex: 0 0 21px;
         position: relative;
       }
 
@@ -439,7 +454,9 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-icon::before { transform: rotate(45deg); }
       .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-icon::after { transform: rotate(-45deg); }
 
-      .site-nav.transparent .mobile-nav-toggle {
+      .site-nav.transparent .mobile-nav-toggle,
+      .site-nav.transparent .mobile-nav-toggle:hover,
+      .site-nav.transparent .mobile-nav-toggle:focus-visible {
         background: rgba(15, 23, 42, 0.44);
         border-color: rgba(255, 255, 255, 0.48);
         color: white;
@@ -450,12 +467,15 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
         appearance: none;
         background: rgba(15, 23, 42, 0.5);
         border: 0;
+        border-radius: 0;
+        box-shadow: none;
         cursor: pointer;
         display: block;
         inset: 0;
         opacity: 0;
         pointer-events: none;
         position: fixed;
+        padding: 0;
         transition: opacity 0.2s ease;
         visibility: hidden;
         z-index: 301;

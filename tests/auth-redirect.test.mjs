@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   accountSignInHref,
+  postLoginDestination,
   postAuthReturnPath,
   safeReturnPath,
+  verifiedOwnerDashboardPath,
 } from '../src/lib/authRedirect.ts';
 
 test('safeReturnPath accepts same-origin relative paths with query and hash', () => {
@@ -54,6 +56,40 @@ test('accountSignInHref encodes a safe next destination', () => {
     accountSignInHref('/restaurant/billing/'),
     '/account/?next=%2Frestaurant%2Fbilling%2F',
   );
+});
+
+test('verified restaurant owners land on their verified venue dashboard', () => {
+  assert.equal(verifiedOwnerDashboardPath(null), null);
+  assert.equal(verifiedOwnerDashboardPath([]), null);
+  assert.equal(verifiedOwnerDashboardPath([
+    { status: 'pending', venueId: 9 },
+    { status: 'denied', venueId: 10 },
+  ]), null);
+  assert.equal(verifiedOwnerDashboardPath([
+    { status: 'pending', venueId: 9 },
+    { status: 'verified', venueId: 42 },
+    { status: 'verified', venueId: 43 },
+  ]), '/restaurant/?venueId=42');
+  assert.equal(verifiedOwnerDashboardPath([
+    { status: 'verified', venueId: 0 },
+    { status: 'verified', venueId: Number.NaN },
+  ]), null);
+});
+
+test('an explicit post-login return wins over the verified-owner default', () => {
+  assert.equal(
+    postLoginDestination('/lists/invited/', '/restaurant/?venueId=42'),
+    '/lists/invited/',
+  );
+  assert.equal(
+    postLoginDestination(null, '/restaurant/?venueId=42'),
+    '/restaurant/?venueId=42',
+  );
+  assert.equal(
+    postLoginDestination('https://evil.example/', '/restaurant/?venueId=42'),
+    '/restaurant/?venueId=42',
+  );
+  assert.equal(postLoginDestination(null, '//evil.example/'), null);
 });
 
 console.log('auth redirect helpers passed');

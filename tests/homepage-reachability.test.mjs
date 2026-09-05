@@ -18,7 +18,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import happyHours from '../public/data/happy-hours.json' with { type: 'json' };
-import { alertMatchesVenue, getPublicVenues, hasSchedule, getVenues, venueMatchesTimeRange } from '../src/lib/venues';
+import { alertMatchesVenue, getPublicVenues, hasSchedule, getVenues, venueMatchesTimeRange, venueSlug } from '../src/lib/venues';
+import { buildVenueSlugMap, slugFromMap } from '../src/lib/venueSlug';
 import { OFFERS_UNKNOWN_FILTER } from '../src/lib/directoryFilters';
 import { isPubliclyListed, isSitemapEligible } from '../src/lib/listingVisibility';
 import { venueSearchText } from '../src/lib/venueSearchText';
@@ -191,6 +192,8 @@ async function testHomepageTimeBoundsAndNeighborhoodLinksStayConsistent() {
   assert.match(homepage, /startTime:\s*\(document\.getElementById\('start-time-filter'\)/);
   assert.match(homepage, /endTime:\s*\(document\.getElementById\('end-time-filter'\)/);
   assert.match(homepage, /<a class="card-image-link" href="\/venues\/\$\{slug\}\/">/);
+  assert.match(homepage, /venueSlugMap = buildVenueSlugMap\(baseHappyHours\)/);
+  assert.doesNotMatch(homepage, /venueSlugMap = buildVenueSlugMap\(happyHours\)/);
   assert.match(homepage, /<a class="neighborhood-tag" href="\$\{escapeHTML\(neighborhoodPath\(h\.neighborhood\)/);
   assert.match(
     homepage,
@@ -259,6 +262,29 @@ function testABuildingFullOfTenantsIsNotAPublishedVenue() {
  * Both sides now read `isSitemapEligible`, and this holds them to it: the
  * sitemap's answer must be exactly the negation of the page's noindex rule.
  */
+function testHomepageCardSlugsMatchPrerenderedVenuePages() {
+  // The homepage builds card links client-side. Slugs must come from the full
+  // catalog — including unlisted claim stubs — or duplicate chain names lose
+  // their neighborhood suffix and link to pages that were never generated.
+  const fullCatalogSlugs = buildVenueSlugMap(getVenues());
+  const homepageGrid = getVenues().filter((venue) => isPubliclyListed(venue));
+  const mismatches = homepageGrid
+    .filter((venue) => slugFromMap(venue, fullCatalogSlugs) !== venueSlug(venue))
+    .map((venue) => ({
+      id: venue.id,
+      name: venue.name,
+      cardSlug: slugFromMap(venue, fullCatalogSlugs),
+      pageSlug: venueSlug(venue),
+    }));
+  assert.deepEqual(mismatches, []);
+
+  const wrongSlugMap = buildVenueSlugMap(homepageGrid);
+  assert.notEqual(
+    slugFromMap({ id: 178, name: 'On The Border Mexican Grill & Cantina', neighborhood: 'Mira Mesa' }, wrongSlugMap),
+    venueSlug(getVenues().find((venue) => venue.id === 178)),
+  );
+}
+
 function testTheSitemapAndTheNoindexTagAgree() {
   // VenueHappyHourPage: noindex={venue.seoHidden || !isPubliclyListed(venue)}
   const pageIsNoIndex = (venue) => Boolean(venue.seoHidden) || !isPubliclyListed(venue);
@@ -295,6 +321,7 @@ async function testAlertMatchCountsOnlyPublicVenues() {
 }
 
 tests.push(
+  testHomepageCardSlugsMatchPrerenderedVenuePages,
   testTheSitemapAndTheNoindexTagAgree,
   testEveryPublishedVenueIsOnTheHomepage,
   testEveryPublishedVenueCanBeFoundBySearchingItsOwnName,

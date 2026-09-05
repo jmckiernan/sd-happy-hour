@@ -180,12 +180,26 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     }
 
     .filters,
-    .filter-details,
     .filter-utilities {
       align-items: center;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+    }
+    .filters { width: 100%; }
+
+    /* On desktop, advanced filters participate directly in the wrapping row.
+       Keeping their mobile grouping as one flex item makes the whole group too
+       wide to sit beside Search, leaving Search stranded on its own row. */
+    .filter-details { display: contents; }
+
+    @media (min-width: 769px) {
+      .search-input,
+      .filter-details > :not(.filter-end) { order: 0; }
+      .results-info { flex: 0 0 240px; order: 1; }
+      .filter-end,
+      .filter-utilities,
+      .filters > .excluded-note { order: 2; }
     }
 
     .mobile-filter-toggle { display: none; }
@@ -276,13 +290,13 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     .save-alert-panel {
       max-width: 1400px;
       margin: 12px auto 0;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
+      display: grid;
+      align-items: end;
+      gap: 12px 16px;
+      grid-template-columns: minmax(240px, 1fr) minmax(250px, auto) auto;
       background: var(--sand-warm);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
+      padding: 16px;
     }
     .save-alert-panel.hidden { display: none; }
     .save-alert-panel input[type="text"] {
@@ -291,19 +305,31 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       color: var(--night);
       font: inherit;
       font-size: 0.875rem;
+      min-height: 44px;
+      min-width: 0;
       padding: 9px 16px;
-      min-width: min(260px, 100%);
+      width: 100%;
     }
     .save-alert-panel input[type="text"]:focus { border-color: var(--sunset-start); outline: none; }
-    .save-alert-panel button { border-radius: 100px; border: 0; cursor: pointer; font: inherit; font-weight: 700; padding: 9px 18px; background: var(--night); color: white; }
+    .save-alert-panel button { border-radius: 100px; border: 0; cursor: pointer; font: inherit; font-weight: 700; min-height: 44px; padding: 9px 18px; background: var(--night); color: white; }
     .save-alert-panel button:hover { background: var(--sunset-start); }
     .save-alert-panel button.secondary { background: white; color: var(--night); }
     .save-alert-panel button.secondary:hover { background: var(--sunset-end); }
-    .channel-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--night); }
-    .channel-check input { width: 16px; height: 16px; }
-    .channel-note { color: var(--night-soft); font-size: 0.75rem; font-weight: 400; }
+    .alert-channel-group { border: 0; margin: 0; min-width: 0; padding: 0; }
+    .alert-channel-group legend { color: var(--night-soft); font-size: .7rem; font-weight: 750; margin-bottom: 5px; padding: 0; }
+    .alert-channel-options { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .channel-check {
+      align-items: center; background: rgba(255, 255, 255, .88); border: 2px solid transparent;
+      border-radius: 100px; color: var(--night); cursor: pointer; display: flex; font-size: .85rem;
+      font-weight: 700; gap: 7px; min-height: 44px; min-width: 0; padding: 8px 13px;
+    }
+    .channel-check:has(input:focus-visible) { border-color: var(--ocean); }
+    .channel-check input { flex: 0 0 18px; height: 18px; margin: 0; width: 18px; }
+    .channel-note { color: var(--night-soft); display: block; font-size: 0.72rem; font-weight: 500; line-height: 1.35; margin: 6px 4px 0; overflow-wrap: anywhere; }
     .channel-note a { color: var(--ocean); font-weight: 600; }
-    .save-alert-panel .status { color: var(--night-soft); font-weight: 600; font-size: 0.85rem; }
+    .save-alert-actions { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .save-alert-actions button { white-space: nowrap; }
+    .save-alert-panel .status { color: var(--night-soft); font-weight: 600; font-size: 0.85rem; grid-column: 1 / -1; overflow-wrap: anywhere; }
     .save-alert-panel .status.error { color: #B91C1C; }
 
     /* ===== MAP ===== */
@@ -589,13 +615,21 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
         gap: 7px;
         grid-column: 1 / -1;
         grid-template-columns: auto minmax(0, 1fr) auto;
+        order: 0;
         width: 100%;
       }
       .filter-utilities .location-btn { justify-content: center; min-height: 44px; padding: 9px 12px; white-space: nowrap; }
       .filter-utilities .view-toggle { min-width: 0; width: 100%; }
       .filter-utilities .view-btn { flex: 1 1 0; min-height: 36px; padding-inline: 8px; }
       .filter-utilities .desktop-label { display: none; }
-      .results-info { font-size: .78rem; gap: 8px; }
+      .results-info { font-size: .78rem; gap: 8px; grid-column: 1 / -1; order: 0; }
+      .filters > .excluded-note { grid-column: 1 / -1; order: 0; }
+      .save-alert-panel {
+        align-items: stretch;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 14px;
+      }
+      .save-alert-actions button { width: 100%; }
       .grid { grid-template-columns: minmax(0, 1fr); }
       .main { min-width: 0; padding: 24px 16px 64px; }
       .save-panel.compact { flex-wrap: wrap; }
@@ -721,7 +755,7 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
             <input class="filter-btn" id="start-time-filter" type="time" aria-label="Happy hour starts at or after" />
           </label>
 
-          <label class="time-filter-label">
+          <label class="time-filter-label filter-end">
             <span>Ends before</span>
             <input class="filter-btn" id="end-time-filter" type="time" aria-label="Happy hour ends at or before" />
           </label>
@@ -743,20 +777,28 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
           <button class="location-btn" id="save-alert-btn" type="button"><span class="desktop-label">Save as </span>Alert</button>
         </div>
-      </div>
 
-      <div class="results-info">
-        <span><strong id="result-count">—</strong> spots</span>
-        <span class="distance-info" id="distance-info" style="display: none;"></span>
+        <div class="results-info">
+          <span><strong id="result-count">—</strong> spots</span>
+          <span class="distance-info" id="distance-info" style="display: none;"></span>
+        </div>
         <span class="excluded-note" id="excluded-note" hidden aria-live="polite"></span>
       </div>
 
       <div class="save-alert-panel hidden" id="save-alert-panel">
         <input type="text" id="alert-name-input" placeholder="Name this alert (e.g. Friday Rooftop Wine)" maxlength="60">
-        <label class="channel-check"><input type="checkbox" id="alert-channel-email" checked> Email</label>
-        <label class="channel-check"><input type="checkbox" id="alert-channel-text"> Text <span class="channel-note" id="alert-text-note">(set up in <a href="/account/#section-preferences">My Stuff → Preferences</a>)</span></label>
-        <button type="button" id="alert-save-confirm">Save Alert</button>
-        <button type="button" class="secondary" id="alert-save-cancel">Cancel</button>
+        <fieldset class="alert-channel-group">
+          <legend>Notify me by</legend>
+          <div class="alert-channel-options">
+            <label class="channel-check"><input type="checkbox" id="alert-channel-email" checked> <span>Email</span></label>
+            <label class="channel-check"><input type="checkbox" id="alert-channel-text"> <span>Text</span></label>
+          </div>
+          <span class="channel-note" id="alert-text-note">Set up text alerts in <a href="/account/#section-preferences">My Stuff → Preferences</a>.</span>
+        </fieldset>
+        <div class="save-alert-actions">
+          <button type="button" id="alert-save-confirm">Save Alert</button>
+          <button type="button" class="secondary" id="alert-save-cancel">Cancel</button>
+        </div>
         <span class="status" id="alert-save-status" aria-live="polite"></span>
       </div>
     </div>
@@ -830,7 +872,10 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
     let venueDirectoryRefreshPromise: Promise<void> | null = null;
 
     function rebuildVenueSlugMap() {
-      venueSlugMap = buildVenueSlugMap(happyHours);
+      // Slugs are disambiguated across the full catalog (including unlisted
+      // claim stubs), not just what's visible on the homepage. Building from the
+      // filtered list would drop duplicate chain names and produce URLs that 404.
+      venueSlugMap = buildVenueSlugMap(baseHappyHours);
     }
 
     function venuePath(h: any) {
@@ -1260,9 +1305,11 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
       const note = document.getElementById('alert-text-note');
       if (!note) return;
       const ready = Boolean(accountUser?.phone && accountUser?.smsOptedIn);
-      note.innerHTML = ready
-        ? `(texts go to ${accountUser.phone})`
-        : '(set up in <a href="/account/#section-preferences">My Stuff → Preferences</a>)';
+      if (ready) {
+        note.textContent = `Texts go to ${accountUser.phone}.`;
+      } else {
+        note.innerHTML = 'Set up text alerts in <a href="/account/#section-preferences">My Stuff → Preferences</a>.';
+      }
     }
 
     async function loadAccountKeepingVenueInPlace(venueId: number) {

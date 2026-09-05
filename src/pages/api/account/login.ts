@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { getUserByEmail, listSavedSpots, listAlerts } from '../../../lib/store';
+import { getUserByEmail, listSavedSpots, listAlerts, listVenueClaimsByUser } from '../../../lib/store';
 import { publicUser, verifyPassword, cleanString } from '../../../lib/validation';
 import { createSession } from '../../../lib/session';
 import { json, errorJson, readJsonBody } from '../../../lib/api';
 import { captureProductEvent } from '../../../lib/productAnalytics';
+import { verifiedOwnerDashboardPath } from '../../../lib/authRedirect';
 
 export const prerender = false;
 
@@ -27,6 +28,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   await createSession(cookies, user.id);
   await captureProductEvent({ eventName: 'login_completed', userId: user.id, properties: { method: 'password' } });
-  const [savedSpots, alerts] = await Promise.all([listSavedSpots(user.id), listAlerts(user.id)]);
-  return json(publicUser(user, savedSpots, alerts), 200);
+  const [savedSpots, alerts, claims] = await Promise.all([
+    listSavedSpots(user.id),
+    listAlerts(user.id),
+    listVenueClaimsByUser(user.id),
+  ]);
+  return json({
+    ...publicUser(user, savedSpots, alerts),
+    restaurantDashboardPath: verifiedOwnerDashboardPath(claims),
+  }, 200);
 };

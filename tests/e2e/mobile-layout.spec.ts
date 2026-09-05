@@ -30,6 +30,40 @@ async function expectNoHorizontalPageOverflow(page: Page, route: string) {
 }
 
 test.describe('mobile layout regressions', () => {
+  test('desktop homepage filters use two compact rows', async ({ page }) => {
+    await page.setViewportSize({ width: 1400, height: 900 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.card').first()).toBeVisible({ timeout: 15_000 });
+
+    const rowTops = (await page.locator(
+      '.filters > .search-input, .filter-details > .filter-btn, .filter-details > .time-filter-label, .filter-utilities',
+    ).evaluateAll((items) => items.map((item) => item.getBoundingClientRect().top)))
+      .sort((a, b) => a - b);
+    const rows = rowTops.reduce<number[]>((groups, top) => {
+      if (!groups.some((rowTop) => Math.abs(rowTop - top) <= 2)) groups.push(top);
+      return groups;
+    }, []);
+    expect(rows).toHaveLength(2);
+
+    const alignment = await page.evaluate(() => {
+      const search = document.querySelector('.search-input')!.getBoundingClientRect();
+      const results = document.querySelector('.results-info')!.getBoundingClientRect();
+      const day = document.querySelector('#day-filter')!.getBoundingClientRect();
+      const end = document.querySelector('#end-time-filter')!.closest('label')!.getBoundingClientRect();
+      return {
+        searchLeft: search.left,
+        resultsLeft: results.left,
+        dayLeft: day.left,
+        endLeft: end.left,
+        resultsCenter: results.top + results.height / 2,
+        endCenter: end.top + end.height / 2,
+      };
+    });
+    expect(alignment.resultsLeft).toBeCloseTo(alignment.searchLeft, 0);
+    expect(alignment.endLeft).toBeCloseTo(alignment.dayLeft, 0);
+    expect(alignment.resultsCenter).toBeCloseTo(alignment.endCenter, 0);
+  });
+
   test('key routes fit a 320px viewport', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     for (const route of routes) {
@@ -94,6 +128,207 @@ test.describe('mobile layout regressions', () => {
     const filterBox = await filterDetails.boundingBox();
     expect(filterBox?.x || 0).toBeGreaterThanOrEqual(0);
     expect((filterBox?.x || 0) + (filterBox?.width || 999)).toBeLessThanOrEqual(layout.viewportWidth + 1);
+  });
+
+  test('shared mobile menu stays visually consistent on My Stuff', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/account/', { waitUntil: 'domcontentloaded' });
+
+    const toggle = page.locator('.mobile-nav-toggle');
+    const closed = await toggle.evaluate((button) => {
+      const icon = button.querySelector<HTMLElement>('.mobile-nav-toggle-icon')!;
+      return {
+        buttonPadding: getComputedStyle(button).padding,
+        middleWidth: icon.getBoundingClientRect().width,
+        beforeWidth: Number.parseFloat(getComputedStyle(icon, '::before').width),
+        afterWidth: Number.parseFloat(getComputedStyle(icon, '::after').width),
+      };
+    });
+    expect(closed.buttonPadding).toBe('0px');
+    expect(closed.middleWidth).toBeCloseTo(closed.beforeWidth, 0);
+    expect(closed.middleWidth).toBeCloseTo(closed.afterWidth, 0);
+
+    await toggle.click();
+    await expect(page.locator('.site-nav .links')).toBeVisible();
+    const open = await page.evaluate(() => {
+      const button = document.querySelector<HTMLElement>('.mobile-nav-toggle')!;
+      const icon = button.querySelector<HTMLElement>('.mobile-nav-toggle-icon')!;
+      const buttonRect = button.getBoundingClientRect();
+      const iconRect = icon.getBoundingClientRect();
+      const backdrop = document.querySelector<HTMLElement>('.mobile-nav-backdrop')!;
+      return {
+        centerDelta: Math.abs(
+          (buttonRect.left + buttonRect.width / 2) - (iconRect.left + iconRect.width / 2),
+        ),
+        backdropRadius: getComputedStyle(backdrop).borderRadius,
+        backdropShadow: getComputedStyle(backdrop).boxShadow,
+      };
+    });
+    expect(open.centerDelta).toBeLessThanOrEqual(1);
+    expect(open.backdropRadius).toBe('0px');
+    expect(open.backdropShadow).toBe('none');
+  });
+
+  test('homepage alert composer keeps channels and actions in clean mobile rows', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.route('**/api/account/me', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        isAdmin: false,
+        lists: { lists: [], pendingInvites: [] },
+        user: {
+          id: 'mobile-alert-user',
+          name: 'Mobile Alert User',
+          email: 'mobile-alert@example.com',
+          phone: '+18055551234567890',
+          smsOptedIn: true,
+          alerts: [],
+          saved: { defaultListId: '', lists: [], venues: [] },
+        },
+      }),
+    }));
+    await page.route('**/api/account/follows', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ follows: [] }),
+    }));
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.card').first()).toBeVisible({ timeout: 15_000 });
+    await page.locator('#save-alert-btn').click();
+
+    const panel = page.locator('#save-alert-panel');
+    await expect(panel).toBeVisible();
+    await expect(page.locator('#alert-text-note')).toContainText('+18055551234567890');
+
+    const layout = await panel.evaluate((element) => {
+      const rect = (selector: string) => element.querySelector(selector)!.getBoundingClientRect();
+      const panelRect = element.getBoundingClientRect();
+      const input = rect('#alert-name-input');
+      const email = rect('label:has(#alert-channel-email)');
+      const text = rect('label:has(#alert-channel-text)');
+      const save = rect('#alert-save-confirm');
+      const cancel = rect('#alert-save-cancel');
+      const note = rect('#alert-text-note');
+      return {
+        panel: { left: panelRect.left, right: panelRect.right },
+        input: { left: input.left, right: input.right },
+        channels: [email, text].map((item) => ({ left: item.left, right: item.right, top: item.top, height: item.height })),
+        actions: [save, cancel].map((item) => ({ left: item.left, right: item.right, top: item.top, height: item.height })),
+        note: { top: note.top },
+      };
+    });
+
+    expect(layout.input.left).toBeGreaterThanOrEqual(layout.panel.left);
+    expect(layout.input.right).toBeLessThanOrEqual(layout.panel.right + 1);
+    expect(new Set(layout.channels.map((box) => Math.round(box.top))).size).toBe(1);
+    expect(new Set(layout.actions.map((box) => Math.round(box.top))).size).toBe(1);
+    expect(Math.min(...layout.channels.map((box) => box.height))).toBeGreaterThanOrEqual(44);
+    expect(Math.min(...layout.actions.map((box) => box.height))).toBeGreaterThanOrEqual(44);
+    expect(Math.max(...layout.channels.map((box) => box.right))).toBeLessThanOrEqual(layout.panel.right + 1);
+    expect(Math.max(...layout.actions.map((box) => box.right))).toBeLessThanOrEqual(layout.panel.right + 1);
+    expect(layout.note.top).toBeGreaterThan(layout.channels[0].top);
+
+    await page.locator('#alert-save-confirm').click();
+    await expect(page.locator('#alert-save-status')).toHaveText('Give this alert a name.');
+  });
+
+  test('neighborhood card popovers render above following cards', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route('**/api/account/me', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        authenticated: true,
+        isAdmin: false,
+        lists: { lists: [], pendingInvites: [] },
+        user: { id: 'neighborhood-user', name: 'Neighborhood User', email: 'neighbor@example.com' },
+      }),
+    }));
+    await page.route('**/api/account/follows**', async (route) => {
+      const request = route.request();
+      const pathname = new URL(request.url()).pathname;
+      if (pathname === '/api/account/follows') {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ follows: [] }) });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ follow: { promotionAlertsEnabled: true } }),
+      });
+    });
+
+    await page.goto('/neighborhoods/east-village/', { waitUntil: 'domcontentloaded' });
+    const firstCard = page.locator('.venue-result').first();
+    await expect(firstCard).toBeVisible();
+
+    const expectPopoverAboveNextCard = async (selector: string) => {
+      const menu = firstCard.locator(selector);
+      await expect(menu).toBeVisible();
+      await menu.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+      const geometry = await page.evaluate((menuSelector) => {
+        const card = document.querySelector<HTMLElement>('.venue-result')!;
+        const nextCard = document.querySelectorAll<HTMLElement>('.venue-result')[1];
+        const menu = card.querySelector<HTMLElement>(menuSelector)!;
+        const cardRect = card.getBoundingClientRect();
+        const nextRect = nextCard.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        const x = menuRect.left + menuRect.width / 2;
+        const y = Math.min(menuRect.bottom - 2, Math.max(cardRect.bottom + 2, nextRect.top + 2));
+        const hit = document.elementFromPoint(x, y);
+        return {
+          extendsPastCard: menuRect.bottom > cardRect.bottom,
+          overlapsNextCard: menuRect.bottom > nextRect.top,
+          hitMenu: Boolean(hit?.closest(menuSelector)),
+          cardOverflow: getComputedStyle(card).overflow,
+        };
+      }, selector);
+      expect(geometry.cardOverflow).toBe('visible');
+      expect(geometry.extendsPastCard).toBe(true);
+      expect(geometry.overlapsNextCard).toBe(true);
+      expect(geometry.hitMenu).toBe(true);
+    };
+
+    await firstCard.locator('[data-card-share]').click();
+    await expectPopoverAboveNextCard('[data-card-share-menu]');
+    await firstCard.locator('[data-card-share]').click();
+
+    await firstCard.locator('[data-card-notify]').click();
+    await expectPopoverAboveNextCard('[data-card-notify-menu]');
+  });
+
+  test('neighborhood image framing never covers card copy', async ({ page }) => {
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/neighborhoods/kearny-mesa/', { waitUntil: 'domcontentloaded' });
+      const card = page.locator('[data-venue-card="80"]');
+      await expect(card).toBeVisible();
+      await card.scrollIntoViewIfNeeded();
+
+      const layout = await card.evaluate((element) => {
+        const frame = element.querySelector<HTMLElement>('.venue-image')!;
+        const image = frame.querySelector('img')!;
+        const schedule = element.querySelector<HTMLElement>('.schedule')!;
+        const title = element.querySelector<HTMLElement>('h3')!;
+        const copyIsAboveImage = (copy: HTMLElement) => {
+          const rect = copy.getBoundingClientRect();
+          const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          return hit !== image && !image.contains(hit);
+        };
+        return {
+          frameOverflow: getComputedStyle(frame).overflow,
+          scheduleVisible: copyIsAboveImage(schedule),
+          titleVisible: copyIsAboveImage(title),
+        };
+      });
+
+      expect(layout.frameOverflow).toBe('hidden');
+      expect(layout.scheduleVisible).toBe(true);
+      expect(layout.titleVisible).toBe(true);
+    }
   });
 
   test('venue actions and text menu use their mobile layouts', async ({ page }) => {
