@@ -378,16 +378,48 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
     }
 
     @media (max-width: 720px) {
-      .site-nav { align-items: flex-start; flex-direction: column; padding: 16px 20px; }
-      .site-nav .links { gap: 6px; justify-content: flex-start; width: 100%; }
-      .site-nav .links a { padding: 7px 11px; }
+      .site-nav {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px 16px 10px;
+      }
+      .site-nav .links {
+        flex-wrap: nowrap;
+        gap: 6px;
+        justify-content: flex-start;
+        margin-inline: -16px;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        padding: 0 16px 4px;
+        scrollbar-width: none;
+        scroll-padding-inline: 16px;
+        width: calc(100% + 32px);
+      }
+      .site-nav .links::-webkit-scrollbar { display: none; }
+      .site-nav .links a {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+        min-height: 44px;
+        padding: 9px 12px;
+      }
+
+      /* iOS Safari zooms the visual viewport when a focused form control is
+         smaller than 16px. Keep every text-like control stable across the
+         public, account, merchant, and admin surfaces. */
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
     }
 
     footer.site-footer {
       background: var(--night);
       color: white;
       text-align: center;
-      padding: 48px 24px;
+      padding: 48px 24px max(48px, env(safe-area-inset-bottom));
       flex-shrink: 0;
     }
 

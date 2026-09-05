@@ -357,6 +357,8 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     .merchant-shell-actions { justify-content: stretch; }
     .merchant-shell-actions .merchant-shell-btn { flex: 1 1 auto; }
     .merchant-shell-venue-name { white-space: normal; }
+    .merchant-shell-tabs { scroll-padding-inline: 14px; scrollbar-width: none; }
+    .merchant-shell-tabs::-webkit-scrollbar { display: none; }
   }
 </style>
 
@@ -491,6 +493,16 @@ const showTabs = !hideTabs && Boolean(role || venueId);
 <script>
   import { initMerchantShellNav } from '../lib/merchantShellNav';
   initMerchantShellNav();
+
+  function revealActiveMerchantTab() {
+    document.querySelector<HTMLElement>('.merchant-shell-tab.is-active')?.scrollIntoView({
+      behavior: 'auto',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }
+  window.requestAnimationFrame(revealActiveMerchantTab);
+  document.addEventListener('astro:page-load', revealActiveMerchantTab);
 
   // Broken featured/vibe URL → neutral placeholder instead of a blank mark.
   document.addEventListener('error', (event) => {

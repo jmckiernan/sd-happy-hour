@@ -82,7 +82,14 @@ import AdminNav from '../../components/AdminNav.astro';
     .ce-preview-chrome button { border: 0; border-radius: 999px; padding: 8px 14px; background: rgba(255,255,255,.14); color: white; font: inherit; font-weight: 700; cursor: pointer; }
     .ce-preview-chrome button:hover { background: rgba(255,255,255,.24); }
     .ce-preview-frame { flex: 1; width: 100%; border: 0; background: var(--sand); }
-    @media(max-width:720px){ .ce-form{grid-template-columns:1fr}.ce-form .full{grid-column:1}.ce-header{position:relative}.ce-run-table{display:block;overflow:auto} }
+    @media(max-width:720px){
+      .ce-form{grid-template-columns:1fr}.ce-form .full{grid-column:1}.ce-header{position:relative}.ce-run-table{display:block;overflow:auto}
+      .ce-tabs{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
+      .ce-tabs::-webkit-scrollbar{display:none}
+      .ce-tabs button{flex:0 0 auto;min-height:44px}
+      .ce-panel{padding:16px}
+      .ce-card{min-width:0;overflow-wrap:anywhere}
+    }
   </style>
 
   <div id="ce-locked" class="ce-locked" hidden>
@@ -107,6 +114,7 @@ import AdminNav from '../../components/AdminNav.astro';
         <button role="tab" data-tab="sources" aria-selected="false">Sources</button>
         <button role="tab" data-tab="items" aria-selected="false">Items</button>
         <button role="tab" data-tab="clusters" aria-selected="false">Clusters</button>
+        <button role="tab" data-tab="newsletters" aria-selected="false">Inbound newsletters</button>
         <button role="tab" data-tab="settings" aria-selected="false">Settings & analytics</button>
       </div>
 
@@ -130,6 +138,14 @@ import AdminNav from '../../components/AdminNav.astro';
 
       <section class="ce-panel" data-panel="items" hidden><div class="ce-panel-head"><div><h2>Normalized items</h2><p>County filtering, confidence, deduplication, and every source observation.</p></div></div><div id="ce-items" class="ce-grid"></div></section>
       <section class="ce-panel" data-panel="clusters" hidden><div class="ce-panel-head"><div><h2>Editorial clusters</h2><p>Source bundles and the angle chosen for each story.</p></div></div><div id="ce-clusters" class="ce-grid"></div></section>
+
+      <section class="ce-panel" data-panel="newsletters" hidden>
+        <div class="ce-panel-head"><div><h2>Inbound venue newsletters</h2><p>Resend aliases, confirmation health, received messages, and extracted opportunities.</p></div></div>
+        <div id="ce-newsletter-summary" class="ce-summary"></div>
+        <div id="ce-subscriptions" class="ce-grid"></div>
+        <h2 style="margin-top:28px">Recent inbound messages</h2>
+        <div id="ce-newsletter-messages"></div>
+      </section>
 
       <section class="ce-panel" data-panel="settings" hidden>
         <div class="ce-panel-head"><div><h2>Safety settings</h2><p>Auto-publishing stays off until explicitly enabled and every quality guard passes.</p></div></div>
@@ -253,6 +269,17 @@ import AdminNav from '../../components/AdminNav.astro';
     function renderClusters() {
       $('ce-clusters').innerHTML = state.data.clusters.length ? state.data.clusters.map((cluster: any) => `<article class="ce-card"><div class="ce-panel-head"><div><h3>${esc(cluster.workingTitle)}</h3><div class="ce-meta">${esc(cluster.clusterType)} · editorial ${pct(cluster.editorialScore)} · confidence ${pct(cluster.confidenceScore)}</div></div>${pill(`${cluster.items.length} items`,'info')}</div><p class="ce-copy"><strong>Angle:</strong> ${esc(cluster.angle)}</p><ol class="ce-source-list">${cluster.items.map((item:any)=>`<li>${esc(item.title)} · ${fmt(item.eventStartAt)}</li>`).join('')}</ol><details><summary class="ce-meta">Inspect all provenance</summary>${sourceList(cluster.items.flatMap((item:any)=>item.provenance))}</details></article>`).join('') : '<p class="ce-empty">No clusters created yet.</p>';
     }
+    function renderNewsletters() {
+      const data = state.data.newsletters || { counts: {}, subscriptions: [], messages: [] };
+      const metrics = [
+        ['active','Active'],['confirmation_pending','Awaiting confirmation'],
+        ['signup_pending','Signup pending'],['failed','Needs attention'],
+      ];
+      $('ce-newsletter-summary').innerHTML = metrics.map(([key,label]) => `<div class="ce-stat"><strong>${esc(data.counts[key] || 0)}</strong><span>${label}</span></div>`).join('');
+      $('ce-subscriptions').innerHTML = list(data.subscriptions).length ? list(data.subscriptions).map((sub:any) => `<article class="ce-card"><div class="ce-panel-head"><div><h3>${esc(sub.publisherName)}</h3><div class="ce-meta">${esc(sub.subscriberEmail)} · updated ${fmt(sub.updatedAt)}</div></div><div>${pill(sub.status,statusTone(sub.status))} ${pill(sub.confirmationStatus,sub.confirmationStatus==='confirmed'?'good':'info')}</div></div><a class="ce-meta" href="${esc(sub.websiteUrl)}" target="_blank" rel="noreferrer">${esc(sub.websiteUrl)}</a><p class="ce-meta">Last message: ${fmt(sub.lastMessageAt)}${sub.lastError ? ` · ${esc(sub.lastError)}` : ''}</p></article>`).join('') : '<p class="ce-empty">No newsletter subscriptions have been synced yet.</p>';
+      const messages = list(data.messages);
+      $('ce-newsletter-messages').innerHTML = messages.length ? `<table class="ce-run-table"><thead><tr><th>Received</th><th>Publisher</th><th>Subject</th><th>Type</th><th>Status</th><th>Items</th></tr></thead><tbody>${messages.map((message:any)=>`<tr><td>${fmt(message.sentAt)}</td><td>${esc(message.publisherName)}</td><td>${esc(message.subject)}</td><td>${esc(message.messageType)}</td><td>${pill(message.status,statusTone(message.status))}</td><td>${esc(message.extractedItemCount || 0)}</td></tr>`).join('')}</tbody></table>` : '<p class="ce-empty">No inbound newsletter messages yet.</p>';
+    }
     function renderScheduleInfo() {
       const overview = state.data.overview;
       const settings = state.data.settings;
@@ -293,7 +320,7 @@ import AdminNav from '../../components/AdminNav.astro';
         return `<tr><td>${fmt(run.started_at)}</td><td>${esc(run.trigger_type)}</td><td>${pill(run.status,statusTone(run.status))}</td><td>${esc(run.items_fetched)}</td><td>${esc(run.items_created)} / ${esc(run.items_merged)}</td><td>${esc(run.clusters_created)} / ${esc(run.drafts_created)}</td><td title="Content: ${fmtCost(costs.contentGeneration||0)}, Clusters: ${fmtCost(costs.clusterRefinement||0)}, Images: ${fmtCost(costs.imageGeneration||0)}" style="color:#059669;font-weight:600;cursor:help">${totalCost > 0 ? fmtCost(totalCost) : '—'}</td></tr>`;
       }).join('')}</tbody></table>` : '<p class="ce-empty">No pipeline runs yet.</p>';
     }
-    function render() { renderScheduleInfo(); renderSummary(); renderDrafts(); renderSources(); renderItems(); renderClusters(); renderSettings(); }
+    function render() { renderScheduleInfo(); renderSummary(); renderDrafts(); renderSources(); renderItems(); renderClusters(); renderNewsletters(); renderSettings(); }
     async function load() { setStatus('Loading content engine…'); state.data = await api('/api/admin/content-engine'); render(); setStatus('Ready. All generated content remains review-first.'); }
     function openPreview(id: string) {
       state.previewId = id;

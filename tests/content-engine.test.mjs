@@ -160,6 +160,24 @@ test('clustering creates a useful date roundup from independent county-wide venu
   assert.match(clusters[0].workingTitle, /Things to Do in San Diego/);
 });
 
+test('first-party newsletter updates can become review-only evergreen article opportunities', () => {
+  const newsletterSource = source({ kind: 'webhook', trustScore: 0.9, countyScoped: true });
+  const normalized = normalizeSourceItem(newsletterSource, {
+    url: 'https://venue.example/news/seasonal-menu',
+    title: 'A New Fall Happy Hour Menu Arrives in North Park',
+    venueName: 'Venue Newsletter',
+    description: 'The venue announced a detailed seasonal happy hour menu for its North Park location, with new dishes and cocktail specials. Readers should verify current availability with the venue before visiting.',
+    area: 'North Park',
+    tags: ['newsletter'],
+  });
+  assert.equal(normalized.accepted, true);
+  assert.equal(normalized.item.confidenceScore, 0.72);
+  const clusters = buildEditorialClusters([normalized.item], { minItemConfidence: 0.5, minClusterScore: 0.5 });
+  assert.equal(clusters.length, 1);
+  assert.equal(clusters[0].clusterType, 'evergreen');
+  assert.ok(normalized.item.qualityFlags.includes('missing_event_date'));
+});
+
 test('AI draft generation produces full blog SEO and separately written newsletter content', async () => {
   const filler = Array.from({ length: 95 }, (_, index) => `Useful planning detail ${index + 1} stays tied to the supplied source and helps readers compare the options.`).join(' ');
   const responses = [

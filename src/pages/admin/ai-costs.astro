@@ -30,7 +30,7 @@ import AdminNav from '../../components/AdminNav.astro';
     .ai-bar { flex: 1; background: linear-gradient(to top, #3B82F6, #60A5FA); border-radius: 4px 4px 0 0; min-height: 4px; position: relative; cursor: pointer; transition: opacity .15s; }
     .ai-bar:hover { opacity: .8; }
     .ai-bar-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--night); color: white; font-size: .72rem; padding: 4px 8px; border-radius: 6px; white-space: nowrap; margin-bottom: 6px; z-index: 10; }
-    .ai-bar:hover .ai-bar-tooltip { display: block; }
+    .ai-bar:hover .ai-bar-tooltip, .ai-bar:focus .ai-bar-tooltip { display: block; }
     .ai-chart-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--night-soft); margin-top: 8px; }
     
     .ai-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
@@ -69,7 +69,15 @@ import AdminNav from '../../components/AdminNav.astro';
     .ai-empty { color: var(--night-soft); padding: 40px 20px; text-align: center; }
     .ai-locked { text-align: center; padding: 70px 20px; }
     
-    @media(max-width:720px) { .ai-header { position: relative; } .ai-table { display: block; overflow-x: auto; } }
+    @media(max-width:720px) {
+      .ai-header { position: relative; }
+      .ai-costs { padding-inline: 16px; }
+      .ai-breakdown { grid-template-columns: minmax(0, 1fr); }
+      .ai-section { padding: 16px; }
+      .ai-chart { min-width: 420px; }
+      .ai-section:has(.ai-chart) { overflow-x: auto; overscroll-behavior-inline: contain; }
+      .ai-table { display: block; overflow-x: auto; }
+    }
   </style>
 
   <div id="ai-locked" class="ai-locked" hidden>
@@ -181,7 +189,8 @@ import AdminNav from '../../components/AdminNav.astro';
       $('ai-chart').innerHTML = daily.map(d => {
         const height = Math.max((d.costCents / maxCost) * 100, 2);
         const dayLabel = new Date(d.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        return `<div class="ai-bar" style="height:${height}%"><div class="ai-bar-tooltip">${dayLabel}: ${formatCost(d.costCents)} (${d.calls} calls)</div></div>`;
+        const detail = `${dayLabel}: ${formatCost(d.costCents)} (${d.calls} calls)`;
+        return `<div class="ai-bar" style="height:${height}%" role="img" aria-label="${esc(detail)}" tabindex="0"><div class="ai-bar-tooltip">${esc(detail)}</div></div>`;
       }).join('');
       const first = new Date(daily[0].day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       const last = new Date(daily[daily.length - 1].day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

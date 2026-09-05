@@ -186,6 +186,26 @@ export function buildEditorialClusters(
     }));
   }
 
+  // First-party newsletters often contain useful openings, menu changes, and
+  // recurring-program announcements without one canonical event date. Surface
+  // those as review-only evergreen opportunities; the missing-date quality
+  // flag continues to block unattended publishing.
+  for (const item of items.filter((candidate) =>
+    !candidate.eventStartAt
+    && candidate.confidenceScore >= 0.7
+    && candidate.description.length >= 120
+    && candidate.tags.includes('newsletter')
+  )) {
+    proposals.push(createCluster({
+      type: 'evergreen', items: [item],
+      angle: `Assess the first-party update from ${item.venueName || 'a San Diego venue'} as a timely service article.`,
+      title: item.title,
+      summary: item.description.slice(0, 260),
+      discriminator: item.canonicalKey, specificity: 0.9,
+      tags: [...item.tags, 'venue-news'],
+    }));
+  }
+
   // Prefer the strongest, most useful bundle and avoid generating several
   // near-identical stories from the same set of inputs in one run.
   const selected: EditorialCluster[] = [];

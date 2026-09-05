@@ -11,7 +11,7 @@ const listId = Astro.params.id || '';
     .collab-panel { background: white; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); padding: 22px; }
     .collab-head, .collab-actions, .access-row, .item-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .collab-head h1, .collab-panel h2, .list-item h2 { font-family: var(--font-display); }
-    .collab-head h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); margin: 0; }
+    .collab-head h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); margin: 0; overflow-wrap: anywhere; }
     .collab-panel h2 { font-size: 1.15rem; margin-bottom: 5px; }
     .collab-muted { color: var(--night-soft); line-height: 1.55; }
     .role-pill { background: var(--sand-warm); border-radius: 100px; color: var(--night); display: inline-flex; font-size: .75rem; font-weight: 800; padding: 7px 11px; text-transform: capitalize; }
@@ -37,8 +37,8 @@ const listId = Astro.params.id || '';
     .venue-search-empty { color: var(--night-soft); font-size: .84rem; font-weight: 650; letter-spacing: 0; padding: 12px 13px; text-transform: none; }
     .list-items, .access-list { display: grid; gap: 12px; margin-top: 15px; }
     .list-item, .access-row { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); padding: 16px; }
-    .list-item h2 { font-size: 1.05rem; margin-bottom: 4px; }
-    .list-item-meta { color: var(--night-soft); font-size: .86rem; line-height: 1.5; }
+    .list-item h2 { font-size: 1.05rem; margin-bottom: 4px; overflow-wrap: anywhere; }
+    .list-item-meta { color: var(--night-soft); font-size: .86rem; line-height: 1.5; overflow-wrap: anywhere; }
     .list-item-actions { display: flex; gap: 8px; align-items: center; }
     .list-feedback { border-top: 1px solid var(--sand-warm); display: grid; gap: 10px; margin-top: 13px; padding-top: 13px; }
     .list-feedback label { color: var(--night-soft); display: grid; font-size: .72rem; font-weight: 800; gap: 6px; letter-spacing: .05em; text-transform: uppercase; }
@@ -52,13 +52,13 @@ const listId = Astro.params.id || '';
     .star-rating .star.filled { color: var(--sunset-start); }
     .feedback-entry { color: var(--night-soft); display: grid; font-size: .82rem; gap: 8px; }
     .feedback-entry .feedback-meta { color: var(--night-soft); }
-    .feedback-entry .feedback-block { background: var(--sand); border-radius: var(--radius-sm); color: var(--night); padding: 9px 11px; }
+    .feedback-entry .feedback-block { background: var(--sand); border-radius: var(--radius-sm); color: var(--night); overflow-wrap: anywhere; padding: 9px 11px; }
     .feedback-entry .feedback-label { color: var(--night-soft); font-weight: 800; }
-    .share-dialog { background: transparent; border: 0; margin: auto; max-height: min(88vh, 900px); padding: 0; width: min(760px, calc(100vw - 32px)); }
+    .share-dialog { background: transparent; border: 0; margin: auto; max-height: min(calc(100dvh - 32px), 900px); padding: 0; width: min(760px, calc(100vw - 32px)); }
     .share-dialog::backdrop { background: rgba(15, 23, 42, .68); }
-    .share-modal { background: white; border-radius: var(--radius); box-shadow: 0 24px 72px rgba(15, 23, 42, .28); max-height: min(88vh, 900px); overflow: auto; padding: 22px; }
-    .share-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-    .share-close { background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; flex: 0 0 auto; font: inherit; font-size: 1.2rem; line-height: 1; padding: 8px 10px; }
+    .share-modal { background: white; border-radius: var(--radius); box-shadow: 0 24px 72px rgba(15, 23, 42, .28); max-height: min(calc(100dvh - 32px), 900px); overflow: auto; overscroll-behavior: contain; padding: 22px; }
+    .share-modal-head { align-items: flex-start; background: white; display: flex; gap: 16px; justify-content: space-between; margin: -22px -22px 0; padding: 22px 22px 14px; position: sticky; top: 0; z-index: 2; }
+    .share-close { align-items: center; background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); cursor: pointer; display: inline-flex; flex: 0 0 44px; font: inherit; font-size: 1.2rem; height: 44px; justify-content: center; line-height: 1; padding: 0; }
     .share-close:hover { background: #ead7bd; }
     .share-panel { display: grid; gap: 20px; }
     .share-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; grid-template-rows: auto auto auto auto auto; }
@@ -87,6 +87,15 @@ const listId = Astro.params.id || '';
       .access-controls { justify-content: space-between; }
       .access-link-copy { align-items: stretch; flex-direction: column; }
       .access-link-copy input { width: 100%; }
+      .collab-main { padding: 20px 16px 64px; }
+      .collab-panel { padding: 16px; }
+      .list-item, .access-row, .share-box { padding: 13px; }
+      .collab-button.small, .collab-link.small { min-height: 44px; }
+      .setting-check { min-height: 44px; }
+      .star-rating .star { align-items: center; display: inline-flex; justify-content: center; min-height: 44px; min-width: 40px; }
+      .share-dialog { width: calc(100vw - 16px); }
+      .share-modal { padding: 16px; }
+      .share-modal-head { margin: -16px -16px 0; padding: 16px 16px 12px; }
     }
   </style>
 
@@ -307,13 +316,14 @@ const listId = Astro.params.id || '';
       search.setAttribute('aria-expanded', 'true');
     }
 
-    function chooseVenueResult(venue: any) {
+    function chooseVenueResult(venue: any, retainKeyboardFocus = true) {
       const search = document.getElementById('venue-search') as HTMLInputElement;
       search.value = venueOptionLabel(venue);
       document.getElementById('add-venue-button')!.removeAttribute('disabled');
       setStatus('item-status', '');
-      search.focus();
       closeVenueSearch();
+      if (retainKeyboardFocus) search.focus();
+      else search.blur();
     }
 
     function cleanFeedbackText(value: unknown) {
@@ -376,7 +386,7 @@ const listId = Astro.params.id || '';
       if (!canContribute && !contributions && !rating && !(list.commentsEnabled && myComment) && !myNote) return '';
       return `<div class="list-feedback">
         ${canContribute ? `
-          <div class="feedback-row"><div class="star-rating" data-rating="${rating}" role="group" aria-label="Your rating">${stars}</div></div>
+          <div class="feedback-row"><div class="star-rating" data-rating="${rating}" data-initial-rating="${rating}" role="group" aria-label="Your rating">${stars}</div></div>
           ${list.commentsEnabled ? `<label>Public comment
             <textarea data-feedback-comment maxlength="500" placeholder="What did you think of this place?">${escapeHTML(myComment)}</textarea>
           </label>` : ''}
@@ -489,6 +499,14 @@ const listId = Astro.params.id || '';
       renderItems();
     }
 
+    function hasUnsavedItemFeedback() {
+      const textDraft = [...document.querySelectorAll<HTMLTextAreaElement>('#list-items textarea')]
+        .some((textarea) => textarea.value !== textarea.defaultValue);
+      const ratingDraft = [...document.querySelectorAll<HTMLElement>('#list-items .star-rating')]
+        .some((rating) => rating.dataset.rating !== rating.dataset.initialRating);
+      return textDraft || ratingDraft;
+    }
+
     async function loadList(track = false, force = false) {
       const query = new URLSearchParams();
       if (inviteToken) query.set('invite', inviteToken);
@@ -496,6 +514,10 @@ const listId = Astro.params.id || '';
       try {
         const data = await requestJson(`/api/lists/${encodeURIComponent(listId)}?${query}`);
         if (!force && !firstLoad && data.list.updatedAt === lastVersion) return;
+        // A collaborator update must not replace a focused textarea or erase
+        // an unsaved rating/note. The next explicit save/remove/add performs a
+        // forced refresh and reconciles the newest server state.
+        if (!force && !firstLoad && hasUnsavedItemFeedback()) return;
         list = data.list;
         lastVersion = list.updatedAt;
         firstLoad = false;
@@ -652,7 +674,7 @@ const listId = Astro.params.id || '';
       const option = (event.target as HTMLElement).closest('[data-venue-result]') as HTMLElement | null;
       if (!option) return;
       const venue = availableVenues.find((candidate) => candidate.id === Number(option.dataset.venueResult));
-      if (venue) chooseVenueResult(venue);
+      if (venue) chooseVenueResult(venue, false);
     });
     document.addEventListener('click', (event) => {
       if (!(event.target as HTMLElement).closest('#venue-search-combobox')) closeVenueSearch();

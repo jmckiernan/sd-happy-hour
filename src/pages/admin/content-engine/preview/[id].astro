@@ -182,6 +182,23 @@ const provenance = cluster
     }
     .hidden { display: none !important; }
 
+    @media (max-width: 640px) {
+      .ce-preview-bar { padding: 14px 16px; position: static; }
+      .ce-preview-bar-inner { align-items: stretch; flex-direction: column; }
+      .ce-preview-actions {
+        flex-wrap: nowrap;
+        margin-inline: -16px;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        padding: 0 16px 4px;
+        scrollbar-width: none;
+        width: calc(100% + 32px);
+      }
+      .ce-preview-actions::-webkit-scrollbar { display: none; }
+      .ce-preview-actions :is(button, a) { flex: 0 0 auto; min-height: 44px; }
+      #ce-preview-msg { padding-inline: 16px; }
+    }
+
     .ce-dialog-backdrop {
       position: fixed; inset: 0; z-index: 500;
       display: flex; align-items: flex-start; justify-content: center;

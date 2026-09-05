@@ -37,6 +37,10 @@ const EVENT_TYPE_KEYWORDS: Record<string, string[]> = {
   'pop-up': ['pop-up', 'popup', 'makers market', 'night market'],
   theater: ['theatre', 'theater', 'musical', 'opera', 'play'],
   community: ['community event', 'farmers market', 'market', 'fundraiser'],
+  opening: ['grand opening', 'now open', 'soft opening', 'reopening', 're-open'],
+  'menu-update': ['new menu', 'seasonal menu', 'menu launch', 'menu update', 'new dishes'],
+  'venue-news': ['venue news', 'announcement', 'announcing', 'expansion', 'new location'],
+  seasonal: ['seasonal', 'summer menu', 'fall menu', 'winter menu', 'spring menu', 'holiday menu'],
 };
 
 const HTML_ENTITIES: Record<string, string> = {
@@ -185,7 +189,9 @@ export function normalizeSourceItem(
   if (area || address) confidence += 0.05;
   if (description.length >= 80) confidence += 0.04;
   if (source.kind === 'reddit_rss') confidence = Math.min(confidence, 0.64);
-  if (!eventStartAt) confidence = Math.min(confidence, 0.62);
+  const isFirstPartyNewsletter = raw.tags?.some((tag) => slugifyContent(tag) === 'newsletter')
+    && source.trustScore >= 0.8 && Boolean(venueName) && description.length >= 120;
+  if (!eventStartAt) confidence = Math.min(confidence, isFirstPartyNewsletter ? 0.72 : 0.62);
   if (qualityFlags.includes('location_unverified')) confidence = Math.min(confidence, 0.65);
   confidence = Math.max(0.05, Math.min(0.98, confidence));
 

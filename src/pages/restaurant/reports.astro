@@ -139,6 +139,20 @@ const publicHref = selectedVenue?.venueSlug
       .reports-page .metric-card { min-height: 104px; }
       .reports-page .email-row { grid-template-columns: 1fr; }
       .reports-page .access-form { flex-direction: column; }
+      .reports-page .custom-range { flex-direction: column; }
+      .reports-page .custom-range input { min-height: 44px; width: 100%; }
+      .reports-page .comparison-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .reports-page .comparison-track { grid-column: 1 / -1; grid-row: 2; }
+      .reports-page .comparison-value { grid-column: 2; grid-row: 1; }
+      .reports-page .activity-list li {
+        align-items: start;
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .reports-page .activity-time { grid-column: 1 / -1; grid-row: 2; }
+      .reports-page .activity-device { grid-column: 2; grid-row: 1; }
+      .reports-page .range-pill, .reports-page .export-button { min-height: 44px; }
     }
   </style>
 

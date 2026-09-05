@@ -116,6 +116,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     }
 
     .google-box { display: grid; gap: 14px; justify-items: center; text-align: center; padding-top: 4px; }
+    .google-box > *, .google-box iframe { max-width: 100%; }
     .google-note { color: var(--night-soft); font-size: 0.88rem; line-height: 1.5; }
 
     form { display: grid; gap: 12px; }
@@ -172,6 +173,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     .custom-lists-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
     .custom-list-card { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); display: grid; gap: 13px; padding: 17px; }
     .custom-list-card h3 { font-family: var(--font-display); margin-bottom: 4px; }
+    .custom-list-card, .custom-list-card h3, .custom-list-meta { min-width: 0; overflow-wrap: anywhere; }
     .custom-list-meta { color: var(--night-soft); font-size: .84rem; line-height: 1.5; }
     .custom-list-role { background: var(--sand-warm); border-radius: 100px; display: inline-flex; font-size: .72rem; font-weight: 800; padding: 6px 9px; text-transform: capitalize; }
     .pending-invites { display: grid; gap: 10px; margin-top: 16px; }
@@ -201,6 +203,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     .saved-edit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .list-chips { display: flex; gap: 7px; flex-wrap: wrap; }
     .list-chip { align-items: center; background: var(--sand-warm); border: 0; border-radius: 100px; color: var(--night); display: inline-flex; font: inherit; font-size: .76rem; font-weight: 750; gap: 7px; line-height: 1; padding: 7px 10px; }
+    .list-chip { max-width: 100%; overflow-wrap: anywhere; }
     button.list-chip { cursor: pointer; }
     button.list-chip:hover { background: #fee2e2; color: #991b1b; }
     .list-chip-remove { color: var(--night-soft); font-size: 1rem; line-height: 1; }
@@ -281,6 +284,29 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       .account-head { align-items: stretch; flex-direction: column; }
       .custom-list-create, .custom-lists-grid { grid-template-columns: 1fr; }
       .saved-list-tools { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .account-main { padding: 20px 16px 64px; }
+      .panel { padding: 16px; scroll-margin-top: 64px; }
+      .auth-grid .panel { padding: 24px 16px; }
+      .restaurant-pitch { padding: 22px 18px; }
+      .stuff-nav {
+        flex-wrap: nowrap;
+        margin-inline: -16px;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        padding: 8px 16px 10px;
+        scrollbar-width: none;
+        scroll-padding-inline: 16px;
+      }
+      .stuff-nav::-webkit-scrollbar { display: none; }
+      .stuff-nav a { align-items: center; display: inline-flex; flex: 0 0 auto; min-height: 44px; }
+      .star-rating .star { align-items: center; display: inline-flex; justify-content: center; min-height: 44px; min-width: 40px; }
+      .list-chip { min-height: 44px; }
+      .day-check, .channel-check, .toggle-row { min-height: 44px; }
+      .alert-actions button, .form-actions button, .saved-edit-actions button { min-height: 44px; }
+      .saved-card, .alert-card { padding: 13px; }
     }
   </style>
 
@@ -1294,19 +1320,19 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
           ${dayNames.map((day, i) => `
             <label class="day-check">
               ${dayAbbrev[i]}
-              <input type="checkbox" data-field="days" value="${day}" ${days.includes(day) ? 'checked' : ''}>
+              <input type="checkbox" data-field="days" value="${day}" aria-label="Include ${day}" ${days.includes(day) ? 'checked' : ''}>
             </label>
           `).join('')}
         </div>
         <div class="filter-row">
-          <select data-field="neighborhood">${optionList(neighborhoods, filters?.neighborhood || '')}</select>
-          <select data-field="dealType">${optionList(dealTypes, filters?.dealType || '')}</select>
+          <select data-field="neighborhood" aria-label="Alert neighborhood">${optionList(neighborhoods, filters?.neighborhood || '')}</select>
+          <select data-field="dealType" aria-label="Alert deal type">${optionList(dealTypes, filters?.dealType || '')}</select>
         </div>
         <div class="filter-row">
           <label>Starts after <input type="time" data-field="startTime" value="${escapeHTML(filters?.startTime || '')}"></label>
           <label>Ends before <input type="time" data-field="endTime" value="${escapeHTML(filters?.endTime || '')}"></label>
         </div>
-        <input type="text" data-field="query" placeholder="Keyword (optional)" value="${escapeHTML(filters?.query || '')}">
+        <input type="text" data-field="query" aria-label="Alert keyword" placeholder="Keyword (optional)" value="${escapeHTML(filters?.query || '')}">
       `;
     }
 

@@ -315,11 +315,11 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     /* ===== MAIN GRID ===== */
     .main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); gap: 28px; min-width: 0; }
     .grid.hidden { display: none; }
 
     /* ===== CARD ===== */
-    .card { background: white; border-radius: var(--radius); overflow: visible; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; }
+    .card { background: white; border-radius: var(--radius); overflow: visible; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; min-width: 0; }
     .card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 24px 60px rgba(0,0,0,0.08); }
     .card.is-happy-hour { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55), 0 10px 28px rgba(34, 197, 94, 0.12); }
     .card.has-live-deal { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.7), 0 18px 42px rgba(139, 92, 246, 0.2); }
@@ -493,15 +493,32 @@ const indexableVenues = getPublicVenues().filter((venue) => !venue.seoHidden);
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .hero { min-height: 70vh; padding: 100px 20px 80px; }
+      .hero { min-height: 70vh; padding: 124px 20px 80px; }
+      .filters-section { padding-inline: 16px; position: static; }
       .filters-container { flex-direction: column; align-items: stretch; }
       .filters { flex-wrap: wrap; }
+      .filters > * { min-width: 0; }
       .search-input { width: 100%; }
       .filter-btn { flex: 1; min-width: 100px; }
-      .grid { grid-template-columns: 1fr; }
+      .time-filter-label { flex: 1 1 120px; }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .main { min-width: 0; padding: 24px 16px 64px; }
+      .save-panel.compact { flex-wrap: wrap; }
+      .save-panel-trailing { margin-left: auto; }
+      .card-icon-btn { height: 44px; width: 44px; }
+      .save-action { min-height: 44px; }
       .map-container { height: 400px; border-radius: var(--radius-sm); }
       .live-counter { flex-direction: column; text-align: center; padding: 16px 28px; }
       .live-counter .label { text-align: center; }
+    }
+
+    @media (max-width: 360px) {
+      .hero { padding-inline: 16px; }
+      .hero h1 { font-size: 2.55rem; }
+      .hero h1 .title-row { gap: 6px; }
+      .live-counter { max-width: 100%; padding-inline: 22px; }
+      .card-body { padding: 16px; }
+      .card-image .venue-name { font-size: 1.3rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {

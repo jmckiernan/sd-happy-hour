@@ -174,7 +174,7 @@ const nearby = profile.nearby
   :global(.card-icon-btn) {
     align-items: center; appearance: none; background: var(--sand-warm); border: 2px solid rgba(15, 23, 42, .12);
     border-radius: 50%; color: var(--night); cursor: pointer; display: inline-flex; flex-shrink: 0;
-    height: 36px; justify-content: center; padding: 0; width: 36px;
+    height: 44px; justify-content: center; padding: 0; width: 44px;
   }
   :global(.card-icon-btn svg) { height: 16px; width: 16px; }
   :global(.card-icon-btn:hover) { border-color: rgba(15, 23, 42, .24); color: var(--sunset-start); }
@@ -193,7 +193,7 @@ const nearby = profile.nearby
   :global(.card-share-menu button), :global(.card-share-menu a) {
     align-items: center; appearance: none; background: transparent; border: 0; border-radius: 9px;
     color: var(--night); cursor: pointer; display: flex; font: inherit; font-size: .86rem; font-weight: 700;
-    gap: 10px; padding: 10px 12px; text-align: left; text-decoration: none; width: 100%;
+    gap: 10px; min-height: 44px; padding: 10px 12px; text-align: left; text-decoration: none; width: 100%;
   }
   :global(.card-share-menu :is(button, a):hover),
   :global(.card-share-menu :is(button, a):focus-visible) { background: var(--sand-warm); outline: none; }
@@ -214,6 +214,11 @@ const nearby = profile.nearby
   }
   .nearby { background: var(--sand-warm); border-radius: var(--radius); margin-top: 42px; padding: 24px; }
   .nearby div { display: flex; flex-wrap: wrap; gap: 10px; }
-  .nearby a { background: white; border-radius: 100px; font-weight: 700; padding: 9px 15px; text-decoration: none; }
-  @media (max-width: 720px) { .venue-grid { grid-template-columns: 1fr; } }
+  .nearby a { align-items: center; background: white; border-radius: 100px; display: inline-flex; font-weight: 700; min-height: 44px; padding: 9px 15px; text-decoration: none; }
+  @media (max-width: 720px) {
+    .neighborhood-main { padding: 26px 16px 64px; }
+    .local-intro, .nearby { padding: 20px 16px; }
+    .venue-grid { grid-template-columns: 1fr; }
+    .venue-copy { padding: 18px 16px; }
+  }
 </style>

@@ -72,4 +72,79 @@
     white-space: nowrap;
     flex-shrink: 0;
   }
+
+  @media (max-width: 760px) {
+    .admin-bar,
+    .ai-header,
+    .ce-header {
+      position: static !important;
+      padding-inline: 16px !important;
+    }
+
+    .admin-bar-inner,
+    .ai-header-inner,
+    .ce-header-inner {
+      align-items: stretch !important;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .admin-actions,
+    .ai-actions,
+    .ce-actions {
+      flex-wrap: wrap !important;
+      justify-content: flex-start;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .admin-user,
+    .ai-actions > span,
+    .ce-actions > span {
+      overflow-wrap: anywhere;
+      width: 100%;
+    }
+
+    .admin-subnav,
+    .ce-nav,
+    .ai-nav {
+      flex-wrap: nowrap !important;
+      margin-inline: 0 !important;
+      max-width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      padding: 0 0 6px !important;
+      scrollbar-width: none;
+      scroll-padding-inline: 0;
+    }
+    .admin-subnav::-webkit-scrollbar,
+    .ce-nav::-webkit-scrollbar,
+    .ai-nav::-webkit-scrollbar { display: none; }
+    .admin-subnav a,
+    .ce-nav a,
+    .ai-nav a { min-height: 44px; }
+
+    .admin-main,
+    .ai-costs,
+    .ce-shell { padding-inline: 16px !important; }
+
+    .admin-actions button,
+    .admin-filters button,
+    .actions button,
+    .photo-actions button,
+    .ai-actions button,
+    .ce-actions button,
+    .ce-button,
+    .ce-tabs button,
+    .ce-card-actions button,
+    .preview-actions button,
+    .preview-actions a,
+    .draft-actions button,
+    .draft-actions a,
+    .edit-panel .edit-actions button {
+      min-height: 44px;
+    }
+
+    .ce-preview-chrome { flex-wrap: wrap; }
+  }
 </style>

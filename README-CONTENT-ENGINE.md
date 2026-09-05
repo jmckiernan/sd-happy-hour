@@ -16,6 +16,10 @@ The stages are intentionally separate:
 8. `publish` — approved posts become Markdown in `src/content/blog/` through the existing GitHub API workflow. Newsletter drafts remain internal.
 9. `measure` — durable ingestion/generation/publication/image/click metrics plus the existing PostHog blog analytics.
 
+Venue newsletters can also enter through Resend Receiving. The signed inbound
+webhook, per-publisher aliases, subscription ledger, confirmation handling, and
+signup workflow are documented in [README-NEWSLETTER-PIPELINE.md](README-NEWSLETTER-PIPELINE.md).
+
 Pipeline records live in Neon through `migrations/0016_content_engine.sql`. Published posts remain Git-backed so the existing Astro content collection, deploy, sitemap, RSS, and admin post editor continue to work.
 
 ## Initial sources

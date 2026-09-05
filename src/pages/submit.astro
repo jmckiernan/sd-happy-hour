@@ -29,7 +29,7 @@ import Layout from '../layouts/Layout.astro';
       letter-spacing: 0.05em;
     }
 
-    input, textarea {
+    input:not([type="checkbox"]), textarea {
       width: 100%;
       border: 2px solid var(--sand-warm);
       border-radius: var(--radius-sm);
@@ -38,7 +38,7 @@ import Layout from '../layouts/Layout.astro';
       padding: 11px 14px;
       background: white;
     }
-    input:focus, textarea:focus {
+    input:not([type="checkbox"]):focus, textarea:focus {
       border-color: var(--sunset-start);
       box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
       outline: none;
@@ -60,6 +60,14 @@ import Layout from '../layouts/Layout.astro';
       padding: 10px 12px;
       text-transform: none;
       letter-spacing: normal;
+      min-height: 44px;
+    }
+    .checkbox-grid input[type="checkbox"] {
+      flex: 0 0 auto;
+      height: 18px;
+      margin: 0;
+      padding: 0;
+      width: 18px;
     }
 
     .submit-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 14px; grid-column: 1 / -1; }
@@ -94,6 +102,13 @@ import Layout from '../layouts/Layout.astro';
 
     @media (max-width: 720px) {
       .submit-form { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .submit-main { padding: 24px 16px 64px; }
+      .submit-form { padding: 18px 16px; }
+      .checkbox-grid { grid-template-columns: 1fr; }
+      .submit-actions button { min-height: 44px; width: 100%; }
     }
   </style>
 
