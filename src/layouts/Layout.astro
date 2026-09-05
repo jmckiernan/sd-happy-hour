@@ -295,6 +295,11 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       font-size: 0.875rem;
     }
 
+    .mobile-nav-toggle,
+    .mobile-nav-backdrop {
+      display: none;
+    }
+
     .site-nav .links a {
       text-decoration: none;
       font-weight: 600;
@@ -379,30 +384,137 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
 
     @media (max-width: 720px) {
       .site-nav {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px 16px 10px;
+        align-items: center;
+        flex-direction: row;
+        min-height: 72px;
+        padding: max(14px, env(safe-area-inset-top)) 16px 14px;
       }
+
+      .site-nav .brand {
+        font-size: 1.2rem;
+        max-width: calc(100% - 64px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .mobile-nav-toggle {
+        align-items: center;
+        appearance: none;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(32, 18, 56, 0.12);
+        border-radius: 14px;
+        color: var(--night);
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 46px;
+        height: 46px;
+        justify-content: center;
+        margin-left: auto;
+        position: relative;
+        width: 46px;
+        z-index: 303;
+      }
+
+      .mobile-nav-toggle-icon,
+      .mobile-nav-toggle-icon::before,
+      .mobile-nav-toggle-icon::after {
+        background: currentColor;
+        border-radius: 999px;
+        content: '';
+        display: block;
+        height: 2px;
+        position: absolute;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        width: 21px;
+      }
+
+      .mobile-nav-toggle-icon {
+        position: relative;
+      }
+
+      .mobile-nav-toggle-icon::before { transform: translateY(-7px); }
+      .mobile-nav-toggle-icon::after { transform: translateY(7px); }
+      .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-icon { background: transparent; }
+      .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-icon::before { transform: rotate(45deg); }
+      .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-icon::after { transform: rotate(-45deg); }
+
+      .site-nav.transparent .mobile-nav-toggle {
+        background: rgba(15, 23, 42, 0.44);
+        border-color: rgba(255, 255, 255, 0.48);
+        color: white;
+        backdrop-filter: blur(12px);
+      }
+
+      .mobile-nav-backdrop {
+        appearance: none;
+        background: rgba(15, 23, 42, 0.5);
+        border: 0;
+        cursor: pointer;
+        display: block;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: fixed;
+        transition: opacity 0.2s ease;
+        visibility: hidden;
+        z-index: 301;
+      }
+
       .site-nav .links {
+        align-content: flex-start;
+        background: #fffdfa;
+        box-shadow: -18px 0 54px rgba(15, 23, 42, 0.22);
+        flex-direction: column;
         flex-wrap: nowrap;
-        gap: 6px;
+        gap: 8px;
+        inset: 0 0 0 auto;
         justify-content: flex-start;
-        margin-inline: -16px;
-        overflow-x: auto;
-        overscroll-behavior-inline: contain;
-        padding: 0 16px 4px;
-        scrollbar-width: none;
-        scroll-padding-inline: 16px;
-        width: calc(100% + 32px);
+        margin: 0;
+        max-width: 340px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding: calc(max(82px, env(safe-area-inset-top) + 68px)) 20px max(28px, env(safe-area-inset-bottom));
+        pointer-events: none;
+        position: fixed;
+        scrollbar-width: thin;
+        transform: translateX(104%);
+        transition: transform 0.24s ease, visibility 0.24s ease;
+        visibility: hidden;
+        width: min(86vw, 340px);
+        z-index: 302;
       }
-      .site-nav .links::-webkit-scrollbar { display: none; }
+
       .site-nav .links a {
         align-items: center;
         display: inline-flex;
         flex: 0 0 auto;
+        font-size: 1rem;
+        justify-content: space-between;
         min-height: 44px;
-        padding: 9px 12px;
+        padding: 11px 14px;
+        width: 100%;
+      }
+
+      .site-nav.transparent .links a {
+        background: var(--sand-warm);
+        color: var(--night);
+      }
+
+      .site-nav.is-mobile-open .links {
+        pointer-events: auto;
+        transform: translateX(0);
+        visibility: visible;
+      }
+
+      .site-nav.is-mobile-open .mobile-nav-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      body.mobile-menu-open {
+        overflow: hidden;
       }
 
       /* iOS Safari zooms the visual viewport when a focused form control is
@@ -413,6 +525,14 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
       textarea {
         font-size: 16px !important;
       }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mobile-nav-toggle-icon,
+      .mobile-nav-toggle-icon::before,
+      .mobile-nav-toggle-icon::after,
+      .mobile-nav-backdrop,
+      .site-nav .links { transition: none; }
     }
 
     footer.site-footer {
@@ -439,7 +559,17 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
 
   <nav class={`site-nav ${transparentNav ? 'transparent' : ''}`}>
     <a class="brand" href="/">{SITE_NAME}</a>
-    <div class="links">
+    <button
+      class="mobile-nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav-links"
+      aria-label="Open menu"
+    >
+      <span class="mobile-nav-toggle-icon" aria-hidden="true"></span>
+    </button>
+    <button class="mobile-nav-backdrop" type="button" aria-label="Close menu" tabindex="-1"></button>
+    <div class="links" id="site-nav-links">
       <a href="/live-deals/" aria-current={Astro.url.pathname === '/live-deals/' ? 'page' : undefined}>Live Deals</a>
       <a href="/neighborhoods/" aria-current={Astro.url.pathname.startsWith('/neighborhoods/') ? 'page' : undefined}>Neighborhoods</a>
       <a href="/blog/" aria-current={Astro.url.pathname === '/blog/' ? 'page' : undefined}>Blog</a>
@@ -464,6 +594,49 @@ const isRestaurantRoute = Astro.url.pathname === '/restaurant'
   </footer>
 
   <script>
+    const mobileNav = document.querySelector<HTMLElement>('.site-nav');
+    const mobileNavToggle = mobileNav?.querySelector<HTMLButtonElement>('.mobile-nav-toggle');
+    const mobileNavBackdrop = mobileNav?.querySelector<HTMLButtonElement>('.mobile-nav-backdrop');
+    const mobileNavLinks = mobileNav?.querySelector<HTMLElement>('.links');
+    const mobileNavMedia = window.matchMedia('(max-width: 720px)');
+
+    function setMobileNavOpen(open: boolean, restoreFocus = false) {
+      if (!mobileNav || !mobileNavToggle) return;
+      const shouldOpen = open && mobileNavMedia.matches;
+      mobileNav.classList.toggle('is-mobile-open', shouldOpen);
+      mobileNavToggle.setAttribute('aria-expanded', String(shouldOpen));
+      mobileNavToggle.setAttribute('aria-label', shouldOpen ? 'Close menu' : 'Open menu');
+      document.body.classList.toggle('mobile-menu-open', shouldOpen);
+      if (!shouldOpen && restoreFocus) mobileNavToggle.focus();
+    }
+
+    mobileNavToggle?.addEventListener('click', () => {
+      setMobileNavOpen(mobileNavToggle.getAttribute('aria-expanded') !== 'true');
+    });
+    mobileNavBackdrop?.addEventListener('click', () => setMobileNavOpen(false, true));
+    mobileNavLinks?.addEventListener('click', (event) => {
+      if ((event.target as Element).closest('a')) setMobileNavOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && mobileNav?.classList.contains('is-mobile-open')) {
+        setMobileNavOpen(false, true);
+        return;
+      }
+      if (event.key === 'Tab' && mobileNav?.classList.contains('is-mobile-open') && mobileNavToggle && mobileNavLinks) {
+        const links = [...mobileNavLinks.querySelectorAll<HTMLAnchorElement>('a')]
+          .filter((link) => getComputedStyle(link).display !== 'none');
+        const last = links.at(-1) || mobileNavToggle;
+        if (event.shiftKey && document.activeElement === mobileNavToggle) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          mobileNavToggle.focus();
+        }
+      }
+    });
+    mobileNavMedia.addEventListener('change', () => setMobileNavOpen(false));
+
     const DRINK_LOADER_IMAGES = [
       '/cocktail-loader.svg',
       '/beer-loader.svg',

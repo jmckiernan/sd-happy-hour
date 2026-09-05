@@ -54,6 +54,7 @@ const menu = [
 ];
 
 test('restaurant manager shows listing by default and menu edits under ?tab=menu', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
   const menuActions: any[] = [];
   const currentMenu = structuredClone(menu);
 
@@ -135,6 +136,23 @@ test('restaurant manager shows listing by default and menu edits under ?tab=menu
   await page.goto('/restaurant/manage/craft-commerce/');
 
   await expect(page.locator('[data-merchant-shell]')).toBeVisible();
+  await expect(page.locator('[data-merchant-shell-thumb]')).toBeVisible();
+  await expect(page.locator('[data-merchant-shell-public]')).toBeVisible();
+  const shellHeaderBounds = await page.evaluate(() => {
+    const name = document.querySelector('[data-merchant-shell-venue-name]')!.getBoundingClientRect();
+    const publicLink = document.querySelector('[data-merchant-shell-public]')!.getBoundingClientRect();
+    return {
+      nameLeft: name.left,
+      nameRight: name.right,
+      publicLeft: publicLink.left,
+      publicRight: publicLink.right,
+      viewportWidth: document.documentElement.clientWidth,
+    };
+  });
+  expect(shellHeaderBounds.nameLeft).toBeGreaterThanOrEqual(0);
+  expect(shellHeaderBounds.nameRight).toBeLessThanOrEqual(shellHeaderBounds.viewportWidth + 1);
+  expect(shellHeaderBounds.publicLeft).toBeGreaterThanOrEqual(0);
+  expect(shellHeaderBounds.publicRight).toBeLessThanOrEqual(shellHeaderBounds.viewportWidth + 1);
   await expect(page.locator('[data-mg-panel="listing"]')).toBeVisible();
   await expect(page.locator('[data-mg-panel="menu"]')).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Venue details' })).toBeVisible();

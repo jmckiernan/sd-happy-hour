@@ -41,6 +41,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       display: grid;
       gap: 18px;
       justify-items: center;
+      max-width: 100%;
+      min-width: 0;
     }
     .auth-layout.has-pitch {
       max-width: 640px;
@@ -49,12 +51,13 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     }
     .auth-stack {
       max-width: 420px;
+      min-width: 0;
       width: 100%;
     }
 
-    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; width: 100%; }
+    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; justify-content: center; max-width: 100%; min-width: 0; width: 100%; }
     .auth-grid.password-hidden { grid-template-columns: minmax(0, 420px); }
-    .auth-grid .panel { padding: 32px 28px; }
+    .auth-grid .panel { max-width: 100%; min-width: 0; padding: 32px 28px; width: 100%; }
     .auth-grid .panel h2 { font-size: 1.3rem; text-align: center; }
 
     .restaurant-pitch { margin-bottom: 0; padding: 28px 26px; width: 100%; }
@@ -115,8 +118,9 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       margin: 0;
     }
 
-    .google-box { display: grid; gap: 14px; justify-items: center; text-align: center; padding-top: 4px; }
-    .google-box > *, .google-box iframe { max-width: 100%; }
+    .google-box { display: grid; gap: 14px; justify-items: center; max-width: 100%; min-width: 0; text-align: center; padding-top: 4px; width: 100%; }
+    .google-box > *, .google-box iframe, #google-signin { max-width: 100%; min-width: 0; }
+    #google-signin { display: grid; justify-items: center; width: 100%; }
     .google-note { color: var(--night-soft); font-size: 0.88rem; line-height: 1.5; }
 
     form { display: grid; gap: 12px; }
@@ -125,6 +129,52 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     textarea { min-height: 72px; resize: vertical; }
     input:focus, textarea:focus { border-color: var(--sunset-start); box-shadow: 0 0 0 4px rgba(255,107,53,0.12); outline: none; }
     select { border: 1px solid var(--sand-warm); border-radius: var(--radius-sm); color: var(--night); font: inherit; padding: 9px 10px; width: 100%; }
+
+    /* My Stuff controls should feel like a deliberate workspace, rather than
+       the browser's default empty rectangles. Auth controls stay simpler. */
+    #account-section label {
+      color: var(--night);
+      font-size: .76rem;
+      letter-spacing: .015em;
+      text-transform: none;
+    }
+    #account-section :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+      textarea
+    ) {
+      appearance: none;
+      background: linear-gradient(180deg, #fff 0%, #fffdfa 100%);
+      border: 1px solid rgba(120, 92, 72, .28);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 2px 7px rgba(32,18,56,.045);
+      caret-color: var(--sunset-start);
+      line-height: 1.45;
+      min-height: 48px;
+      padding: 12px 14px;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    #account-section :is(input, textarea)::placeholder { color: #8b7d73; opacity: .82; }
+    #account-section :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+      textarea
+    ):hover { border-color: rgba(120, 92, 72, .45); }
+    #account-section :is(
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+      textarea
+    ):focus {
+      background: white;
+      border-color: var(--sunset-start);
+      box-shadow: 0 0 0 4px rgba(255,107,53,.13), 0 8px 20px rgba(32,18,56,.07);
+      outline: none;
+    }
+    #account-section input:disabled { background: var(--sand-warm); color: var(--night-soft); }
+    #account-section textarea { min-height: 96px; resize: vertical; }
+    #account-section textarea[data-list-note] {
+      background: linear-gradient(180deg, #fffaf1 0%, #fff7ed 100%);
+      border-color: #fed7aa;
+      min-height: 112px;
+    }
+    .field-helper { color: var(--night-soft); font-size: .72rem; font-weight: 550; line-height: 1.4; }
 
     button { background: var(--night); border: 0; border-radius: 100px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
     button:hover { background: var(--sunset-start); }
@@ -267,6 +317,8 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
     .toggle-row input { width: 34px; height: 18px; }
     .match-count { color: var(--ocean); font-weight: 700; font-size: 0.85rem; }
     .alert-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .alert-card-actions .danger-soft { background: #fee2e2; color: #991b1b; }
+    .alert-card-actions .danger-soft:hover { background: #fecaca; }
 
     .empty { color: var(--night-soft); padding: 18px 0; }
 
@@ -306,6 +358,20 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       .list-chip { min-height: 44px; }
       .day-check, .channel-check, .toggle-row { min-height: 44px; }
       .alert-actions button, .form-actions button, .saved-edit-actions button { min-height: 44px; }
+      .alert-card-actions {
+        display: grid;
+        gap: 6px;
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr) minmax(0, .9fr);
+        width: 100%;
+      }
+      .alert-card-actions button {
+        font-size: .75rem;
+        min-width: 0;
+        padding-inline: 6px;
+        white-space: nowrap;
+        width: 100%;
+      }
+      .alert-card-actions .save-confirm { grid-column: 1 / -1; }
       .saved-card, .alert-card { padding: 13px; }
     }
   </style>
@@ -425,7 +491,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
         </div>
         <form class="custom-list-create" id="create-list-form">
           <label>List title <input name="title" maxlength="80" placeholder="Friday night picks" required></label>
-          <label>Description (optional) <input name="description" maxlength="500" placeholder="Patios and cocktails near North Park"></label>
+          <label>Description (optional) <textarea name="description" maxlength="500" rows="2" placeholder="Patios and cocktails near North Park"></textarea></label>
           <div class="list-create-options">
             <label class="channel-check"><input type="checkbox" name="commentsEnabled"> Enable comments on this list</label>
           </div>
@@ -741,8 +807,10 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
       // @ts-ignore
       google.accounts.id.initialize({ client_id: config.googleClientId, callback: handleGoogleCredential });
       // @ts-ignore
-      google.accounts.id.renderButton(document.getElementById('google-signin'), {
-        theme: 'outline', size: 'large', type: 'standard', text: 'signin_with', shape: 'pill',
+      const googleSignIn = document.getElementById('google-signin')!;
+      const googleButtonWidth = Math.max(200, Math.min(400, Math.floor(googleSignIn.getBoundingClientRect().width)));
+      google.accounts.id.renderButton(googleSignIn, {
+        theme: 'outline', size: 'large', type: 'standard', text: 'signin_with', shape: 'pill', width: googleButtonWidth,
       });
       document.getElementById('google-note')!.textContent = isRestaurantSignIn()
         ? 'Use Google to claim or manage your venue listing.'
@@ -1043,6 +1111,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
           </div>
           <label>Public comment
             <textarea data-feedback-comment placeholder="What did you think of this place?">${escapeHTML(myComment)}</textarea>
+            <span class="field-helper">Visible to people who can see your shared list.</span>
           </label>
           ${noteMembership ? `
             <label>Note for this list
@@ -1050,6 +1119,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
                 ${noteLists.map((list: any) => `<option value="${escapeHTML(list.listId)}" ${list.listId === noteMembership.listId ? 'selected' : ''}>${escapeHTML(list.title)}</option>`).join('')}
               </select>
               <textarea data-list-note maxlength="500" placeholder="Only on ${escapeHTML(noteMembership.title)} — visible to people on that list, not on your other lists…">${escapeHTML(myNote)}</textarea>
+              <span class="field-helper">Private to this list and its collaborators.</span>
             </label>
           ` : ''}
           <div class="saved-edit-actions"><button type="button" data-action="save-feedback">Save</button></div>` : ''}
@@ -1129,7 +1199,7 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
             </div>
             <div class="inline-list-create hidden" data-inline-create>
               <label>New list title <input data-new-list-title maxlength="80" placeholder="Weekend picks"></label>
-              <label>Description (optional) <input data-new-list-description maxlength="500"></label>
+              <label>Description (optional) <textarea data-new-list-description maxlength="500" rows="2"></textarea></label>
               <div class="list-create-options">
                 <label class="channel-check"><input type="checkbox" data-new-list-comments> Enable comments on this list</label>
               </div>
@@ -1424,10 +1494,10 @@ const isRestaurantSignIn = isRestaurantReturnPath(returnPath);
             <label>Alert name <input type="text" data-field="name" value="${escapeHTML(alert.name)}"></label>
             ${filterFieldsHTML(alert.filters, happyHours)}
             ${channelFieldsHTML(alert.channels)}
-            <div class="alert-actions">
-              <button data-action="save">Save changes</button>
-              <button class="secondary" data-action="share">Copy share link</button>
-              <button class="secondary" data-action="delete">Delete</button>
+            <div class="alert-actions alert-card-actions">
+              <button data-action="save" aria-label="Save alert changes">Save</button>
+              <button class="secondary" data-action="share" aria-label="Copy alert share link">Copy link</button>
+              <button class="secondary danger-soft" data-action="delete" aria-label="Delete alert">Delete</button>
               ${confirm}
             </div>
           </article>

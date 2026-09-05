@@ -158,51 +158,21 @@ function formatWindowLine(window: {
       z-index: 1;
     }
     .venue-hero .hero-primary-badge[hidden] { display: none; }
-    .hero-share {
-      align-items: center;
-      appearance: none;
-      background: linear-gradient(135deg, rgba(16, 42, 86, .52) 0%, rgba(49, 46, 129, .52) 52%, rgba(107, 33, 168, .52) 100%);
-      border: 2px solid rgba(255, 255, 255, 0.88);
-      border-radius: 50%;
-      bottom: 16px;
-      box-shadow: 0 5px 18px rgba(15, 23, 42, 0.3);
-      color: white;
-      cursor: pointer;
-      display: inline-flex;
-      height: 44px;
-      justify-content: center;
-      padding: 0;
-      position: absolute;
-      right: 40px;
-      transition: background .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
-      width: 44px;
-      z-index: 3;
-    }
-    .hero-share svg { height: 18px; width: 18px; }
-    .hero-share:hover,
-    .hero-share:focus-visible {
-      background: linear-gradient(135deg, rgba(234, 88, 12, .68) 0%, rgba(249, 115, 22, .68) 48%, rgba(250, 204, 21, .68) 100%);
-      box-shadow: 0 8px 22px rgba(234, 88, 12, .38);
-      color: #35134B;
-      transform: translateY(-1px);
-    }
-    .hero-share:focus-visible {
-      outline: 3px solid white;
-      outline-offset: 3px;
-    }
+    .action-share svg { height: 17px; width: 17px; }
+    .action-share:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
     .share-menu {
       background: white;
       border: 1px solid rgba(15, 23, 42, .1);
       border-radius: var(--radius-sm);
-      bottom: 68px;
+      bottom: calc(100% + 10px);
       box-shadow: 0 18px 44px rgba(15, 23, 42, .24);
       display: grid;
       gap: 4px;
       padding: 8px;
       position: absolute;
-      right: 40px;
-      width: min(230px, calc(100% - 80px));
-      z-index: 8;
+      right: 0;
+      width: min(230px, calc(100vw - 48px));
+      z-index: 28;
     }
     .share-menu[hidden] { display: none; }
     .share-menu button,
@@ -235,9 +205,6 @@ function formatWindowLine(window: {
     }
     @media (prefers-reduced-motion: reduce) {
       .venue-hero .hero-frame.is-live-deal { animation: none; }
-      .hero-share { transition: none; }
-      .hero-share:hover,
-      .hero-share:focus-visible { transform: none; }
     }
     .venue-hero img {
       width: 100%;
@@ -483,7 +450,7 @@ function formatWindowLine(window: {
       max-height: min(calc(100dvh - 32px), 900px);
       overflow-y: auto;
       overscroll-behavior: contain;
-      padding: 28px;
+      padding: 0;
     }
     .hh-menu-text-dialog-header {
       align-items: center;
@@ -491,12 +458,14 @@ function formatWindowLine(window: {
       gap: 16px;
       justify-content: space-between;
       background: var(--sand);
-      margin: -8px -4px 0;
-      padding: 8px 4px;
+      border-bottom: 1px solid rgba(15, 23, 42, .1);
+      margin: 0;
+      padding: 20px 28px 16px;
       position: sticky;
       top: 0;
       z-index: 2;
     }
+    .hh-menu-text-dialog-body { padding: 2px 28px 28px; }
     .hh-menu-text-dialog-header h2 {
       font-family: var(--font-display);
       font-size: clamp(1.35rem, 4vw, 1.8rem);
@@ -533,8 +502,11 @@ function formatWindowLine(window: {
       }
       .hh-menu-text-dialog-content {
         max-height: calc(100dvh - 32px);
-        padding: 24px 18px max(24px, env(safe-area-inset-bottom));
+        padding: 0;
       }
+      .hh-menu-text-dialog-header { padding: 12px 16px 10px; }
+      .hh-menu-text-dialog-header h2 { font-size: 1.18rem; line-height: 1.15; }
+      .hh-menu-text-dialog-body { padding: 1px 18px max(24px, env(safe-area-inset-bottom)); }
     }
     .hh-menu-section { margin-top: 18px; }
     .hh-menu-section h4 {
@@ -672,7 +644,8 @@ function formatWindowLine(window: {
     }
     .venue-actions > a,
     .venue-actions > button,
-    .venue-actions > .save-quick-action > button {
+    .venue-actions > .save-quick-action > button,
+    .venue-actions > .share-quick-action > button {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -688,7 +661,8 @@ function formatWindowLine(window: {
     }
     .venue-actions.compact > a,
     .venue-actions.compact > button,
-    .venue-actions.compact > .save-quick-action > button {
+    .venue-actions.compact > .save-quick-action > button,
+    .venue-actions.compact > .share-quick-action > button {
       font-size: 0.85rem;
     }
     .btn-primary { background: var(--night); color: white; }
@@ -697,7 +671,8 @@ function formatWindowLine(window: {
     .btn-save.saved { background: var(--sunset-start); color: white; }
     .btn-follow.following { background: var(--ocean); color: white; }
     .btn-save svg { width: 16px; height: 16px; }
-    .save-quick-action { display: flex; position: relative; }
+    .save-quick-action,
+    .share-quick-action { display: flex; position: relative; }
     .save-list-info {
       background: var(--night);
       border-radius: var(--radius-sm);
@@ -765,6 +740,32 @@ function formatWindowLine(window: {
       outline-offset: 3px;
     }
     @media (max-width: 640px) {
+      .venue-actions {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding-inline: 16px;
+      }
+      .venue-actions > a,
+      .venue-actions > button,
+      .venue-actions > .save-quick-action > button,
+      .venue-actions > .share-quick-action > button {
+        font-size: .78rem;
+        justify-content: center;
+        min-width: 0;
+        padding: 10px 8px;
+        text-align: center;
+        width: 100%;
+      }
+      .save-quick-action,
+      .share-quick-action { min-width: 0; width: 100%; }
+      .share-menu {
+        bottom: max(16px, env(safe-area-inset-bottom));
+        left: 16px;
+        position: fixed;
+        right: 16px;
+        width: auto;
+      }
       .save-list-info {
         left: auto;
         right: 0;
@@ -1082,23 +1083,6 @@ function formatWindowLine(window: {
         <p class="vibe" id="venue-vibe" hidden={!venue.vibe}>{venue.vibe}</p>
       </div>
     </div>
-    <button class="hero-share" id="share-btn" type="button" aria-label={`Share ${venue.name}`} title="Share">
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="18" cy="5" r="3"></circle>
-        <circle cx="6" cy="12" r="3"></circle>
-        <circle cx="18" cy="19" r="3"></circle>
-        <path d="m8.6 10.5 6.8-4"></path>
-        <path d="m8.6 13.5 6.8 4"></path>
-      </svg>
-    </button>
-    <div class="share-menu" id="share-menu" role="dialog" aria-labelledby="share-menu-title" hidden>
-      <strong class="share-menu-title" id="share-menu-title">Share this happy hour</strong>
-      <button type="button" data-share-action="copy">🔗 Copy link</button>
-      <a data-share-action="email" href="#">✉️ Email</a>
-      <a data-share-action="text" href="#">💬 Text message</a>
-      <a data-share-action="facebook" href="#" target="_blank" rel="noopener"><svg class="share-fb-mark" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect width="16" height="16" rx="3" fill="#1877F2"></rect><path fill="#fff" d="M11.05 8.35H9.25v5.9H6.95v-5.9H5.85V6.55h1.1V5.4c0-1.55.72-2.45 2.5-2.45h1.45v1.85H9.7c-.52 0-.65.24-.65.72v1.03h1.95l-.25 1.8z"></path></svg>Share on Facebook</a>
-      <span class="share-menu-status" id="share-menu-status" aria-live="polite"></span>
-    </div>
   </div>
 
   <div class="venue-actions">
@@ -1131,6 +1115,26 @@ function formatWindowLine(window: {
     <button class="btn-secondary btn-follow" id="follow-btn" data-venue-id={venue.id} aria-pressed="false">
       <span id="follow-label">Follow live deals</span>
     </button>
+    <div class="share-quick-action">
+      <button class="btn-secondary action-share" id="share-btn" type="button" aria-label={`Share ${venue.name}`}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <path d="m8.6 10.5 6.8-4"></path>
+          <path d="m8.6 13.5 6.8 4"></path>
+        </svg>
+        Share
+      </button>
+      <div class="share-menu" id="share-menu" role="dialog" aria-labelledby="share-menu-title" hidden>
+        <strong class="share-menu-title" id="share-menu-title">Share this happy hour</strong>
+        <button type="button" data-share-action="copy">🔗 Copy link</button>
+        <a data-share-action="email" href="#">✉️ Email</a>
+        <a data-share-action="text" href="#">💬 Text message</a>
+        <a data-share-action="facebook" href="#" target="_blank" rel="noopener"><svg class="share-fb-mark" aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect width="16" height="16" rx="3" fill="#1877F2"></rect><path fill="#fff" d="M11.05 8.35H9.25v5.9H6.95v-5.9H5.85V6.55h1.1V5.4c0-1.55.72-2.45 2.5-2.45h1.45v1.85H9.7c-.52 0-.65.24-.65.72v1.03h1.95l-.25 1.8z"></path></svg>Share on Facebook</a>
+        <span class="share-menu-status" id="share-menu-status" aria-live="polite"></span>
+      </div>
+    </div>
   </div>
 
   <section class="live-deal-wrap" id="live-deal-section" aria-labelledby="live-deal-title" hidden>
@@ -1262,34 +1266,36 @@ function formatWindowLine(window: {
                     <button class="hh-menu-text-close" type="submit" aria-label="Close text menu">&times;</button>
                   </form>
                 </div>
-                {venue.hhMenu?.note && <p class="section-note">{venue.hhMenu.note}</p>}
-                {hhMenuSections.map((section) => (
-                  <div class="hh-menu-section">
-                    <h4>{section.title}</h4>
-                    <ul>
-                      {section.items.map((item) => (
-                        <li>
-                          <span class="hh-menu-item">{item.name}</span>
-                          {item.price && <span class="hh-menu-leader" aria-hidden="true"></span>}
-                          {item.price && (
-                            <span
-                              class:list={[
-                                'hh-menu-price',
-                                (item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off')
-                                  && 'hh-menu-price--discount',
-                              ]}
-                            >{item.price}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-                <p class="hh-menu-source">
-                  {venue.hhMenu?.observedAt ? `As published by the venue, read ${venue.hhMenu.observedAt}. ` : ''}
-                  Prices and items change — confirm with the venue.
-                  {menuSourceUrl && <> <a href={menuSourceUrl}>See the venue's own menu →</a></>}
-                </p>
+                <div class="hh-menu-text-dialog-body">
+                  {venue.hhMenu?.note && <p class="section-note">{venue.hhMenu.note}</p>}
+                  {hhMenuSections.map((section) => (
+                    <div class="hh-menu-section">
+                      <h4>{section.title}</h4>
+                      <ul>
+                        {section.items.map((item) => (
+                          <li>
+                            <span class="hh-menu-item">{item.name}</span>
+                            {item.price && <span class="hh-menu-leader" aria-hidden="true"></span>}
+                            {item.price && (
+                              <span
+                                class:list={[
+                                  'hh-menu-price',
+                                  (item.offer?.kind === 'amount_off' || item.offer?.kind === 'percent_off')
+                                    && 'hh-menu-price--discount',
+                                ]}
+                              >{item.price}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  <p class="hh-menu-source">
+                    {venue.hhMenu?.observedAt ? `As published by the venue, read ${venue.hhMenu.observedAt}. ` : ''}
+                    Prices and items change — confirm with the venue.
+                    {menuSourceUrl && <> <a href={menuSourceUrl}>See the venue's own menu →</a></>}
+                  </p>
+                </div>
               </div>
             </dialog>
           )}

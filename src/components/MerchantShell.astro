@@ -151,6 +151,7 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     gap: 16px;
     justify-content: space-between;
     margin-bottom: 6px;
+    min-width: 0;
   }
 
   .merchant-shell-identity {
@@ -158,6 +159,8 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     display: flex;
     gap: 12px;
     min-width: 0;
+    max-width: 100%;
+    flex: 1 1 420px;
   }
 
   .merchant-shell-mark {
@@ -193,7 +196,12 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     width: 100%;
   }
 
-  .merchant-shell-identity-copy { min-width: 0; }
+  .merchant-shell-identity-copy {
+    flex: 1 1 0;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
   .merchant-shell-title-row {
     align-items: center;
     display: flex;
@@ -209,7 +217,9 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     font-weight: 700;
     line-height: 1.15;
     margin: 0;
+    max-width: 100%;
     overflow: hidden;
+    overflow-wrap: anywhere;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -234,6 +244,8 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     color: var(--night-soft);
     font-size: 0.84rem;
     margin: 4px 0 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .merchant-shell-meta [data-merchant-shell-email]:empty,
   .merchant-shell-meta [data-merchant-shell-role]:empty { display: none; }
@@ -265,6 +277,8 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     flex-wrap: wrap;
     gap: 8px;
     justify-content: flex-end;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .merchant-shell-btn {
@@ -283,6 +297,9 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     min-height: 44px;
     padding: 10px 16px;
     text-decoration: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
   .merchant-shell-btn:hover { background: var(--sunset-start); border-color: var(--sunset-start); }
   .merchant-shell-btn--secondary {
@@ -354,9 +371,35 @@ const showTabs = !hideTabs && Boolean(role || venueId);
   @media (max-width: 700px) {
     .merchant-shell { padding: 16px 14px 22px; }
     .merchant-shell-header { align-items: stretch; flex-direction: column; }
-    .merchant-shell-actions { justify-content: stretch; }
-    .merchant-shell-actions .merchant-shell-btn { flex: 1 1 auto; }
-    .merchant-shell-venue-name { white-space: normal; }
+    .merchant-shell-identity { align-items: center; flex-basis: auto; width: 100%; }
+    .merchant-shell-mark {
+      border-radius: 14px;
+      display: inline-flex;
+      flex: 0 0 64px;
+      height: 64px;
+      min-width: 64px;
+      visibility: visible;
+      width: 64px;
+    }
+    .merchant-shell-mark img { display: block; opacity: 1; visibility: visible; }
+    .merchant-shell-mark img[hidden] { display: none; }
+    .merchant-shell-actions {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      justify-content: stretch;
+      width: 100%;
+    }
+    .merchant-shell-actions .merchant-shell-btn {
+      min-width: 0;
+      padding-inline: 10px;
+      white-space: normal;
+      width: 100%;
+    }
+    .merchant-shell-venue-name { font-size: 1.32rem; white-space: normal; }
+    .merchant-shell-title-row { flex-wrap: nowrap; width: 100%; }
+    .merchant-shell-verified { flex-shrink: 0; }
+    .merchant-shell-switcher { width: 100%; }
     .merchant-shell-tabs { scroll-padding-inline: 14px; scrollbar-width: none; }
     .merchant-shell-tabs::-webkit-scrollbar { display: none; }
   }

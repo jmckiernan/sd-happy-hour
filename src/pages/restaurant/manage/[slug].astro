@@ -360,7 +360,11 @@ const venueImageUrl = getListingImage(venue, 'card');
         if (roleSep) roleSep.hidden = !(roleText && currentEmail);
         if (verifiedEl) verifiedEl.hidden = claim.status !== 'verified' && claim.accessRole !== 'site_admin';
         shell.dataset.venueId = String(claim.venueId);
-        setMerchantShellVenueImage(claim.venueImageUrl);
+        // The prerendered shell already has the venue's featured-or-vibe
+        // thumbnail. Do not blank that useful mobile header image while an
+        // older claim payload omits venueImageUrl; replace it only when the
+        // API has a newer image to provide.
+        if (claim.venueImageUrl) setMerchantShellVenueImage(claim.venueImageUrl);
 
         if (publicEl) {
           if (claim.venueSlug) {

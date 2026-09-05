@@ -313,7 +313,7 @@ test('venue page keeps one default-list quick-save action without a list picker'
   assert.doesNotMatch(venuePage, /venue-list-picker|venue-list-memberships|Add or remove a list/);
 });
 
-test('venue page exposes verification, report, measured WebP menus, and a custom share surface', async () => {
+test('venue page exposes verification, report, measured WebP menus, and an action-row share surface', async () => {
   const venuePage = await readFile(path.join(ROOT, 'src', 'components', 'VenueHappyHourPage.astro'), 'utf8');
 
   assert.match(venuePage, /venueVerificationType\(venue\)/);
@@ -325,8 +325,10 @@ test('venue page exposes verification, report, measured WebP menus, and a custom
 
   assert.match(venuePage, /id="share-menu" role="dialog"/);
   assert.match(venuePage, /id="share-menu-title">Share this happy hour<\/strong>/);
-  assert.match(venuePage, /\.hero-share\s*\{[^}]*linear-gradient\(135deg, rgba\(16, 42, 86, \.52\)[^}]*rgba\(107, 33, 168, \.52\)/s);
-  assert.match(venuePage, /\.hero-share:hover,[\s\S]*?linear-gradient\(135deg, rgba\(234, 88, 12, \.68\)[\s\S]*?rgba\(250, 204, 21, \.68\)/);
+  assert.doesNotMatch(venuePage, /class="hero-share"/);
+  assert.ok(venuePage.indexOf('id="share-btn"') > venuePage.indexOf('<div class="venue-actions">'));
+  assert.match(venuePage, /class="btn-secondary action-share" id="share-btn"/);
+  assert.match(venuePage, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(venuePage, /aria-haspopup', 'dialog'/);
   assert.match(venuePage, /data-share-action="copy"/);
   assert.match(venuePage, /navigator\.clipboard\.writeText\(shareUrl\(\)\)/);
