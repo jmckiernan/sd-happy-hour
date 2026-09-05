@@ -169,14 +169,14 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     border-radius: 16px;
     color: var(--night-soft);
     display: inline-flex;
-    flex: 0 0 72px;
-    height: 72px;
+    flex: 0 0 96px;
+    height: 96px;
     justify-content: center;
     /* Sit with the venue-name cap height, not flush to the box top. */
     margin-top: 0;
     overflow: hidden;
     position: relative;
-    width: 72px;
+    width: 96px;
   }
   .merchant-shell-mark img {
     display: block;
@@ -375,11 +375,11 @@ const showTabs = !hideTabs && Boolean(role || venueId);
     .merchant-shell-mark {
       border-radius: 14px;
       display: inline-flex;
-      flex: 0 0 64px;
-      height: 64px;
-      min-width: 64px;
+      flex: 0 0 80px;
+      height: 80px;
+      min-width: 80px;
       visibility: visible;
-      width: 64px;
+      width: 80px;
     }
     .merchant-shell-mark img { display: block; opacity: 1; visibility: visible; }
     .merchant-shell-mark img[hidden] { display: none; }
@@ -448,11 +448,11 @@ const showTabs = !hideTabs && Boolean(role || venueId);
             <span data-merchant-shell-role-sep hidden={!roleLabel || !email}> · </span>
             <span data-merchant-shell-email>{email || ''}</span>
           </p>
-          <label class="hidden" for="merchant-shell-venue-switcher">Switch venue</label>
           <select
             id="merchant-shell-venue-switcher"
             class="merchant-shell-switcher"
             data-merchant-shell-switcher
+            aria-label="Venue"
             hidden={!showSwitcher}
           >
             {venues.map((venue) => (
@@ -548,11 +548,19 @@ const showTabs = !hideTabs && Boolean(role || venueId);
   document.addEventListener('astro:page-load', revealActiveMerchantTab);
 
   // Broken featured/vibe URL → neutral placeholder instead of a blank mark.
+  // Skip during Astro transitions to avoid false positives from brief disconnects.
+  let inTransition = false;
+  document.addEventListener('astro:before-swap', () => { inTransition = true; });
+  document.addEventListener('astro:after-swap', () => { inTransition = false; });
+  document.addEventListener('astro:page-load', () => { inTransition = false; });
+
   document.addEventListener('error', (event) => {
+    if (inTransition) return;
     const target = event.target;
     if (!(target instanceof HTMLImageElement)) return;
     if (!target.matches('[data-merchant-shell-thumb]')) return;
-    target.removeAttribute('src');
+    // Only treat as broken if the image actually failed to load (not just transitioning).
+    if (!target.src) return;
     target.hidden = true;
     const fallback = target.parentElement?.querySelector<HTMLElement>('[data-merchant-shell-thumb-fallback]');
     if (fallback) fallback.hidden = false;
